@@ -60,7 +60,7 @@ async function begin(){
   else showAuth();
 }
 async function loadShops(){
-  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,brand_color,created_at',order:'created_at.desc',limit:'20'}});
+  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,brand_color,whatsapp,created_at',order:'created_at.desc',limit:'20'}});
   if(!rows?.length){hideAll();hiding('createShop',true);hiding('logout',true);return}
   shop=rows[0];await openShop();
 }
@@ -96,7 +96,7 @@ function pages(){
   if(shop.model==='agenda')a.push(['agenda','Agendamentos'],['servicos','Serviços']);
   if(shop.model==='cardapio')a.push(['cardapio','Itens e fotos']);
   if(ent?.plan_code==='pro'&&ent.status==='active')a.push(['motoboys','Motoboys'],['entregas','Entregas']);
-  a.push(['personalizar','Solicitar personalização']);
+  a.push(['personalizar','Solicitar personalização'],['configuracoes','Configurações']);
   return a;
 }
 function renderNav(){
@@ -148,6 +148,14 @@ function renderPage(){
     content=heading('Entregas','Acompanhe o andamento das entregas próprias.','<button class="button" data-new="delivery">+ Nova entrega</button>');
     content+=showForm?.kind==='delivery'?deliveryForm(showForm.value):'';
     content+=deliveries.length?'<div class="stack">'+deliveries.map(d=>'<div class="item"><div><strong>'+esc(d.address)+'</strong><small>'+esc(d.status)+'</small></div></div>').join('')+'</div>':empty();
+  }else if(tab==='configuracoes'){
+    content=heading('Configurações da loja','Nome da empresa, WhatsApp e cor principal.')
+      +'<div class="data-form"><form id="settingsForm">'
+      +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
+      +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
+      +field('brand_color','Cor principal','color',shop.brand_color||'#7c3aed')
+      +'<button class="button">Salvar configurações</button></form></div>'
+      +'<p class="muted">Seu endereço do cardápio é: '+esc(location.origin+'/cardapio?loja='+shop.slug)+'</p>';
   }else if(tab==='personalizar'){
     content=heading('Solicitar personalização','Conte como quer sua logo, cores, páginas e funcionalidades.')
       +'<div class="data-form"><form id="customForm"><label>Descreva sua solicitação<textarea name="details" minlength="10" maxlength="3000" placeholder="Envie sua logo e conte as mudanças desejadas..." required></textarea></label><button class="button">Enviar solicitação</button></form></div>'
@@ -207,7 +215,7 @@ async function handleSubmit(form){
       const normalized=v.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,35)||'loja';
       const slug=normalized+'-'+crypto.randomUUID().slice(0,7);
       const user=await api('/auth/v1/user');
-      const created=await rest('shops',{method:'POST',body:{owner_id:user.id,name:v.name.trim(),slug,model:v.model,requested_plan:v.requested_plan}});
+      const created=await rest('shops',{method:'POST',body:{owner_id:user.id,name:v.name.trim(),whatsapp:v.whatsapp?.replace(/\D/g,'')||null,slug,model:v.model,requested_plan:v.requested_plan}});
       shop=created?.[0];if(!shop)throw Error('A loja não pôde ser criada.');
       await openShop();msg('Loja criada! Sua avaliação gratuita começou.');break;
     }
@@ -239,6 +247,14 @@ async function handleSubmit(form){
     }
     case 'courierForm':await storeForm(form,'shop_couriers',{name:v.name.trim(),phone:v.phone},id);break;
     case 'deliveryForm':await storeForm(form,'shop_deliveries',{address:v.address.trim(),courier_id:v.courier_id||null,status:v.status},id);break;
+    case 'settingsForm':{
+      const whatsapp=(v.whatsapp||'').replace(/\D/g,'');
+      if(whatsapp&&!/^\d{10,13}$/.test(whatsapp))throw Error('Informe um telefone WhatsApp com DDD.');
+      await rest('shops',{method:'PATCH',query:{id:'eq.'+shop.id},body:{name:v.name.trim(),whatsapp:whatsapp||null,brand_color:v.brand_color}});
+      shop={...shop,name:v.name.trim(),whatsapp:whatsapp||null,brand_color:v.brand_color};
+      $('shopName').textContent=shop.name;
+      break;
+    }
     case 'customForm':{
       await rest('shop_customization_requests',{method:'POST',body:{shop_id:shop.id,details:v.details.trim()}});
       msg('Solicitação recebida para acompanhamento.');break;
