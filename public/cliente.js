@@ -177,7 +177,7 @@ function productForm(p){p=p||{};return formShell('product',p.id,
 function serviceForm(p){p=p||{};return formShell('service',p.id,
  field('name','Serviço','text',p.name,'required')+field('price','Valor (R$)','number',p.price||0,'required min="0" step=".01"')
  +field('duration_minutes','Duração (minutos)','number',p.duration_minutes||30,'required min="5" max="480"'))}
-function appointmentForm(a){a=a||{};let dt=a.starts_at?new Date(a.starts_at).toISOString().slice(0,16):'';return formShell('appointment',a.id,
+function appointmentForm(a){a=a||{};let dt='';if(a.starts_at){const d=new Date(a.starts_at);const pad=n=>String(n).padStart(2,'0');dt=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());}return formShell('appointment',a.id,
  field('customer_name','Nome do cliente','text',a.customer_name,'required')+field('customer_phone','Telefone','tel',a.customer_phone||'')
  +'<label>Serviço<select name="service_id" required>'+services.map(s=>'<option value="'+esc(s.id)+'" '+(s.id===a.service_id?'selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select></label>'
  +field('starts_at','Data e hora','datetime-local',dt,'required')+field('notes','Observação','text',a.notes||''))}
@@ -277,7 +277,7 @@ document.addEventListener('click',async e=>{
 $('showLogin').onclick=()=>authTab(false);
 $('showSignup').onclick=()=>authTab(true);
 $('logout').onclick=()=>{session=null;shop=null;saveSession();showAuth();msg('Você saiu com segurança.')};
-$('switchShop').onclick=()=>{shop=null;loadShops().catch(e=>msg(e.message,true))};
+$('switchShop').onclick=()=>{location.href='/#planos'};
 $('forgotPassword').onclick=async()=>{
   const email=$('loginForm').querySelector('input[name=email]').value.trim();
   if(!email)return msg('Informe seu e-mail para receber a recuperação.',true);
