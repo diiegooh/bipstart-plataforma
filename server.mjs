@@ -9,7 +9,14 @@ const routes = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/index.html': ['index.html', 'text/html; charset=utf-8'],
   '/style.css': ['style.css', 'text/css; charset=utf-8'],
-  '/app.js': ['app.js', 'text/javascript; charset=utf-8']
+  '/app.js': ['app.js', 'text/javascript; charset=utf-8'],
+  '/cliente': ['cliente.html', 'text/html; charset=utf-8'],
+  '/cliente.html': ['cliente.html', 'text/html; charset=utf-8'],
+  '/cliente.css': ['cliente.css', 'text/css; charset=utf-8'],
+  '/cliente.js': ['cliente.js', 'text/javascript; charset=utf-8'],
+  '/cardapio': ['cardapio.html', 'text/html; charset=utf-8'],
+  '/cardapio.html': ['cardapio.html', 'text/html; charset=utf-8'],
+  '/cardapio.js': ['cardapio.js', 'text/javascript; charset=utf-8']
 };
 
 const server = http.createServer(async (req, res) => {
@@ -27,6 +34,16 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/health') {
     res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
     return res.end(req.method === 'HEAD' ? undefined : JSON.stringify({ ok: true, app: 'BipStart', mode: 'demo' }));
+  }
+  if (pathname === '/api/public-config') {
+    const url = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
+    const key = String(process.env.SUPABASE_PUBLISHABLE_KEY || '');
+    res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+    return res.end(req.method === 'HEAD' ? undefined : JSON.stringify({
+      enabled: Boolean(url && key),
+      supabaseUrl: url,
+      publishableKey: key
+    }));
   }
   const file = routes[pathname];
   if (!file) {
