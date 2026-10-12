@@ -49,15 +49,32 @@ async function rest(table,{method='GET',query={},body}={}){
 async function rpc(name,body){
   return api('/rest/v1/rpc/'+name,{method:'POST',body});
 }
-function hideAll(){['auth','setup','createShop','workspace'].forEach(id=>hiding(id,false));}
+function hideAll(){['auth','setup','createShop','workspace','resetPass'].forEach(id=>hiding(id,false));}
 function showAuth(){hideAll();hiding('auth',true);hiding('logout',false);}
 function authTab(signup){hiding('loginForm',!signup);hiding('signupForm',signup);$('showLogin').classList.toggle('selected',!signup);$('showSignup').classList.toggle('selected',signup)}
+function consumeAuthRedirect(){
+  const params=new URLSearchParams(location.hash.replace(/^#/, ''));
+  if(!params.has('access_token'))return null;
+  session={
+    access_token:params.get('access_token'),
+    refresh_token:params.get('refresh_token'),
+    token_type:params.get('token_type')||'bearer',
+    expires_in:Number(params.get('expires_in')||3600),
+    expires_at:Date.now()/1000+Number(params.get('expires_in')||3600)
+  };
+  saveSession();
+  history.replaceState(null,'',location.pathname+location.search);
+  return params.get('type');
+}
 async function begin(){
   try{cfg=await fetch('/api/public-config',{cache:'no-store'}).then(r=>r.json());}catch{}
   if(!cfg?.enabled){hideAll();hiding('setup',true);return}
-  try{session=JSON.parse(localStorage.getItem(storageKey)||'null')}catch{session=null}
-  if(await ensureSession())await loadShops();
-  else showAuth();
+  const redirectType=consumeAuthRedirect();
+  if(!session){try{session=JSON.parse(localStorage.getItem(storageKey)||'null')}catch{session=null}}
+  if(await ensureSession()){
+    if(redirectType==='recovery'){hideAll();hiding('resetPass',true);return}
+    await loadShops();
+  } else showAuth();
 }
 async function loadShops(){
   const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,brand_color,whatsapp,created_at',order:'created_at.desc',limit:'20'}});
@@ -206,10 +223,18 @@ async function handleSubmit(form){
       saveSession();await loadShops();break;
     }
     case 'signupForm':{
-      const response=await api('/auth/v1/signup',{method:'POST',token:null,body:{email:v.email,password:v.password}});
+      const callback=encodeURIComponent(location.origin+'/cliente');
+      const response=await api('/auth/v1/signup?redirect_to='+callback,{method:'POST',token:null,body:{email:v.email,password:v.password}});
       if(response?.access_token){session={...response,expires_at:Date.now()/1000+Number(response.expires_in||3600)};saveSession();await loadShops()}
       else{authTab(false);msg('Conta criada! Confirme seu e-mail antes de entrar.');}
       break;
+    }
+    case 'resetPassForm':{
+      if(v.password!==v.confirm)throw Error('As senhas não coincidem.');
+      if(v.password.length<8)throw Error('Crie uma senha com pelo menos 8 caracteres.');
+      await api('/auth/v1/user',{method:'PUT',body:{password:v.password}});
+      msg('Senha atualizada com sucesso.');
+      await loadShops();break;
     }
     case 'shopForm':{
       const normalized=v.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,35)||'loja';
@@ -260,7 +285,7 @@ async function handleSubmit(form){
       msg('Solicitação recebida para acompanhamento.');break;
     }
   }
-  if(!['loginForm','signupForm','shopForm'].includes(form.id)){showForm=null;await reloadData();renderPage();msg('Dados salvos com sucesso.');}
+  if(!['loginForm','signupForm','shopForm','resetPassForm'].includes(form.id)){showForm=null;await reloadData();renderPage();msg('Dados salvos com sucesso.');}
 }
 document.addEventListener('submit',async e=>{const form=e.target;if(!form.matches('form'))return;e.preventDefault();const btn=form.querySelector('button[type=submit],button.button');if(btn)btn.disabled=true;try{await handleSubmit(form)}catch(err){msg(err.message||'Erro ao salvar',true)}finally{if(btn?.isConnected)btn.disabled=false}});
 document.addEventListener('click',async e=>{
@@ -281,6 +306,6 @@ $('switchShop').onclick=()=>{location.href='/#planos'};
 $('forgotPassword').onclick=async()=>{
   const email=$('loginForm').querySelector('input[name=email]').value.trim();
   if(!email)return msg('Informe seu e-mail para receber a recuperação.',true);
-  try{await api('/auth/v1/recover',{method:'POST',token:null,body:{email}});msg('Confira seu e-mail para recuperar a senha.')}catch(e){msg(e.message,true)}
+  try{await api('/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+'/cliente'),{method:'POST',token:null,body:{email}});msg('Confira seu e-mail para recuperar a senha.')}catch(e){msg(e.message,true)}
 };
 begin().catch(e=>{status(e.message||'Falha ao conectar ao Supabase.');showAuth()});
