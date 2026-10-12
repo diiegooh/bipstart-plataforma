@@ -25,6 +25,12 @@ try{
     assert.ok(content.length>200,file+' vazio');
     console.log('OK',file,content.length);
   }
+  // O cadastro deve exigir confirmação de senha no formulário e verificar os valores antes da API.
+  const signupHtml=await fetch(root+'/cliente').then(r=>r.text());
+  const signupJs=await fetch(root+'/cliente.js').then(r=>r.text());
+  assert.match(signupHtml, /name="confirm"[^>]*required/);
+  assert.ok(signupJs.includes("if(v.password!==v.confirm)throw Error"),"Cadastro deve recusar senhas diferentes.");
+  assert.ok(signupJs.includes("setCustomValidity"),"Campo deve avisar o usuário sobre senhas diferentes.");
   const cfg=await fetch(root+'/api/public-config').then(r=>r.json());
   assert.equal(cfg.enabled,false,'Não deve abrir cadastros sem Supabase.');
   assert.equal((await fetch(root+'/path-nao-existe')).status,404);
