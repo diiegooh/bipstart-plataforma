@@ -1,0 +1,16 @@
+name: Validar BipStart
+on:
+  push:
+    branches:
+      - main
+      - feature/contas-supabase-bipstart
+  pull_request:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
