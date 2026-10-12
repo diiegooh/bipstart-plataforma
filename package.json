@@ -6,7 +6,8 @@
   "description": "BipStart - site oficial e modelos demonstrativos",
   "scripts": {
     "start": "node server.mjs",
-    "dev": "node --watch server.mjs"
+    "dev": "node --watch server.mjs",
+    "test": "node tests/smoke.mjs"
   },
   "engines": {
     "node": ">=18"
