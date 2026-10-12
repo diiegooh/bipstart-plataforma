@@ -22,6 +22,15 @@
       <form id="signupForm" class="hidden"><h2>Cadastre-se</h2><label>E-mail<input type="email" name="email" autocomplete="email" required></label><label>Senha (mínimo 6 caracteres)<input type="password" name="password" autocomplete="new-password" minlength="6" required></label><button class="button" type="submit">Criar conta gratuita</button><p class="muted small">Enviaremos confirmação para o seu e-mail, se exigida pelo projeto Supabase.</p></form>
     </div>
   </section>
+  <section id="resetPass" class="card central hidden">
+    <span class="kicker">SEGURANÇA DA SUA CONTA</span><h1>Definir nova senha</h1>
+    <p>Informe uma nova senha para continuar com sua conta BipStart.</p>
+    <form id="resetPassForm">
+      <label>Nova senha (mínimo 8 caracteres)<input name="password" type="password" minlength="8" autocomplete="new-password" required></label>
+      <label>Confirme a nova senha<input name="confirm" type="password" minlength="8" autocomplete="new-password" required></label>
+      <button class="button" type="submit">Alterar minha senha</button>
+    </form>
+  </section>
   <section id="createShop" class="card central hidden"><span class="kicker">PRIMEIRO PASSO</span><h1>Configure sua empresa</h1>
     <form id="shopForm"><label>Nome do estabelecimento<input name="name" maxlength="120" required placeholder="Ex.: Barbearia Central"></label>
       <label>WhatsApp comercial com DDD (opcional)<input name="whatsapp" type="tel" placeholder="11999999999" inputmode="tel"></label>
