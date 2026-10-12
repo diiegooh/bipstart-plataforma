@@ -87,3 +87,6 @@ body{background:radial-gradient(ellipse 50% 32% at 50% 2%,#230b44 0%,transparent
 /* Keep rotated preview decorations from creating a horizontal scrollbar on phones. */
 html,body{max-width:100%;overflow-x:clip}
 
+
+.nav-links .bipstart-client-link{color:#d9b8ff;border:1px solid #8051e9;border-radius:999px;padding:8px 13px;white-space:nowrap}
+.nav-links .bipstart-client-link:hover{background:#5f28b54d}

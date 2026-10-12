@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#100721"><title>Minha loja • BipStart</title>
+<link rel="stylesheet" href="/cliente.css?v=1">
+</head>
+<body>
+<header class="top"><a class="brand" href="/">▣ <strong>Bip<span>Start</span></strong></a><nav><a href="/">Conhecer os planos</a> <button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
+<main class="shell">
+  <div id="notice" class="notice hidden" role="alert"></div>
+  <section id="setup" class="card central hidden">
+    <h1>Área do cliente em preparação</h1>
+    <p>A BipStart está conectando o acesso seguro aos novos sistemas. As demonstrações continuam disponíveis.</p>
+    <a class="button" href="/">Ver modelos demonstrativos</a>
+  </section>
+  <section id="auth" class="auth-grid hidden">
+    <div class="auth-copy"><span class="kicker">SUA LOJA COMEÇA AQUI</span><h1>Seu negócio no digital, <em>do seu jeito.</em></h1><p>Crie sua conta para configurar um PDV com estoque, uma agenda ou um cardápio digital.</p><p class="muted">O acesso começa com uma avaliação gratuita de 7 dias. A contratação e o pagamento serão disponibilizados após a integração financeira.</p></div>
+    <div class="card auth-card">
+      <div class="switch"><button type="button" class="selected" id="showLogin">Entrar</button><button type="button" id="showSignup">Criar conta</button></div>
+      <form id="loginForm"><h2>Acessar minha loja</h2><label>E-mail<input type="email" name="email" autocomplete="email" required></label><label>Senha<input type="password" name="password" autocomplete="current-password" minlength="6" required></label><button class="button" type="submit">Entrar</button><button class="text-button" type="button" id="forgotPassword">Esqueci minha senha</button></form>
+      <form id="signupForm" class="hidden"><h2>Cadastre-se</h2><label>E-mail<input type="email" name="email" autocomplete="email" required></label><label>Senha (mínimo 6 caracteres)<input type="password" name="password" autocomplete="new-password" minlength="6" required></label><button class="button" type="submit">Criar conta gratuita</button><p class="muted small">Enviaremos confirmação para o seu e-mail, se exigida pelo projeto Supabase.</p></form>
+    </div>
+  </section>
+  <section id="resetPass" class="card central hidden">
+    <span class="kicker">SEGURANÇA DA SUA CONTA</span><h1>Definir nova senha</h1>
+    <p>Informe uma nova senha para continuar com sua conta BipStart.</p>
+    <form id="resetPassForm">
+      <label>Nova senha (mínimo 8 caracteres)<input name="password" type="password" minlength="8" autocomplete="new-password" required></label>
+      <label>Confirme a nova senha<input name="confirm" type="password" minlength="8" autocomplete="new-password" required></label>
+      <button class="button" type="submit">Alterar minha senha</button>
+    </form>
+  </section>
+  <section id="createShop" class="card central hidden"><span class="kicker">PRIMEIRO PASSO</span><h1>Configure sua empresa</h1>
+    <form id="shopForm"><label>Nome do estabelecimento<input name="name" maxlength="120" required placeholder="Ex.: Barbearia Central"></label>
+      <label>WhatsApp comercial com DDD (opcional)<input name="whatsapp" type="tel" placeholder="11999999999" inputmode="tel"></label>
+      <label>Qual modelo você deseja usar?<select name="model" required><option value="pdv">PDV e controle de estoque</option><option value="agenda">Agenda de serviços</option><option value="cardapio">Cardápio online</option></select></label>
+      <label>Plano de interesse<select name="requested_plan"><option value="basic">Básico — R$ 29,99 (único)</option><option value="personalizado">Personalizado — R$ 49,99 (único)</option><option value="pro">Pro — R$ 99,90/mês</option></select></label>
+      <button class="button" type="submit">Começar avaliação de 7 dias</button><p class="muted small">Nenhuma cobrança é realizada neste cadastro.</p>
+    </form>
+  </section>
+  <section id="workspace" class="hidden"><div class="heading"><div><span class="kicker">PAINEL BIPSTART</span><h1 id="shopName">Minha loja</h1><p id="shopStatus" class="muted"></p></div><div><a id="publicMenuLink" class="ghost hidden" target="_blank" rel="noopener">Abrir meu cardápio ↗</a></div></div>
+    <div class="dashboard"><aside class="side"><div id="nav"></div><button type="button" id="switchShop" class="ghost">Ver planos BipStart</button></aside>
+    <div class="content"><div id="page"></div></div></div>
+  </section>
+</main>
+<div id="toast" role="status" class="toast hidden"></div>
+<script src="/cliente.js?v=1" defer></script>
+</body></html>
