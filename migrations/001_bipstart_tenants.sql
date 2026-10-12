@@ -1,5 +1,6 @@
--- BipStart: banco exclusivo, sem modificar Salgatti ou Godzilla.
--- Execute em um projeto Supabase NOVO e exclusivo para a BipStart.
+-- BipStart: tabelas e políticas exclusivas dentro do projeto Supabase já usado pela Salgatti.
+-- Não altera tabelas existentes public.orders, order_items, products, stock_movements, settings.
+-- Compartilha infraestrutura e autenticação; NÃO é um projeto Supabase isolado.
 create extension if not exists pgcrypto;
 
 create table if not exists public.shops (
@@ -198,7 +199,7 @@ alter table public.shop_deliveries add constraint bipstart_delivery_order_scope
 -- Cardápio público não expõe custo, estoque interno nem dados privados.
 create or replace function public.bipstart_public_menu(p_slug text)
 returns jsonb language sql stable security definer set search_path=public
-as $
+as $$
   select jsonb_build_object(
     'name',s.name,
     'slug',s.slug,
@@ -218,7 +219,7 @@ as $
   and ((e.status='trialing' and e.trial_until>now())
     or (e.status='active' and (e.active_until is null or e.active_until>now())))
   limit 1
-$;
+$$;
 revoke all on function public.bipstart_public_menu(text) from public;
 grant execute on function public.bipstart_public_menu(text) to anon,authenticated;
 
@@ -226,7 +227,7 @@ grant execute on function public.bipstart_public_menu(text) to anon,authenticate
 -- O bloqueio transacional por loja evita duas reservas concorrentes.
 create or replace function public.bipstart_check_appointment()
 returns trigger language plpgsql security definer set search_path=public
-as $
+as $$
 begin
   perform pg_advisory_xact_lock(hashtext(new.shop_id::text));
   if new.status <> 'cancelado' and exists (
