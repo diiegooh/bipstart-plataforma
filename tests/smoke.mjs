@@ -17,7 +17,7 @@ async function wait(){
 }
 try{
   await wait();
-  const files=['/','/style.css','/app.js','/cliente','/cliente.css','/cliente.js','/cardapio','/cardapio.js'];
+  const files=['/','/style.css','/app.js','/cliente','/cliente.css','/cliente.js','/bipstart-logo.svg','/cardapio','/cardapio.js'];
   for(const file of files){
     const r=await fetch(root+file);
     assert.equal(r.status,200,file);
@@ -27,6 +27,13 @@ try{
   }
   // O cadastro deve exigir confirmação de senha no formulário e verificar os valores antes da API.
   const signupHtml=await fetch(root+'/cliente').then(r=>r.text());
+  assert.match(signupHtml, /class="brand-logo"[^>]+src="\/bipstart-logo\.svg"/);
+  const logoResponse=await fetch(root+'/bipstart-logo.svg');
+  assert.match(logoResponse.headers.get('content-type')||'', /image\/svg\+xml/);
+  const logoSvg=await logoResponse.text();
+  assert.match(logoSvg, /<image[^>]+data:image\/png;base64/);
+  assert.match(logoSvg, /<title[^>]*>BipStart<\/title>/);
+
   const signupJs=await fetch(root+'/cliente.js').then(r=>r.text());
   assert.match(signupHtml, /name="confirm"[^>]*required/);
   assert.ok(signupJs.includes("if(v.password!==v.confirm)throw Error"),"Cadastro deve recusar senhas diferentes.");
