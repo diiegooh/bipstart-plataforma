@@ -1,8 +1,16 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { spawn, execFileSync } from 'node:child_process';
 
 for(const file of ['server.mjs','public/app.js','public/cliente.js','public/cardapio.js']){
   execFileSync(process.execPath,['--check',file],{stdio:'inherit'});
+}
+// Modelos Supabase devem conter link temporário real, sem credenciais hardcoded.
+for(const template of ['emails/confirmar-cadastro.html','emails/recuperar-senha.html']){
+  const body=readFileSync(template,'utf8');
+  assert.ok(body.includes('{{ .ConfirmationURL }}'),template+' sem link de confirmação');
+  assert.ok(body.includes('BipStart'),template+' sem identidade da marca');
+  assert.ok(body.includes('<table'),template+' não contém HTML compatível com e-mail');
 }
 const port=33071;
 const server=spawn(process.execPath,['server.mjs'],{env:{...process.env,PORT:String(port),SUPABASE_URL:'',SUPABASE_PUBLISHABLE_KEY:''},stdio:'pipe'});
