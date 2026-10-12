@@ -5,32 +5,45 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const port = Number(process.env.PORT || 3000);
+const routes = {
+  '/': ['index.html', 'text/html; charset=utf-8'],
+  '/index.html': ['index.html', 'text/html; charset=utf-8'],
+  '/style.css': ['style.css', 'text/css; charset=utf-8'],
+  '/app.js': ['app.js', 'text/javascript; charset=utf-8']
+};
 
 const server = http.createServer(async (req, res) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.writeHead(405, { 'allow': 'GET, HEAD' });
     return res.end();
   }
+  let pathname;
   try {
-    const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
-    if (pathname === '/health') {
-      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
-      return res.end(JSON.stringify({ ok: true, app: 'BipStart', mode: 'demo' }));
-    }
-    if (pathname !== '/' && pathname !== '/index.html') {
-      res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
-      return res.end('Página não encontrada');
-    }
-    const html = await fs.readFile(path.join(root, 'index.html'));
+    pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+  } catch {
+    res.writeHead(400, { 'content-type': 'text/plain; charset=utf-8' });
+    return res.end('Requisição inválida');
+  }
+  if (pathname === '/health') {
+    res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+    return res.end(req.method === 'HEAD' ? undefined : JSON.stringify({ ok: true, app: 'BipStart', mode: 'demo' }));
+  }
+  const file = routes[pathname];
+  if (!file) {
+    res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
+    return res.end('Página não encontrada');
+  }
+  try {
+    const body = await fs.readFile(path.join(root, file[0]));
     res.writeHead(200, {
-      'content-type': 'text/html; charset=utf-8',
+      'content-type': file[1],
       'cache-control': 'no-store',
       'x-content-type-options': 'nosniff',
       'referrer-policy': 'strict-origin-when-cross-origin'
     });
-    return res.end(req.method === 'HEAD' ? undefined : html);
+    return res.end(req.method === 'HEAD' ? undefined : body);
   } catch (error) {
-    console.error('Erro ao abrir página BipStart:', error?.message || error);
+    console.error('Erro BipStart:', error?.message || error);
     res.writeHead(500, { 'content-type': 'text/plain; charset=utf-8' });
     return res.end('Erro interno');
   }
