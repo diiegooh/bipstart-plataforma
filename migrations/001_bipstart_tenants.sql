@@ -239,7 +239,7 @@ begin
     raise exception 'Já existe um agendamento neste horário.';
   end if;
   return new;
-end $;
+end $$;
 drop trigger if exists bipstart_appointment_overlap on public.shop_appointments;
 create trigger bipstart_appointment_overlap
 before insert or update on public.shop_appointments
