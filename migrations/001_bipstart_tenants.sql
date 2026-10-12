@@ -6,6 +6,7 @@ create table if not exists public.shops (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid not null references auth.users(id) on delete cascade default auth.uid(),
   name text not null check (char_length(btrim(name)) between 2 and 120),
+  whatsapp text,
   slug text unique not null check (slug ~ '^[a-z0-9][a-z0-9-]{2,59}$'),
   model text not null check (model in ('pdv','agenda','cardapio')),
   requested_plan text not null default 'basic' check (requested_plan in ('basic','personalizado','pro')),
@@ -182,6 +183,44 @@ create table if not exists public.shop_billing_orders (
   provider_ref text unique,
   created_at timestamptz not null default now()
 );
+
+-- Impede vincular agendamentos e entregas a registros de outra loja.
+create unique index if not exists bipstart_service_scope on public.shop_services(shop_id,id);
+create unique index if not exists bipstart_courier_scope on public.shop_couriers(shop_id,id);
+create unique index if not exists bipstart_menu_order_scope on public.shop_menu_orders(shop_id,id);
+alter table public.shop_appointments add constraint bipstart_appointment_service_scope
+ foreign key (shop_id,service_id) references public.shop_services(shop_id,id);
+alter table public.shop_deliveries add constraint bipstart_delivery_courier_scope
+ foreign key (shop_id,courier_id) references public.shop_couriers(shop_id,id);
+alter table public.shop_deliveries add constraint bipstart_delivery_order_scope
+ foreign key (shop_id,menu_order_id) references public.shop_menu_orders(shop_id,id);
+
+-- Cardápio público não expõe custo, estoque interno nem dados privados.
+create or replace function public.bipstart_public_menu(p_slug text)
+returns jsonb language sql stable security definer set search_path=public
+as $
+  select jsonb_build_object(
+    'name',s.name,
+    'slug',s.slug,
+    'whatsapp',s.whatsapp,
+    'brand_color',s.brand_color,
+    'items',coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id',p.id,'name',p.name,'category',p.category,'price',p.price,'image_path',p.image_path
+      ) order by p.category,p.name)
+      from public.shop_products p
+      where p.shop_id=s.id and p.active=true
+    ),'[]'::jsonb)
+  )
+  from public.shops s
+  join public.shop_entitlements e on e.shop_id=s.id
+  where s.slug=p_slug and s.model='cardapio'
+  and ((e.status='trialing' and e.trial_until>now())
+    or (e.status='active' and (e.active_until is null or e.active_until>now())))
+  limit 1
+$;
+revoke all on function public.bipstart_public_menu(text) from public;
+grant execute on function public.bipstart_public_menu(text) to anon,authenticated;
 
 -- Cada conta enxerga somente sua loja. Sem acesso entre clientes.
 alter table public.shops enable row level security;
