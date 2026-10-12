@@ -13,7 +13,7 @@ create table if not exists public.shops (
   brand_color text not null default '#7c3aed',
   created_at timestamptz not null default now()
 );
-create index if not exists shops_owner_idx on public.shops(owner_id);
+create unique index if not exists bipstart_one_shop_per_owner on public.shops(owner_id);
 
 -- Somente o servidor financeiro (service_role) poderá alterar permissões pagas.
 create table if not exists public.shop_entitlements (
@@ -221,6 +221,28 @@ as $
 $;
 revoke all on function public.bipstart_public_menu(text) from public;
 grant execute on function public.bipstart_public_menu(text) to anon,authenticated;
+
+-- Agendamentos simultâneos não podem ocupar o mesmo horário da mesma empresa.
+-- O bloqueio transacional por loja evita duas reservas concorrentes.
+create or replace function public.bipstart_check_appointment()
+returns trigger language plpgsql security definer set search_path=public
+as $
+begin
+  perform pg_advisory_xact_lock(hashtext(new.shop_id::text));
+  if new.status <> 'cancelado' and exists (
+    select 1 from public.shop_appointments a
+    where a.shop_id=new.shop_id and a.id is distinct from new.id
+    and a.status <> 'cancelado'
+    and a.starts_at<new.ends_at and a.ends_at>new.starts_at
+  ) then
+    raise exception 'Já existe um agendamento neste horário.';
+  end if;
+  return new;
+end $;
+drop trigger if exists bipstart_appointment_overlap on public.shop_appointments;
+create trigger bipstart_appointment_overlap
+before insert or update on public.shop_appointments
+for each row execute function public.bipstart_check_appointment();
 
 -- Cada conta enxerga somente sua loja. Sem acesso entre clientes.
 alter table public.shops enable row level security;
