@@ -128,3 +128,15 @@ $('exportData').onclick=exportData;
 document.addEventListener('click',e=>{const el=e.target.closest('[data-try-model]');if(!el||!ws)return;ws.model=el.dataset.tryModel;view='overview';cart=[];save();closeModal();renderWorkspace();notify('Modelo de demonstração alterado.')});
 $('year').textContent=new Date().getFullYear();
 
+
+/* Accesso seguro separado da demonstração local, disponível após a configuração do Supabase. */
+{
+  const nav=document.querySelector('.nav-links');
+  if(nav&&!nav.querySelector('.bipstart-client-link')){
+    const link=document.createElement('a');
+    link.className='bipstart-client-link';
+    link.href='/cliente';
+    link.textContent='Minha loja';
+    nav.appendChild(link);
+  }
+}
