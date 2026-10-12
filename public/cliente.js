@@ -223,6 +223,7 @@ async function handleSubmit(form){
       saveSession();await loadShops();break;
     }
     case 'signupForm':{
+      if(v.password!==v.confirm)throw Error('As senhas não coincidem. Confira e tente novamente.');
       const callback=encodeURIComponent(location.origin+'/cliente');
       const response=await api('/auth/v1/signup?redirect_to='+callback,{method:'POST',token:null,body:{email:v.email,password:v.password}});
       if(response?.access_token){session={...response,expires_at:Date.now()/1000+Number(response.expires_in||3600)};saveSession();await loadShops()}
@@ -298,6 +299,22 @@ document.addEventListener('click',async e=>{
   if(e.target.closest('[data-cancel]')){showForm=null;renderPage();return}
   const c=e.target.closest('[data-cart]');if(c){const p=products.find(p=>p.id===c.dataset.cart);if(!p)return;const old=cart.find(x=>x.id===p.id);if((old?.qty||0)>=p.stock)return msg('Estoque insuficiente',true);if(old)old.qty++;else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});renderPage();return}
   const rm=e.target.closest('[data-remove]');if(rm){cart=cart.filter(x=>x.id!==rm.dataset.remove);renderPage()}
+});
+// Validação instantânea antes de enviar o cadastro para o Supabase.
+$('signupForm').addEventListener('input',()=>{
+  const form=$('signupForm');
+  const password=form.elements.namedItem('password');
+  const confirm=form.elements.namedItem('confirm');
+  const info=$('signupPasswordMatch');
+  if(!confirm.value){
+    confirm.setCustomValidity('');
+    info.textContent='';
+    return;
+  }
+  const matches=confirm.value===password.value;
+  confirm.setCustomValidity(matches?'':'As senhas não coincidem.');
+  info.textContent=matches?'✓ As senhas coincidem.':'As senhas não coincidem.';
+  info.style.color=matches?'var(--ok)':'var(--danger)';
 });
 $('showLogin').onclick=()=>authTab(false);
 $('showSignup').onclick=()=>authTab(true);
