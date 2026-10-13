@@ -29,20 +29,44 @@ async function mp(path,method='GET',body,idempotency){
  const r=await fetch('https://api.mercadopago.com'+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});
  const d=await r.json().catch(()=>null);if(!r.ok){const err=new Error('Mercado Pago indisponível ('+r.status+')');err.httpStatus=r.status;throw err;}return d;
 }
-function validSignature(req,url){
+function verifySignature(req,url,payload){
+ // Mercado Pago assina apenas campos presentes na query e nos headers.
+ // Se data.id faltar na URL, uma assinatura sem ID nunca autoriza pagamento.
  const secret=String(process.env.MERCADO_PAGO_WEBHOOK_SECRET||'');
  const signature=String(req.headers['x-signature']||'');
  const requestId=String(req.headers['x-request-id']||'');
- const parts=Object.fromEntries(signature.split(',').map(v=>v.trim().split('=')));
- const id=String(url.searchParams.get('data.id')||'').toLowerCase();
- if(!secret||!id||!requestId||!/^\d{10,15}$/.test(parts.ts||'')||!/^[a-f0-9]{64}$/i.test(parts.v1||''))return false;
- // Mercado Pago pode assinar timestamps em segundos (10 dígitos) ou milissegundos (13).
- const millis=parts.ts.length>=13?Number(parts.ts):Number(parts.ts)*1000;
- const delta=Math.abs(Date.now()-millis);
- if(!Number.isFinite(delta)||delta>10*60*1000)return false;
- const manifest='id:'+id+';request-id:'+requestId+';ts:'+parts.ts+';';
- const expected=crypto.createHmac('sha256',secret).update(manifest).digest('hex');
- return crypto.timingSafeEqual(Buffer.from(expected,'hex'),Buffer.from(parts.v1,'hex'));
+ const parts=Object.fromEntries(signature.split(',').map(v=>{
+  const at=v.indexOf('=');
+  return at<0?['','']:[v.slice(0,at).trim(),v.slice(at+1).trim()];
+ }));
+ const ts=String(parts.ts||''),hash=String(parts.v1||'');
+ if(!secret||!/^[0-9]{10,15}$/.test(ts)||!/^[a-f0-9]{64}$/i.test(hash))
+   return {valid:false,reason:'assinatura_ausente_ou_invalida'};
+ const millis=ts.length>=13?Number(ts):Number(ts)*1000;
+ if(!Number.isFinite(millis)||Math.abs(Date.now()-millis)>10*60*1000)
+   return {valid:false,reason:'timestamp_fora_da_janela'};
+ const queryId=url.searchParams.get('data.id');
+ const bodyId=payload?.data?.id==null?'':String(payload.data.id);
+ if(queryId!==null&&!/^[0-9]+$/.test(queryId))
+   return {valid:false,reason:'id_url_invalido'};
+ if(queryId!==null&&bodyId&&queryId!==bodyId)
+   return {valid:false,reason:'id_divergente'};
+ const suffix=(requestId?'request-id:'+requestId+';':'')+'ts:'+ts+';';
+ const matches=id=>{
+  const manifest=(id?'id:'+id.toLowerCase()+';':'')+suffix;
+  const expected=crypto.createHmac('sha256',secret).update(manifest).digest();
+  return crypto.timingSafeEqual(expected,Buffer.from(hash,'hex'));
+ };
+ if(queryId!==null){
+  if(!matches(queryId))return {valid:false,reason:'hmac_invalido'};
+  return {valid:true,paymentId:queryId,signedId:true};
+ }
+ // Formatos alternativos do simulador: aceitar ID no corpo só se for
+ // explicitamente coberto pela assinatura HMAC.
+ if(/^[0-9]+$/.test(bodyId)&&matches(bodyId))
+   return {valid:true,paymentId:bodyId,signedId:true};
+ if(matches(''))return {valid:true,paymentId:null,signedId:false};
+ return {valid:false,reason:'hmac_invalido'};
 }
 export async function billing(req,res,url){
  const pathname=url.pathname;
@@ -79,9 +103,21 @@ export async function billing(req,res,url){
    json(res,200,{checkoutUrl:preference.sandbox_init_point,orderId:order.id});return true;
   }
   if(req.method!=='POST'){json(res,405,{error:'Método inválido'});return true;}
-  if(!validSignature(req,url)){json(res,401,{error:'Assinatura inválida.'});return true;}
-  const id=url.searchParams.get('data.id');
-  if(!/^\d+$/.test(id||'')){json(res,400,{error:'ID inválido'});return true;}
+  const body=await readBody(req);
+  const verified=verifySignature(req,url,body);
+  if(!verified.valid){
+   console.warn('BipStart webhook rejeitado:',verified.reason);
+   json(res,401,{error:'Assinatura inválida.'});return true;
+  }
+  if(body?.type&&body.type!=='payment'){
+   json(res,200,{ok:true,ignored:true,reason:'evento_nao_suportado'});return true;
+  }
+  // Uma assinatura válida sem ID vinculado não autoriza consultar
+  // o pagamento nem ativar um plano.
+  if(!verified.signedId){
+   json(res,200,{ok:true,ignored:true,reason:'id_nao_assinado'});return true;
+  }
+  const id=verified.paymentId;
   let payment;
   try{payment=await mp('/v1/payments/'+encodeURIComponent(id));}
   catch(error){
