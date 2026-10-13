@@ -43,6 +43,7 @@ async function ensureSession(){
   }catch{session=null;saveSession();return false}
 }
 async function rest(table,{method='GET',query={},body}={}){
+  if(cfg?.stagingMode&&method!=='GET')throw Error('Homologação somente leitura: alterações da loja estão bloqueadas.');
   if(!await ensureSession()){showAuth();throw Error('Sua sessão expirou. Entre novamente.')}
   let url=qs(table,query);const headers={apikey:cfg.publishableKey,Authorization:'Bearer '+session.access_token,Prefer:'return=representation'};
   if(body!==undefined)headers['Content-Type']='application/json';
@@ -201,7 +202,7 @@ function renderPage(){
   if(tab==='resumo'){
     content=heading('Bem-vindo à BipStart','Seus dados ficam salvos no Supabase e são separados dos demais clientes.')
       +'<div class="grid">'+tile('Modelo',models[shop.model])+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',ent?.status==='active'?'Ativo':'Em avaliação')+'</div>'
-      +'<p class="warn">A cobrança dos planos BipStart está disponível somente no ambiente de testes, sem cobranças reais. Os pedidos dos clientes continuam pelo WhatsApp.</p>';
+      +'<p class="warn">HOMOLOGAÇÃO: testes de checkout sem cobranças reais. Alterações nos produtos e dados da loja estão bloqueadas nesta interface. Pedidos dos clientes continuam pelo WhatsApp.</p>';
     if(ent?.status!=='active' && ['basic','personalizado'].includes(shop.requested_plan))
       content+='<p><button class="button" type="button" data-billing="'+esc(shop.requested_plan)+'">Testar contratação do plano '+esc(plans[shop.requested_plan])+' (Mercado Pago)</button></p>';
     if(ent?.status!=='active' && shop.requested_plan==='pro')
@@ -276,6 +277,7 @@ function deliveryForm(d){d=d||{};return formShell('delivery',d.id,field('address
  +'<label>Motoboy<select name="courier_id"><option value="">Sem atribuição</option>'+couriers.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('')+'</select></label>'
  +'<label>Status<select name="status">'+['pendente','atribuida','a_caminho','entregue','cancelada'].map(s=>'<option value="'+s+'">'+s+'</option>').join('')+'</select></label>')}
 async function uploadImage(file){
+  if(cfg?.stagingMode)throw Error('Homologação somente leitura: envio de imagens bloqueado.');
   if(!file)return null;
   if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error('Selecione uma imagem JPG, PNG ou WebP de até 5 MB.');
   const ext={ 'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[file.type];
