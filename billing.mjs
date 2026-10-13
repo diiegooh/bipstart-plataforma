@@ -68,8 +68,11 @@ export async function billing(req,res,url){
   const order=(await sb('shop_billing_orders?id=eq.'+match[1]+'&select=*'))?.[0];
   if(!order){json(res,200,{ok:true});return true;}
   if(payment.status!=='approved'){json(res,200,{ok:true});return true;}
-  if(order.status==='approved'){json(res,200,{ok:true});return true;}
-  if(!Object.hasOwn(prices,order.plan_code)||Number(order.amount)!==prices[order.plan_code]||Number(payment.transaction_amount)!==prices[order.plan_code]||payment.currency_id!=='BRL'){json(res,422,{error:'Pagamento incompatível.'});return true;}
+  if(order.status==='approved'){
+   if(order.provider_ref!==String(payment.id)){json(res,409,{error:'Pedido já confirmado com outro pagamento.'});return true;}
+   json(res,200,{ok:true});return true;
+  }
+  if(!Object.hasOwn(prices,order.plan_code)||Number(order.amount)!==prices[order.plan_code]||Number(payment.transaction_amount)!==prices[order.plan_code]||payment.currency_id!=='BRL'||(payment.status!=='approved')){json(res,422,{error:'Pagamento incompatível.'});return true;}
   const result=await sb('rpc/bipstart_confirm_plan_payment','POST',{p_order_id:order.id,p_payment_ref:String(payment.id),p_amount:Number(payment.transaction_amount),p_plan:order.plan_code});
   if(result!==true)throw Error('Ativação não confirmada.');
   json(res,200,{ok:true});return true;
