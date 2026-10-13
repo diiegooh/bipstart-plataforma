@@ -7,6 +7,8 @@ let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
 const plans={basic:'Básico',personalizado:'Personalizado',pro:'Pro'};
+const planPrices={basic:'R$ 29,99 (pagamento único)',personalizado:'R$ 49,99 (pagamento único)',pro:'R$ 99,90/mês'};
+const BIPSTART_PLAN_WHATSAPP='5511978353820';
 const models={pdv:'PDV com estoque',agenda:'Agenda',cardapio:'Cardápio online'};
 const hiding=(id,on)=>$(id).classList.toggle('hidden',!on);
 function msg(t,error=false){const box=$('toast');box.textContent=t;box.style.borderColor=error?'#e9768d':'#8052ce';box.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.add('hidden'),5500)}
@@ -54,7 +56,7 @@ async function rest(table,{method='GET',query={},body}={}){
 async function rpc(name,body){
   return api('/rest/v1/rpc/'+name,{method:'POST',body});
 }
-function hideAll(){['auth','setup','createShop','workspace','resetPass'].forEach(id=>hiding(id,false));}
+function hideAll(){['auth','setup','createShop','workspace','resetPass','accessGate'].forEach(id=>hiding(id,false));}
 function showAuth(){hideAll();hiding('auth',true);hiding('logout',false);renderActiveCaptcha();}
 function authTab(signup){
   hiding('loginForm',!signup);hiding('signupForm',signup);
@@ -145,17 +147,56 @@ async function requireVerifiedEmail(){
 }
 async function loadShops(){
   await requireVerifiedEmail();
-  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,brand_color,whatsapp,created_at',order:'created_at.desc',limit:'20'}});
+  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,created_at',order:'created_at.desc',limit:'20'}});
   if(!rows?.length){hideAll();hiding('createShop',true);hiding('logout',true);return}
   shop=rows[0];await openShop();
 }
+function trialValid(){
+  return ent?.status==='trialing'&&Number.isFinite(Date.parse(ent.trial_until))&&Date.parse(ent.trial_until)>Date.now();
+}
+function subscriptionValid(){
+  return ent?.status==='active'&&(ent.active_until===null||
+    (Number.isFinite(Date.parse(ent.active_until))&&Date.parse(ent.active_until)>Date.now()));
+}
+function hasAccess(){return trialValid()||subscriptionValid()}
+function proAccess(){return ent?.plan_code==='pro'&&hasAccess()}
+function contactUrl(reason='contratacao'){
+  const chosen=plans[shop?.requested_plan]||'Básico';
+  const price=planPrices[shop?.requested_plan]||planPrices.basic;
+  const lines=[
+    'Olá! Gostaria de '+(reason==='renovacao'?'renovar':'contratar')+' meu plano BipStart.',
+    'Loja: '+String(shop?.name||''),
+    'Plano de interesse: '+chosen+' — '+price,
+    'Identificador da loja: '+String(shop?.id||''),
+    'Por favor, envie as instruções de pagamento pelo WhatsApp.'
+  ];
+  return 'https://wa.me/'+BIPSTART_PLAN_WHATSAPP+'?text='+encodeURIComponent(lines.join('\n'));
+}
+function renderAccessGate(){
+  const expiredTrial=ent?.status==='trialing'&&!trialValid();
+  const expiredPaid=ent?.status==='active'&&!subscriptionValid();
+  const suspended=ent?.status==='suspended';
+  const waiting=!expiredTrial&&!expiredPaid&&!suspended;
+  $('gateTitle').textContent=expiredTrial?'Seus 7 dias gratuitos terminaram':
+    expiredPaid?'Seu plano venceu':suspended?'Acesso suspenso':'Sua contratação está aguardando liberação';
+  $('gateDesc').textContent=expiredTrial?'O período gratuito encerrou. Seus dados continuam salvos. Para voltar a usar as funcionalidades, contrate um plano pelo WhatsApp.':
+    expiredPaid?'Seu acesso está pausado. Renove pelo WhatsApp e aguarde a confirmação para retomar.':
+    suspended?'Seu acesso foi suspenso pela administração. Fale conosco pelo WhatsApp para regularizar.':
+    'Envie sua solicitação pelo WhatsApp. Após confirmar o pagamento, a equipe BipStart liberará seu acesso manualmente.';
+  $('gateShop').textContent=shop.name;
+  $('gatePlan').textContent=(plans[shop.requested_plan]||'Básico')+' — '+(planPrices[shop.requested_plan]||planPrices.basic);
+  $('gateWhatsapp').href=contactUrl(expiredPaid?'renovacao':'contratacao');
+  $('gateStatus').textContent=waiting?'Aguardando confirmação':'Acesso temporariamente bloqueado';
+}
 async function openShop(){
-  hideAll();hiding('workspace',true);hiding('logout',true);
+  hideAll();hiding('logout',true);
   const [access]=await rest('shop_entitlements',{query:{select:'plan_code,status,trial_until,active_until',shop_id:'eq.'+shop.id,limit:'1'}});
   ent=access||null;
+  if(!hasAccess()){hiding('accessGate',true);renderAccessGate();return}
+  hiding('workspace',true);
   $('shopName').textContent=shop.name;
-  const trial=ent?.status==='trialing'&&new Date(ent.trial_until)>new Date();
-  $('shopStatus').textContent=trial?'Avaliação gratuita até '+new Date(ent.trial_until).toLocaleDateString('pt-BR'):ent?.status==='active'?'Plano '+(plans[ent.plan_code]||'')+' ativo':'Plano inativo — aguarde a contratação';
+  $('shopStatus').textContent=trialValid()?'Avaliação gratuita até '+new Date(ent.trial_until).toLocaleString('pt-BR'):
+    'Plano '+(plans[ent.plan_code]||'')+' ativo'+(ent.active_until?' até '+new Date(ent.active_until).toLocaleDateString('pt-BR'):'');
   hiding('publicMenuLink',shop.model==='cardapio');
   if(shop.model==='cardapio')$('publicMenuLink').href='/cardapio?loja='+encodeURIComponent(shop.slug);
   await reloadData();renderNav();renderPage();
@@ -170,7 +211,7 @@ async function reloadData(){
     appointments=await get('shop_appointments');
   }
   requests=await get('shop_customization_requests');
-  if(ent?.plan_code==='pro'&&ent.status==='active'){
+  if(proAccess()){
     couriers=await rest('shop_couriers',{query:{select:'*',shop_id:'eq.'+shop.id}});
     deliveries=await get('shop_deliveries');
   }
@@ -180,7 +221,7 @@ function pages(){
   if(shop.model==='pdv')a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['vendas','Histórico de vendas']);
   if(shop.model==='agenda')a.push(['agenda','Agendamentos'],['servicos','Serviços']);
   if(shop.model==='cardapio')a.push(['cardapio','Itens e fotos']);
-  if(ent?.plan_code==='pro'&&ent.status==='active')a.push(['motoboys','Motoboys'],['entregas','Entregas']);
+  if(proAccess())a.push(['motoboys','Motoboys'],['entregas','Entregas']);
   a.push(['personalizar','Solicitar personalização'],['configuracoes','Configurações']);
   return a;
 }
@@ -200,8 +241,9 @@ function renderPage(){
   let content='';
   if(tab==='resumo'){
     content=heading('Bem-vindo à BipStart','Seus dados ficam salvos no Supabase e são separados dos demais clientes.')
-      +'<div class="grid">'+tile('Modelo',models[shop.model])+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',ent?.status==='active'?'Ativo':'Em avaliação')+'</div>'
-      +'<p class="warn">A cobrança dos planos BipStart ainda não está ativa. Esta conta usa a avaliação gratuita. Pedidos dos clientes são enviados pelo WhatsApp e pagamentos das lojas são combinados diretamente com cada estabelecimento.</p>';
+      +'<div class="grid">'+tile('Modelo',models[shop.model])+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',trialValid()?'Teste gratuito':'Ativo')+'</div>'
+      +'<p class="warn">Planos BipStart: contratação e pagamento combinados pelo WhatsApp, com liberação manual. Não há cobrança automática.</p>'
+      +'<p><a class="button" target="_blank" rel="noopener noreferrer" href="'+esc(contactUrl())+'">Solicitar plano pelo WhatsApp</a></p>';
     if(shop.model==='pdv')content+='<div class="grid">'+tile('Produtos',products.length)+tile('Vendas',sales.length)+tile('Total vendido',fmt(sales.reduce((a,s)=>a+Number(s.total),0)))+'</div>';
     if(shop.model==='agenda')content+='<div class="grid">'+tile('Serviços',services.length)+tile('Agendamentos',appointments.length)+'</div>';
     if(shop.model==='cardapio')content+='<div class="grid">'+tile('Itens cadastrados',products.length)+tile('Link público',shop.slug)+'</div>';
@@ -315,9 +357,11 @@ async function handleSubmit(form){
       const normalized=v.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,35)||'loja';
       const slug=normalized+'-'+crypto.randomUUID().slice(0,7);
       const user=await requireVerifiedEmail();
-      const created=await rest('shops',{method:'POST',body:{owner_id:user.id,name:v.name.trim(),whatsapp:v.whatsapp?.replace(/\D/g,'')||null,slug,model:v.model,requested_plan:v.requested_plan}});
+      if(!['trial','whatsapp'].includes(v.signup_choice))throw Error('Escolha entre experimentar 7 dias ou contratar pelo WhatsApp.');
+      if(!plans[v.requested_plan])throw Error('Escolha um plano válido.');
+      const created=await rest('shops',{method:'POST',body:{owner_id:user.id,name:v.name.trim(),whatsapp:v.whatsapp?.replace(/\D/g,'')||null,slug,model:v.model,requested_plan:v.requested_plan,signup_choice:v.signup_choice}});
       shop=created?.[0];if(!shop)throw Error('A loja não pôde ser criada.');
-      await openShop();msg('Loja criada! Sua avaliação gratuita começou.');break;
+      await openShop();msg(v.signup_choice==='trial'?'Loja criada! Seus 7 dias gratuitos começaram.':'Loja cadastrada! Peça a contratação pelo WhatsApp e aguarde a liberação.');break;
     }
     case 'productForm':{
       const file=pastedProductImage||form.querySelector('input[name=image]').files[0];
