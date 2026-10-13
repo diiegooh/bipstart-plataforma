@@ -201,7 +201,11 @@ function renderPage(){
   if(tab==='resumo'){
     content=heading('Bem-vindo à BipStart','Seus dados ficam salvos no Supabase e são separados dos demais clientes.')
       +'<div class="grid">'+tile('Modelo',models[shop.model])+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',ent?.status==='active'?'Ativo':'Em avaliação')+'</div>'
-      +'<p class="warn">A cobrança dos planos BipStart ainda não está ativa. Esta conta usa a avaliação gratuita. Pedidos dos clientes são enviados pelo WhatsApp e pagamentos das lojas são combinados diretamente com cada estabelecimento.</p>';
+      +'<p class="warn">A cobrança dos planos BipStart está disponível somente no ambiente de testes, sem cobranças reais. Os pedidos dos clientes continuam pelo WhatsApp.</p>';
+    if(ent?.status!=='active' && ['basic','personalizado'].includes(shop.requested_plan))
+      content+='<p><button class="button" type="button" data-billing="'+esc(shop.requested_plan)+'">Testar contratação do plano '+esc(plans[shop.requested_plan])+' (Mercado Pago)</button></p>';
+    if(ent?.status!=='active' && shop.requested_plan==='pro')
+      content+='<p class="muted">Cobrança recorrente do Plano Pro ainda não implementada.</p>';
     if(shop.model==='pdv')content+='<div class="grid">'+tile('Produtos',products.length)+tile('Vendas',sales.length)+tile('Total vendido',fmt(sales.reduce((a,s)=>a+Number(s.total),0)))+'</div>';
     if(shop.model==='agenda')content+='<div class="grid">'+tile('Serviços',services.length)+tile('Agendamentos',appointments.length)+'</div>';
     if(shop.model==='cardapio')content+='<div class="grid">'+tile('Itens cadastrados',products.length)+tile('Link público',shop.slug)+'</div>';
@@ -382,6 +386,18 @@ document.addEventListener('paste',e=>{
 document.addEventListener('change',e=>{if(e.target.matches('#productForm input[name=image]')){pastedProductImage=null;const preview=document.querySelector('[data-image-preview]');if(preview)preview.replaceChildren();}});
 document.addEventListener('click',async e=>{
   const pasteArea=e.target.closest('[data-image-paste]');if(pasteArea){pasteArea.focus();return}
+  const pay=e.target.closest('[data-billing]');
+  if(pay){
+    pay.disabled=true;
+    try{
+      if(!await ensureSession())throw Error('Entre novamente antes de contratar.');
+      const response=await fetch('/api/billing/checkout',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({shopId:shop.id,plan:pay.dataset.billing})});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok||!data.checkoutUrl)throw Error(data.error||'Checkout de teste indisponível.');
+      location.assign(data.checkoutUrl);
+    }catch(error){msg(error.message||'Não foi possível iniciar a contratação.',true);pay.disabled=false;}
+    return;
+  }
   const nav=e.target.closest('[data-nav]');if(nav){tab=nav.dataset.nav;showForm=null;pastedProductImage=null;renderPage();return}
   const add=e.target.closest('[data-new]');if(add){showForm={kind:add.dataset.new,value:null};pastedProductImage=null;renderPage();return}
   const edit=e.target.closest('[data-edit]');if(edit){
