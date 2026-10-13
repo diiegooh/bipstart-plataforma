@@ -59,7 +59,14 @@ try{
   assert.match(signupHtml, /name="confirm"[^>]*required/);
   assert.ok(signupJs.includes("if(v.password!==v.confirm)throw Error"),"Cadastro deve recusar senhas diferentes.");
   assert.ok(signupJs.includes("setCustomValidity"),"Campo deve avisar o usuário sobre senhas diferentes.");
-  const cfg=await fetch(root+'/api/public-config').then(r=>r.json());
+  // CAPTCHA é opcional até a Site Key ser configurada no Northflank;
+  // quando ativado, cadastro, login e recuperação exigem o token.
+  assert.match(signupHtml, /id="signupCaptcha"/);
+  assert.match(signupHtml, /id="loginCaptcha"/);
+  assert.ok(signupJs.includes("captchaFor('signup')"),'Cadastro deve exigir CAPTCHA');
+  assert.ok(signupJs.includes("captchaFor('login')"),'Login e recuperação devem exigir CAPTCHA');
+  assert.ok(signupJs.includes("gotrue_meta_security"),'Token de CAPTCHA deve ir ao GoTrue');
+    const cfg=await fetch(root+'/api/public-config').then(r=>r.json());
   assert.equal(cfg.enabled,false,'Não deve abrir cadastros sem Supabase.');
   assert.equal((await fetch(root+'/path-nao-existe')).status,404);
   assert.equal((await fetch(root+'/health')).status,200);
