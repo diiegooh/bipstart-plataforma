@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { spawn, execFileSync } from 'node:child_process';
 
+const dockerfile=readFileSync('Dockerfile','utf8');
+assert.match(dockerfile,/COPY package\\.json server\\.mjs billing\\.mjs \\.\\//,'Imagem Docker deve incluir billing.mjs');
 for(const file of ['server.mjs','public/app.js','public/cliente.js','public/cardapio.js']){
   execFileSync(process.execPath,['--check',file],{stdio:'inherit'});
 }
