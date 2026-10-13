@@ -1,9 +1,33 @@
 'use strict';
 const $=id=>document.getElementById(id);
-let busy=false;
+let busy=false,credentialOk=false;
 const readSession=()=>{try{return JSON.parse(localStorage.getItem('bipstart_customer_session')||'null')}catch{return null}};
 function msg(value,error=false){$('notice').textContent=value;$('notice').style.color=error?'#ff9caa':'#cdbfdf'}
-function loading(on){busy=on;$('create').disabled=on;$('refresh').disabled=on}
+function loading(on){busy=on;$('create').disabled=on||!credentialOk;$('refresh').disabled=on;$('checkCredential').disabled=on}
+async function checkCredential(){
+ if(busy)return;
+ const session=readSession();
+ if(!session?.access_token){msg('Entre primeiro no painel da BipStart Homologação.',true);return}
+ loading(true);
+ credentialOk=false;
+ try{
+  const response=await fetch('/api/billing/pix-auth-check',{
+   method:'GET',headers:{Authorization:'Bearer '+session.access_token}
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(data.error||'Falha ao verificar credencial.');
+  if(data.authorized){
+   credentialOk=true;
+   msg('Mercado Pago reconheceu a credencial de produção (HTTP '+data.httpStatus+'). Você pode prosseguir com o teste quando desejar.');
+  }else{
+   const hint=data.tokenHasWhitespace?' Verifique espaços extras no token.':
+    data.tokenHasQuotes?' Verifique aspas copiadas junto da chave.':'';
+   msg('Mercado Pago não autorizou a credencial: HTTP '+data.httpStatus
+    +(data.providerErrorCode?', código '+data.providerErrorCode:'')+'.'+hint+' Confira o Access Token de produção da aplicação BipStart.',true);
+  }
+ }catch(e){msg(e.message,true)}
+ finally{loading(false)}
+}
 async function api(method){
  if(busy)return;
  const session=readSession();
@@ -31,7 +55,9 @@ async function api(method){
  }catch(e){msg(e.message,true)}
  finally{loading(false)}
 }
+$('checkCredential').addEventListener('click',checkCredential);
 $('create').addEventListener('click',()=>{
+ if(!credentialOk){msg('Verifique a credencial antes de gerar o PIX.',true);return}
  if(!window.confirm('Criar uma cobrança PIX REAL de R$ 1,00 na aplicação BipStart? Só haverá transferência se você efetuar o pagamento. Este teste NÃO contrata plano.'))return;
  api('POST');
 });
@@ -40,4 +66,4 @@ $('copyPix').addEventListener('click',async()=>{
  try{await navigator.clipboard.writeText($('pix').value);msg('Código PIX copiado. Verifique recebedor e valor no aplicativo do banco.')}
  catch{msg('Selecione o código PIX e copie manualmente.',true)}
 });
-if(readSession()?.access_token){msg('Conta localizada. Consulte para verificar um PIX anterior ou gere o teste de R$ 1,00.');api('GET')}
+if(readSession()?.access_token){msg('Conta localizada. Clique primeiro em Verificar credencial (sem cobrança).');api('GET')}
