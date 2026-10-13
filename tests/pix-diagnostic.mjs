@@ -86,10 +86,11 @@ try{
   const calls=fakeNetwork();
   const marker='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
   const r=await invoke('/api/billing/pix-proxy-check?probe='+marker,{
-   method:'GET',headers:{authorization:'Bearer mock','x-request-id':marker}
+   method:'GET',headers:{authorization:'Bearer mock','x-request-id':marker,'x-bipstart-original-request-id':marker}
   });
   assert.equal(r.status,200);
   assert.equal(r.body.requestIdPreserved,true);
+  assert.equal(r.body.alternateHeaderPreserved,true);
   assert.equal(r.body.createsPayment,false);
   assert.equal(r.body.planActivated,false);
   assert.ok(!calls.some(c=>c.path==='/v1/payments'));
@@ -99,11 +100,23 @@ try{
   const calls=fakeNetwork();
   const marker='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
   const r=await invoke('/api/billing/pix-proxy-check?probe='+marker,{
+   method:'GET',headers:{authorization:'Bearer mock','x-request-id':'ffffffff-eeee-4ddd-8ccc-bbbbbbbbbbbb','x-bipstart-original-request-id':marker}
+  });
+  assert.equal(r.status,200);
+  assert.equal(r.body.requestIdPreserved,false);
+  assert.equal(r.body.alternateHeaderPreserved,true);
+  assert.equal(r.body.createsPayment,false);
+  assert.ok(!calls.some(c=>c.path==='/v1/payments'));
+ });
+ await test('header alternativo também alterado: teste sinaliza falha',async()=>{
+  const calls=fakeNetwork();
+  const marker='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
+  const r=await invoke('/api/billing/pix-proxy-check?probe='+marker,{
    method:'GET',headers:{authorization:'Bearer mock','x-request-id':'ffffffff-eeee-4ddd-8ccc-bbbbbbbbbbbb'}
   });
   assert.equal(r.status,200);
   assert.equal(r.body.requestIdPreserved,false);
-  assert.equal(r.body.createsPayment,false);
+  assert.equal(r.body.alternateHeaderPreserved,false);
   assert.ok(!calls.some(c=>c.path==='/v1/payments'));
  });
  await test('diagnóstico do proxy exige autenticação do titular',async()=>{
