@@ -1,5 +1,6 @@
 import http from 'node:http';
 import { billing } from './billing.mjs';
+import { pixDiagnostic } from './pix-diagnostic.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,6 +19,8 @@ const routes = {
   '/bipstart-marca-icon.png': ['bipstart-marca-icon.png', 'image/png'],
   '/bipstart-marca-nome.png': ['bipstart-marca-nome.png', 'image/png'],
   '/cliente.js': ['cliente.js', 'text/javascript; charset=utf-8'],
+  '/pix-teste': ['pix-teste.html', 'text/html; charset=utf-8'],
+  '/pix-teste.js': ['pix-teste.js', 'text/javascript; charset=utf-8'],
   '/cardapio': ['cardapio.html', 'text/html; charset=utf-8'],
   '/cardapio.html': ['cardapio.html', 'text/html; charset=utf-8'],
   '/cardapio.js': ['cardapio.js', 'text/javascript; charset=utf-8']
@@ -48,10 +51,13 @@ const server = http.createServer(async (req, res) => {
       supabaseUrl: url,
       publishableKey: key,
       turnstileSiteKey: String(process.env.TURNSTILE_SITE_KEY || ''),
-      stagingMode: process.env.BIPSTART_STAGING_MODE === '1'
+      stagingMode: process.env.BIPSTART_STAGING_MODE === '1',
+      realPixDiagnosticAvailable:process.env.BIPSTART_STAGING_MODE === '1' && process.env.BIPSTART_REAL_PIX_TEST_ENABLED === '1'
     }));
   }
   if (pathname.startsWith('/api/billing/')) {
+    const diagnostic = await pixDiagnostic(req, res, new URL(req.url, 'http://localhost'));
+    if (diagnostic) return;
     const handled = await billing(req, res, new URL(req.url, 'http://localhost'));
     if (handled) return;
   }
