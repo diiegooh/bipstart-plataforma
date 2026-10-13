@@ -76,7 +76,17 @@ async function begin(){
     await loadShops();
   } else showAuth();
 }
+async function requireVerifiedEmail(){
+  if(!await ensureSession())throw Error('Entre na sua conta para continuar.');
+  const user=await api('/auth/v1/user');
+  if(!user?.email_confirmed_at){
+    session=null;saveSession();showAuth();authTab(false);
+    throw Error('Confirme seu e-mail pelo link enviado antes de iniciar os 7 dias gratuitos.');
+  }
+  return user;
+}
 async function loadShops(){
+  await requireVerifiedEmail();
   const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,brand_color,whatsapp,created_at',order:'created_at.desc',limit:'20'}});
   if(!rows?.length){hideAll();hiding('createShop',true);hiding('logout',true);return}
   shop=rows[0];await openShop();
@@ -227,8 +237,7 @@ async function handleSubmit(form){
       if(v.password!==v.confirm)throw Error('As senhas não coincidem. Confira e tente novamente.');
       const callback=encodeURIComponent(location.origin+'/cliente');
       const response=await api('/auth/v1/signup?redirect_to='+callback,{method:'POST',token:null,body:{email:v.email,password:v.password}});
-      if(response?.access_token){session={...response,expires_at:Date.now()/1000+Number(response.expires_in||3600)};saveSession();await loadShops()}
-      else{authTab(false);msg('Conta criada! Confirme seu e-mail antes de entrar.');}
+      authTab(false);msg('Cadastro realizado! Confirme seu e-mail e depois entre para iniciar os 7 dias gratuitos.');
       break;
     }
     case 'resetPassForm':{
@@ -241,7 +250,7 @@ async function handleSubmit(form){
     case 'shopForm':{
       const normalized=v.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,35)||'loja';
       const slug=normalized+'-'+crypto.randomUUID().slice(0,7);
-      const user=await api('/auth/v1/user');
+      const user=await requireVerifiedEmail();
       const created=await rest('shops',{method:'POST',body:{owner_id:user.id,name:v.name.trim(),whatsapp:v.whatsapp?.replace(/\D/g,'')||null,slug,model:v.model,requested_plan:v.requested_plan}});
       shop=created?.[0];if(!shop)throw Error('A loja não pôde ser criada.');
       await openShop();msg('Loja criada! Sua avaliação gratuita começou.');break;
