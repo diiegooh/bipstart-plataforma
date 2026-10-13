@@ -45,7 +45,8 @@ const server = http.createServer(async (req, res) => {
     return res.end(req.method === 'HEAD' ? undefined : JSON.stringify({
       enabled: Boolean(url && key),
       supabaseUrl: url,
-      publishableKey: key
+      publishableKey: key,
+      turnstileSiteKey: String(process.env.TURNSTILE_SITE_KEY || '')
     }));
   }
   const file = routes[pathname];
