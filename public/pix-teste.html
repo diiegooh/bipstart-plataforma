@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PIX de diagnóstico • BipStart</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,Arial,sans-serif}
+body{background:radial-gradient(circle at 20% 0%,#30224d,#100b1a 65%);color:#f8f4ff;min-height:100vh;margin:0;padding:36px 16px}
+main{max-width:690px;margin:0 auto}h1{font-size:clamp(26px,4vw,40px);margin:18px 0}
+.panel{background:#1c152b;border:1px solid #583f7c;border-radius:20px;padding:26px;line-height:1.55}
+small,p{color:#cdbfdf}a{color:#cca5ff}button,.button{border:0;border-radius:12px;padding:14px 18px;background:#904df5;color:#fff;font-weight:700;cursor:pointer;font:inherit}
+button:disabled{opacity:.55;cursor:wait}.secondary{background:#3c3152}code{word-break:break-all}
+input{width:100%;box-sizing:border-box;padding:12px;color:#fff;border:1px solid #725399;border-radius:8px;background:#120d1c}
+.note{border-left:3px solid #f8b458;padding:12px 14px;background:#2e2534}
+#result{margin-top:24px}#qrText{font-size:12px}.hidden{display:none}.actions{display:flex;gap:10px;flex-wrap:wrap}
+</style></head>
+<body><main>
+<a href="/cliente">← Voltar ao painel</a>
+<h1>Teste real de PIX • BipStart</h1>
+<div class="panel">
+<p class="note"><strong>Atenção: R$ 1,00 real.</strong> Esta é uma cobrança técnica, não uma contratação de plano. O dinheiro só será transferido se você pagar voluntariamente no aplicativo do seu banco. Taxas da conta recebedora podem se aplicar.</p>
+<p>O teste usa exclusivamente a aplicação Mercado Pago da BipStart. A transação será criada uma única vez para sua loja, e nenhuma avaliação ou plano será alterado.</p>
+<div class="actions">
+<button id="create" type="button">Gerar PIX real de R$ 1,00</button>
+<button id="refresh" class="secondary" type="button">Consultar pagamento</button>
+</div>
+<p id="notice" role="status">Entre na sua conta BipStart nesta mesma aba antes de iniciar.</p>
+<section id="result" class="hidden" aria-live="polite">
+<p><strong>ID da transação:</strong> <code id="paymentId"></code></p>
+<p><strong>Status Mercado Pago:</strong> <strong id="paymentStatus"></strong></p>
+<p id="planWarning">Nenhum plano será ativado por este teste.</p>
+<div id="payInfo" class="hidden">
+<p>Confira no aplicativo do banco o recebedor e o valor <strong>R$ 1,00</strong> antes de pagar.</p>
+<a id="ticket" target="_blank" rel="noopener noreferrer" class="button hidden">Abrir instruções oficiais do PIX</a>
+<p id="copyBox" class="hidden"><label>PIX Copia e Cola<input id="pix" readonly></label><button id="copyPix" class="secondary">Copiar código PIX</button></p>
+</div>
+</section>
+</div>
+</main><script src="/pix-teste.js" defer></script></body></html>
