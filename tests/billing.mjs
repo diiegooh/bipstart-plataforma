@@ -5,7 +5,7 @@ import { billing } from '../billing.mjs';
 
 const orderId='11111111-1111-4111-8111-111111111111';
 const shopId='22222222-2222-4222-8222-222222222222';
-const envNames=['SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_SECRET_KEY','MERCADO_PAGO_ACCESS_TOKEN','MERCADO_PAGO_WEBHOOK_SECRET','BIPSTART_BASE_URL','BIPSTART_BILLING_MODE'];
+const envNames=['SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_SECRET_KEY','MERCADO_PAGO_ACCESS_TOKEN','MERCADO_PAGO_WEBHOOK_SECRET','BIPSTART_BASE_URL','BIPSTART_BILLING_MODE','BIPSTART_STAGING_MODE'];
 for(const key of envNames)process.env[key]={
  SUPABASE_URL:'https://testing.supabase.co',
  SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',
@@ -13,7 +13,8 @@ for(const key of envNames)process.env[key]={
  MERCADO_PAGO_ACCESS_TOKEN:'mock-mp',
  MERCADO_PAGO_WEBHOOK_SECRET:'mock-signing',
  BIPSTART_BASE_URL:'https://bipstart.example.test',
- BIPSTART_BILLING_MODE:'test'
+ BIPSTART_BILLING_MODE:'test',
+ BIPSTART_STAGING_MODE:'1'
 }[key];
 
 function request(path,{method='POST',body={},headers={}}={}){
