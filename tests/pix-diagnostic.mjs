@@ -82,6 +82,39 @@ try{
   assert.equal(response.status,403);
   assert.equal(calls.length,0);
  });
+ await test('proxy preserva x-request-id: teste sem cobrança',async()=>{
+  const calls=fakeNetwork();
+  const marker='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
+  const r=await invoke('/api/billing/pix-proxy-check?probe='+marker,{
+   method:'GET',headers:{authorization:'Bearer mock','x-request-id':marker}
+  });
+  assert.equal(r.status,200);
+  assert.equal(r.body.requestIdPreserved,true);
+  assert.equal(r.body.createsPayment,false);
+  assert.equal(r.body.planActivated,false);
+  assert.ok(!calls.some(c=>c.path==='/v1/payments'));
+  assert.ok(!calls.some(c=>c.method==='PATCH'));
+ });
+ await test('proxy sobrescreve x-request-id: detecta sem aceitar assinatura',async()=>{
+  const calls=fakeNetwork();
+  const marker='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
+  const r=await invoke('/api/billing/pix-proxy-check?probe='+marker,{
+   method:'GET',headers:{authorization:'Bearer mock','x-request-id':'ffffffff-eeee-4ddd-8ccc-bbbbbbbbbbbb'}
+  });
+  assert.equal(r.status,200);
+  assert.equal(r.body.requestIdPreserved,false);
+  assert.equal(r.body.createsPayment,false);
+  assert.ok(!calls.some(c=>c.path==='/v1/payments'));
+ });
+ await test('diagnóstico do proxy exige autenticação do titular',async()=>{
+  const calls=fakeNetwork();
+  const marker='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
+  const r=await invoke('/api/billing/pix-proxy-check?probe='+marker,{
+   method:'GET',headers:{'x-request-id':marker}
+  });
+  assert.equal(r.status,403);
+  assert.equal(calls.length,0);
+ });
  await test('consulta a credencial sem criar PIX e sem ativar plano',async()=>{
   const calls=fakeNetwork();
   const r=await invoke('/api/billing/pix-auth-check',{method:'GET',headers:{authorization:'Bearer mock'}});
