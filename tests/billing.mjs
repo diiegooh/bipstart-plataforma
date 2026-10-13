@@ -190,6 +190,21 @@ try {
    assert.equal(r.status,401);
    assert.equal(calls.length,0);
  });
+ await test('HMAC de formato alternativo jamais é aceito para autorizar pagamento',async()=>{
+   const calls=mockApi();
+   const ts=String(Math.floor(Date.now()/1000)),requestId='fake-notification';
+   const alternate='request-id:'+requestId+';ts:'+ts+';';
+   const headers={
+      'x-request-id':requestId,
+      'x-signature':'ts='+ts+',v1='+crypto.createHmac('sha256','mock-signing').update(alternate).digest('hex')
+   };
+   const r=await invoke('/api/billing/webhook?data.id=12345',{
+     headers,
+     body:{type:'payment',data:{id:'12345'}}
+   });
+   assert.equal(r.status,401);
+   assert.equal(calls.length,0);
+ });
  await test('assinatura ausente rejeita payload mesmo com corpo e ID',async()=>{
    const calls=mockApi();
    const r=await invoke('/api/billing/webhook',{body:{type:'payment',data:{id:'99999'}}});
