@@ -28,4 +28,6 @@ Acesse http://localhost:3000 e http://localhost:3000/health.
 6. Vincule o domínio ao serviço/porta e aguarde HTTPS. Não altere o DNS antes de obter os valores oficiais.
 
 ## Próxima etapa: vendas reais
-Criar projeto Supabase dedicado com usuários, empresas, isolamento (RLS), tabelas e storage de imagens; conectar Mercado Pago com verificação de pagamento e webhook idempotente; provisionar uma conta/loja por cliente e implementar a assinatura do Plano 3, formulários de personalização e suporte real.
+**Arquitetura de pagamentos definida:** Mercado Pago será utilizado exclusivamente para cobranças dos planos da própria BipStart (Básico, Personalizado e Pro), com confirmação server-side, webhook validado e idempotência. Não conectar contas Mercado Pago de lojistas e não receber/processar valores das vendas dos estabelecimentos. Pedidos no cardápio seguem para o WhatsApp comercial de cada loja, onde o lojista negocia e recebe diretamente o pagamento. O PDV pode registrar pagamentos recebidos por fora, sem processar Pix/cartões. Próximos passos: integrar checkout central da BipStart e ativação dos planos após pagamento confirmado; concluir controle de assinaturas e suporte.
+
+**Atenção:** atualmente não há checkout real de planos; nenhuma cobrança automática ou ativação por pagamento deve ser anunciada como funcional até a integração ser implementada e testada.
