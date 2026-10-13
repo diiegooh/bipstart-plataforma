@@ -7,7 +7,8 @@ const supa=()=>String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
 const base=()=>String(process.env.BIPSTART_BASE_URL||'').replace(/\/$/,'');
 const secret=()=>String(process.env.SUPABASE_SECRET_KEY||'');
 const publish=()=>String(process.env.SUPABASE_PUBLISHABLE_KEY||'');
-const prodToken=()=>String(process.env.MERCADO_PAGO_PROD_ACCESS_TOKEN||'');
+const rawProdToken=()=>String(process.env.MERCADO_PAGO_PROD_ACCESS_TOKEN||'');
+const prodToken=()=>rawProdToken().trim();
 const provider='mercado_pago_pix_diagnostic';
 const amount=1.00;
 const enabled=()=>process.env.BIPSTART_STAGING_MODE==='1'
@@ -27,12 +28,34 @@ async function db(path,method='GET',body,access){
  if(!response.ok)throw Error('Supabase falhou ('+response.status+').');
  return response.json();
 }
+function safeCode(value){
+ const code=typeof value==='number'?String(value):typeof value==='string'?value:'';
+ return /^[a-zA-Z0-9_.-]{1,70}$/.test(code)?code:null;
+}
+function safeMpError(payload){
+ return safeCode(payload?.error)||safeCode(payload?.cause?.[0]?.code)||safeCode(payload?.error_code)||null;
+}
+async function verifyProductionTokenReadOnly(){
+ const r=await fetch('https://api.mercadolibre.com/users/me',{
+   headers:{Authorization:'Bearer '+prodToken()},redirect:'error'
+ });
+ const payload=await r.json().catch(()=>({}));
+ return {
+   authorized:r.ok,httpStatus:r.status,providerErrorCode:r.ok?null:safeMpError(payload),
+   tokenHasWhitespace:rawProdToken()!==prodToken(),
+   tokenHasQuotes:/^(['"]).*\1$/.test(prodToken()),
+   tokenLooksLikeProduction:prodToken().startsWith('APP_USR-')
+ };
+}
 async function mp(path,method='GET',body,idempotency){
  const headers={'Authorization':'Bearer '+prodToken(),'Content-Type':'application/json'};
  if(idempotency)headers['X-Idempotency-Key']=idempotency;
  const r=await fetch(BASE+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});
  const d=await r.json().catch(()=>({}));
- if(!r.ok)throw Error('Mercado Pago recusou a operação ('+r.status+'). Confira as credenciais de produção e a conta recebedora.');
+ if(!r.ok){
+  const code=safeMpError(d);
+  throw Error('Mercado Pago recusou a operação ('+r.status+').'+(code?' Código: '+code+'.':'')+' Verifique as credenciais de produção da aplicação BipStart.');
+ }
  return d;
 }
 async function owner(req){
@@ -109,7 +132,7 @@ async function readBody(req){
  return JSON.parse(raw||'{}');
 }
 export async function pixDiagnostic(req,res,url){
- if(!['/api/billing/pix-diagnostic','/api/billing/pix-webhook'].includes(url.pathname))return false;
+ if(!['/api/billing/pix-diagnostic','/api/billing/pix-webhook','/api/billing/pix-auth-check'].includes(url.pathname))return false;
  if(!enabled()){reply(res,503,{error:'Teste PIX real desativado na homologação.'});return true;}
  if(url.pathname==='/api/billing/pix-webhook'){
   if(req.method!=='POST'){reply(res,405,{error:'Método não permitido'});return true;}
@@ -129,6 +152,12 @@ export async function pixDiagnostic(req,res,url){
   if(host&&host!==new URL(base()).host.toLowerCase()){reply(res,409,{error:'Domínio da homologação incompatível'});return true;}
   const current=await owner(req);
   if(!current){reply(res,403,{error:'Entre com a conta de teste autorizada e e-mail confirmado.'});return true;}
+  if(url.pathname==='/api/billing/pix-auth-check'){
+   if(req.method!=='GET'){reply(res,405,{error:'Somente consulta é permitida.'});return true;}
+   const diagnostic=await verifyProductionTokenReadOnly();
+   reply(res,200,{...diagnostic,createsPayment:false,planActivated:false});
+   return true;
+  }
   if(req.method==='GET'){
    const order=await getOrder(current.shop.id);
    if(!order){reply(res,200,{created:false,amount,planActivated:false});return true;}
