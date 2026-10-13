@@ -90,3 +90,15 @@ test('painel diferencia sessão inválida de falta de permissão',()=>{
  assert.match(admin,/Conta conectada:/);
  assert.match(readFileSync('public/admin.html','utf8'),/id="adminAccount"/);
 });
+
+
+test('admin mostra e-mail cadastrado por loja, com escape de HTML e RPC autorizada',()=>{
+ const sql=readFileSync('sql/bipstart_admin_owner_email.sql','utf8');
+ assert.match(sql,/create or replace function public\.bipstart_admin_list_shops_with_emails/);
+ assert.match(sql,/join auth\.users u on u\.id=s\.owner_id/);
+ assert.match(sql,/a\.user_id=auth\.uid\(\)/);
+ assert.match(sql,/revoke all on function public\.bipstart_admin_list_shops_with_emails\(\) from public,anon/);
+ assert.match(admin,/request\('bipstart_admin_list_shops_with_emails'\)/);
+ assert.match(admin,/escapeHtml\(item\.owner_email/);
+ assert.match(readFileSync('public/admin.html','utf8'),/admin\.js\?v=3/);
+});
