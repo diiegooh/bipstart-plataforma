@@ -55,3 +55,30 @@ No mesmo projeto, escolha **Create new > Service > Combined** (não modificar o 
 - Pagamentos reais exigem uma implementação e validação específicas para produção.
 - Caso o checkout responda 503, conferir variáveis e se `BIPSTART_STAGING_MODE=1` e `BIPSTART_BILLING_MODE=test`.
 - Caso responda 409, conferir se `BIPSTART_BASE_URL` corresponde ao domínio do serviço novo.
+
+
+## 7. PIX REAL DE DIAGNÓSTICO (apenas homologação)
+
+**Valor real: R$ 1,00.** Esta operação não contrata planos e não altera \`shop_entitlements\`. A emissão do Pix não efetua transferência: o titular precisa pagar voluntariamente no app do banco. O recebedor pode ter taxas sobre o pagamento.
+
+A homologação recebe os seguintes segredos NOVOS, sem substituir \`MERCADO_PAGO_ACCESS_TOKEN\` (TEST):
+- \`MERCADO_PAGO_PROD_ACCESS_TOKEN\` = Access Token de PRODUÇÃO da aplicação Mercado Pago **BipStart**, normalmente iniciado em \`APP_USR-\`. Nunca copiar o token da Salgatti.
+- \`MERCADO_PAGO_PROD_WEBHOOK_SECRET\` = assinatura secreta do modo de PRODUÇÃO da mesma aplicação. Não reutilizar o segredo de teste.
+- \`BIPSTART_REAL_PIX_TEST_EMAIL\` = e-mail confirmado do titular autorizado ao teste, exatamente como no Supabase Auth.
+- \`BIPSTART_REAL_PIX_TEST_ENABLED=1\` = habilitação temporária explícita. O teste exige também \`BIPSTART_STAGING_MODE=1\` e \`BIPSTART_BILLING_MODE=test\`.
+
+A URL \`BIPSTART_BASE_URL\` deve continuar apontando para a hospedagem **bipstart-homologacao**.
+
+Acesse \`https://<host-da-homologacao>/api/public-config\`: \`realPixDiagnosticAvailable\` deverá ser \`true\` sem expor segredos.
+
+Faça login em \`https://<host-da-homologacao>/cliente\` e abra \`https://<host-da-homologacao>/pix-teste\`.
+- **Gerar PIX real de R$ 1,00** requer confirmação explícita e cria apenas uma transação de diagnóstico por loja.
+- **Consultar pagamento** solicita o pagamento via ID na API do Mercado Pago, confirma valor/moeda/origem e mostra \`pending\` ou \`approved\`.
+- Guarde o **paymentId**. Não envie token ou chave secreta.
+- O webhook individual de pagamento é configurado via \`notification_url\` para \`/api/billing/pix-webhook\`, que verifica \`MERCADO_PAGO_PROD_WEBHOOK_SECRET\` e **nunca ativa planos**.
+- A tabela \`shop_billing_orders\` usa índice único \`bipstart_one_pix_diagnostic_per_shop\`, já migrado e presente no arquivo \`sql/bipstart_one_pix_diagnostic_per_shop.sql\`.
+- Se a cobrança falhar no MP por conta recebedora/pagador, não tentar reenviar indefinidamente. Usar o ID da transação retornada e investigar na documentação oficial.
+
+**Desativação obrigatória após concluir:** alterar \`BIPSTART_REAL_PIX_TEST_ENABLED=0\`, salvar/reimplantar o serviço e, quando possível, revogar/remover a credencial de produção do ambiente de homologação. Nenhuma outra integração da BipStart depende dessas variáveis.
+
+> O PR #7 continua **rascunho**, isolado em \`feature/mercadopago-testes-20261013\`. Nunca mesclar automaticamente para main.
