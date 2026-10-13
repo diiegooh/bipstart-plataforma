@@ -45,6 +45,7 @@ async function ensureSession(){
   }catch{session=null;saveSession();return false}
 }
 async function rest(table,{method='GET',query={},body}={}){
+  if(shop&&ent&&table!=='shops'&&table!=='shop_entitlements'&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();throw Error('Seu acesso expirou. Contrate ou renove pelo WhatsApp.');}
   if(!await ensureSession()){showAuth();throw Error('Sua sessão expirou. Entre novamente.')}
   let url=qs(table,query);const headers={apikey:cfg.publishableKey,Authorization:'Bearer '+session.access_token,Prefer:'return=representation'};
   if(body!==undefined)headers['Content-Type']='application/json';
@@ -237,6 +238,7 @@ function productRows(){
   return products.length?'<div class="stack">'+products.map(p=>'<div class="item">'+(p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="">':'')+'<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' • '+fmt(p.price)+' • Estoque: '+esc(p.stock)+'</small></div><div class="actions">'+editBtn('product',p.id)+'</div></div>').join('')+'</div>':empty('Cadastre o primeiro produto.')
 }
 function renderPage(){
+  if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
   renderNav();
   let content='';
   if(tab==='resumo'){
@@ -456,6 +458,9 @@ $('showLogin').onclick=()=>authTab(false);
 $('showSignup').onclick=()=>authTab(true);
 $('logout').onclick=()=>{session=null;shop=null;saveSession();showAuth();msg('Você saiu com segurança.')};
 $('switchShop').onclick=()=>{location.href='/#planos'};
+$('refreshAccess').onclick=async()=>{try{await openShop();msg(hasAccess()?'Seu acesso está liberado!':'Ainda aguardando liberação. Confira o WhatsApp.')}catch(e){msg(e.message,true)}};
+window.addEventListener('focus',()=>{if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate()}});
+setInterval(()=>{if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate()}},60000);
 $('forgotPassword').onclick=async()=>{
   const email=$('loginForm').querySelector('input[name=email]').value.trim();
   if(!email)return msg('Informe seu e-mail para receber a recuperação.',true);
