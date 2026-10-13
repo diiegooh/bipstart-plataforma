@@ -48,15 +48,16 @@ function mockApi({confirmed=true,owns=true,active=false,paymentStatus='approved'
   if(p==='/rest/v1/shop_billing_orders'&&init.method==='PATCH')return json([{id:orderId,status:'test_approved'}]);
   if(p==='/checkout/preferences')return json({sandbox_init_point:'https://sandbox.mercadopago.com.br/checkout/mock'});
   if(p==='/v1/payments/12345')return json({id:12345,status:paymentStatus,external_reference:'bipstart:'+orderId,transaction_amount:paymentAmount,currency_id:'BRL',live_mode:live});
+  if(p==='/v1/payments/99999')return json({message:'payment not found'},404);
   if(p==='/rest/v1/shop_billing_orders')return json([{id:orderId,plan_code:'basic',amount:29.99,status:orderStatus,provider_ref:orderRef}]);
   if(p==='/rest/v1/rpc/bipstart_confirm_plan_payment')return json(true);
   throw Error('Unexpected request: '+url.toString());
  };
  return calls;
 }
-function signedHeaders(timestamp=String(Math.floor(Date.now()/1000))){
+function signedHeaders(timestamp=String(Math.floor(Date.now()/1000)),paymentId='12345'){
  const requestId='fake-notification';
- const payload='id:12345;request-id:'+requestId+';ts:'+timestamp+';';
+ const payload='id:'+paymentId+';request-id:'+requestId+';ts:'+timestamp+';';
  return {
   'x-request-id':requestId,
   'x-signature':'ts='+timestamp+',v1='+crypto.createHmac('sha256','mock-signing').update(payload).digest('hex')
@@ -102,6 +103,12 @@ try {
    assert.equal(adminWrite.headers.apikey,'mock-secret');
    assert.equal(adminWrite.headers.Authorization,undefined);
  });
+ await test('ambiente de homologação bloqueia base URL diferente do domínio',async()=>{
+   const calls=mockApi();
+   const r=await invoke('/api/billing/checkout',{headers:{host:'staging.example.test',authorization:'Bearer mock-jwt'},body:{shopId,plan:'basic'}});
+   assert.equal(r.status,409);
+   assert.equal(calls.length,0);
+ });
  await test('plano recorrente Pro bloqueado em checkout único',async()=>{
    mockApi();
    const r=await invoke('/api/billing/checkout',{headers:{authorization:'Bearer mock-jwt'},body:{shopId,plan:'pro'}});
@@ -124,6 +131,13 @@ try {
      assert.ok(!calls.some(c=>c.url.includes('bipstart_confirm_plan_payment')),'Teste não pode ativar plano definitivo');
    });
  }
+ await test('simulador MP com assinatura válida e ID inexistente é ignorado',async()=>{
+   const calls=mockApi();
+   const r=await invoke('/api/billing/webhook?data.id=99999',{headers:signedHeaders(undefined,'99999')});
+   assert.equal(r.status,200);
+   assert.equal(r.result.ignored,true);
+   assert.ok(!calls.some(c=>c.method==='PATCH'));
+ });
  await test('webhook com valor adulterado não ativa plano',async()=>{
    const calls=mockApi({paymentAmount:1});
    const r=await invoke('/api/billing/webhook?data.id=12345',{headers:signedHeaders()});
