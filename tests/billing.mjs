@@ -44,6 +44,7 @@ function mockApi({confirmed=true,owns=true,active=false,paymentStatus='approved'
   if(p==='/rest/v1/shops')return json(owns?[{id:shopId,name:'Loja'}]:[]);
   if(p==='/rest/v1/shop_entitlements')return json([{status:active?'active':'trialing',plan_code:'basic'}]);
   if(p==='/rest/v1/shop_billing_orders'&&init.method==='POST')return json([{id:orderId}]);
+  if(p==='/rest/v1/shop_billing_orders'&&init.method==='PATCH')return json([{id:orderId,status:'test_approved'}]);
   if(p==='/checkout/preferences')return json({sandbox_init_point:'https://sandbox.mercadopago.com.br/checkout/mock'});
   if(p==='/v1/payments/12345')return json({id:12345,status:paymentStatus,external_reference:'bipstart:'+orderId,transaction_amount:paymentAmount,currency_id:'BRL',live_mode:live});
   if(p==='/rest/v1/shop_billing_orders')return json([{id:orderId,plan_code:'basic',amount:29.99,status:orderStatus,provider_ref:orderRef}]);
@@ -110,16 +111,17 @@ try {
      const calls=mockApi();
      const r=await invoke('/api/billing/webhook?data.id=12345',{headers:signedHeaders(ts)});
      assert.equal(r.status,200,JSON.stringify(r.result));
-     const rpc=calls.find(c=>c.url.includes('bipstart_confirm_plan_payment'));
-     assert.equal(rpc.body.p_amount,29.99);
-     assert.equal(rpc.body.p_order_id,orderId);
+     const update=calls.find(c=>c.method==='PATCH'&&c.url.includes('/shop_billing_orders'));
+     assert.equal(update.body.status,'test_approved');
+     assert.equal(update.body.provider_ref,'12345');
+     assert.ok(!calls.some(c=>c.url.includes('bipstart_confirm_plan_payment')),'Teste não pode ativar plano definitivo');
    });
  }
  await test('webhook com valor adulterado não ativa plano',async()=>{
    const calls=mockApi({paymentAmount:1});
    const r=await invoke('/api/billing/webhook?data.id=12345',{headers:signedHeaders()});
    assert.equal(r.status,422);
-   assert.ok(!calls.some(c=>c.url.includes('bipstart_confirm_plan_payment')));
+   assert.ok(!calls.some(c=>c.method==='PATCH'));
  });
  await test('não ativa pagamento real em modo de teste',async()=>{
    const calls=mockApi({live:true});
@@ -128,7 +130,7 @@ try {
    assert.ok(!calls.some(c=>c.url.includes('bipstart_confirm_plan_payment')));
  });
  await test('webhook repetido não ativa novamente',async()=>{
-   const calls=mockApi({orderStatus:'approved',orderRef:'12345'});
+   const calls=mockApi({orderStatus:'test_approved',orderRef:'12345'});
    const r=await invoke('/api/billing/webhook?data.id=12345',{headers:signedHeaders()});
    assert.equal(r.status,200);
    assert.ok(!calls.some(c=>c.url.includes('bipstart_confirm_plan_payment')));
