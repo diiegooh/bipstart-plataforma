@@ -28,3 +28,11 @@ Esta branch **não está em produção** e não modifica a Salgatti. O checkout 
 
 ## Aviso
 O checkout implementado nesta branch é um preparo técnico ainda **não testado ponta a ponta**. Não inserir token de produção antes de validar webhook, RLS, migração e reconciliação. Não executar SQL diretamente na base de produção sem conferir a estrutura e ter backup.
+
+## Testes seguros em 2026-10-13
+- Novo estado `test_approved` na tabela de pedidos da BipStart (migração aplicada).
+- No modo `BIPSTART_BILLING_MODE=test`, webhook de pagamento sandbox aprovado marca SOMENTE `shop_billing_orders.status='test_approved'` (e `provider_ref`). **Não modifica `shop_entitlements` e NÃO ativa uma assinatura real.**
+- Mantém bloqueio para `payment.live_mode=true` no sandbox.
+- `npm test` executa testes de rotas e casos simulados de checkout, autorização, webhook e duplicação.
+- A migração `sql/bipstart_allow_test_approval.sql` já foi aplicada ao projeto Supabase BipStart.
+- Mesclagem continua condicionada a homologação; pagamentos reais exigem implementação de ambiente de produção separado e testes próprios.
