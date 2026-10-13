@@ -161,9 +161,12 @@ export async function pixDiagnostic(req,res,url){
     reply(res,400,{error:'Marcador de teste inválido.'});return true;
    }
    const received=String(req.headers['x-request-id']||'');
+   const alternative=String(req.headers['x-bipstart-original-request-id']||'');
    reply(res,200,{
     requestIdPreserved:received===submitted,
     requestIdPresent:Boolean(received),
+    alternateHeaderPreserved:alternative===submitted,
+    alternateHeaderPresent:Boolean(alternative),
     // Apenas metadados, sem publicar o identificador recebido.
     requestIdFormat:received?'UUID ou outro valor':'ausente',
     readsOnly:true,createsPayment:false,planActivated:false
