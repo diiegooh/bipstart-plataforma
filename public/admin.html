@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administração • BipStart</title>
+<link rel="stylesheet" href="/cliente.css?v=2">
+<style>
+.admin-main{width:min(1100px,96%);margin:45px auto}.admin-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.admin-main .card{padding:25px;margin:20px 0}.admin-table{width:100%;border-collapse:collapse;font-size:13px}
+.admin-table th,.admin-table td{padding:14px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.admin-table th{color:var(--muted)}.admin-table select{min-width:155px}
+.admin-table button{font-size:12px;margin:3px;padding:8px 12px}
+.admin-wrap{overflow-x:auto}.admin-status{font-weight:700}.admin-muted{font-weight:400;color:var(--muted)}
+.admin-actions{display:flex;flex-wrap:wrap;gap:5px}.admin-actions .ghost{border:1px solid #604b80}
+</style></head><body>
+<header class="top"><a href="/" class="brand"><img src="/bipstart-logo.svg" alt="BipStart" width="220" height="60"></a>
+<nav><a href="/cliente">Voltar à minha loja</a></nav></header>
+<main class="admin-main">
+ <div class="admin-header"><div><span class="kicker">ACESSO RESTRITO</span><h1>Administração dos planos</h1><p class="muted">Liberação manual depois de conferir o pagamento pelo WhatsApp.</p></div>
+ <button id="reload" class="button" type="button">Atualizar lista</button></div>
+ <section class="card"><p id="adminMessage" role="status">Carregando lojas...</p>
+ <div class="admin-wrap"><table class="admin-table"><thead><tr><th>Loja</th><th>Plano solicitado</th><th>Status</th><th>Plano para liberar</th><th>Ações</th></tr></thead>
+ <tbody id="adminRows"></tbody></table></div>
+ </section>
+ <p class="muted">Planos Básico e Personalizado têm pagamento único. O Pro vale por 30 dias por ativação manual. O sistema não recebe nem confirma pagamentos automaticamente.</p>
+</main><script src="/admin.js" defer></script></body></html>
