@@ -25,7 +25,9 @@ function validSignature(req,url){
  const parts=Object.fromEntries(signature.split(',').map(v=>v.trim().split('=')));
  const id=String(url.searchParams.get('data.id')||'').toLowerCase();
  if(!secret||!id||!requestId||!/^\d{10,15}$/.test(parts.ts||'')||!/^[a-f0-9]{64}$/i.test(parts.v1||''))return false;
- const delta=Math.abs(Date.now()-Number(parts.ts)*1000);
+ // Mercado Pago pode assinar timestamps em segundos (10 dígitos) ou milissegundos (13).
+ const millis=parts.ts.length>=13?Number(parts.ts):Number(parts.ts)*1000;
+ const delta=Math.abs(Date.now()-millis);
  if(!Number.isFinite(delta)||delta>10*60*1000)return false;
  const manifest='id:'+id+';request-id:'+requestId+';ts:'+parts.ts+';';
  const expected=crypto.createHmac('sha256',secret).update(manifest).digest('hex');
@@ -43,10 +45,13 @@ export async function billing(req,res,url){
    const u=await fetch(supa()+'/auth/v1/user',{headers:{apikey:key(),Authorization:'Bearer '+bearer}});
    if(!u.ok){json(res,401,{error:'Sessão inválida.'});return true;}
    const user=await u.json();
+   if(!user?.email_confirmed_at){json(res,403,{error:'Confirme seu e-mail antes de contratar.'});return true;}
    const input=await readBody(req),shopId=String(input.shopId||''),plan=String(input.plan||'');
    if(!uuid.test(shopId)||!Object.hasOwn(prices,plan)){json(res,400,{error:'Loja ou plano inválido.'});return true;}
    const shops=await sb('shops?id=eq.'+encodeURIComponent(shopId)+'&owner_id=eq.'+encodeURIComponent(user.id)+'&select=id,name', 'GET',undefined,bearer);
    if(!shops?.length){json(res,403,{error:'Esta loja não pertence à sua conta.'});return true;}
+   const entitlements=await sb('shop_entitlements?shop_id=eq.'+encodeURIComponent(shopId)+'&select=status,plan_code');
+   if(entitlements?.[0]?.status==='active'){json(res,409,{error:'A loja já possui um plano ativo.'});return true;}
    const rows=await sb('shop_billing_orders','POST',{shop_id:shopId,plan_code:plan,amount:prices[plan],status:'pending',provider:'mercado_pago'});
    const order=rows?.[0];if(!order?.id)throw Error('Não foi possível criar pedido.');
    const preference=await mp('/checkout/preferences','POST',{
@@ -68,6 +73,8 @@ export async function billing(req,res,url){
   const order=(await sb('shop_billing_orders?id=eq.'+match[1]+'&select=*'))?.[0];
   if(!order){json(res,200,{ok:true});return true;}
   if(payment.status!=='approved'){json(res,200,{ok:true});return true;}
+  // Em modo de teste, nunca ativar plano com pagamento real.
+  if(payment.live_mode===true){json(res,422,{error:'Pagamento real recusado no ambiente de teste.'});return true;}
   if(order.status==='approved'){
    if(order.provider_ref!==String(payment.id)){json(res,409,{error:'Pedido já confirmado com outro pagamento.'});return true;}
    json(res,200,{ok:true});return true;
