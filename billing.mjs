@@ -67,6 +67,9 @@ function webhookSignatureDiagnostics(req,url,payload){
    queryMatchesBodyId:query.has('data.id')&&bodyId!==undefined
      ?String(query.get('data.id'))===String(bodyId):null,
    hasRequestId:Boolean(rid),
+   requestIdLength:rid.length,
+   requestIdLooksLikeUuid:/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rid),
+   requestIdHeaderCount:Array.isArray(req.rawHeaders)?req.rawHeaders.filter((value,index)=>index%2===0&&String(value).toLowerCase()==='x-request-id').length:null,
    hasSignature:Boolean(signature),
    signatureTsLength:ts.length,
    signatureDigestLength:hash.length,
