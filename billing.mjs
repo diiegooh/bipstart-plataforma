@@ -27,7 +27,7 @@ async function mp(path,method='GET',body,idempotency){
  const headers={'Authorization':'Bearer '+token(),'Content-Type':'application/json'};
  if(idempotency)headers['X-Idempotency-Key']=idempotency;
  const r=await fetch('https://api.mercadopago.com'+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});
- const d=await r.json().catch(()=>null);if(!r.ok)throw Error('Mercado Pago indisponível ('+r.status+')');return d;
+ const d=await r.json().catch(()=>null);if(!r.ok){const err=new Error('Mercado Pago indisponível ('+r.status+')');err.httpStatus=r.status;throw err;}return d;
 }
 function validSignature(req,url){
  const secret=String(process.env.MERCADO_PAGO_WEBHOOK_SECRET||'');
@@ -51,6 +51,10 @@ export async function billing(req,res,url){
  try{
   if(pathname==='/api/billing/checkout'){
    if(req.method!=='POST'){json(res,405,{error:'Método inválido'});return true;}
+   // Impede que a homologação crie checkout com webhook/retorno para produção.
+   const forwarded=String(req.headers['x-forwarded-host']||req.headers.host||'').split(',')[0].trim().toLowerCase();
+   const expected=new URL(base()).host.toLowerCase();
+   if(forwarded&&forwarded!==expected){json(res,409,{error:'BIPSTART_BASE_URL deve ser a URL deste ambiente de homologação.'});return true;}
    const bearer=/^Bearer (.+)$/.exec(String(req.headers.authorization||''))?.[1];
    if(!bearer){json(res,401,{error:'Faça login antes de contratar.'});return true;}
    const u=await fetch(supa()+'/auth/v1/user',{headers:{apikey:publicKey(),Authorization:'Bearer '+bearer}});
@@ -78,7 +82,14 @@ export async function billing(req,res,url){
   if(!validSignature(req,url)){json(res,401,{error:'Assinatura inválida.'});return true;}
   const id=url.searchParams.get('data.id');
   if(!/^\d+$/.test(id||'')){json(res,400,{error:'ID inválido'});return true;}
-  const payment=await mp('/v1/payments/'+encodeURIComponent(id));
+  let payment;
+  try{payment=await mp('/v1/payments/'+encodeURIComponent(id));}
+  catch(error){
+   // Notificações simuladas com um Data ID fictício não correspondem a
+   // pagamentos reais. Aceitar a assinatura sem conceder nenhum acesso.
+   if(error.httpStatus===404){json(res,200,{ok:true,ignored:true});return true;}
+   throw error;
+  }
   const match=/^bipstart:([0-9a-f-]{36})$/.exec(String(payment.external_reference||''));
   if(!match||!uuid.test(match[1])){json(res,200,{ok:true});return true;}
   const order=(await sb('shop_billing_orders?id=eq.'+match[1]+'&select=*'))?.[0];
