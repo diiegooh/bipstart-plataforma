@@ -1,0 +1,83 @@
+import assert from 'node:assert/strict';
+import {test} from 'node:test';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+
+const client=readFileSync('public/cliente.js','utf8');
+const html=readFileSync('public/cliente.html','utf8');
+const admin=readFileSync('public/admin.js','utf8');
+const migration=readFileSync('sql/bipstart_manual_whatsapp_access.sql','utf8');
+const rls=readFileSync('sql/bipstart_block_read_after_expiry.sql','utf8');
+
+test('JS cliente e admin sem erros de sintaxe',()=>{
+ new vm.Script(client,{filename:'public/cliente.js'});
+ new vm.Script(admin,{filename:'public/admin.js'});
+});
+
+const start=client.indexOf('function trialValid(){');
+const stop=client.indexOf('function renderAccessGate(){',start);
+assert.ok(start>0&&stop>start);
+function access(ent){
+ const init=new Function('ent','shop','plans','planPrices','BIPSTART_PLAN_WHATSAPP',
+  client.slice(start,stop)+';return {trialValid,subscriptionValid,hasAccess,proAccess,contactUrl};');
+ return init(ent,{name:'Minha loja',id:'c49e0b8f-6f84-4d60-8abd-bc98c76449d6',requested_plan:'basic'},
+  {basic:'Básico',personalizado:'Personalizado',pro:'Pro'},
+  {basic:'R$ 29,99 (pagamento único)',personalizado:'R$ 49,99 (pagamento único)',pro:'R$ 99,90/mês'},
+  '5511978353820');
+}
+const future=()=>new Date(Date.now()+86400000).toISOString();
+const past=()=>new Date(Date.now()-86400000).toISOString();
+test('trial válido tem acesso e expira sem reiniciar banco',()=>{
+ assert.equal(access({status:'trialing',trial_until:future(),plan_code:'basic'}).hasAccess(),true);
+ assert.equal(access({status:'trialing',trial_until:past(),plan_code:'basic'}).hasAccess(),false);
+});
+test('contratação pendente e suspensão bloqueiam conta',()=>{
+ assert.equal(access({status:'pending',trial_until:future(),plan_code:'basic'}).hasAccess(),false);
+ assert.equal(access({status:'suspended',trial_until:future(),plan_code:'basic'}).hasAccess(),false);
+ assert.equal(access(null).hasAccess(),false);
+});
+test('pro ativo ou em teste recebe recursos pro somente na vigência',()=>{
+ assert.equal(access({status:'trialing',trial_until:future(),plan_code:'pro'}).proAccess(),true);
+ assert.equal(access({status:'trialing',trial_until:past(),plan_code:'pro'}).proAccess(),false);
+ assert.equal(access({status:'active',active_until:future(),plan_code:'pro'}).proAccess(),true);
+ assert.equal(access({status:'active',active_until:past(),plan_code:'pro'}).proAccess(),false);
+});
+test('planos pagos sem vencimento continuam ativos',()=>{
+ assert.equal(access({status:'active',active_until:null,plan_code:'basic'}).hasAccess(),true);
+});
+test('WhatsApp correto, com identificação e preço do plano sem cobrança',()=>{
+ const url=new URL(access({status:'pending',plan_code:'basic'}).contactUrl());
+ assert.equal(url.hostname,'wa.me');
+ assert.equal(url.pathname,'/5511978353820');
+ const body=url.searchParams.get('text');
+ assert.match(body,/Minha loja/);
+ assert.match(body,/R\$ 29,99/);
+ assert.match(body,/Identificador da loja/);
+});
+test('cadastro exige escolha explícita de caminho e oferece tela de bloqueio',()=>{
+ assert.match(html,/name="signup_choice" value="trial"/);
+ assert.match(html,/name="signup_choice" value="whatsapp"/);
+ assert.match(html,/id="accessGate"/);
+ assert.match(client,/signup_choice:v\.signup_choice/);
+ assert.match(client,/if\(!hasAccess\(\)\)/);
+});
+test('gatilho garante teste 7 dias ou pendência sem ativar plano',()=>{
+ assert.match(migration,/new\.signup_choice='trial'/);
+ assert.match(migration,/interval '7 days'/);
+ assert.match(migration,/'pending'/);
+});
+test('admin protegido por função e trilha de auditoria',()=>{
+ assert.match(migration,/auth\.uid\(\)/);
+ assert.match(migration,/public\.bipstart_admins/);
+ assert.match(migration,/public\.bipstart_access_audit/);
+ assert.match(migration,/create or replace function public\.bipstart_admin_set_access/);
+ assert.match(migration,/active_until=case/);
+ assert.match(admin,/bipstart_admin_set_access/);
+ assert.match(admin,/window\.confirm/);
+});
+test('bloqueio também restringe leituras operacionais por RLS',()=>{
+ assert.match(rls,/alter policy products_owner_read/);
+ assert.match(rls,/alter policy sales_owner_read/);
+ assert.match(rls,/public\.is_shop_enabled\(shop_id\)/);
+ assert.doesNotMatch(rls,/alter policy entitlements_owner_read/);
+});
