@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
-    "test": "node tests/smoke.mjs"
+    "test": "node tests/smoke.mjs && node --test tests/billing.mjs"
   },
   "engines": {
     "node": ">=18"
