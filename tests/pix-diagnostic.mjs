@@ -37,12 +37,13 @@ async function invoke(path,options){
  return result;
 }
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json'}});
-function fakeNetwork({paid=false,live=true,ownerEmail='owner@example.test',confirmed=true,foreign=false}={}){
+function fakeNetwork({paid=false,live=true,ownerEmail='owner@example.test',confirmed=true,foreign=false,credentialHttp=200,paymentHttp=200}={}){
  const calls=[];let row=null;
  globalThis.fetch=async(input,init={})=>{
   const u=new URL(String(input)),path=u.pathname,method=init.method||'GET';
   const body=init.body?JSON.parse(init.body):null;
   calls.push({path,url:u.toString(),method,headers:init.headers||{},body});
+  if(path==='/users/me')return json(credentialHttp===200?{id:12345}:{error:'invalid_token'},credentialHttp);
   if(path==='/auth/v1/user')return json({id:'owner',email:ownerEmail,email_confirmed_at:confirmed?'2026-10-13T12:00:00Z':null});
   if(path==='/rest/v1/shops')return json(foreign?[]:[{id:shopId,name:'BipStart Teste'}]);
   if(path==='/rest/v1/shop_billing_orders'){
@@ -50,6 +51,7 @@ function fakeNetwork({paid=false,live=true,ownerEmail='owner@example.test',confi
    if(method==='POST'){row={id:orderId,shop_id:shopId,amount:1,provider:'mercado_pago_pix_diagnostic',status:'pending',provider_ref:null};return json([row]);}
    if(method==='PATCH'){row.provider_ref=body.provider_ref;return json([row]);}
   }
+  if(path==='/v1/payments'&&method==='POST'&&paymentHttp!==200)return json({error:'invalid_token'},paymentHttp);
   if(path==='/v1/payments'&&method==='POST')return json({
     id:12345,live_mode:live,payment_method_id:'pix',transaction_amount:1,currency_id:'BRL',
     external_reference:'bipstart-pix-diagnostic:'+orderId,status:'pending',
@@ -79,6 +81,39 @@ try{
   const response=await invoke('/api/billing/pix-diagnostic');
   assert.equal(response.status,403);
   assert.equal(calls.length,0);
+ });
+ await test('consulta a credencial sem criar PIX e sem ativar plano',async()=>{
+  const calls=fakeNetwork();
+  const r=await invoke('/api/billing/pix-auth-check',{method:'GET',headers:{authorization:'Bearer mock'}});
+  assert.equal(r.status,200);
+  assert.equal(r.body.authorized,true);
+  assert.equal(r.body.httpStatus,200);
+  assert.equal(r.body.createsPayment,false);
+  assert.ok(calls.some(c=>c.path==='/users/me'&&c.method==='GET'));
+  assert.ok(!calls.some(c=>c.path==='/v1/payments'||c.method==='PATCH'||(c.method==='POST'&&c.path.includes('shop_billing_orders'))));
+ });
+ await test('MP informa 401 com código seguro sem criar PIX',async()=>{
+  const calls=fakeNetwork({credentialHttp:401});
+  const r=await invoke('/api/billing/pix-auth-check',{method:'GET',headers:{authorization:'Bearer mock'}});
+  assert.equal(r.status,200);
+  assert.equal(r.body.authorized,false);
+  assert.equal(r.body.httpStatus,401);
+  assert.equal(r.body.providerErrorCode,'invalid_token');
+  assert.ok(!calls.some(c=>c.path==='/v1/payments'));
+ });
+ await test('diagnóstico da credencial exige usuário autorizado',async()=>{
+  const calls=fakeNetwork({ownerEmail:'forbidden@example.test'});
+  const r=await invoke('/api/billing/pix-auth-check',{method:'GET',headers:{authorization:'Bearer mock'}});
+  assert.equal(r.status,403);
+  assert.ok(!calls.some(c=>c.path==='/users/me'));
+ });
+ await test('401 na criação PIX expõe somente código seguro da API',async()=>{
+  const calls=fakeNetwork({paymentHttp:401});
+  const r=await invoke('/api/billing/pix-diagnostic',{headers:{authorization:'Bearer mock'}});
+  assert.equal(r.status,502);
+  assert.match(r.body.error,/401/);
+  assert.match(r.body.error,/invalid_token/);
+  assert.ok(!calls.some(c=>c.path.includes('shop_entitlements')));
  });
  await test('apenas e-mail confirmado e autorizado pode gerar',async()=>{
   const calls=fakeNetwork({ownerEmail:'other@example.test'});
