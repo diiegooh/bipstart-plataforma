@@ -64,6 +64,13 @@ function signedHeaders(timestamp=String(Math.floor(Date.now()/1000)),paymentId='
   'x-signature':'ts='+timestamp+',v1='+crypto.createHmac('sha256','mock-signing').update(payload).digest('hex')
  };
 }
+function signedWithoutId(timestamp=String(Math.floor(Date.now()/1000)),requestId='fake-notification'){
+ const manifest=(requestId?'request-id:'+requestId+';':'')+'ts:'+timestamp+';';
+ return {
+  ...(requestId?{'x-request-id':requestId}:{}),
+  'x-signature':'ts='+timestamp+',v1='+crypto.createHmac('sha256','mock-signing').update(manifest).digest('hex')
+ };
+}
 const originalFetch=globalThis.fetch;
 try {
  await test('bloqueia checkout sem autenticação',async()=>{
@@ -138,6 +145,53 @@ try {
    assert.equal(r.status,200);
    assert.equal(r.result.ignored,true);
    assert.ok(!calls.some(c=>c.method==='PATCH'));
+ });
+ await test('simulador com ID somente no corpo e HMAC sem ID recebe 200, sem consultar MP',async()=>{
+   const calls=mockApi();
+   const r=await invoke('/api/billing/webhook',{
+     headers:signedWithoutId(),
+     body:{action:'payment.updated',type:'payment',live_mode:false,data:{id:'99999'}}
+   });
+   assert.equal(r.status,200);
+   assert.equal(r.result.ignored,true);
+   assert.equal(r.result.reason,'id_nao_assinado');
+   assert.equal(calls.length,0,'ID não assinado não pode gerar consultas nem liberar acesso');
+ });
+ await test('simulador sem ID na query e HMAC cobrindo body ID pode consultar pagamento',async()=>{
+   const calls=mockApi();
+   const r=await invoke('/api/billing/webhook',{
+     headers:signedHeaders(undefined,'99999'),
+     body:{type:'payment',data:{id:'99999'}}
+   });
+   assert.equal(r.status,200);
+   assert.equal(r.result.ignored,true);
+   assert.ok(calls.some(c=>c.url.includes('/v1/payments/99999')));
+   assert.ok(!calls.some(c=>c.method==='PATCH'));
+ });
+ await test('corpo diverge do ID assinado na URL: recusar antes da API',async()=>{
+   const calls=mockApi();
+   const r=await invoke('/api/billing/webhook?data.id=12345',{
+     headers:signedHeaders(),
+     body:{type:'payment',data:{id:'99999'}}
+   });
+   assert.equal(r.status,401);
+   assert.equal(calls.length,0);
+ });
+ await test('assinatura ausente rejeita payload mesmo com corpo e ID',async()=>{
+   const calls=mockApi();
+   const r=await invoke('/api/billing/webhook',{body:{type:'payment',data:{id:'99999'}}});
+   assert.equal(r.status,401);
+   assert.equal(calls.length,0);
+ });
+ await test('assinatura sem request-id e sem ID não autoriza nada',async()=>{
+   const calls=mockApi();
+   const r=await invoke('/api/billing/webhook',{
+     headers:signedWithoutId(undefined,''),
+     body:{type:'payment',data:{id:'99999'}}
+   });
+   assert.equal(r.status,200);
+   assert.equal(r.result.reason,'id_nao_assinado');
+   assert.equal(calls.length,0);
  });
  await test('webhook com valor adulterado não ativa plano',async()=>{
    const calls=mockApi({paymentAmount:1});
