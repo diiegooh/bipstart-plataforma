@@ -29,6 +29,22 @@ async function mp(path,method='GET',body,idempotency){
  const r=await fetch('https://api.mercadopago.com'+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});
  const d=await r.json().catch(()=>null);if(!r.ok){const err=new Error('Mercado Pago indisponível ('+r.status+')');err.httpStatus=r.status;throw err;}return d;
 }
+function signatureManifestDebugMatches(secret,hash,id,requestId,ts,notificationId){
+  // Somente diagnóstico no staging: nunca habilitar validação dessas variantes.
+  if(!/^[a-f0-9]{64}$/i.test(hash)||!/^[0-9]{10,15}$/.test(ts)||!secret)return [];
+  const variants={
+    sem_id:'request-id:'+requestId+';ts:'+ts+';',
+    sem_request_id:'id:'+id+';ts:'+ts+';',
+    apenas_timestamp:'ts:'+ts+';',
+    id_notificacao:'id:'+notificationId+';request-id:'+requestId+';ts:'+ts+';',
+    com_data_ponto_id:'data.id:'+id+';request-id:'+requestId+';ts:'+ts+';'
+  };
+  const received=Buffer.from(hash,'hex');
+  return Object.entries(variants).filter(([,manifest])=>{
+    const signed=crypto.createHmac('sha256',secret).update(manifest).digest();
+    return crypto.timingSafeEqual(signed,received);
+  }).map(([name])=>name);
+}
 function webhookSignatureDiagnostics(req,url,payload){
  // Apenas metadados não sensíveis: NÃO registrar chaves, tokens, HMAC,
  // x-request-id nem identificadores dos pagamentos.
@@ -39,8 +55,10 @@ function webhookSignatureDiagnostics(req,url,payload){
   const i=v.indexOf('=');
   return i<0?['','']:[v.slice(0,i).trim(),v.slice(i+1).trim()];
  }));
- const ts=String(parts.ts||'');
+ const ts=String(parts.ts||''),hash=String(parts.v1||'');
  const bodyId=payload?.data?.id;
+ const id=query.get('data.id')||String(bodyId||'');
+ const rid=String(req.headers['x-request-id']||'');
  return {
    hasQueryDataId:query.has('data.id'),
    hasQueryDataUnderscoreId:query.has('data_id'),
@@ -48,12 +66,14 @@ function webhookSignatureDiagnostics(req,url,payload){
    hasBodyDataId:bodyId!==undefined&&bodyId!==null,
    queryMatchesBodyId:query.has('data.id')&&bodyId!==undefined
      ?String(query.get('data.id'))===String(bodyId):null,
-   hasRequestId:Boolean(req.headers['x-request-id']),
+   hasRequestId:Boolean(rid),
    hasSignature:Boolean(signature),
    signatureTsLength:ts.length,
-   signatureDigestLength:String(parts.v1||'').length,
+   signatureDigestLength:hash.length,
    secretConfigured:Boolean(secret),
-   secretHasSurroundingWhitespace:secret!==secret.trim()
+   secretHasSurroundingWhitespace:secret!==secret.trim(),
+   secretWrappedInQuotes:/^(['"]).*\1$/.test(secret),
+   alternativeManifestMatches:signatureManifestDebugMatches(secret.trim(),hash,id,rid,ts,String(payload?.id||''))
  };
 }
 function verifySignature(req,url,payload){
