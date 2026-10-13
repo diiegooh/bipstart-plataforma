@@ -14,3 +14,13 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 .cart{border:1px solid #564179;border-radius:14px;padding:15px;background:#1c1530}.cart .item{background:#100a1d}.price{font-weight:850;color:#dfbdff}.total{font-size:22px;font-weight:900;margin:12px 0}.pill{border-radius:30px;background:#33204e;padding:5px 9px;color:#cfb0ff;font-size:12px;display:inline-block}.warn{border:1px solid #8b6451;color:#ffdbb6;background:#34221f;border-radius:12px;padding:12px}.toast{position:fixed;bottom:20px;right:20px;max-width:380px;border:1px solid #8052ce;border-radius:12px;padding:14px;background:#261246;color:white;box-shadow:0 12px 60px #000a;z-index:30}.empty{padding:26px;text-align:center;color:var(--muted);border:1px dashed #67528b;border-radius:14px}
 @media(max-width:850px){.auth-grid{grid-template-columns:1fr;margin-top:10px}.dashboard{grid-template-columns:1fr}.side{position:static}.side nav{display:flex;overflow:auto}.side button{min-width:max-content}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:540px){.shell{padding:22px 12px 60px}.grid,.data-form .columns{grid-template-columns:1fr}.item{align-items:flex-start;flex-direction:column}.heading{align-items:flex-start;flex-direction:column}.top{padding:12px}.top nav a{display:none}.card{padding:20px}}
+/* Escolha explícita entre avaliação e contratação manual. */
+.signup-choices{border:1px solid var(--line);border-radius:14px;padding:14px;margin:18px 0}
+.signup-choices legend{font-weight:750;padding:0 7px}
+.signup-choices .option-line{display:flex;align-items:flex-start;gap:12px;padding:10px 8px;border-radius:10px;cursor:pointer}
+.signup-choices .option-line:hover{background:var(--panel2)}
+.signup-choices .option-line input{width:auto;flex:0 0 auto;margin-top:5px}
+.signup-choices .option-line span{display:flex;flex-direction:column;gap:3px}
+.signup-choices .option-line small{font-weight:400;color:var(--muted);line-height:1.55}
+#accessGate .button{display:inline-block;text-align:center;text-decoration:none;margin:4px 0 12px}
+#accessGate #refreshAccess{margin-left:9px}
