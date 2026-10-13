@@ -37,15 +37,15 @@ async function checkProxy(){
   const marker=crypto.randomUUID();
   const response=await fetch('/api/billing/pix-proxy-check?probe='+encodeURIComponent(marker),{
    method:'GET',cache:'no-store',
-   headers:{Authorization:'Bearer '+session.access_token,'x-request-id':marker}
+   headers:{Authorization:'Bearer '+session.access_token,'x-request-id':marker,'x-bipstart-original-request-id':marker}
   });
   const data=await response.json().catch(()=>({}));
   if(!response.ok)throw Error(data.error||'Não foi possível verificar o cabeçalho.');
-  if(data.requestIdPreserved===true){
-   msg('DIAGNÓSTICO: x-request-id PRESERVADO pelo proxy. Vamos investigar a chave e a assinatura do Mercado Pago.');
-  }else{
-   msg('DIAGNÓSTICO: x-request-id ALTERADO ou removido pelo proxy. Isso pode explicar o 401 do webhook: a assinatura depende do identificador original.',true);
-  }
+  const x=data.requestIdPreserved?'preservado':'alterado ou removido';
+  const alt=data.alternateHeaderPreserved?'preservado':'alterado ou removido';
+  const safe=data.alternateHeaderPreserved===true;
+  msg('Teste do proxy: x-request-id '+x+'; x-bipstart-original-request-id '+alt+'.'+
+   (safe?' Podemos estudar um encaminhamento seguro mantendo a verificação HMAC.':' Precisamos corrigir o proxy antes de confiar nas notificações.'),!safe);
  }catch(error){msg('Falha no teste do proxy: '+error.message,true)}
  finally{loading(false)}
 }
