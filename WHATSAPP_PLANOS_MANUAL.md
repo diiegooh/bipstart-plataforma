@@ -10,17 +10,19 @@ WhatsApp do atendimento de planos: (11) 97835-3820 | https://wa.me/5511978353820
 - Em /admin, usuário previamente autorizado no Supabase pode ativar e suspender, com auditoria. Pro tem 30 dias de prazo por ativação; Básico/Personalizado não vencem automaticamente.
 - A loja e seus dados permanecem salvos após bloqueio. Não são feitas cobranças automáticas.
 
-## MIGRAÇÃO — ainda não aplicada
+## MIGRAÇÃO — aplicada ao Supabase BipStart em 13/10/2026
 
-Rever, testar e aplicar na sequência:
+As duas migrações já foram aplicadas ao projeto gjeyespoeqmjmskrkizx, sem remover dados das lojas. As funções, RLS e o administrador foram verificados.
+
+Arquivos que documentam as migrações aplicadas:
 1. sql/bipstart_manual_whatsapp_access.sql
 2. sql/bipstart_block_read_after_expiry.sql
 
-O Supabase do projeto gjeyespoeqmjmskrkizx é compartilhado com outra aplicação. Preferir primeiro um ambiente isolado. Não executar a migração antes de homologar e autorizar o rollout.
+O Supabase do projeto gjeyespoeqmjmskrkizx é compartilhado com outra aplicação. A alteração já foi autorizada e aplicada somente às estruturas BipStart; não executar os scripts novamente sem revisão.
 
-Para autorizar a área /admin, localizar no Supabase Auth → Users o UUID da conta do titular e inserir esse UUID na tabela public.bipstart_admins usando o SQL Editor. Jamais permitir que o navegador cadastre administradores nem expor a chave de serviço.
+A conta confirmada diiegovicente@gmail.com já foi autorizada em public.bipstart_admins. O RPC de listagem retornou as 2 lojas existentes em teste de role autenticada. Jamais permitir que o navegador cadastre outros administradores nem expor a chave de serviço.
 
-## Verificações antes de publicar
+## Verificações antes de publicar o frontend (ainda NÃO implantado)
 
 - Escolher trial ou contratação; WhatsApp deve abrir para 5511978353820 com nome e identificador da loja.
 - Contratação direta deve continuar pending até liberação manual.
