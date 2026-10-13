@@ -52,7 +52,7 @@ const server = http.createServer(async (req, res) => {
       publishableKey: key,
       turnstileSiteKey: String(process.env.TURNSTILE_SITE_KEY || ''),
       stagingMode: process.env.BIPSTART_STAGING_MODE === '1',
-      realPixDiagnosticAvailable:process.env.BIPSTART_STAGING_MODE === '1' && process.env.BIPSTART_REAL_PIX_TEST_ENABLED === '1'
+      realPixDiagnosticAvailable:process.env.BIPSTART_STAGING_MODE === '1' && process.env.BIPSTART_BILLING_MODE === 'test' && process.env.BIPSTART_REAL_PIX_TEST_ENABLED === '1' && Boolean(process.env.MERCADO_PAGO_PROD_ACCESS_TOKEN && process.env.BIPSTART_REAL_PIX_TEST_EMAIL)
     }));
   }
   if (pathname.startsWith('/api/billing/')) {
