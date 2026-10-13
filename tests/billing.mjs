@@ -5,9 +5,10 @@ import { billing } from '../billing.mjs';
 
 const orderId='11111111-1111-4111-8111-111111111111';
 const shopId='22222222-2222-4222-8222-222222222222';
-const envNames=['SUPABASE_URL','SUPABASE_SECRET_KEY','MERCADO_PAGO_ACCESS_TOKEN','MERCADO_PAGO_WEBHOOK_SECRET','BIPSTART_BASE_URL','BIPSTART_BILLING_MODE'];
+const envNames=['SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_SECRET_KEY','MERCADO_PAGO_ACCESS_TOKEN','MERCADO_PAGO_WEBHOOK_SECRET','BIPSTART_BASE_URL','BIPSTART_BILLING_MODE'];
 for(const key of envNames)process.env[key]={
  SUPABASE_URL:'https://testing.supabase.co',
+ SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock',
  SUPABASE_SECRET_KEY:'mock-secret',
  MERCADO_PAGO_ACCESS_TOKEN:'mock-mp',
  MERCADO_PAGO_WEBHOOK_SECRET:'mock-signing',
@@ -39,7 +40,7 @@ function mockApi({confirmed=true,owns=true,active=false,paymentStatus='approved'
  globalThis.fetch=async(input,init={})=>{
   const url=new URL(String(input));
   const p=url.pathname;
-  calls.push({url:url.toString(),method:init.method||'GET',body:init.body?JSON.parse(init.body):null});
+  calls.push({url:url.toString(),method:init.method||'GET',headers:init.headers||{},body:init.body?JSON.parse(init.body):null});
   if(p==='/auth/v1/user')return json({id:'owner',email_confirmed_at:confirmed?'2026-10-13T00:00:00Z':null});
   if(p==='/rest/v1/shops')return json(owns?[{id:shopId,name:'Loja'}]:[]);
   if(p==='/rest/v1/shop_entitlements')return json([{status:active?'active':'trialing',plan_code:'basic'}]);
@@ -94,6 +95,12 @@ try {
    const pref=calls.find(c=>c.url.endsWith('/checkout/preferences'));
    assert.equal(pref.body.items[0].unit_price,29.99);
    assert.equal(pref.body.external_reference,'bipstart:'+orderId);
+   const ownerRead=calls.find(c=>c.url.includes('/rest/v1/shops'));
+   assert.equal(ownerRead.headers.apikey,'sb_publishable_mock');
+   assert.equal(ownerRead.headers.Authorization,'Bearer mock-jwt');
+   const adminWrite=calls.find(c=>c.method==='POST'&&c.url.includes('/rest/v1/shop_billing_orders'));
+   assert.equal(adminWrite.headers.apikey,'mock-secret');
+   assert.equal(adminWrite.headers.Authorization,undefined);
  });
  await test('plano recorrente Pro bloqueado em checkout único',async()=>{
    mockApi();
