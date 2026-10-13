@@ -70,9 +70,8 @@ export async function billing(req,res,url){
   if(payment.status!=='approved'){json(res,200,{ok:true});return true;}
   if(order.status==='approved'){json(res,200,{ok:true});return true;}
   if(!Object.hasOwn(prices,order.plan_code)||Number(order.amount)!==prices[order.plan_code]||Number(payment.transaction_amount)!==prices[order.plan_code]||payment.currency_id!=='BRL'){json(res,422,{error:'Pagamento incompatível.'});return true;}
-  // A confirmação é registrada; ativação definitiva exige operação transacional idempotente (RPC).
-  // Nunca liberar planos diretamente no webhook sem esta garantia.
-  await sb('shop_billing_orders?id=eq.'+order.id,'PATCH',{provider_ref:String(payment.id),status:'approved'});
+  const result=await sb('rpc/bipstart_confirm_plan_payment','POST',{p_order_id:order.id,p_payment_ref:String(payment.id),p_amount:Number(payment.transaction_amount),p_plan:order.plan_code});
+  if(result!==true)throw Error('Ativação não confirmada.');
   json(res,200,{ok:true});return true;
  }catch(error){console.error('BipStart billing:',error.message);json(res,500,{error:'Não foi possível processar a operação.'});return true;}
 }
