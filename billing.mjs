@@ -4,13 +4,24 @@ const prices=Object.freeze({basic:29.99,personalizado:49.99});
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const supa=()=>String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
 const key=()=>String(process.env.SUPABASE_SECRET_KEY||'');
+const publicKey=()=>String(process.env.SUPABASE_PUBLISHABLE_KEY||'');
 const token=()=>String(process.env.MERCADO_PAGO_ACCESS_TOKEN||'');
 const base=()=>String(process.env.BIPSTART_BASE_URL||'').replace(/\/$/,'');
 function json(res,status,obj){res.writeHead(status,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(JSON.stringify(obj));}
 async function readBody(req){let raw='';for await(const chunk of req){raw+=chunk;if(raw.length>16000)throw Error('Corpo muito grande');}return JSON.parse(raw||'{}');}
-async function sb(path,method='GET',body,access=key()){
- const r=await fetch(supa()+'/rest/v1/'+path,{method,headers:{apikey:key(),Authorization:'Bearer '+access,'Content-Type':'application/json',Prefer:'return=representation'},body:body===undefined?undefined:JSON.stringify(body)});
- const d=await r.json().catch(()=>null);if(!r.ok)throw Error('Falha na persistência ('+r.status+')');return d;
+async function sb(path,method='GET',body,userAccess=null){
+ // A chave sb_secret_ moderna NÃO é um JWT e não deve entrar em Authorization.
+ // Leituras como usuário usam a publishable key + JWT para respeitar RLS.
+ const headers={
+   apikey:userAccess?publicKey():key(),
+   'Content-Type':'application/json',
+   Prefer:'return=representation'
+ };
+ if(userAccess)headers.Authorization='Bearer '+userAccess;
+ const r=await fetch(supa()+'/rest/v1/'+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});
+ const d=await r.json().catch(()=>null);
+ if(!r.ok)throw Error('Falha na persistência ('+r.status+')');
+ return d;
 }
 async function mp(path,method='GET',body,idempotency){
  const headers={'Authorization':'Bearer '+token(),'Content-Type':'application/json'};
@@ -36,13 +47,13 @@ function validSignature(req,url){
 export async function billing(req,res,url){
  const pathname=url.pathname;
  if(!['/api/billing/checkout','/api/billing/webhook'].includes(pathname))return false;
- if(!supa()||!key()||!token()||!process.env.MERCADO_PAGO_WEBHOOK_SECRET||!base().startsWith('https://')||process.env.BIPSTART_BILLING_MODE!=='test'){json(res,503,{error:'Pagamento da BipStart ainda não configurado.'});return true;}
+ if(!supa()||!key()||!publicKey()||!token()||!process.env.MERCADO_PAGO_WEBHOOK_SECRET||!base().startsWith('https://')||process.env.BIPSTART_BILLING_MODE!=='test'){json(res,503,{error:'Pagamento da BipStart ainda não configurado.'});return true;}
  try{
   if(pathname==='/api/billing/checkout'){
    if(req.method!=='POST'){json(res,405,{error:'Método inválido'});return true;}
    const bearer=/^Bearer (.+)$/.exec(String(req.headers.authorization||''))?.[1];
    if(!bearer){json(res,401,{error:'Faça login antes de contratar.'});return true;}
-   const u=await fetch(supa()+'/auth/v1/user',{headers:{apikey:key(),Authorization:'Bearer '+bearer}});
+   const u=await fetch(supa()+'/auth/v1/user',{headers:{apikey:publicKey(),Authorization:'Bearer '+bearer}});
    if(!u.ok){json(res,401,{error:'Sessão inválida.'});return true;}
    const user=await u.json();
    if(!user?.email_confirmed_at){json(res,403,{error:'Confirme seu e-mail antes de contratar.'});return true;}
