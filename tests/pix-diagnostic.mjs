@@ -15,6 +15,7 @@ Object.assign(process.env,{
   MERCADO_PAGO_WEBHOOK_SECRET:'test-signing',
   MERCADO_PAGO_PROD_ACCESS_TOKEN:'APP_USR-mocked-never-real',
   MERCADO_PAGO_PROD_WEBHOOK_SECRET:'production-signing-mock',
+  BIPSTART_WEBHOOK_RELAY_SECRET:'this-is-a-dedicated-cloudflare-relay-secret-at-least-32-characters',
   BIPSTART_BASE_URL:base,
   BIPSTART_BILLING_MODE:'test',
   BIPSTART_STAGING_MODE:'1',
@@ -72,6 +73,25 @@ function signedWebhook(){
  return {
   'x-request-id':rid,
   'x-signature':'ts='+ts+',v1='+crypto.createHmac('sha256','production-signing-mock').update(manifest).digest('hex')
+ };
+}
+function relayedWebhook({originalId='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',body={type:'payment',data:{id:'12345'},live_mode:true},tamperProof=false,edgeAgeSeconds=0}={}){
+ const timestamp=String(Math.floor(Date.now()/1000));
+ const mpManifest='id:12345;request-id:'+originalId+';ts:'+timestamp+';';
+ const mpSignature='ts='+timestamp+',v1='+crypto.createHmac('sha256','production-signing-mock').update(mpManifest).digest('hex');
+ const relayedAt=String(Math.floor(Date.now()/1000)-edgeAgeSeconds);
+ const raw=Buffer.from(JSON.stringify(body));
+ const hash=crypto.createHash('sha256').update(raw).digest('hex');
+ const manifest=['v1',relayedAt,originalId,mpSignature,'?data.id=12345',hash].join('\n');
+ const proof=crypto.createHmac('sha256',process.env.BIPSTART_WEBHOOK_RELAY_SECRET).update(manifest).digest('hex');
+ return {
+  headers:{
+    'x-request-id':'ffffeeee-dddd-4ccc-8bbb-aaaaaaaaaaaa', // valor sobrescrito pelo Northflank
+    'x-signature':mpSignature,
+    'x-bipstart-original-request-id':originalId,
+    'x-bipstart-relay-ts':relayedAt,
+    'x-bipstart-relay-proof':tamperProof?'0'.repeat(64):proof
+  },body
  };
 }
 const originalFetch=globalThis.fetch;
@@ -218,6 +238,41 @@ try{
   });
   assert.equal(response.status,200);
   assert.equal(response.body.planActivated,false);
+  assert.equal(calls.length,0);
+ });
+ await test('Worker autentica request-id original, MP valida HMAC e não ativa plano',async()=>{
+  const calls=fakeNetwork();
+  const r=await invoke('/api/billing/pix-webhook?data.id=12345',relayedWebhook());
+  assert.equal(r.status,200,JSON.stringify(r.body));
+  assert.equal(r.body.planActivated,false);
+  assert.equal(calls.length,0);
+ });
+ await test('cabeçalho original falsificado sem prova do Worker é recusado',async()=>{
+  const calls=fakeNetwork();
+  const input=relayedWebhook();
+  delete input.headers['x-bipstart-relay-proof'];
+  const r=await invoke('/api/billing/pix-webhook?data.id=12345',input);
+  assert.equal(r.status,401);
+  assert.equal(calls.length,0);
+ });
+ await test('prova HMAC do Worker adulterada é rejeitada',async()=>{
+  const calls=fakeNetwork();
+  const r=await invoke('/api/billing/pix-webhook?data.id=12345',relayedWebhook({tamperProof:true}));
+  assert.equal(r.status,401);
+  assert.equal(calls.length,0);
+ });
+ await test('prova correta para payload diferente não permite modificar body',async()=>{
+  const calls=fakeNetwork();
+  const input=relayedWebhook();
+  input.body={type:'payment',data:{id:'12345'},live_mode:true,extra:'fake'};
+  const r=await invoke('/api/billing/pix-webhook?data.id=12345',input);
+  assert.equal(r.status,401);
+  assert.equal(calls.length,0);
+ });
+ await test('prova HMAC do Worker antiga expira',async()=>{
+  const calls=fakeNetwork();
+  const r=await invoke('/api/billing/pix-webhook?data.id=12345',relayedWebhook({edgeAgeSeconds:180}));
+  assert.equal(r.status,401);
   assert.equal(calls.length,0);
  });
  await test('webhook de produção com HMAC inválido é bloqueado',async()=>{
