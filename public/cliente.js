@@ -3,7 +3,8 @@ const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 let cfg=null,session=null,shop=null,ent=null,products=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[];
-let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,captchaToken='',captchaWidget=null;
+let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null;
+const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null};
 const storageKey='bipstart_customer_session';
 const plans={basic:'Básico',personalizado:'Personalizado',pro:'Pro'};
 const models={pdv:'PDV com estoque',agenda:'Agenda',cardapio:'Cardápio online'};
@@ -50,23 +51,40 @@ async function rpc(name,body){
   return api('/rest/v1/rpc/'+name,{method:'POST',body});
 }
 function hideAll(){['auth','setup','createShop','workspace','resetPass'].forEach(id=>hiding(id,false));}
-function showAuth(){hideAll();hiding('auth',true);hiding('logout',false);}
-function authTab(signup){hiding('loginForm',!signup);hiding('signupForm',signup);$('showLogin').classList.toggle('selected',!signup);$('showSignup').classList.toggle('selected',signup)}
+function showAuth(){hideAll();hiding('auth',true);hiding('logout',false);renderActiveCaptcha();}
+function authTab(signup){
+  hiding('loginForm',!signup);hiding('signupForm',signup);
+  $('showLogin').classList.toggle('selected',!signup);$('showSignup').classList.toggle('selected',signup);
+  renderActiveCaptcha();
+}
+function renderActiveCaptcha(){
+  if(!cfg?.turnstileSiteKey||!window.turnstile||$('auth').classList.contains('hidden'))return;
+  const kind=$('signupForm').classList.contains('hidden')?'login':'signup';
+  if(captchaWidgets[kind]!==null)return;
+  const element=$(kind==='login'?'loginCaptcha':'signupCaptcha');
+  element.classList.remove('hidden');
+  captchaWidgets[kind]=window.turnstile.render(element,{
+    sitekey:cfg.turnstileSiteKey,
+    callback:token=>{captchaTokens[kind]=token;},
+    'expired-callback':()=>{captchaTokens[kind]='';},
+    'error-callback':()=>{captchaTokens[kind]='';}
+  });
+}
+function resetCaptcha(kind){
+  captchaTokens[kind]='';
+  if(captchaWidgets[kind]!==null&&window.turnstile)window.turnstile.reset(captchaWidgets[kind]);
+}
+function captchaFor(kind){
+  if(!cfg?.turnstileSiteKey)return {};
+  if(!captchaTokens[kind])throw Error('Conclua a verificação anti-robô antes de continuar.');
+  return {gotrue_meta_security:{captcha_token:captchaTokens[kind]}};
+}
 function setupSignupCaptcha(){
   if(!cfg?.turnstileSiteKey)return;
-  const box=$('signupCaptcha');box.classList.remove('hidden');
   const script=document.createElement('script');
   script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
   script.async=true;
-  script.onload=()=>{
-    if(!window.turnstile)return;
-    captchaWidget=window.turnstile.render(box,{
-      sitekey:cfg.turnstileSiteKey,
-      callback:t=>{captchaToken=t;},
-      'expired-callback':()=>{captchaToken='';},
-      'error-callback':()=>{captchaToken='';}
-    });
-  };
+  script.onload=()=>renderActiveCaptcha();
   script.onerror=()=>msg('Não foi possível carregar a verificação de segurança.',true);
   document.head.append(script);
 }
@@ -248,17 +266,20 @@ async function handleSubmit(form){
   const v=formVal(form),id=form.dataset.id;
   switch(form.id){
     case 'loginForm':{
-      const result=await api('/auth/v1/token?grant_type=password',{method:'POST',token:null,body:{email:v.email,password:v.password}});
+      const captcha=captchaFor('login');
+      let result;
+      try{result=await api('/auth/v1/token?grant_type=password',{method:'POST',token:null,body:{email:v.email,password:v.password,...captcha}})}
+      finally{resetCaptcha('login')}
       session={...result,expires_at:Date.now()/1000+Number(result.expires_in||3600)};
       saveSession();await loadShops();break;
     }
     case 'signupForm':{
       if(v.password!==v.confirm)throw Error('As senhas não coincidem. Confira e tente novamente.');
-      if(cfg.turnstileSiteKey&&!captchaToken)throw Error('Conclua a verificação anti-robô antes de criar a conta.');
+      const captcha=captchaFor('signup');
       const callback=encodeURIComponent(location.origin+'/cliente');
       let response;
-      try{response=await api('/auth/v1/signup?redirect_to='+callback,{method:'POST',token:null,body:{email:v.email,password:v.password,...(cfg.turnstileSiteKey?{gotrue_meta_security:{captcha_token:captchaToken}}:{})}})}
-      finally{captchaToken='';if(captchaWidget!==null&&window.turnstile)window.turnstile.reset(captchaWidget)}
+      try{response=await api('/auth/v1/signup?redirect_to='+callback,{method:'POST',token:null,body:{email:v.email,password:v.password,...captcha}})}
+      finally{resetCaptcha('signup')}
       authTab(false);msg('Cadastro realizado! Confirme seu e-mail e depois entre para iniciar os 7 dias gratuitos.');
       break;
     }
@@ -373,6 +394,13 @@ $('switchShop').onclick=()=>{location.href='/#planos'};
 $('forgotPassword').onclick=async()=>{
   const email=$('loginForm').querySelector('input[name=email]').value.trim();
   if(!email)return msg('Informe seu e-mail para receber a recuperação.',true);
-  try{await api('/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+'/cliente'),{method:'POST',token:null,body:{email}});msg('Confira seu e-mail para recuperar a senha.')}catch(e){msg(e.message,true)}
+  let attempted=false;
+  try{
+    const captcha=captchaFor('login');
+    attempted=true;
+    await api('/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+'/cliente'),{method:'POST',token:null,body:{email,...captcha}});
+    msg('Confira seu e-mail para recuperar a senha.');
+  }catch(e){msg(e.message,true)}
+  finally{if(attempted)resetCaptcha('login')}
 };
 begin().catch(e=>{status(e.message||'Falha ao conectar ao Supabase.');showAuth()});
