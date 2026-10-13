@@ -79,10 +79,10 @@ function webhookSignatureDiagnostics(req,url,payload){
    alternativeManifestMatches:signatureManifestDebugMatches(secret.trim(),hash,id,rid,ts,String(payload?.id||''))
  };
 }
-function verifySignature(req,url,payload){
+export function verifySignature(req,url,payload,overrideSecret){
  // Mercado Pago assina apenas campos presentes na query e nos headers.
  // Se data.id faltar na URL, uma assinatura sem ID nunca autoriza pagamento.
- const secret=String(process.env.MERCADO_PAGO_WEBHOOK_SECRET||'').trim();
+ const secret=overrideSecret===undefined?String(process.env.MERCADO_PAGO_WEBHOOK_SECRET||'').trim():String(overrideSecret||'').trim();
  const signature=String(req.headers['x-signature']||'');
  const requestId=String(req.headers['x-request-id']||'');
  const parts=Object.fromEntries(signature.split(',').map(v=>{
