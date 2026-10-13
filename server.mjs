@@ -14,6 +14,8 @@ const routes = {
   '/cliente.html': ['cliente.html', 'text/html; charset=utf-8'],
   '/cliente.css': ['cliente.css', 'text/css; charset=utf-8'],
   '/bipstart-logo.svg': ['bipstart-logo.svg', 'image/svg+xml; charset=utf-8'],
+  '/bipstart-marca-icon.png': ['bipstart-marca-icon.png', 'image/png'],
+  '/bipstart-marca-nome.png': ['bipstart-marca-nome.png', 'image/png'],
   '/cliente.js': ['cliente.js', 'text/javascript; charset=utf-8'],
   '/cardapio': ['cardapio.html', 'text/html; charset=utf-8'],
   '/cardapio.html': ['cardapio.html', 'text/html; charset=utf-8'],

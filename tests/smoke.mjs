@@ -10,6 +10,9 @@ for(const template of ['emails/confirmar-cadastro.html','emails/recuperar-senha.
   const body=readFileSync(template,'utf8');
   assert.ok(body.includes('{{ .ConfirmationURL }}'),template+' sem link de confirmação');
   assert.ok(body.includes('BipStart'),template+' sem identidade da marca');
+  for(const image of ['/bipstart-marca-icon.png','/bipstart-marca-nome.png']){
+    assert.ok(body.includes('https://p01--bipstart--fnrfyqb66946.code.run'+image),template+' sem imagem oficial '+image);
+  }
   assert.ok(body.includes('<table'),template+' não contém HTML compatível com e-mail');
 }
 const port=33071;
@@ -32,6 +35,16 @@ try{
     const content=await r.text();
     assert.ok(content.length>200,file+' vazio');
     console.log('OK',file,content.length);
+  }
+  // Imagens PNG reais, acessíveis sem autenticação para serem exibidas nos e-mails.
+  for(const logoPath of ['/bipstart-marca-icon.png','/bipstart-marca-nome.png']){
+    const response=await fetch(root+logoPath);
+    assert.equal(response.status,200,logoPath);
+    assert.match(response.headers.get('content-type')||'', /image\/png/,logoPath);
+    const bytes=Buffer.from(await response.arrayBuffer());
+    assert.ok(bytes.length>10000,logoPath+' com conteúdo insuficiente');
+    assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a',logoPath+' não é PNG válido');
+    console.log('OK',logoPath,bytes.length);
   }
   // O cadastro deve exigir confirmação de senha no formulário e verificar os valores antes da API.
   const signupHtml=await fetch(root+'/cliente').then(r=>r.text());
