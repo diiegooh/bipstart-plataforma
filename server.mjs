@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { billing } from './billing.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +24,7 @@ const routes = {
 };
 
 const server = http.createServer(async (req, res) => {
-  if (req.method !== 'GET' && req.method !== 'HEAD') {
+  if (req.method !== 'GET' && req.method !== 'HEAD' && !(req.method === 'POST' && req.url?.startsWith('/api/billing/'))) {
     res.writeHead(405, { 'allow': 'GET, HEAD' });
     return res.end();
   }
@@ -48,6 +49,10 @@ const server = http.createServer(async (req, res) => {
       publishableKey: key,
       turnstileSiteKey: String(process.env.TURNSTILE_SITE_KEY || '')
     }));
+  }
+  if (pathname.startsWith('/api/billing/')) {
+    const handled = await billing(req, res, new URL(req.url, 'http://localhost'));
+    if (handled) return;
   }
   const file = routes[pathname];
   if (!file) {
