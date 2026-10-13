@@ -47,7 +47,8 @@ const server = http.createServer(async (req, res) => {
       enabled: Boolean(url && key),
       supabaseUrl: url,
       publishableKey: key,
-      turnstileSiteKey: String(process.env.TURNSTILE_SITE_KEY || '')
+      turnstileSiteKey: String(process.env.TURNSTILE_SITE_KEY || ''),
+      stagingMode: process.env.BIPSTART_STAGING_MODE === '1'
     }));
   }
   if (pathname.startsWith('/api/billing/')) {
