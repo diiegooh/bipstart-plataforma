@@ -4,7 +4,7 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 let cfg=null,session=null,shop=null,ent=null,products=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[];
 let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null;
-const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null};
+const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
 const plans={basic:'Básico',personalizado:'Personalizado',pro:'Pro'};
 const models={pdv:'PDV com estoque',agenda:'Agenda',cardapio:'Cardápio online'};
@@ -25,7 +25,11 @@ async function api(path,{method='GET',body,token,extraHeaders={}}={}){
   if(body!==undefined&&!extraHeaders['Content-Type'])headers['Content-Type']='application/json';
   const r=await fetch(cfg.supabaseUrl+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});
   let data=await r.json().catch(()=>null);
-  if(!r.ok)throw Error(data?.msg||data?.message||data?.error_description||data?.error||'Erro de conexão com o banco.');
+  if(!r.ok){
+    if(data?.error_code==='captcha_failed'||String(data?.msg||data?.message||'').includes('captcha protection'))
+      throw Error('O Supabase recusou a verificação Cloudflare. Atualize a página e tente novamente; se persistir, confira a Secret Key do Turnstile no Supabase.');
+    throw Error(data?.msg||data?.message||data?.error_description||data?.error||'Erro de conexão com o banco.');
+  }
   return data;
 }
 async function ensureSession(){
@@ -65,19 +69,36 @@ function renderActiveCaptcha(){
   element.classList.remove('hidden');
   captchaWidgets[kind]=window.turnstile.render(element,{
     sitekey:cfg.turnstileSiteKey,
-    callback:token=>{captchaTokens[kind]=token;},
-    'expired-callback':()=>{captchaTokens[kind]='';},
-    'error-callback':()=>{captchaTokens[kind]='';}
+    callback:token=>{
+      captchaTokens[kind]=token;captchaIssuedAt[kind]=Date.now();
+      if(captchaWaiters[kind])captchaWaiters[kind].resolve(token);
+    },
+    'expired-callback':()=>{captchaTokens[kind]='';captchaIssuedAt[kind]=0;},
+    'error-callback':()=>{
+      captchaTokens[kind]='';captchaIssuedAt[kind]=0;
+      if(captchaWaiters[kind])captchaWaiters[kind].reject(Error('Falha na verificação. Tente novamente.'));
+    }
   });
 }
 function resetCaptcha(kind){
-  captchaTokens[kind]='';
+  captchaTokens[kind]='';captchaIssuedAt[kind]=0;
   if(captchaWidgets[kind]!==null&&window.turnstile)window.turnstile.reset(captchaWidgets[kind]);
 }
-function captchaFor(kind){
+async function captchaFor(kind){
   if(!cfg?.turnstileSiteKey)return {};
-  if(!captchaTokens[kind])throw Error('Conclua a verificação anti-robô antes de continuar.');
-  return {gotrue_meta_security:{captcha_token:captchaTokens[kind]}};
+  if(captchaTokens[kind]&&Date.now()-captchaIssuedAt[kind]<240000)
+    return {gotrue_meta_security:{captcha_token:captchaTokens[kind]}};
+  if(!window.turnstile||captchaWidgets[kind]===null)
+    throw Error('A verificação de segurança ainda está carregando. Aguarde e tente novamente.');
+  const fresh=await new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>reject(Error('A verificação demorou. Tente novamente.')),30000);
+    captchaWaiters[kind]={
+      resolve:token=>{clearTimeout(timer);resolve(token)},
+      reject:error=>{clearTimeout(timer);reject(error)}
+    };
+    resetCaptcha(kind);
+  }).finally(()=>{captchaWaiters[kind]=null});
+  return {gotrue_meta_security:{captcha_token:fresh}};
 }
 function setupSignupCaptcha(){
   if(!cfg?.turnstileSiteKey)return;
@@ -266,7 +287,7 @@ async function handleSubmit(form){
   const v=formVal(form),id=form.dataset.id;
   switch(form.id){
     case 'loginForm':{
-      const captcha=captchaFor('login');
+      const captcha=await captchaFor('login');
       let result;
       try{result=await api('/auth/v1/token?grant_type=password',{method:'POST',token:null,body:{email:v.email,password:v.password,...captcha}})}
       finally{resetCaptcha('login')}
@@ -275,7 +296,7 @@ async function handleSubmit(form){
     }
     case 'signupForm':{
       if(v.password!==v.confirm)throw Error('As senhas não coincidem. Confira e tente novamente.');
-      const captcha=captchaFor('signup');
+      const captcha=await captchaFor('signup');
       const callback=encodeURIComponent(location.origin+'/cliente');
       let response;
       try{response=await api('/auth/v1/signup?redirect_to='+callback,{method:'POST',token:null,body:{email:v.email,password:v.password,...captcha}})}
@@ -396,7 +417,7 @@ $('forgotPassword').onclick=async()=>{
   if(!email)return msg('Informe seu e-mail para receber a recuperação.',true);
   let attempted=false;
   try{
-    const captcha=captchaFor('login');
+    const captcha=await captchaFor('login');
     attempted=true;
     await api('/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+'/cliente'),{method:'POST',token:null,body:{email,...captcha}});
     msg('Confira seu e-mail para recuperar a senha.');
