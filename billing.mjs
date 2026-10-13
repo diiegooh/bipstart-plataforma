@@ -29,10 +29,37 @@ async function mp(path,method='GET',body,idempotency){
  const r=await fetch('https://api.mercadopago.com'+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body)});
  const d=await r.json().catch(()=>null);if(!r.ok){const err=new Error('Mercado Pago indisponível ('+r.status+')');err.httpStatus=r.status;throw err;}return d;
 }
+function webhookSignatureDiagnostics(req,url,payload){
+ // Apenas metadados não sensíveis: NÃO registrar chaves, tokens, HMAC,
+ // x-request-id nem identificadores dos pagamentos.
+ const signature=String(req.headers['x-signature']||'');
+ const secret=String(process.env.MERCADO_PAGO_WEBHOOK_SECRET||'');
+ const query=url.searchParams;
+ const parts=Object.fromEntries(signature.split(',').map(v=>{
+  const i=v.indexOf('=');
+  return i<0?['','']:[v.slice(0,i).trim(),v.slice(i+1).trim()];
+ }));
+ const ts=String(parts.ts||'');
+ const bodyId=payload?.data?.id;
+ return {
+   hasQueryDataId:query.has('data.id'),
+   hasQueryDataUnderscoreId:query.has('data_id'),
+   hasQueryId:query.has('id'),
+   hasBodyDataId:bodyId!==undefined&&bodyId!==null,
+   queryMatchesBodyId:query.has('data.id')&&bodyId!==undefined
+     ?String(query.get('data.id'))===String(bodyId):null,
+   hasRequestId:Boolean(req.headers['x-request-id']),
+   hasSignature:Boolean(signature),
+   signatureTsLength:ts.length,
+   signatureDigestLength:String(parts.v1||'').length,
+   secretConfigured:Boolean(secret),
+   secretHasSurroundingWhitespace:secret!==secret.trim()
+ };
+}
 function verifySignature(req,url,payload){
  // Mercado Pago assina apenas campos presentes na query e nos headers.
  // Se data.id faltar na URL, uma assinatura sem ID nunca autoriza pagamento.
- const secret=String(process.env.MERCADO_PAGO_WEBHOOK_SECRET||'');
+ const secret=String(process.env.MERCADO_PAGO_WEBHOOK_SECRET||'').trim();
  const signature=String(req.headers['x-signature']||'');
  const requestId=String(req.headers['x-request-id']||'');
  const parts=Object.fromEntries(signature.split(',').map(v=>{
@@ -106,7 +133,7 @@ export async function billing(req,res,url){
   const body=await readBody(req);
   const verified=verifySignature(req,url,body);
   if(!verified.valid){
-   console.warn('BipStart webhook rejeitado:',verified.reason);
+   console.warn('BipStart webhook rejeitado:',verified.reason,webhookSignatureDiagnostics(req,url,body));
    json(res,401,{error:'Assinatura inválida.'});return true;
   }
   if(body?.type&&body.type!=='payment'){
