@@ -1,6 +1,7 @@
 // PIX real de diagnóstico: nunca ativa planos e nunca altera entitlements.
 // Requer aprovação humana para pagar. Disponível SOMENTE no serviço de homologação.
 import { verifySignature } from './billing.mjs';
+import crypto from 'node:crypto';
 
 const BASE='https://api.mercadopago.com';
 const supa=()=>String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
@@ -127,9 +128,34 @@ async function createOnce(user,shop){
   ticketUrl:typeof td.ticket_url==='string'&&td.ticket_url.startsWith('https://')?td.ticket_url:null,
   pixCopyPaste:typeof td.qr_code==='string'?td.qr_code:null};
 }
-async function readBody(req){
- let raw='';for await(const chunk of req){raw+=chunk;if(raw.length>10000)throw Error('Requisição excessiva');}
- return JSON.parse(raw||'{}');
+function authenticatedRelayRequest(req,url,raw){
+ const headers=req.headers;
+ const original=String(headers['x-bipstart-original-request-id']||'');
+ const timestamp=String(headers['x-bipstart-relay-ts']||'');
+ const proof=String(headers['x-bipstart-relay-proof']||'');
+ const some=Boolean(original||timestamp||proof);
+ if(!some)return {valid:true,request:req,relayed:false};
+ const secret=String(process.env.BIPSTART_WEBHOOK_RELAY_SECRET||'');
+ if(!original||!timestamp||!proof||secret.length<32)
+   return {valid:false,reason:'relay_incompleto'};
+ if(!/^[0-9a-f-]{36}$/i.test(original)||!/^1[0-9]{9}$/.test(timestamp)||!/^[a-f0-9]{64}$/i.test(proof))
+   return {valid:false,reason:'relay_formato'};
+ if(Math.abs(Date.now()-Number(timestamp)*1000)>120000)
+   return {valid:false,reason:'relay_expirado'};
+ const signature=String(headers['x-signature']||'');
+ const bodyHash=crypto.createHash('sha256').update(raw).digest('hex');
+ const manifest=['v1',timestamp,original,signature,url.search,bodyHash].join('\n');
+ const expected=crypto.createHmac('sha256',secret).update(manifest).digest();
+ if(!crypto.timingSafeEqual(expected,Buffer.from(proof,'hex')))
+   return {valid:false,reason:'relay_prova_invalida'};
+ // Usar ID original apenas após atestação criptográfica do Worker.
+ // Mesmo assim o HMAC original do Mercado Pago continua obrigatório.
+ return {valid:true,request:{...req,headers:{...headers,'x-request-id':original}},relayed:true};
+}
+async function readBody(req,withRaw=false){
+ let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>10000)throw Error('Requisição excessiva');}
+ const body=JSON.parse(raw||'{}');
+ return withRaw?{body,raw:Buffer.from(raw)}:body;
 }
 export async function pixDiagnostic(req,res,url){
  if(!['/api/billing/pix-diagnostic','/api/billing/pix-webhook','/api/billing/pix-auth-check','/api/billing/pix-proxy-check'].includes(url.pathname))return false;
@@ -137,9 +163,15 @@ export async function pixDiagnostic(req,res,url){
  if(url.pathname==='/api/billing/pix-webhook'){
   if(req.method!=='POST'){reply(res,405,{error:'Método não permitido'});return true;}
   try{
-   const body=await readBody(req);
+   const {body,raw}=await readBody(req,true);
+   const forwarded=authenticatedRelayRequest(req,url,raw);
+   if(!forwarded.valid){
+     console.warn('BipStart PIX real webhook recusado:',forwarded.reason);
+     reply(res,401,{error:'Encaminhamento inválido'});return true;
+   }
+   // Verifica o HMAC do Mercado Pago independentemente da prova do Worker.
    // Webhook só observa: nenhuma alteração de planos ou de pedidos.
-   const result=verifySignature(req,url,body,String(process.env.MERCADO_PAGO_PROD_WEBHOOK_SECRET||'').trim());
+   const result=verifySignature(forwarded.request,url,body,String(process.env.MERCADO_PAGO_PROD_WEBHOOK_SECRET||'').trim());
    if(!result.valid){console.warn('BipStart PIX real webhook recusado:',result.reason);reply(res,401,{error:'Assinatura inválida'});return true;}
    console.info('BipStart PIX real webhook validado:',{signedPaymentId:result.signedId,eventType:body.type||null});
    reply(res,200,{ok:true,diagnostic:true,planActivated:false});
