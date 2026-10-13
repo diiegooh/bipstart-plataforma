@@ -122,6 +122,19 @@ try {
    const r=await invoke('/api/billing/checkout',{headers:{authorization:'Bearer mock-jwt'},body:{shopId,plan:'pro'}});
    assert.equal(r.status,400);
  });
+ await test('assinatura válida tolera espaços involuntários ao colar chave',async()=>{
+   const previous=process.env.MERCADO_PAGO_WEBHOOK_SECRET;
+   process.env.MERCADO_PAGO_WEBHOOK_SECRET='  mock-signing  ';
+   try{
+     const calls=mockApi();
+     const r=await invoke('/api/billing/webhook?data.id=99999',{
+       headers:signedHeaders(undefined,'99999')
+     });
+     assert.equal(r.status,200);
+     assert.equal(r.result.ignored,true);
+     assert.ok(!calls.some(c=>c.method==='PATCH'));
+   }finally{process.env.MERCADO_PAGO_WEBHOOK_SECRET=previous}
+ });
  await test('webhook sem assinatura rejeitado antes de buscar pagamento',async()=>{
    const calls=mockApi();
    const r=await invoke('/api/billing/webhook?data.id=12345');
