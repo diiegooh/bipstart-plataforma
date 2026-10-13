@@ -132,7 +132,7 @@ async function readBody(req){
  return JSON.parse(raw||'{}');
 }
 export async function pixDiagnostic(req,res,url){
- if(!['/api/billing/pix-diagnostic','/api/billing/pix-webhook','/api/billing/pix-auth-check'].includes(url.pathname))return false;
+ if(!['/api/billing/pix-diagnostic','/api/billing/pix-webhook','/api/billing/pix-auth-check','/api/billing/pix-proxy-check'].includes(url.pathname))return false;
  if(!enabled()){reply(res,503,{error:'Teste PIX real desativado na homologação.'});return true;}
  if(url.pathname==='/api/billing/pix-webhook'){
   if(req.method!=='POST'){reply(res,405,{error:'Método não permitido'});return true;}
@@ -152,6 +152,24 @@ export async function pixDiagnostic(req,res,url){
   if(host&&host!==new URL(base()).host.toLowerCase()){reply(res,409,{error:'Domínio da homologação incompatível'});return true;}
   const current=await owner(req);
   if(!current){reply(res,403,{error:'Entre com a conta de teste autorizada e e-mail confirmado.'});return true;}
+  if(url.pathname==='/api/billing/pix-proxy-check'){
+   if(req.method!=='GET'){reply(res,405,{error:'Somente consulta é permitida.'});return true;}
+   // Teste sem pagamentos nem segredos: compara o marcador no URL com
+   // o x-request-id que efetivamente chegou ao Node.js.
+   const submitted=String(url.searchParams.get('probe')||'');
+   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(submitted)){
+    reply(res,400,{error:'Marcador de teste inválido.'});return true;
+   }
+   const received=String(req.headers['x-request-id']||'');
+   reply(res,200,{
+    requestIdPreserved:received===submitted,
+    requestIdPresent:Boolean(received),
+    // Apenas metadados, sem publicar o identificador recebido.
+    requestIdFormat:received?'UUID ou outro valor':'ausente',
+    readsOnly:true,createsPayment:false,planActivated:false
+   });
+   return true;
+  }
   if(url.pathname==='/api/billing/pix-auth-check'){
    if(req.method!=='GET'){reply(res,405,{error:'Somente consulta é permitida.'});return true;}
    const diagnostic=await verifyProductionTokenReadOnly();
