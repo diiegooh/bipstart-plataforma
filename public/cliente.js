@@ -133,7 +133,7 @@ function renderPage(){
   if(tab==='resumo'){
     content=heading('Bem-vindo à BipStart','Seus dados ficam salvos no Supabase e são separados dos demais clientes.')
       +'<div class="grid">'+tile('Modelo',models[shop.model])+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',ent?.status==='active'?'Ativo':'Em avaliação')+'</div>'
-      +'<p class="warn">Os pagamentos ainda não estão ativos. Esta conta usa a avaliação gratuita; a ativação definitiva depende da integração do Mercado Pago.</p>';
+      +'<p class="warn">A cobrança dos planos BipStart ainda não está ativa. Esta conta usa a avaliação gratuita. Pedidos dos clientes são enviados pelo WhatsApp e pagamentos das lojas são combinados diretamente com cada estabelecimento.</p>';
     if(shop.model==='pdv')content+='<div class="grid">'+tile('Produtos',products.length)+tile('Vendas',sales.length)+tile('Total vendido',fmt(sales.reduce((a,s)=>a+Number(s.total),0)))+'</div>';
     if(shop.model==='agenda')content+='<div class="grid">'+tile('Serviços',services.length)+tile('Agendamentos',appointments.length)+'</div>';
     if(shop.model==='cardapio')content+='<div class="grid">'+tile('Itens cadastrados',products.length)+tile('Link público',shop.slug)+'</div>';
