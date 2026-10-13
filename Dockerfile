@@ -1,6 +1,6 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY package.json server.mjs billing.mjs ./
+COPY package.json server.mjs billing.mjs pix-diagnostic.mjs ./
 COPY public ./public
 ENV NODE_ENV=production
 EXPOSE 3000
