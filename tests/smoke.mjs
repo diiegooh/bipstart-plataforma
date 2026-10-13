@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import { spawn, execFileSync } from 'node:child_process';
 
 const dockerfile=readFileSync('Dockerfile','utf8');
-assert.ok(dockerfile.includes('COPY package.json server.mjs billing.mjs ./'),'Imagem Docker deve incluir billing.mjs');
-for(const file of ['server.mjs','public/app.js','public/cliente.js','public/cardapio.js']){
+assert.ok(dockerfile.includes('COPY package.json server.mjs billing.mjs pix-diagnostic.mjs ./'),'Docker precisa incluir módulo PIX');
+for(const file of ['server.mjs','billing.mjs','pix-diagnostic.mjs','public/app.js','public/cliente.js','public/pix-teste.js','public/cardapio.js']){
   execFileSync(process.execPath,['--check',file],{stdio:'inherit'});
 }
 // Modelos Supabase devem conter link temporário real, sem credenciais hardcoded.
@@ -30,7 +30,7 @@ async function wait(){
 }
 try{
   await wait();
-  const files=['/','/style.css','/app.js','/cliente','/cliente.css','/cliente.js','/bipstart-logo.svg','/cardapio','/cardapio.js'];
+  const files=['/','/style.css','/app.js','/cliente','/cliente.css','/cliente.js','/pix-teste','/pix-teste.js','/bipstart-logo.svg','/cardapio','/cardapio.js'];
   for(const file of files){
     const r=await fetch(root+file);
     assert.equal(r.status,200,file);
