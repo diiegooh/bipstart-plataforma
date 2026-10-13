@@ -5,16 +5,55 @@ const PLAN={basic:'Básico',personalizado:'Personalizado',pro:'Pro'};
 const WHATSAPP='5511978353820';
 let config=null,busy=false;
 function message(t,error=false){$('adminMessage').textContent=t;$('adminMessage').style.color=error?'var(--danger)':'var(--text)'}
-function session(){try{return JSON.parse(localStorage.getItem('bipstart_customer_session')||'null')}catch{return null}}
+const STORAGE='bipstart_customer_session';
+function session(){try{return JSON.parse(localStorage.getItem(STORAGE)||'null')}catch{return null}}
+function loginRequired(){return Error('Sua sessão da homologação não está válida. Entre novamente em /cliente neste mesmo endereço e volte ao painel /admin.')}
+async function activeSession(){
+ const current=session();
+ if(!current?.access_token)throw loginRequired();
+ if(Number(current.expires_at||0)>Date.now()/1000+90)return current;
+ if(!current.refresh_token)throw loginRequired();
+ let response;
+ try{
+  response=await fetch(config.supabaseUrl+'/auth/v1/token?grant_type=refresh_token',{
+   method:'POST',headers:{apikey:config.publishableKey,'Content-Type':'application/json'},
+   body:JSON.stringify({refresh_token:current.refresh_token})
+  });
+ }catch{throw Error('Não foi possível renovar a sessão. Tente novamente.')}
+ const data=await response.json().catch(()=>null);
+ if(!response.ok||!data?.access_token||!data.refresh_token){
+  localStorage.removeItem(STORAGE);
+  throw loginRequired();
+ }
+ const renewed={...current,...data,expires_at:Math.floor(Date.now()/1000)+Number(data.expires_in||3600)};
+ localStorage.setItem(STORAGE,JSON.stringify(renewed));
+ return renewed;
+}
+async function signedInAccount(){
+ const auth=await activeSession();
+ const r=await fetch(config.supabaseUrl+'/auth/v1/user',{
+  headers:{apikey:config.publishableKey,Authorization:'Bearer '+auth.access_token}
+ });
+ if(!r.ok)throw loginRequired();
+ const user=await r.json().catch(()=>null);
+ if(!user?.id)throw loginRequired();
+ $('adminAccount').textContent='Conta conectada: '+String(user.email||'(e-mail indisponível)');
+ return user;
+}
 async function request(fn,body){
- const auth=session();
- if(!auth?.access_token)throw Error('Entre primeiro em sua conta BipStart e abra novamente esta página.');
+ const auth=await activeSession();
  const response=await fetch(config.supabaseUrl+'/rest/v1/rpc/'+fn,{
    method:'POST',headers:{apikey:config.publishableKey,Authorization:'Bearer '+auth.access_token,'Content-Type':'application/json'},
    body:JSON.stringify(body||{})
  });
  const data=await response.json().catch(()=>null);
- if(!response.ok)throw Error(response.status===401||response.status===403?'Seu usuário não está autorizado como administrador.':(data?.message||'Falha ao consultar as lojas.'));
+ if(!response.ok){
+  if(response.status===401)throw loginRequired();
+  if(response.status===403||data?.code==='42501'){
+   throw Error('Esta conta não tem permissão administrativa. Confira o e-mail conectado acima e entre com a conta autorizada na homologação.');
+  }
+  throw Error(data?.message||'Falha ao consultar as lojas. HTTP '+response.status);
+ }
  return data;
 }
 function row(item){
@@ -35,6 +74,7 @@ async function load(){
  try{
    if(!config)config=await fetch('/api/public-config',{cache:'no-store'}).then(r=>r.json());
    if(!config?.enabled)throw Error('Configuração Supabase não disponível.');
+   await signedInAccount();
    const items=await request('bipstart_admin_list_shops');
    $('adminRows').innerHTML=(Array.isArray(items)?items:[]).map(row).join('');
    message((items||[]).length+' loja(s) encontradas. Confirme o pagamento antes de liberar.');
