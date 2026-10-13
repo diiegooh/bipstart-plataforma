@@ -13,7 +13,7 @@ const amount=1.00;
 const enabled=()=>process.env.BIPSTART_STAGING_MODE==='1'
  &&process.env.BIPSTART_BILLING_MODE==='test'
  &&process.env.BIPSTART_REAL_PIX_TEST_ENABLED==='1'
- &&Boolean(supa()&&secret()&&publish()&&prodToken()&&base().startsWith('https://'))
+ &&Boolean(supa()&&secret()&&publish()&&prodToken().startsWith('APP_USR-')&&base().startsWith('https://'))
  &&Boolean(String(process.env.BIPSTART_REAL_PIX_TEST_EMAIL||'').trim());
 
 function reply(res,status,body){
