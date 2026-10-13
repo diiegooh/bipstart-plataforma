@@ -47,7 +47,7 @@ function validSignature(req,url){
 export async function billing(req,res,url){
  const pathname=url.pathname;
  if(!['/api/billing/checkout','/api/billing/webhook'].includes(pathname))return false;
- if(!supa()||!key()||!publicKey()||!token()||!process.env.MERCADO_PAGO_WEBHOOK_SECRET||!base().startsWith('https://')||process.env.BIPSTART_BILLING_MODE!=='test'){json(res,503,{error:'Pagamento da BipStart ainda não configurado.'});return true;}
+ if(!supa()||!key()||!publicKey()||!token()||!process.env.MERCADO_PAGO_WEBHOOK_SECRET||!base().startsWith('https://')||process.env.BIPSTART_BILLING_MODE!=='test'||process.env.BIPSTART_STAGING_MODE!=='1'){json(res,503,{error:'Pagamento da BipStart ainda não configurado.'});return true;}
  try{
   if(pathname==='/api/billing/checkout'){
    if(req.method!=='POST'){json(res,405,{error:'Método inválido'});return true;}
