@@ -75,13 +75,15 @@ export async function billing(req,res,url){
   if(payment.status!=='approved'){json(res,200,{ok:true});return true;}
   // Em modo de teste, nunca ativar plano com pagamento real.
   if(payment.live_mode===true){json(res,422,{error:'Pagamento real recusado no ambiente de teste.'});return true;}
-  if(order.status==='approved'){
-   if(order.provider_ref!==String(payment.id)){json(res,409,{error:'Pedido já confirmado com outro pagamento.'});return true;}
-   json(res,200,{ok:true});return true;
+  if(order.status==='test_approved'){
+   if(order.provider_ref!==String(payment.id)){json(res,409,{error:'Pedido de teste já confirmado com outro pagamento.'});return true;}
+   json(res,200,{ok:true,test:true});return true;
   }
-  if(!Object.hasOwn(prices,order.plan_code)||Number(order.amount)!==prices[order.plan_code]||Number(payment.transaction_amount)!==prices[order.plan_code]||payment.currency_id!=='BRL'||(payment.status!=='approved')){json(res,422,{error:'Pagamento incompatível.'});return true;}
-  const result=await sb('rpc/bipstart_confirm_plan_payment','POST',{p_order_id:order.id,p_payment_ref:String(payment.id),p_amount:Number(payment.transaction_amount),p_plan:order.plan_code});
-  if(result!==true)throw Error('Ativação não confirmada.');
-  json(res,200,{ok:true});return true;
+  if(order.status!=='pending'){json(res,409,{error:'Pedido não está pendente.'});return true;}
+  if(!Object.hasOwn(prices,order.plan_code)||Number(order.amount)!==prices[order.plan_code]||Number(payment.transaction_amount)!==prices[order.plan_code]||payment.currency_id!=='BRL'){json(res,422,{error:'Pagamento incompatível.'});return true;}
+  // Não ativar plano definitivo com dinheiro simulado em base de dados real.
+  const updated=await sb('shop_billing_orders?id=eq.'+encodeURIComponent(order.id)+'&status=eq.pending','PATCH',{status:'test_approved',provider_ref:String(payment.id)});
+  if(!updated?.length)throw Error('Pedido de teste não registrado.');
+  json(res,200,{ok:true,test:true,planActivated:false});return true;
  }catch(error){console.error('BipStart billing:',error.message);json(res,500,{error:'Não foi possível processar a operação.'});return true;}
 }
