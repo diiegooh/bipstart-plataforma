@@ -81,3 +81,12 @@ test('bloqueio também restringe leituras operacionais por RLS',()=>{
  assert.match(rls,/public\.is_shop_enabled\(shop_id\)/);
  assert.doesNotMatch(rls,/alter policy entitlements_owner_read/);
 });
+
+test('painel diferencia sessão inválida de falta de permissão',()=>{
+ assert.match(admin,/async function activeSession/);
+ assert.match(admin,/async function signedInAccount/);
+ assert.match(admin,/response.status===401/);
+ assert.match(admin,/response.status===403/);
+ assert.match(admin,/Conta conectada:/);
+ assert.match(readFileSync('public/admin.html','utf8'),/id="adminAccount"/);
+});
