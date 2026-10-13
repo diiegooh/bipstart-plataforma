@@ -12,6 +12,13 @@ begin
  end if;
 end $$;
 
+-- Preserva os estados antigos e acrescenta os dois modos manuais.
+alter table public.shop_entitlements
+ drop constraint if exists shop_entitlements_status_check;
+alter table public.shop_entitlements
+ add constraint shop_entitlements_status_check
+ check (status in ('trialing','active','past_due','cancelled','pending','suspended'));
+
 create or replace function public.create_shop_trial()
 returns trigger language plpgsql security definer set search_path=''
 as $$
