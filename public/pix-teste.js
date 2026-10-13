@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 let busy=false,credentialOk=false;
 const readSession=()=>{try{return JSON.parse(localStorage.getItem('bipstart_customer_session')||'null')}catch{return null}};
 function msg(value,error=false){$('notice').textContent=value;$('notice').style.color=error?'#ff9caa':'#cdbfdf'}
-function loading(on){busy=on;$('create').disabled=on||!credentialOk;$('refresh').disabled=on;$('checkCredential').disabled=on}
+function loading(on){busy=on;$('create').disabled=on||!credentialOk;$('refresh').disabled=on;$('checkCredential').disabled=on;$('checkProxy').disabled=on}
 async function checkCredential(){
  if(busy)return;
  const session=readSession();
@@ -26,6 +26,27 @@ async function checkCredential(){
     +(data.providerErrorCode?', código '+data.providerErrorCode:'')+'.'+hint+' Confira o Access Token de produção da aplicação BipStart.',true);
   }
  }catch(e){msg(e.message,true)}
+ finally{loading(false)}
+}
+async function checkProxy(){
+ if(busy)return;
+ const session=readSession();
+ if(!session?.access_token){msg('Entre na conta BipStart antes de fazer o diagnóstico.',true);return}
+ loading(true);
+ try{
+  const marker=crypto.randomUUID();
+  const response=await fetch('/api/billing/pix-proxy-check?probe='+encodeURIComponent(marker),{
+   method:'GET',cache:'no-store',
+   headers:{Authorization:'Bearer '+session.access_token,'x-request-id':marker}
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(data.error||'Não foi possível verificar o cabeçalho.');
+  if(data.requestIdPreserved===true){
+   msg('DIAGNÓSTICO: x-request-id PRESERVADO pelo proxy. Vamos investigar a chave e a assinatura do Mercado Pago.');
+  }else{
+   msg('DIAGNÓSTICO: x-request-id ALTERADO ou removido pelo proxy. Isso pode explicar o 401 do webhook: a assinatura depende do identificador original.',true);
+  }
+ }catch(error){msg('Falha no teste do proxy: '+error.message,true)}
  finally{loading(false)}
 }
 async function api(method){
@@ -56,6 +77,7 @@ async function api(method){
  finally{loading(false)}
 }
 $('checkCredential').addEventListener('click',checkCredential);
+$('checkProxy').addEventListener('click',checkProxy);
 $('create').addEventListener('click',()=>{
  if(!credentialOk){msg('Verifique a credencial antes de gerar o PIX.',true);return}
  if(!window.confirm('Criar uma cobrança PIX REAL de R$ 1,00 na aplicação BipStart? Só haverá transferência se você efetuar o pagamento. Este teste NÃO contrata plano.'))return;
