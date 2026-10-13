@@ -15,11 +15,11 @@
     <a class="button" href="/">Ver modelos demonstrativos</a>
   </section>
   <section id="auth" class="auth-grid hidden">
-    <div class="auth-copy"><span class="kicker">SUA LOJA COMEÇA AQUI</span><h1>Seu negócio no digital, <em>do seu jeito.</em></h1><p>Crie sua conta para configurar um PDV com estoque, uma agenda ou um cardápio digital.</p><p class="muted">Cadastre-se, confirme seu e-mail e entre na sua conta para iniciar a avaliação gratuita de 7 dias.</p></div>
+    <div class="auth-copy"><span class="kicker">SUA LOJA COMEÇA AQUI</span><h1>Seu negócio no digital, <em>do seu jeito.</em></h1><p>Crie sua conta para configurar um PDV com estoque, uma agenda ou um cardápio digital.</p><p class="muted">Cadastre-se, confirme seu e-mail e escolha entre testar por 7 dias ou contratar um plano pelo WhatsApp.</p></div>
     <div class="card auth-card">
       <div class="switch"><button type="button" class="selected" id="showLogin">Entrar</button><button type="button" id="showSignup">Criar conta</button></div>
       <form id="loginForm"><h2>Acessar minha loja</h2><label>E-mail<input type="email" name="email" autocomplete="email" required></label><label>Senha<input type="password" name="password" autocomplete="current-password" minlength="6" required></label><div id="loginCaptcha" class="hidden" aria-label="Verificação anti-robô"></div><button class="button" type="submit">Entrar</button><button class="text-button" type="button" id="forgotPassword">Esqueci minha senha</button></form>
-      <form id="signupForm" class="hidden"><h2>Cadastre-se</h2><label>E-mail<input type="email" name="email" autocomplete="email" required></label><label>Senha (mínimo 6 caracteres)<input type="password" name="password" autocomplete="new-password" minlength="6" required></label><label>Confirmar senha<input type="password" name="confirm" autocomplete="new-password" minlength="6" required aria-describedby="signupPasswordMatch"></label><p id="signupPasswordMatch" class="muted small" role="status" aria-live="polite"></p><div id="signupCaptcha" class="hidden" aria-label="Verificação anti-robô"></div><button class="button" type="submit">Criar conta gratuita</button><p class="muted small">A confirmação do e-mail é obrigatória antes de iniciar a avaliação gratuita.</p></form>
+      <form id="signupForm" class="hidden"><h2>Cadastre-se</h2><label>E-mail<input type="email" name="email" autocomplete="email" required></label><label>Senha (mínimo 6 caracteres)<input type="password" name="password" autocomplete="new-password" minlength="6" required></label><label>Confirmar senha<input type="password" name="confirm" autocomplete="new-password" minlength="6" required aria-describedby="signupPasswordMatch"></label><p id="signupPasswordMatch" class="muted small" role="status" aria-live="polite"></p><div id="signupCaptcha" class="hidden" aria-label="Verificação anti-robô"></div><button class="button" type="submit">Criar conta</button><p class="muted small">A confirmação do e-mail é obrigatória antes de iniciar a avaliação gratuita.</p></form>
     </div>
   </section>
   <section id="resetPass" class="card central hidden">
@@ -36,8 +36,23 @@
       <label>WhatsApp comercial com DDD (opcional)<input name="whatsapp" type="tel" placeholder="11999999999" inputmode="tel"></label>
       <label>Qual modelo você deseja usar?<select name="model" required><option value="pdv">PDV e controle de estoque</option><option value="agenda">Agenda de serviços</option><option value="cardapio">Cardápio online</option></select></label>
       <label>Plano de interesse<select name="requested_plan"><option value="basic">Básico — R$ 29,99 (único)</option><option value="personalizado">Personalizado — R$ 49,99 (único)</option><option value="pro">Pro — R$ 99,90/mês</option></select></label>
-      <button class="button" type="submit">Começar avaliação de 7 dias</button><p class="muted small">Os 7 dias começam após a confirmação do e-mail e a criação da loja. Nenhuma cobrança é realizada neste cadastro.</p>
+      <fieldset class="signup-choices"><legend>Como deseja começar?</legend>
+        <label class="option-line"><input type="radio" name="signup_choice" value="trial" checked required> <span><strong>Experimentar grátis por 7 dias</strong><small>Acesso imediato ao plano escolhido. Após o prazo, as funções são bloqueadas até a contratação.</small></span></label>
+        <label class="option-line"><input type="radio" name="signup_choice" value="whatsapp" required> <span><strong>Contratar pelo WhatsApp</strong><small>Solicite o pagamento ao atendimento BipStart e aguarde nossa liberação manual. Sem cobrança automática.</small></span></label>
+      </fieldset>
+      <button class="button" type="submit">Continuar</button>
+      <p class="muted small">O pagamento de planos será combinado exclusivamente pelo WhatsApp (11) 97835-3820. O cadastro não realiza cobranças.</p>
     </form>
+  </section>
+  <section id="accessGate" class="card central hidden" aria-live="polite">
+    <span class="kicker">ACESSO BIPSTART</span><h1 id="gateTitle">Aguardando confirmação</h1>
+    <p id="gateDesc">Solicite a contratação do plano pelo WhatsApp.</p>
+    <p><strong>Loja:</strong> <span id="gateShop"></span></p>
+    <p><strong>Plano de interesse:</strong> <span id="gatePlan"></span></p>
+    <p class="warn" id="gateStatus">Aguardando confirmação</p>
+    <p><a id="gateWhatsapp" class="button" href="#" target="_blank" rel="noopener noreferrer">Solicitar pelo WhatsApp ↗</a></p>
+    <button type="button" class="ghost" id="refreshAccess">Atualizar meu acesso</button>
+    <p class="muted small">Seus dados continuam guardados. O acesso é liberado somente após confirmação manual do pagamento pela BipStart.</p>
   </section>
   <section id="workspace" class="hidden"><div class="heading"><div><span class="kicker">PAINEL BIPSTART</span><h1 id="shopName">Minha loja</h1><p id="shopStatus" class="muted"></p></div><div><a id="publicMenuLink" class="ghost hidden" target="_blank" rel="noopener">Abrir meu cardápio ↗</a></div></div>
     <div class="dashboard"><aside class="side"><div id="nav"></div><button type="button" id="switchShop" class="ghost">Ver planos BipStart</button></aside>
@@ -45,5 +60,5 @@
   </section>
 </main>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=1" defer></script>
+<script src="/cliente.js?v=2" defer></script>
 </body></html>
