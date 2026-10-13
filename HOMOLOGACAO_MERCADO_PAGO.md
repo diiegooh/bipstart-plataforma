@@ -82,3 +82,49 @@ Faça login em \`https://<host-da-homologacao>/cliente\` e abra \`https://<host-
 **Desativação obrigatória após concluir:** alterar \`BIPSTART_REAL_PIX_TEST_ENABLED=0\`, salvar/reimplantar o serviço e, quando possível, revogar/remover a credencial de produção do ambiente de homologação. Nenhuma outra integração da BipStart depende dessas variáveis.
 
 > O PR #7 continua **rascunho**, isolado em \`feature/mercadopago-testes-20261013\`. Nunca mesclar automaticamente para main.
+
+
+## 8. Corrigindo x-request-id reescrito pelo Northflank (Worker de homologação)
+
+**Motivo:** requisições externas ao Northflank podem receber x-request-id novo. O Mercado Pago
+assina o ID original e por isso o HMAC do webhook real falha. A página BipStart /pix-teste
+confirmou: x-request-id alterado; x-bipstart-original-request-id preservado.
+
+**Não mudar o Mercado Pago antes de passar o teste do Worker. Não realizar outro PIX.**
+
+1. Cloudflare Dashboard → Workers & Pages → Create → Worker. Nome sugerido: **bipstart-webhook-relay**.
+   No editor do Worker, colocar o código de \`cloudflare/bipstart-webhook-relay.mjs\` da branch
+   \`feature/mercadopago-testes-20261013\`; implementar em URL workers.dev.
+2. Antes de adicionar segredos ou alterar o Mercado Pago, visitar
+   \`https://<seu-worker>.workers.dev/probe\`, clicar **Testar cabeçalho sem cobrança**.
+   É obrigatório aparecer: "Cloudflare preservou x-request-id". Caso contrário, parar.
+3. Criar um segredo aleatório de pelo menos 32 caracteres (ideal: 32 bytes aleatórios
+   gerados em gerenciador de senhas; não enviar ao ChatGPT). Salvar o **mesmo valor**
+   nos dois lugares, sem aspas/espaços:
+   - Cloudflare Worker → Settings → Variables and Secrets, tipo **Secret**:
+     \`BIPSTART_WEBHOOK_RELAY_SECRET\`
+   - Northflank → serviço **bipstart-homologacao** → Environment:
+     \`BIPSTART_WEBHOOK_RELAY_SECRET\`
+   O segredo do relay é NOVO e diferente de \`MERCADO_PAGO_PROD_WEBHOOK_SECRET\`.
+4. Após implantar o Worker e a homologação, configurar **apenas modo de produção**
+   de Webhooks da aplicação BipStart no Mercado Pago com
+   \`https://<seu-worker>.workers.dev/api/billing/pix-webhook\`.
+   A URL do Mercado Pago em modo de teste permanece intocada. A assinatura do
+   Mercado Pago também deve permanecer configurada corretamente.
+5. A notificação será recebida no Worker, que passa o ID original em
+   \`x-bipstart-original-request-id\` e a atestação HMAC em
+   \`x-bipstart-relay-ts\`, \`x-bipstart-relay-proof\`. O servidor exige essa
+   atestação para aceitar o cabeçalho alternativo e depois valida **também**
+   a assinatura original com \`MERCADO_PAGO_PROD_WEBHOOK_SECRET\`.
+   Nunca confiar somente no header alternativo; não desabilitar o HMAC.
+6. Acompanhar entrega de evento real e logs em bipstart-homologacao:
+   \`BipStart PIX real webhook validado:\` significa sucesso; nenhuma assinatura
+   de plano é ativada.
+7. Após teste, desligar \`BIPSTART_REAL_PIX_TEST_ENABLED=0\` no Northflank e
+   retirar credenciais de produção da homologação quando não forem mais necessárias.
+   Não mesclar PR #7 em main.
+
+**Notas:** A rota geral \`/api/billing/webhook\` usada na branch de testes de plano
+não deve ser redirecionada para este Worker de PIX de produção. O Cloudflare
+não é usado para vendas dos lojistas (essas seguem por WhatsApp). O Worker
+encaminha exclusivamente \`/api/billing/pix-webhook\` para o host fixo da homologação.
