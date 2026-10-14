@@ -203,6 +203,11 @@ async function openShop(){
   if(shop.model==='pdv')$('publicMenuLink').href=publicShopUrl();
   await reloadData();renderNav();hiding('modeChooser',true);
   $('modeChooserTitle').textContent='Como deseja começar na '+shop.name+'?';
+  // Link de gestão do cardápio público: entrada direta no editor após verificar acesso.
+  if(new URLSearchParams(location.search).get('editar')==='cardapio'){
+    tab='cardapio';showForm=null;pastedProductImage=null;
+    hiding('modeChooser',false);hiding('workspace',true);renderPage();
+  }
 }
 async function reloadData(){
   products=[];categories=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];
@@ -754,7 +759,7 @@ $('signupForm').addEventListener('input',()=>{
 $('showLogin').onclick=()=>authTab(false);
 $('showSignup').onclick=()=>authTab(true);
 $('logout').onclick=()=>{session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
-$('backToModes').onclick=()=>{if(!shop||!hasAccess())return;hiding('workspace',false);hiding('modeChooser',true);showForm=null;};
+$('backToModes').onclick=()=>{if(!shop||!hasAccess())return;history.replaceState(null,'','/cliente');hiding('workspace',false);hiding('modeChooser',true);showForm=null;};
 $('switchShop').onclick=()=>{location.href='/#planos'};
 $('refreshAccess').onclick=async()=>{try{await openShop();msg(hasAccess()?'Seu acesso está liberado!':'Ainda aguardando liberação. Confira o WhatsApp.')}catch(e){msg(e.message,true)}};
 window.addEventListener('focus',()=>{if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate()}});
