@@ -1,6 +1,63 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cardápio digital • BipStart</title><link rel="stylesheet" href="/cliente.css?v=1"><style>.menu-hero{padding:30px 0;border-bottom:1px solid #503971}.menu-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}.menu-item{background:#1a102e;border:1px solid #594078;border-radius:15px;padding:15px;display:flex;flex-direction:column;gap:10px}.menu-item img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:10px}.menu-item h3{margin:0}.menu-item .button{margin-top:auto}.menu-cart{position:sticky;bottom:0;background:#160d2cf7;border:1px solid #634394;border-radius:14px;padding:14px;margin-top:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}</style></head><body>
-<header class="top"><a href="/" class="brand">▣ <strong>Bip<span>Start</span></strong></a><span class="muted">Cardápio digital</span></header>
-<main class="shell"><section class="menu-hero"><span class="kicker">BEM-VINDO</span><h1 id="store">Carregando...</h1><p>Escolha seus produtos e envie o pedido para o estabelecimento.</p></section>
-<div id="error" class="notice hidden"></div><section id="items" class="menu-items" style="margin-top:25px"></section>
-<div class="menu-cart"><div><strong id="cartCount">0 itens</strong><div id="total" class="price">R$ 0,00</div></div><button class="button" id="order" type="button" disabled>Enviar pedido por WhatsApp</button></div><p class="muted small">O pagamento é combinado diretamente com o estabelecimento. A BipStart não processa cobranças neste cardápio.</p>
-</main><script src="/cardapio.js?v=1" defer></script></body></html>
+<!doctype html>
+<html lang="pt-BR">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta name="theme-color" content="#090612">
+ <title>Cardápio digital • BipStart</title>
+ <link rel="stylesheet" href="/cardapio.css?v=2">
+</head>
+<body>
+ <header class="menu-top">
+  <a href="/" aria-label="Página inicial da BipStart"><img src="/bipstart-logo.svg" alt="BipStart" class="bipstart-logo"></a>
+  <button class="cart-open" id="cartOpen" type="button" aria-label="Abrir carrinho">
+   <span aria-hidden="true">🛒</span> <span>Carrinho</span>
+   <span id="cartBadge" class="count">0</span>
+  </button>
+ </header>
+ <main class="menu-shell">
+  <div id="error" class="alert hidden" role="alert"></div>
+  <section class="menu-cover" aria-labelledby="store">
+   <div class="cover-picture" id="coverPicture"></div>
+   <div class="cover-content">
+    <div id="brandMark" class="cover-brand"></div>
+    <span class="eyebrow">CARDÁPIO DIGITAL</span>
+    <h1 id="store">Carregando seu cardápio...</h1>
+    <p>Escolha seus favoritos e finalize o pedido pelo WhatsApp da loja.</p>
+   </div>
+  </section>
+  <section class="store-details" aria-label="Informações do estabelecimento">
+   <div class="detail"><span class="detail-icon" aria-hidden="true">◷</span><div><strong>Horário de atendimento</strong><p id="hours">Consulte a loja</p></div></div>
+   <div class="detail"><span class="detail-icon" aria-hidden="true">⌖</span><div><strong>Localização</strong><p id="locationText">Não informada</p><a id="locationLink" class="mini-link hidden" href="#" target="_blank" rel="noopener noreferrer">Ver no mapa ↗</a></div></div>
+   <div class="detail"><span class="detail-icon" aria-hidden="true">▤</span><div><strong>Formas de pagamento</strong><p id="paymentMethods">Consulte a loja</p></div></div>
+   <div class="detail"><span class="detail-icon" aria-hidden="true">↗</span><div><strong>Taxa de entrega</strong><p id="deliveryFee">Consulte a loja</p></div></div>
+  </section>
+  <section class="catalogue" aria-labelledby="categoryHeading">
+   <div class="section-heading"><div><span class="eyebrow">ESCOLHA SEUS FAVORITOS</span><h2 id="categoryHeading">Nosso cardápio</h2><p>Toque em uma categoria para ver os produtos.</p></div></div>
+   <div id="categories" class="category-list" aria-live="polite"></div>
+  </section>
+ </main>
+ <div class="bottom-cart" id="bottomCart">
+  <span><strong><span id="barCount">0</span> item(ns)</strong><small id="barTotal">R$ 0,00</small></span>
+  <button type="button" class="button-primary" id="showCart">Ver meu pedido <span aria-hidden="true">→</span></button>
+ </div>
+ <div class="modal-backdrop hidden" id="cartBackdrop"></div>
+ <aside class="cart-panel hidden" id="cartPanel" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+  <div class="cart-header"><h2 id="cartTitle">Meu pedido</h2><button id="cartClose" type="button" aria-label="Fechar carrinho" class="icon-button">✕</button></div>
+  <div id="cartLines" class="cart-lines"></div>
+  <label class="cart-field">Recebimento
+   <select id="shippingMode"><option value="pickup">Retirar no estabelecimento</option><option value="delivery">Receber por entrega</option></select>
+  </label>
+  <label id="addressField" class="cart-field hidden">Endereço de entrega
+   <textarea id="deliveryAddress" rows="2" maxlength="300" placeholder="Rua, número, bairro e complemento"></textarea>
+  </label>
+  <label class="cart-field">Observações do pedido
+   <textarea id="orderNotes" rows="2" maxlength="500" placeholder="Ex.: retirar cebola, troco para..."></textarea>
+  </label>
+  <div class="total-box"><div>Produtos <strong id="subtotal">R$ 0,00</strong></div><div id="deliveryLine" class="hidden">Entrega <strong id="deliveryTotal">R$ 0,00</strong></div><div class="grand-total">Total <strong id="grandTotal">R$ 0,00</strong></div></div>
+  <button type="button" id="finishOrder" class="button-primary finish" disabled>Finalizar pelo WhatsApp ↗</button>
+  <p class="disclaimer">O pagamento é combinado diretamente com a loja. A BipStart não recebe pagamentos por este cardápio.</p>
+ </aside>
+ <script src="/cardapio.js?v=4" defer></script>
+</body>
+</html>

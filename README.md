@@ -1,40 +1,55 @@
-# BipStart — Você imagina. Nós desenvolvemos.
+# BipStart — PDV, cardápio online e delivery
 
-Projeto exclusivo para a landing page da BipStart, com o visual roxo/preto baseado na logo original.
+A BipStart é uma plataforma para pequenos negócios, com painel de loja e cardápio digital público, organizada em **dois planos**:
 
-## Estado atual: demonstração (não é sistema de produção)
-O site apresenta os três planos:
-- Básico: R$ 29,99, pagamento único, escolha de UM modelo (PDV/estoque, agenda ou cardápio online);
-- Personalizado: R$ 49,99, pagamento único, modelo do plano básico + solicitação de personalização;
-- Pro: R$ 99,90 por mês, personalização + demonstração da área de motoboys e suporte mensal.
+| Plano | Preço de referência | Recursos |
+| --- | --- | --- |
+| **Básico** | **R$ 29,90, pagamento único** | PDV com estoque, vendas e cardápio online com categorias, fotos, preços e carrinho via WhatsApp |
+| **Premium** | **R$ 79,90/mês** | Tudo do Básico, delivery com motoboys próprios, logo e cores próprias, solicitações de mudanças sob avaliação de escopo e suporte mensal |
 
-As telas interativas são uma **demonstração que guarda dados no navegador**. Não existe checkout real, controle de assinaturas, cadastro individual seguro de clientes, publicação de cardápios de clientes ou autenticação de motoboys. Não é adequado aceitar pagamentos ou prometer liberação automática até concluir essas integrações. O selo de teste grátis de 7 dias não representa um teste de conta real.
+**O catálogo comercial tem apenas Básico e Premium.** Cada cliente cria uma única loja com os módulos de PDV e cardápio integrados, compartilhando o mesmo cadastro de produtos.
 
-## Executar
-Requer Node.js 18+.
+## Entrada da loja: Cardápio ou PDV + Cardápio
+
+Depois de entrar na conta confirmada e com plano vigente, o lojista vê duas opções:
+
+- **CARDÁPIO:** abre **diretamente** `/cardapio?loja=SLUG` (sem editor ou painel intermediário). A vitrine utiliza o layout do delivery da Godzilla como referência, mas as informações e as imagens pertencem à loja BipStart: banner, logo, categorias dinâmicas, busca, produtos, carrinho, entrega/retirada e pedido enviado ao WhatsApp do estabelecimento. O lojista autenticado e dono da loja vê o botão **Gerenciar cardápio** na vitrine, que abre diretamente o editor em `/cliente?editar=cardapio`; visitantes não veem esse atalho. O editor também fica disponível na navegação do PDV para **cadastrar e editar** categorias, produtos, preços e fotos.
+- **PDV + CARDÁPIO:** abre **diretamente a frente de caixa** inspirada no projeto privado `diiegooh/godzilla-adega`, sem passar por visão geral. A tela apresenta grade de produtos, busca, filtro por categoria, carrinho lateral, dinheiro/Pix/cartões, troco em dinheiro e simulação informativa de taxas. O botão `Abrir cardápio` aponta para o mesmo cardápio público da loja.
+
+Ambas as opções operam a **mesma loja e o mesmo cadastro de produtos**. O PDV continua salvando vendas pela função protegida `bipstart_complete_sale` do Supabase, com baixa de estoque; nenhuma cobrança de cartão ou Pix é processada na BipStart. A simulação de taxas não é gravada como lançamento financeiro. Produtos sem estoque são marcados como **Esgotado** na vitrine pública. Antes de abrir o WhatsApp, o sistema consulta o catálogo novamente e informa se algum item esgotou ou mudou de preço. **Pedidos por WhatsApp não reservam estoque nem criam vendas automaticamente**; o estabelecimento ainda deve confirmar e registrar o pedido.
+
+Os repositórios e os dados da Godzilla Adega não são alterados: a BipStart usa apenas a referência de interface do cardápio e do PDV. Cada lojista continua isolado no Supabase da BipStart; o cardápio de clientes não acessa nem utiliza senhas ou dados da Godzilla.
+
+## Cadastro, autenticação e planos
+
+A área `/cliente` usa Supabase Auth com confirmação de e-mail e avaliação gratuita de sete dias. Após o vencimento, o acesso é bloqueado e os dados são preservados. A contratação dos planos ocorre **manualmente pelo WhatsApp da BipStart**; o administrador ativa o acesso em `/admin` depois da confirmação do pagamento. Premium vale por 30 dias por ativação. A BipStart não cobra pedidos/vendas dos lojistas.
+
+A demonstração da página inicial usa dados locais do navegador e **não representa um pedido real**. Uma loja real e o cardápio público usam Supabase com isolamento por loja (RLS). O cardápio público é acessível pelo endereço `/cardapio?loja=SLUG`.
+
+## Plano Premium e entregadores
+
+No Premium, o painel habilita `Motoboys`, `Entregas`, `Mudanças e suporte` e personalização visual em `Configurações`. Entregadores recebem convites exclusivos e acessam `/motoboy` usando conta Supabase individual, com ofertas, aceite e rotas Maps/Waze. O lojista registra as entregas após receber o pedido via WhatsApp; a importação de pedidos não é automática.
+
+Solicitações de mudança ficam armazenadas no Supabase e podem ser gerenciadas no painel `/admin`. O atendimento avalia escopo, prazos e eventuais custos adicionais.
+
+## Projeto técnico
+
+- Servidor HTTP: `server.mjs`, Node.js.
+- Frontends: `public/cliente.js`, `public/vitrine.js` (vitrine no endereço `/cardapio`), `public/cardapio.js` (layout anterior em `/cardapio.html`), `public/motoboy.js` e `public/admin.js`.
+- Banco de dados: Supabase com migrations versionadas em `sql/`.
+- Migração dos dois planos: `sql/bipstart_two_plans_unified_20261014.sql`, aplicada em 14/10/2026 ao projeto BipStart.
+- Disponibilidade no cardápio público: `sql/bipstart_public_menu_stock_20261014.sql` (adiciona apenas o indicador booleano `in_stock` sem divulgar a quantidade exata); executar e validar no mesmo projeto Supabase antes do deploy do frontend.
+- Testes: `npm test` e GitHub Actions `Validar BipStart`; cobertura em `tests/vitrine-godzilla.mjs` e `tests/cardapio-gestao-estoque.mjs`.
+
+## Desenvolvimento e homologação
 
 ```bash
+npm test
 npm start
 ```
 
-Acesse http://localhost:3000 e http://localhost:3000/health.
+As variáveis de ambiente necessárias para as páginas com autenticação são `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e, quando configurado, `TURNSTILE_SITE_KEY`. Nunca exponha uma chave secreta do Supabase no navegador.
 
-## Northflank
-1. Crie um **serviço separado** dos projetos Godzilla Adega e Salgatti.
-2. Conecte `diiegooh/bipstart-plataforma` na branch `main`.
-3. Use Dockerfile na raiz como método de build e habilite Continuous Deployment.
-4. Exponha a porta HTTP 3000 e verifique `/health`.
-5. Depois de conferir a URL do Northflank, adicione o domínio `bipstart.shop` em *Domains* e copie exatamente os registros de validação/DNS que o Northflank solicitar.
-6. Vincule o domínio ao serviço/porta e aguarde HTTPS. Não altere o DNS antes de obter os valores oficiais.
+Branch de homologação: `feature/whatsapp-planos-manual-20261013`. O fluxo de acesso direto foi integrado via PR #9 à branch de homologação. As correções de gestão e estoque estão em `fix/gestao-cardapio-estoque-20261014` até validação. O serviço Northflank `bipstart-homologacao` permite testar atualizações sem mesclar em `main`, que alimenta a produção. O deploy da homologação é manual após CI aprovado, seguido de revisão visual e teste real de acesso, pedido WhatsApp e venda PDV.
 
-## Próxima etapa: vendas reais
-**Arquitetura de pagamentos definida:** Mercado Pago será utilizado exclusivamente para cobranças dos planos da própria BipStart (Básico, Personalizado e Pro), com confirmação server-side, webhook validado e idempotência. Não conectar contas Mercado Pago de lojistas e não receber/processar valores das vendas dos estabelecimentos. Pedidos no cardápio seguem para o WhatsApp comercial de cada loja, onde o lojista negocia e recebe diretamente o pagamento. O PDV pode registrar pagamentos recebidos por fora, sem processar Pix/cartões. Próximos passos: integrar checkout central da BipStart e ativação dos planos após pagamento confirmado; concluir controle de assinaturas e suporte.
-
-**Atenção:** atualmente não há checkout real de planos; nenhuma cobrança automática ou ativação por pagamento deve ser anunciada como funcional até a integração ser implementada e testada.
-
-## Proteção da avaliação gratuita
-- É necessário confirmar o e-mail no Supabase Auth antes de criar a loja.
-- A avaliação de 7 dias começa na primeira criação da loja; não é reiniciada no login.
-- O banco já possui índice único `bipstart_one_shop_per_owner` em `shops(owner_id)`, impedindo uma segunda loja na mesma conta.
-- As políticas RLS não permitem que o lojista exclua a loja nem altere diretamente `shop_entitlements` para reiniciar a avaliação.
-- **Limitação:** contas com e-mails diferentes podem pertencer à mesma pessoa. Confirmação de e-mail não prova identidade. Antes de lançar publicamente, configurar CAPTCHA e controles de abuso/rate limits no Supabase Auth, sem bloquear arbitrariamente famílias ou empresas distintas.
+O site original da Salgatti é um projeto separado e não deve ser modificado por mudanças na BipStart.

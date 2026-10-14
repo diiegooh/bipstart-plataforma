@@ -13,7 +13,7 @@
 3. Revise e execute `migrations/001_bipstart_tenants.sql` no projeto BipStart.
 4. Valide o cadastro, confirmação de e-mail, RLS de diferentes clientes, isolamento das fotos e cada modelo.
 5. Configure `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` como variáveis no serviço bipstart do Northflank. A chave pública é apropriada para Auth e chamadas autenticadas com RLS.
-6. Para evitar publicar mudança não validada, execute `npm test` e verifique cadastro/vendas/agendamentos em um ambiente de teste.
+6. Para evitar publicar mudança não validada, execute `npm test` e verifique cadastro, vendas, cardápio e entregas em um ambiente de teste.
 7. Somente então faça merge da branch no `main`, permitindo o deploy automático.
 
 ## Segurança e pagamentos

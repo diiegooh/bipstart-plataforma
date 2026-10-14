@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta name="robots" content="noindex,nofollow">
+ <meta name="theme-color" content="#11091f">
+ <title>Área do motoboy • BipStart</title>
+ <link rel="stylesheet" href="/cliente.css?v=3">
+ <link rel="stylesheet" href="/motoboy.css?v=1">
+</head>
+<body>
+ <header class="top">
+  <a class="brand" href="/" aria-label="BipStart"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="220"></a>
+  <div class="courier-top-actions"><strong>🛵 Área do motoboy</strong><button type="button" id="logout" class="ghost hidden">Sair</button></div>
+ </header>
+ <main class="courier-wrap">
+  <p id="courierMessage" class="notice hidden" role="status"></p>
+  <section id="authPanel" class="courier-auth card">
+   <span class="kicker">ACESSO INDIVIDUAL</span>
+   <h1>Entregas BipStart</h1>
+   <p class="muted">Seu e-mail e senha protegem as entregas. Para começar, aceite o convite enviado pela loja.</p>
+   <div class="switch">
+    <button type="button" class="selected" id="tabLogin">Entrar</button>
+    <button type="button" id="tabSignup">Criar conta</button>
+   </div>
+   <form id="loginForm">
+    <label>E-mail<input type="email" name="email" autocomplete="email" required></label>
+    <label>Senha<input type="password" name="password" autocomplete="current-password" required></label>
+    <button type="submit" class="button" id="loginButton">Entrar nas entregas</button>
+   </form>
+   <form id="signupForm" class="hidden">
+    <label>E-mail<input type="email" name="email" autocomplete="email" required></label>
+    <label>Senha (mínimo 8 caracteres)<input type="password" name="password" autocomplete="new-password" minlength="8" required></label>
+    <label>Confirmar senha<input type="password" name="confirm" autocomplete="new-password" minlength="8" required></label>
+    <button type="submit" class="button">Criar acesso de motoboy</button>
+    <p class="muted small">Você receberá um e-mail de confirmação. Depois entre com sua conta e aceite o convite.</p>
+   </form>
+   <div id="captcha" aria-label="Verificação de segurança"></div>
+  </section>
+  <section id="dashboard" class="hidden">
+   <div class="courier-heading">
+    <div><span class="kicker">MEUS SERVIÇOS</span><h1>Minhas entregas</h1><p class="muted" id="courierIdentity">Aguardando dados...</p></div>
+    <button type="button" id="refresh" class="ghost">Atualizar ↻</button>
+   </div>
+   <div id="invitePanel" class="card courier-invite">
+    <h2>Vincular com a loja</h2>
+    <p class="muted">Cole o código do convite recebido do lojista. Um código funciona apenas uma vez.</p>
+    <form id="inviteForm">
+     <label>Código de convite<input id="inviteCode" name="code" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off"></label>
+     <button type="submit" class="button">Aceitar convite</button>
+    </form>
+   </div>
+   <div id="shopChips" class="courier-shop-list"></div>
+   <div class="courier-columns">
+    <section class="card"><h2>Novas ofertas</h2><p class="muted small">A primeira confirmação válida reserva a entrega para você.</p><div id="offers" class="stack"></div></section>
+    <section class="card"><h2>Minhas rotas</h2><p class="muted small">Aceite, inicie a rota e marque como entregue.</p><div id="assignments" class="stack"></div></section>
+   </div>
+  </section>
+ </main>
+ <script src="/motoboy.js?v=1" defer></script>
+</body>
+</html>
