@@ -95,3 +95,7 @@ html,body{max-width:100%;overflow-x:clip}
 .plans-two{grid-template-columns:repeat(2,minmax(0,1fr));max-width:1020px;margin-inline:auto}
 .solution-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:760px){.plans-two,.solution-grid{grid-template-columns:1fr;max-width:550px;margin-inline:auto}}
+
+/* Ao clicar em Planos, alinhe o título abaixo do cabeçalho fixo,
+   em vez de alinhar o início da seção (que tem padding superior). */
+.pricing-title#planos{scroll-margin-top:12px}
