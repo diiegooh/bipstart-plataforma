@@ -11,7 +11,10 @@ const plans={basic:'Básico',pro:'Premium'};
 const planPrices={basic:'R$ 29,90 (pagamento único)',pro:'R$ 79,90/mês'};
 const BIPSTART_PLAN_WHATSAPP='5511978353820';
 const models={pdv:'PDV com estoque + cardápio online'};
-const hiding=(id,on)=>$(id).classList.toggle('hidden',!on);
+const hiding=(id,on)=>{
+ $(id).classList.toggle('hidden',!on);
+ if(id==='workspace')document.body.classList.toggle('workspace-fullscreen',on);
+};
 function msg(t,error=false){const box=$('toast');box.textContent=t;box.style.borderColor=error?'#e9768d':'#8052ce';box.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.add('hidden'),5500)}
 function status(t){const box=$('notice');box.textContent=t;box.classList.remove('hidden')}
 function formVal(form){return Object.fromEntries(new FormData(form).entries())}
@@ -196,11 +199,6 @@ async function openShop(){
   const [access]=await rest('shop_entitlements',{query:{select:'plan_code,status,trial_until,active_until',shop_id:'eq.'+shop.id,limit:'1'}});
   ent=access||null;
   if(!hasAccess()){hiding('accessGate',true);renderAccessGate();return}
-  $('shopName').textContent=shop.name;
-  $('shopStatus').textContent=trialValid()?'Avaliação gratuita até '+new Date(ent.trial_until).toLocaleString('pt-BR'):
-    'Plano '+(plans[ent.plan_code]||'')+' ativo'+(ent.active_until?' até '+new Date(ent.active_until).toLocaleDateString('pt-BR'):'');
-  hiding('publicMenuLink',shop.model==='pdv');
-  if(shop.model==='pdv')$('publicMenuLink').href=publicShopUrl();
   await reloadData();renderNav();hiding('modeChooser',true);
   $('modeChooserTitle').textContent='Como deseja começar na '+shop.name+'?';
   // Link de gestão do cardápio público: entrada direta no editor após verificar acesso.
@@ -256,8 +254,6 @@ function renderNav(){
       '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b>'+(premium?'<small class="side-lock">Premium</small>':'')+'</button>';
   }).join('')+'</nav>';
   $('sideShopName').textContent=shop.name;
-  $('sideShopLogo').src=canCustomize()&&shop.logo_path?imageUrl(shop.logo_path):'/bipstart-marca-icon.png';
-  $('sideShopLogo').alt='Logotipo '+shop.name;
   $('sideOpenMenu').href=publicShopUrl();
   $('sideColorPremium').classList.toggle('hidden',canCustomize());
   $('sideColor').classList.toggle('locked',!canCustomize());
@@ -720,7 +716,7 @@ async function handleSubmit(form){
       }
       await rest('shops',{method:'PATCH',query:{id:'eq.'+shop.id},body});
       shop={...shop,...body};
-      $('shopName').textContent=shop.name;
+      $('sideShopName').textContent=shop.name;
       break;
     }
     case 'customForm':{
@@ -858,7 +854,6 @@ $('showLogin').onclick=()=>authTab(false);
 $('showSignup').onclick=()=>authTab(true);
 $('logout').onclick=()=>{closeSideMenu();session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
 $('backToModes').onclick=()=>{if(!shop||!hasAccess())return;closeSideMenu();history.replaceState(null,'','/cliente');hiding('workspace',false);hiding('modeChooser',true);showForm=null;};
-$('switchShop').onclick=()=>{closeSideMenu();location.href='/#planos'};
 $('refreshAccess').onclick=async()=>{try{await openShop();msg(hasAccess()?'Seu acesso está liberado!':'Ainda aguardando liberação. Confira o WhatsApp.')}catch(e){msg(e.message,true)}};
 window.addEventListener('focus',()=>{if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate()}});
 setInterval(()=>{if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate()}},60000);

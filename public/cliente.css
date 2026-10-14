@@ -351,3 +351,54 @@ body.sidebar-open{overflow:hidden}
 #workspace .content:has(.inventory-kicker) .toolbar p{color:#a5b6aa}
 #workspace .content:has(.inventory-kicker) .data-form{background:#101910;border-color:#365444}
 #workspace .content:has(.inventory-kicker) .data-form input,#workspace .content:has(.inventory-kicker) .data-form select{background:#0d1510;border-color:#3b6047;color:#f4faf5}
+
+
+/* Modo de operação: sem barra superior e sem marca da plataforma no PDV. */
+body.workspace-fullscreen .top{display:none}
+body.workspace-fullscreen .shell{max-width:none;padding:12px 14px 24px}
+body.workspace-fullscreen #workspace{margin:0}
+body.workspace-fullscreen #workspace .dashboard{margin:0}
+#workspace .pdv-mobile-menu{display:none}
+#workspace .side-store{
+ min-height:58px;
+ padding:8px 6px 16px;
+ gap:12px;
+ justify-content:space-between;
+}
+#workspace .side-store-text strong{font-size:18px;line-height:1.25}
+#workspace .side-store-text small{font-size:11px}
+#workspace .side .side-actions-row{
+ display:grid;
+ grid-template-columns:minmax(0,1.55fr) minmax(59px,.8fr);
+ align-items:stretch;
+ gap:8px;
+}
+#workspace .side .side-actions-row .side-action{
+ min-width:0;
+ min-height:48px;
+ margin:0;
+ padding:9px 6px;
+ line-height:1.35;
+ text-align:center;
+ white-space:normal;
+ font-size:11px;
+ font-weight:850;
+}
+@media(max-width:900px){
+ body.workspace-fullscreen .shell{padding:9px 10px 22px}
+ #workspace .pdv-mobile-menu{display:flex;align-items:center;justify-content:flex-start;margin:0 0 12px}
+ #workspace .pdv-mobile-menu #sideToggle{
+   display:inline-flex;
+   align-items:center;
+   gap:9px;
+   min-height:44px;
+   padding:10px 14px;
+   background:#18251b;
+   color:#fff;
+   border:1px solid #38503d;
+   border-radius:12px;
+   font-size:13px;
+   font-weight:850;
+ }
+ #workspace .pdv-mobile-menu #sideToggle:focus-visible{outline:3px solid #ff5963;outline-offset:2px}
+}

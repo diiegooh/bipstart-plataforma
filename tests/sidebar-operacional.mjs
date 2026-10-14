@@ -9,15 +9,15 @@ const js=readFileSync('public/cliente.js','utf8');
 
 test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',()=>{
  new vm.Script(js,{filename:'public/cliente.js'});
- for(const id of ['sidebar','sideShopLogo','sideShopName','sideSettings','sideColor','sideOpenMenu','sideLogout','sideToggle','sideBackdrop']){
+ for(const id of ['sidebar','sideShopName','sideSettings','sideColor','sideOpenMenu','sideLogout','sideToggle','sideBackdrop']){
   assert.match(html,new RegExp('id="'+id+'"'),id);
  }
  assert.match(html,/Central de operação/);
  assert.match(html,/Alterar cor/);
  assert.match(html,/Abrir cardápio/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=13/);
- assert.match(html,/cliente\.css\?v=7/);
+ assert.match(html,/cliente\.js\?v=14/);
+ assert.match(html,/cliente\.css\?v=8/);
 });
 
 test('coluna mostra cinco opções, sem aba separada de Estoque',()=>{
@@ -55,12 +55,13 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
  assert.match(basic.node('nav').innerHTML,/data-nav="caixa" class="active" aria-current="page"/);
  assert.match(basic.node('nav').innerHTML,/data-nav="motoboys" class="locked"/);
  assert.match(basic.node('nav').innerHTML,/Premium/);
- assert.equal(basic.node('sideShopLogo').src,'/bipstart-marca-icon.png');
+ assert.doesNotMatch(html,/id="sideShopLogo"/);
+ assert.doesNotMatch(js,/\$\('sideShopLogo'\)/);
  assert.equal(basic.node('sideShopName').textContent,'Adega <Teste>');
  assert.equal(basic.node('sideOpenMenu').href,'https://bipstart.example/cardapio?loja=adega-teste');
  const premium=mockNav(true);
  assert.match(premium.node('nav').innerHTML,/data-nav="motoboys" class=""/);
- assert.equal(premium.node('sideShopLogo').src,'https://images.example/loja-id/logo.png');
+ assert.equal(premium.node('sideShopName').textContent,'Adega <Teste>');
 });
 
 test('Produtos incorpora estoque e Pedidos online não promete pedidos automáticos',()=>{
@@ -87,4 +88,22 @@ test('menu mobile abre em coluna, fecha no backdrop e Escape e tem foco',()=>{
  assert.match(js,/const show=!\$\('sidebar'\)\.classList\.contains\('open'\)/);
  assert.match(js,/if\(e\.target\.closest\('#sideBackdrop'\)\)\{closeSideMenu\(\);return\}/);
  assert.match(js,/if\(event\.key==='Escape'&&\$\('sidebar'\)\.classList\.contains\('open'\)\)closeSideMenu\(\)/);
+});
+
+test('PDV em tela cheia não mostra marca BipStart nem faixa superior da loja',()=>{
+ assert.doesNotMatch(html,/<div class="heading">/);
+ assert.doesNotMatch(html,/id="shopName"|id="shopStatus"|id="publicMenuLink"|id="switchShop"/);
+ assert.doesNotMatch(html,/id="sideShopLogo"/);
+ assert.match(js,/if\(id==='workspace'\)document\.body\.classList\.toggle\('workspace-fullscreen',on\)/);
+ assert.match(css,/body\.workspace-fullscreen \.top\{display:none\}/);
+ assert.match(css,/body\.workspace-fullscreen \.shell\{max-width:none;padding:12px 14px 24px\}/);
+ assert.match(html,/<div class="side-store">[\s\S]*id="sideShopName"/);
+});
+test('Voltar às opções e Sair aparecem lado a lado no rodapé, preservando acesso ao menu mobile',()=>{
+ assert.match(html,/<div class="side-actions-row">[\s\S]*id="backToModes"[\s\S]*id="sideLogout"[\s\S]*<\/div>/);
+ assert.match(css,/#workspace \.side \.side-actions-row\{[\s\S]*grid-template-columns:minmax\(0,1\.55fr\) minmax\(59px,\.8fr\)/);
+ assert.match(js,/\$\('backToModes'\)\.onclick=\(\)=>\{if\(!shop\|\|!hasAccess\(\)\)return;closeSideMenu\(\);history\.replaceState/);
+ assert.match(html,/<div class="pdv-mobile-menu">[\s\S]*id="sideToggle"/);
+ assert.match(css,/#workspace \.pdv-mobile-menu\{display:none\}/);
+ assert.match(css,/@media\(max-width:900px\)\{[\s\S]*#workspace \.pdv-mobile-menu\{display:flex/);
 });
