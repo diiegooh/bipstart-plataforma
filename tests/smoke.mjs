@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { spawn, execFileSync } from 'node:child_process';
 
-for(const file of ['server.mjs','public/app.js','public/cliente.js','public/cardapio.js']){
+for(const file of ['server.mjs','public/app.js','public/cliente.js','public/cardapio.js','public/vitrine.js']){
   execFileSync(process.execPath,['--check',file],{stdio:'inherit'});
 }
 // Modelos Supabase devem conter link temporário real, sem credenciais hardcoded.
@@ -28,7 +28,7 @@ async function wait(){
 }
 try{
   await wait();
-  const files=['/','/style.css','/app.js','/cliente','/cliente.css','/cliente.js','/bipstart-logo.svg','/cardapio','/cardapio.js','/motoboy','/motoboy.js','/motoboy.css'];
+  const files=['/','/style.css','/app.js','/cliente','/cliente.css','/cliente.js','/bipstart-logo.svg','/cardapio','/cardapio.js','/vitrine','/vitrine.css','/vitrine.js','/motoboy','/motoboy.js','/motoboy.css'];
   for(const file of files){
     const r=await fetch(root+file);
     assert.equal(r.status,200,file);
