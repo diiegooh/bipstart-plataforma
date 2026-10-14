@@ -19,7 +19,7 @@ test('homepage comercial divulga só dois planos e não agenda',()=>{
  assert.match(homepage,/R\$ <strong>29,90<\/strong>/);
  assert.match(homepage,/R\$ <strong>79,90<\/strong>/);
  assert.match(homepage,/suporte mensal/i);
- assert.match(homepage,/motoboys próprios/i);
+ assert.match(homepage,/motoboys particulares/i);
  assert.doesNotMatch(homepage,/Agenda de serviços|Plano Personalizado|Plano Pro\b|data-model="agenda"/i);
  assert.doesNotMatch(homepage,/data:image\/png;base64/i);
 });

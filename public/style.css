@@ -115,3 +115,59 @@ html,body{max-width:100%;overflow-x:clip}
  .pricing-section .plan ul li{font-size:15px}
  .pricing-section .plan h3{font-size:25px}
 }
+
+
+/* CTA dos dois planos com o mesmo visual e dimensões. */
+.pricing-section .plan>.button-plan-select{
+ background:linear-gradient(105deg,#a443ff,#7823f5);
+ color:#fff;
+ border:1px solid #bf80ff;
+ border-radius:13px;
+ box-shadow:0 7px 24px #8525db45,inset 0 1px 0 #ffffff40;
+ width:100%;
+ min-height:52px;
+ padding:12px 15px;
+ font-size:15px;
+ font-weight:900;
+ margin-top:auto;
+ transition:transform .15s,box-shadow .15s;
+}
+.pricing-section .plan>.button-plan-select:hover{
+ transform:translateY(-2px);
+ box-shadow:0 9px 27px #8525db80,inset 0 1px 0 #ffffff70;
+}
+.pricing-section .plan>.button-plan-select:focus-visible{outline:3px solid #f0d0ff;outline-offset:3px}
+
+/* Minha conta deve permanecer acessível mesmo quando o menu desktop desaparece. */
+.mobile-login{display:none}
+@media(max-width:760px){
+ .topbar{gap:8px}
+ .topbar .brand-image{min-width:0;flex:1 1 auto;max-width:none}
+ .topbar .brand-image .brand-icon{height:40px;width:40px;flex:0 0 40px}
+ .topbar .brand-image .brand-word{height:36px;width:clamp(80px,18vw,113px)}
+ .mobile-login{
+   display:inline-flex;align-items:center;justify-content:center;
+   flex:0 0 auto;min-height:39px;padding:8px 10px;
+   color:#f5e6ff;font-size:12px;font-weight:850;
+   border:1px solid #9454eb;border-radius:12px;background:#31124e;
+   white-space:nowrap;
+ }
+ .mobile-login:hover{background:#50206e}
+ .mobile-login:focus-visible{outline:3px solid #d0a5ff;outline-offset:2px}
+ .nav-dashboard{margin-left:0;flex:0 0 auto;min-width:0;max-width:134px;padding:10px 11px;gap:5px}
+}
+@media(max-width:430px){
+ .topbar{gap:6px}
+ .topbar .brand-image .brand-icon{height:34px;width:34px;flex-basis:34px}
+ .topbar .brand-image .brand-word{height:32px;width:clamp(71px,20vw,95px)}
+ .mobile-login{min-height:38px;padding:8px;font-size:11px}
+ .nav-dashboard{font-size:0;min-width:87px;max-width:87px;padding:10px 7px}
+ .nav-dashboard::before{content:'Teste 7 dias';font-size:10px;line-height:1.1}
+ .nav-dashboard span{display:none}
+}
+@media(max-width:350px){
+ .topbar .brand-image .brand-icon{width:30px;flex-basis:30px}
+ .topbar .brand-image .brand-word{width:68px}
+ .mobile-login{padding-inline:7px}
+ .nav-dashboard{min-width:83px;max-width:83px}
+}

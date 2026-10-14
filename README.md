@@ -5,7 +5,7 @@ A BipStart é uma plataforma para pequenos negócios, com painel de loja e card�
 | Plano | Preço de referência | Recursos |
 | --- | --- | --- |
 | **Básico** | **R$ 29,90, pagamento único** | PDV com estoque, vendas e cardápio online com categorias, fotos, preços e carrinho via WhatsApp |
-| **Premium** | **R$ 79,90/mês** | Tudo do Básico, delivery com motoboys próprios, logo e cores próprias, solicitações de mudanças sob avaliação de escopo e suporte mensal |
+| **Premium** | **R$ 79,90/mês** | Tudo do Básico, motoboys particulares integrados à fila de entregas, logo e cores próprias, suporte mensal e adaptações solicitadas sem custo adicional |
 
 **O catálogo comercial tem apenas Básico e Premium.** Cada cliente cria uma única loja com os módulos de PDV e cardápio integrados, compartilhando o mesmo cadastro de produtos.
 
@@ -30,7 +30,11 @@ A demonstração da página inicial usa dados locais do navegador e **não repre
 
 No Premium, o painel habilita `Motoboys`, `Entregas`, `Mudanças e suporte` e personalização visual em `Configurações`. Entregadores recebem convites exclusivos e acessam `/motoboy` usando conta Supabase individual, com ofertas, aceite e rotas Maps/Waze. O lojista registra as entregas após receber o pedido via WhatsApp; a importação de pedidos não é automática.
 
-Solicitações de mudança ficam armazenadas no Supabase e podem ser gerenciadas no painel `/admin`. O atendimento avalia escopo, prazos e eventuais custos adicionais.
+Solicitações de adaptação ficam armazenadas no Supabase e podem ser gerenciadas no painel `/admin`. No plano Premium, as solicitações não têm custo adicional; a equipe organiza o escopo e o prazo da implementação. O cardápio ainda envia pedidos ao WhatsApp; a inclusão automática desses pedidos no painel de entregas não está implementada.
+
+## Site público e experiência de contratação
+
+O menu **Planos** mantém Básico e Premium. Ambos os botões de seleção têm aparência e tamanho equivalentes. Em telas pequenas, a opção **Entrar** permanece visível no cabeçalho e abre `/cliente`, independentemente de o menu desktop estar recolhido. A FAQ esclarece que pagamentos de vendas não são recebidos pela BipStart: são tratados na loja física ou combinados pelo WhatsApp.
 
 ## Coluna de operação da loja
 
