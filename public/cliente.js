@@ -306,6 +306,33 @@ function productRows(){
   return products.length?'<div class="stack">'+products.map(p=>'<div class="item">'+(p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="">':'')+'<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' • '+fmt(p.price)+((tab==='produtos'||tab==='estoque')?' • Estoque: '+esc(p.stock):'')+'</small>'+
    (tab==='cardapio'&&p.description?'<p class="muted small">'+esc(p.description)+'</p>':'')+'</div><div class="actions">'+editBtn('product',p.id)+'</div></div>').join('')+'</div>':empty('Cadastre o primeiro produto.')
 }
+function productStockState(product){
+ const stock=Math.max(0,Number(product.stock)||0);
+ const minimum=Math.max(0,Number(product.min_stock??5)||0);
+ if(stock<=0)return {label:'Sem estoque',state:'out'};
+ if(stock<=minimum)return {label:'Estoque baixo',state:'low'};
+ return {label:'Estoque normal',state:'ok'};
+}
+function productCard(product){
+ const {label,state}=productStockState(product);
+ const photo=product.image_path?
+   '<img class="inventory-photo" src="'+esc(imageUrl(product.image_path))+'" alt="Foto de '+esc(product.name)+'" loading="lazy">':
+   '<div class="inventory-photo inventory-photo-placeholder" role="img" aria-label="Produto sem foto">📦</div>';
+ return '<article class="inventory-card" data-stock-state="'+state+'">'+
+  '<div class="inventory-photo-wrap">'+photo+'</div>'+
+  '<div class="inventory-card-body">'+
+  '<div class="inventory-card-heading"><small>'+esc(product.category||'Geral')+'</small><h3>'+esc(product.name)+'</h3></div>'+
+  '<div class="inventory-card-prices"><strong>'+fmt(product.price)+'</strong><small>Custo: '+fmt(product.cost)+'</small></div>'+
+  '<div class="inventory-stock-meta"><span>Atual: <strong>'+esc(product.stock??0)+' un</strong></span>'+
+   '<span aria-hidden="true">•</span><span>Mínimo: <strong>'+esc(product.min_stock??5)+' un</strong></span></div>'+
+  '<div class="inventory-status '+state+'" role="status">'+label+'</div>'+
+  '<div class="inventory-actions">'+editBtn('product',product.id)+'</div>'+
+  '</div></article>';
+}
+function productGrid(){
+ return products.length?'<div class="inventory-grid">'+products.map(productCard).join('')+'</div>':
+  empty('Nenhum produto cadastrado. Clique em Novo produto para começar.');
+}
 function categoryOptions(selected){
   const names=[...new Set(['Geral',...categories.map(c=>c.name),...products.map(p=>p.category||'Geral')])];
   return names.map(name=>'<option value="'+esc(name)+'"'+(name===selected?' selected':'')+'>'+esc(name)+'</option>').join('');
@@ -430,24 +457,18 @@ function renderPage(){
   }else if(tab==='cardapio'){
     content=cardapioEditor();
   }else if(tab==='produtos'){
-    content=heading('Produtos','Cadastre itens, preços e imagens para o PDV e o cardápio.','<button class="button" data-new="product">+ Novo item</button>');
+    content=heading('Cadastro de produtos','Cada produto em um card com foto, preços, estoque e quantidade mínima.',
+      '<button type="button" class="button" data-new="product">+ Novo produto</button>');
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
-    content+=productRows();
+    content+=productGrid();
   }else if(tab==='estoque'){
-    const lowStock=products.filter(p=>Number(p.stock)>0&&Number(p.stock)<=5).length;
-    const outOfStock=products.filter(p=>Number(p.stock)<=0).length;
-    content=heading('Estoque','Acompanhe o saldo de cada produto. As vendas do PDV atualizam o estoque.','<button type="button" class="button" data-new="product">+ Novo produto</button>');
-    content+='<div class="grid stock-stats">'+tile('Produtos',products.length)+tile('Estoque baixo (1 a 5)',lowStock)+tile('Esgotados',outOfStock)+'</div>';
+    const lowStock=products.filter(p=>productStockState(p).state==='low').length;
+    const outOfStock=products.filter(p=>productStockState(p).state==='out').length;
+    content=heading('Estoque','Itens que atingem ou ficam abaixo do estoque mínimo são destacados automaticamente.',
+      '<button type="button" class="button" data-new="product">+ Novo produto</button>');
+    content+='<div class="grid stock-stats">'+tile('Produtos cadastrados',products.length)+tile('Estoque baixo',lowStock)+tile('Sem estoque',outOfStock)+'</div>';
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
-    content+='<div class="stock-rows">'+(products.length?products.map(p=>{
-      const stock=Number(p.stock),status=stock<=0?'Esgotado':stock<=5?'Estoque baixo':'Disponível';
-      const state=stock<=0?'out':stock<=5?'low':'ok';
-      return '<div class="stock-row"><div class="stock-item">'+
-        (p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="" loading="lazy">':'<span class="stock-placeholder" aria-hidden="true">📦</span>')+
-        '<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category||'Geral')+' · '+fmt(p.price)+'</small></div></div>'+
-        '<div class="stock-quantity"><strong>'+esc(p.stock)+' unidade(s)</strong><span class="stock-badge '+state+'">'+status+'</span></div>'+
-        '<div class="actions">'+editBtn('product',p.id)+'</div></div>';
-    }).join(''):empty('Cadastre um produto para começar o controle de estoque.'))+'</div>';
+    content+=productGrid();
   }else if(tab==='pedidos'){
     const businessPhone=String(shop.whatsapp||'').replace(/\D/g,'');
     const whatsapp=businessPhone?(businessPhone.startsWith('55')?'https://wa.me/'+businessPhone:'https://wa.me/55'+businessPhone):'';
@@ -542,7 +563,8 @@ function productForm(p){
   field('price','Preço (R$)','number',p.price??0,'required min="0" step="0.01"')+
   (isMenu?'<label>Descrição<textarea name="description" maxlength="1000" placeholder="Ingredientes, opções e informações do produto">'+esc(p.description||'')+'</textarea></label>':
   field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')+
-  field('stock','Quantidade em estoque','number',p.stock||0,'required min="0" step="1"'))+
+  field('stock','Quantidade em estoque','number',p.stock??0,'required min="0" step="1"')+
+  field('min_stock','Estoque mínimo (unidades)','number',p.min_stock??5,'required min="0" max="999999999" step="1"'))+
   '<label>Imagem do item (até 5 MB)<input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>'+
   '<div class="paste-area" data-image-paste tabindex="0" role="button" aria-label="Colar imagem do produto" style="border:1px dashed #9068c8;border-radius:12px;padding:16px;cursor:pointer;min-height:75px">Clique aqui e pressione Ctrl+V para colar uma imagem copiada.<div data-image-preview aria-live="polite" style="margin-top:8px"></div></div>'
  );
@@ -631,15 +653,16 @@ async function handleSubmit(form){
       const body={
        name:v.name.trim(),category:v.category.trim()||'Geral',price:Number(v.price),image_path,
        ...(isMenu?{description:String(v.description||'').trim()}:{
-        cost:Number(v.cost),stock:Number(v.stock)
+        cost:Number(v.cost),stock:Number(v.stock),min_stock:Number(v.min_stock)
        })
       };
       if(!body.name||!Number.isFinite(body.price)||body.price<0)throw Error('Confira o nome e o preço.');
       if(isMenu){
         if(![...categories.map(c=>c.name),'Geral',...products.map(p=>p.category)].includes(body.category))throw Error('Categoria inválida.');
         if(body.description.length>1000)throw Error('Descrição muito longa.');
-      }else if(!Number.isInteger(body.stock)||body.stock<0||!Number.isFinite(body.cost)||body.cost<0)
-        throw Error('Confira preços e estoque.');
+      }else if(!Number.isInteger(body.stock)||body.stock<0||!Number.isFinite(body.cost)||body.cost<0||
+        !Number.isInteger(body.min_stock)||body.min_stock<0||body.min_stock>999999999)
+        throw Error('Confira custo, estoque atual e estoque mínimo.');
       await storeForm(form,'shop_products',body,id);
       break;
     }
