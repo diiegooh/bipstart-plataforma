@@ -230,5 +230,26 @@ test('compartilhamento usa dispositivo nativo, cópia e alternativa em desktop',
  assert.match(client,/navigator\.clipboard\.writeText\(url\)/);
  assert.match(client,/window\.prompt\('Copie o link do cardápio:',url\)/);
  assert.match(client,/if\(!shop\|\|shop\.model!=='cardapio'\|\|!hasAccess\(\)\)return/);
- assert.match(readFileSync('public/cliente.html','utf8'),/cliente\.js\?v=3/);
+ assert.match(readFileSync('public/cliente.html','utf8'),/cliente\.js\?v=4/);
+});
+
+
+test('compartilhamento usa somente CARDÁPIO (NOME DA LOJA) e o endereço',()=>{
+ const begin=client.indexOf('function publicShopUrl(){');
+ const end=client.indexOf('function imageUrl(',begin);
+ const esc=text=>String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const {url,title,html:card}=new Function('shop','location','esc',
+   client.slice(begin,end)+';return {url:publicShopUrl(),title:shareTitle(),html:publicLinkTile()};')(
+     {name:'gamalperfumes',slug:'gamalperfumes-3392813'},
+     {origin:'https://bipstart.exemplo'},esc
+   );
+ assert.equal(title,'CARDÁPIO (gamalperfumes)');
+ assert.match(card,/CARDÁPIO \(gamalperfumes\)/);
+ const match=card.match(/href="(https:\/\/wa\.me\/\?text=[^"]+)"/);
+ assert.ok(match);
+ const message=new URL(match[1]).searchParams.get('text');
+ assert.equal(message,title+'\n'+url);
+ assert.doesNotMatch(message,/Confira|BipStart|contratar/i);
+ assert.match(client,/navigator\.share\(\{title:shareTitle\(\),text:shareTitle\(\),url\}\)/);
+ assert.match(readFileSync('public/cardapio.js','utf8'),/document\.title='CARDÁPIO \('\+menu\.name\+'\)'/);
 });
