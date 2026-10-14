@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[];
-let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false;
+let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all';
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix';
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
@@ -154,7 +154,7 @@ async function loadShops(){
   await requireVerifiedEmail();
   const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,created_at',order:'created_at.desc',limit:'20'}});
   if(!rows?.length){hideAll();hiding('createShop',true);hiding('logout',true);return}
-  shop=rows[0];await openShop();
+  shop=rows[0];selectedCategoryFilter='all';await openShop();
 }
 function trialValid(){
   return ent?.status==='trialing'&&Number.isFinite(Date.parse(ent.trial_until))&&Date.parse(ent.trial_until)>Date.now();
@@ -318,15 +318,35 @@ function productCard(product){
   '<div class="inventory-card-body">'+
   '<div class="inventory-card-heading"><small>'+esc(product.category||'Geral')+'</small><h3>'+esc(product.name)+'</h3></div>'+
   '<div class="inventory-card-prices"><strong>'+fmt(product.price)+'</strong><small>Custo: '+fmt(product.cost)+'</small></div>'+
+  (product.menu_price_enabled&&product.menu_price!=null?'<small class="inventory-online-price">Cardápio online: <strong>'+fmt(product.menu_price)+'</strong></small>':'')+
   '<div class="inventory-stock-meta"><span>Atual: <strong>'+esc(product.stock??0)+' un</strong></span>'+
    '<span aria-hidden="true">•</span><span>Mínimo: <strong>'+esc(product.min_stock??5)+' un</strong></span></div>'+
   '<div class="inventory-status '+state+'" role="status">'+label+'</div>'+
   '<div class="inventory-actions">'+editBtn('product',product.id)+'</div>'+
   '</div></article>';
 }
-function productGrid(){
- return products.length?'<div class="inventory-grid">'+products.map(productCard).join('')+'</div>':
-  empty('Nenhum produto cadastrado. Clique em Novo produto para começar.');
+function normalizedProductCategory(product){
+ return String(product.category||'Geral').trim()||'Geral';
+}
+function filteredProductList(selected='all'){
+ return selected==='all'?products:products.filter(product=>normalizedProductCategory(product)===selected);
+}
+function productCategoryCards(selected='all'){
+ if(!products.length)return '';
+ const names=[...new Set(products.map(normalizedProductCategory))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ return '<div class="inventory-category-section"><div class="inventory-category-heading"><strong>Categorias</strong><small>Selecione para filtrar os produtos</small></div>'+
+  '<div class="inventory-category-grid" aria-label="Filtrar produtos por categoria">'+
+  ['all',...names].map(name=>{
+   const count=filteredProductList(name).length;
+   const chosen=name===selected;
+   return '<button type="button" class="inventory-category-card'+(chosen?' active':'')+'" data-category-filter="'+esc(name)+'" aria-pressed="'+chosen+'">'+
+    '<strong>'+esc(name==='all'?'Todos':name)+'</strong><small>'+count+' produto(s)</small></button>';
+  }).join('')+'</div></div>';
+}
+function productGrid(selected='all'){
+ const visible=filteredProductList(selected);
+ return visible.length?'<div class="inventory-grid compact">'+visible.map(productCard).join('')+'</div>':
+  empty(products.length?'Nenhum produto encontrado nesta categoria.':'Nenhum produto cadastrado. Clique em Novo produto para começar.');
 }
 function categoryOptions(selected){
   const names=[...new Set(['Geral',...categories.map(c=>c.name),...products.map(p=>p.category||'Geral')])];
@@ -457,8 +477,10 @@ function renderPage(){
     content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','Cadastre produtos e acompanhe fotos, preços, quantidades e estoque mínimo na mesma tela.',
       '<button type="button" class="button" data-new="product">+ Novo produto</button>');
     content+='<div class="grid stock-stats">'+tile('Produtos cadastrados',products.length)+tile('Estoque baixo',lowStock)+tile('Sem estoque',outOfStock)+'</div>';
+    if(selectedCategoryFilter!=='all'&&!products.some(p=>normalizedProductCategory(p)===selectedCategoryFilter))selectedCategoryFilter='all';
+    content+=productCategoryCards(selectedCategoryFilter);
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
-    content+=productGrid();
+    content+=productGrid(selectedCategoryFilter);
   }else if(tab==='pedidos'){
     const businessPhone=String(shop.whatsapp||'').replace(/\D/g,'');
     const whatsapp=businessPhone?(businessPhone.startsWith('55')?'https://wa.me/'+businessPhone:'https://wa.me/55'+businessPhone):'';
@@ -550,7 +572,10 @@ function productForm(p){
  return formShell('product',p.id,
   field('name','Nome do item', 'text',p.name,'required maxlength="160"')+
   categoryField+
-  field('price','Preço (R$)','number',p.price??0,'required min="0" step="0.01"')+
+  field('price','Preço de venda no PDV (R$)','number',p.price??0,'required min="0" step="0.01"')+
+  '<div class="menu-price-controls"><label class="menu-price-toggle"><input type="checkbox" name="menu_price_enabled"'+(p.menu_price_enabled?' checked':'')+'><span>Usar preço diferente no cardápio online</span></label>'+
+  field('menu_price','Preço no cardápio online (R$)','number',p.menu_price??'','min="0" max="9999999999.99" step="0.01" placeholder="Vazio = preço do PDV"')+
+  '<small class="muted">Se desativado, o cardápio usa o preço do PDV. Ao ativar, informe um preço válido e salve o produto.</small></div>'+
   (isMenu?'<label>Descrição<textarea name="description" maxlength="1000" placeholder="Ingredientes, opções e informações do produto">'+esc(p.description||'')+'</textarea></label>':
   field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')+
   field('stock','Quantidade em estoque','number',p.stock??0,'required min="0" step="1"')+
@@ -642,11 +667,16 @@ async function handleSubmit(form){
       const isMenu=tab==='cardapio';
       const body={
        name:v.name.trim(),category:v.category.trim()||'Geral',price:Number(v.price),image_path,
+       menu_price_enabled:form.querySelector('input[name="menu_price_enabled"]').checked,
+       menu_price:String(v.menu_price??'').trim()===''?null:Number(v.menu_price),
        ...(isMenu?{description:String(v.description||'').trim()}:{
         cost:Number(v.cost),stock:Number(v.stock),min_stock:Number(v.min_stock)
        })
       };
       if(!body.name||!Number.isFinite(body.price)||body.price<0)throw Error('Confira o nome e o preço.');
+      if((body.menu_price!==null&&(!Number.isFinite(body.menu_price)||body.menu_price<0||body.menu_price>9999999999.99))||
+        (body.menu_price_enabled&&body.menu_price===null))
+        throw Error('Para ativar o preço do cardápio, informe um valor válido.');
       if(isMenu){
         if(![...categories.map(c=>c.name),'Geral',...products.map(p=>p.category)].includes(body.category))throw Error('Categoria inválida.');
         if(body.description.length>1000)throw Error('Descrição muito longa.');
@@ -820,6 +850,13 @@ document.addEventListener('click',async e=>{
     return;
   }
   const pasteArea=e.target.closest('[data-image-paste]');if(pasteArea){pasteArea.focus();return}
+  const category=e.target.closest('[data-category-filter]');
+  if(category){
+    if(tab!=='produtos')return;
+    selectedCategoryFilter=category.dataset.categoryFilter||'all';
+    renderPage();
+    return;
+  }
   const nav=e.target.closest('[data-nav]');if(nav){
     if(nav.dataset.nav==='motoboys'&&!proAccess())return msg('Motoboys disponíveis somente no plano Premium.',true);
     if(!pages().some(([key])=>key===nav.dataset.nav))return;
