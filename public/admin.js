@@ -1,7 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const PLAN={basic:'Básico',personalizado:'Personalizado',pro:'Pro'};
+const PLAN={basic:'Básico',pro:'Premium'};
 const WHATSAPP='5511978353820';
 let config=null,busy=false;
 function message(t,error=false){$('adminMessage').textContent=t;$('adminMessage').style.color=error?'var(--danger)':'var(--text)'}
