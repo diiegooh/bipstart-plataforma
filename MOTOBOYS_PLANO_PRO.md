@@ -1,4 +1,4 @@
-# Motoboys BipStart — Plano Premium (R$ 99,90/mês)
+# Motoboys BipStart — Plano Premium (R$ 79,90/mês)
 
 ## Funcionalidades
 A área da BipStart adapta o sistema original de entregadores da Salgatti para múltiplas lojas, de maneira isolada.
