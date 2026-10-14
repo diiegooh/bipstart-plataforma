@@ -318,7 +318,8 @@ function productCard(product){
   '<div class="inventory-card-body">'+
   '<div class="inventory-card-heading"><small>'+esc(product.category||'Geral')+'</small><h3>'+esc(product.name)+'</h3></div>'+
   '<div class="inventory-card-prices"><strong>'+fmt(product.price)+'</strong><small>Custo: '+fmt(product.cost)+'</small></div>'+
-  (product.menu_price_enabled&&product.menu_price!=null?'<small class="inventory-online-price">Cardápio online: <strong>'+fmt(product.menu_price)+'</strong></small>':'')+
+  (product.online_enabled===false?'<small class="inventory-online-status offline">Somente PDV · Não aparece no cardápio online</small>':
+   '<small class="inventory-online-status">Venda online: Sim · '+fmt(product.menu_price_enabled&&product.menu_price!=null?product.menu_price:product.price)+'</small>')+
   '<div class="inventory-stock-meta"><span>Atual: <strong>'+esc(product.stock??0)+' un</strong></span>'+
    '<span aria-hidden="true">•</span><span>Mínimo: <strong>'+esc(product.min_stock??5)+' un</strong></span></div>'+
   '<div class="inventory-status '+state+'" role="status">'+label+'</div>'+
@@ -573,9 +574,16 @@ function productForm(p){
   field('name','Nome do item', 'text',p.name,'required maxlength="160"')+
   categoryField+
   field('price','Preço de venda no PDV (R$)','number',p.price??0,'required min="0" step="0.01"')+
-  '<div class="menu-price-controls"><label class="menu-price-toggle"><input type="checkbox" name="menu_price_enabled"'+(p.menu_price_enabled?' checked':'')+'><span>Usar preço diferente no cardápio online</span></label>'+
-  field('menu_price','Preço no cardápio online (R$)','number',p.menu_price??'','min="0" max="9999999999.99" step="0.01" placeholder="Vazio = preço do PDV"')+
-  '<small class="muted">Se desativado, o cardápio usa o preço do PDV. Ao ativar, informe um preço válido e salve o produto.</small></div>'+
+  '<div class="menu-price-controls"><label class="online-sale-question">Venda online?'+
+   '<select name="online_enabled" required>'+
+    '<option value=""'+(!p.id?' selected':'')+' disabled>Selecione Sim ou Não</option>'+
+    '<option value="true"'+(p.id&&p.online_enabled!==false?' selected':'')+'>Sim — colocar no cardápio online</option>'+
+    '<option value="false"'+(p.id&&p.online_enabled===false?' selected':'')+'>Não — vender somente no PDV</option>'+
+   '</select></label>'+
+   '<div class="online-sale-price'+(p.id&&p.online_enabled!==false?'':' hidden')+'">'+
+    field('menu_price','Valor no cardápio online (R$)','number',p.menu_price??(p.id?(p.price??0):''),'min="0" max="9999999999.99" step="0.01"'+(p.id&&p.online_enabled!==false?' required':' disabled'))+
+    '<small class="muted">Este é o preço usado no cardápio público, no carrinho e no pedido por WhatsApp.</small></div>'+
+   '<small class="muted">Não: o produto permanece no estoque e PDV, mas não aparece no cardápio online.</small></div>'+
   (isMenu?'<label>Descrição<textarea name="description" maxlength="1000" placeholder="Ingredientes, opções e informações do produto">'+esc(p.description||'')+'</textarea></label>':
   field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')+
   field('stock','Quantidade em estoque','number',p.stock??0,'required min="0" step="1"')+
@@ -667,16 +675,21 @@ async function handleSubmit(form){
       const isMenu=tab==='cardapio';
       const body={
        name:v.name.trim(),category:v.category.trim()||'Geral',price:Number(v.price),image_path,
-       menu_price_enabled:form.querySelector('input[name="menu_price_enabled"]').checked,
-       menu_price:String(v.menu_price??'').trim()===''?null:Number(v.menu_price),
+       online_enabled:v.online_enabled==='true',
+       menu_price_enabled:v.online_enabled==='true',
+       menu_price:v.online_enabled==='true'?Number(v.menu_price):p?.menu_price??null,
        ...(isMenu?{description:String(v.description||'').trim()}:{
         cost:Number(v.cost),stock:Number(v.stock),min_stock:Number(v.min_stock)
        })
       };
       if(!body.name||!Number.isFinite(body.price)||body.price<0)throw Error('Confira o nome e o preço.');
-      if((body.menu_price!==null&&(!Number.isFinite(body.menu_price)||body.menu_price<0||body.menu_price>9999999999.99))||
-        (body.menu_price_enabled&&body.menu_price===null))
-        throw Error('Para ativar o preço do cardápio, informe um valor válido.');
+      if(!['true','false'].includes(v.online_enabled))
+        throw Error('Selecione Sim ou Não em Venda online.');
+      if(body.online_enabled&&(!String(v.menu_price??'').trim()||!Number.isFinite(body.menu_price)||
+        body.menu_price<0||body.menu_price>9999999999.99))
+        throw Error('Para vender online, informe o valor do cardápio.');
+      if(body.menu_price!==null&&(!Number.isFinite(body.menu_price)||body.menu_price<0||body.menu_price>9999999999.99))
+        throw Error('Preço do cardápio online inválido.');
       if(isMenu){
         if(![...categories.map(c=>c.name),'Geral',...products.map(p=>p.category)].includes(body.category))throw Error('Categoria inválida.');
         if(body.description.length>1000)throw Error('Descrição muito longa.');
@@ -784,7 +797,21 @@ document.addEventListener('change',e=>{
  if(e.target.id==='pdvCategory'){pdvCategory=e.target.value;const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();}
  if(e.target.id==='pdvPaymentMethod'){pdvPayment=e.target.value;renderPage();}
 });
-document.addEventListener('change',e=>{if(e.target.matches('#productForm input[name=image]')){pastedProductImage=null;const preview=document.querySelector('[data-image-preview]');if(preview)preview.replaceChildren();}});
+document.addEventListener('change',e=>{
+ if(e.target.matches('#productForm select[name="online_enabled"]')){
+  const form=e.target.closest('form'),online=e.target.value==='true';
+  const group=form.querySelector('.online-sale-price'),input=form.elements.namedItem('menu_price');
+  group.classList.toggle('hidden',!online);
+  input.disabled=!online;
+  input.required=online;
+  if(online)input.focus();
+ }
+ if(e.target.matches('#productForm input[name=image]')){
+  pastedProductImage=null;
+  const preview=document.querySelector('[data-image-preview]');
+  if(preview)preview.replaceChildren();
+ }
+});
 document.addEventListener('click',async e=>{
   if(e.target.closest('#sideToggle')){toggleSideMenu();return}
   if(e.target.closest('#sideBackdrop')){closeSideMenu();return}
