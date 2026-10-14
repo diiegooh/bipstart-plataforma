@@ -1,0 +1,112 @@
+import assert from 'node:assert/strict';
+import {test} from 'node:test';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+const sql=readFileSync('sql/bipstart_courier_pro_20261014.sql','utf8');
+const client=readFileSync('public/cliente.js','utf8');
+const driver=readFileSync('public/motoboy.js','utf8');
+const page=readFileSync('public/motoboy.html','utf8');
+const server=readFileSync('server.mjs','utf8');
+
+test('área individual de motoboy com login, convite e acesso por Supabase Auth',()=>{
+ new vm.Script(driver,{filename:'public/motoboy.js'});
+ for(const id of ['loginForm','signupForm','inviteForm','offers','assignments','refresh','logout']){
+  assert.ok(page.includes('id="'+id+'"'),id);
+ }
+ assert.match(driver,/auth\/v1\/token\?grant_type=password/);
+ assert.match(driver,/auth\/v1\/signup\?redirect_to=/);
+ assert.match(driver,/gotrue_meta_security/);
+ assert.match(driver,/bipstart_courier_claim_invite/);
+ assert.match(driver,/bipstart_courier_my_shops/);
+ assert.match(driver,/bipstart_courier_queue/);
+ assert.match(driver,/bipstart_courier_accept/);
+ assert.match(driver,/bipstart_courier_set_status/);
+ assert.match(driver,/window\.turnstile\.render/);
+ assert.match(driver,/bipstart_courier_session/);
+ assert.doesNotMatch(driver,/SUPABASE_SECRET_KEY|ADMIN_PASSWORD|MERCADO_PAGO_ACCESS_TOKEN/);
+});
+test('fila mostra rotas Maps e Waze com escape de dados de clientes',()=>{
+ const start=driver.indexOf('function mapUrl(');
+ const stop=driver.indexOf('async function refresh()',start);
+ assert.ok(start>0&&stop>start);
+ const htmlEscape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const {mapUrl,wazeUrl,deliveryCard}=new Function(
+   'esc','currency',
+   driver.slice(start,stop)+';return {mapUrl,wazeUrl,deliveryCard};'
+ )(htmlEscape,n=>'R$ '+Number(n).toFixed(2));
+ const row={
+  delivery_id:'7b9807f4-a873-4d21-9a01-26bf23cc15ee',
+  shop_name:'Loja <B>',
+  customer_name:'Cliente <img src=x onerror=alert(1)>',
+  address:'Rua A, 15 — São Paulo',
+  items_text:'2x Combo & uma bebida',
+  total:20,status:'pendente'
+ };
+ const card=deliveryCard(row,true);
+ assert.match(card,/Aceitar entrega/);
+ assert.match(card,/Loja &lt;B&gt;/);
+ assert.match(card,/&lt;img src=x/);
+ assert.doesNotMatch(card,/<img src=x/);
+ assert.match(card,/Combo &amp; uma bebida/);
+ assert.match(card,/Google Maps/);
+ assert.match(card,/Waze/);
+ assert.match(mapUrl(row.address),/destination=Rua%20A/);
+ assert.match(wazeUrl(row.address),/navigate=yes/);
+ const assigned=deliveryCard({...row,status:'atribuida'},false);
+ assert.match(assigned,/Iniciar rota/);
+ const outbound=deliveryCard({...row,status:'a_caminho'},false);
+ assert.match(outbound,/Marcar como entregue/);
+});
+test('os motoboys aparecem somente em Pro com acesso vigente',()=>{
+ const start=client.indexOf('function trialValid(){');
+ const stop=client.indexOf('function contactUrl(',start);
+ assert.ok(start>0&&stop>start);
+ const access=ent=>new Function('ent',client.slice(start,stop)+
+  ';return {trialValid,subscriptionValid,hasAccess,proAccess};')(ent);
+ const future=new Date(Date.now()+86400000).toISOString();
+ const past=new Date(Date.now()-86400000).toISOString();
+ assert.equal(access({status:'active',plan_code:'pro',active_until:future}).proAccess(),true);
+ assert.equal(access({status:'trialing',plan_code:'pro',trial_until:future}).proAccess(),true);
+ assert.equal(access({status:'active',plan_code:'basic',active_until:future}).proAccess(),false);
+ assert.equal(access({status:'active',plan_code:'personalizado',active_until:future}).proAccess(),false);
+ assert.equal(access({status:'active',plan_code:'pro',active_until:past}).proAccess(),false);
+ assert.match(client,/if\(proAccess\(\)\)a\.push\(\['motoboys','Motoboys'\],\['entregas','Entregas'\]\)/);
+ assert.match(client,/Motoboys disponíveis somente no Plano Pro vigente/);
+ assert.match(client,/Entregas disponíveis somente no Plano Pro vigente/);
+});
+test('banco protege loja Pro, convites e transições com funções privilegiadas restritas',()=>{
+ assert.match(sql,/public\.has_delivery_access\(c\.shop_id\)/);
+ assert.match(sql,/public\.has_delivery_access\(v\.shop_id\)/);
+ assert.match(sql,/auth\.uid\(\)/);
+ assert.match(sql,/u\.email_confirmed_at is not null/);
+ assert.match(sql,/where c\.invite_code=p_invite/);
+ assert.match(sql,/set account_id=auth\.uid\(\),invite_code=null/);
+ assert.match(sql,/bipstart_guard_courier_account/);
+ assert.match(sql,/before insert or update on public\.shop_couriers/);
+ assert.match(sql,/foreign key \(shop_id,offered_courier_id\)/);
+ assert.match(sql,/from public\.shop_couriers where id=v_courier for update/);
+ assert.match(sql,/for update/);
+ assert.match(sql,/d\.status in \('atribuida','a_caminho'\)/);
+ assert.match(sql,/v\.status='atribuida' and p_status='a_caminho'/);
+ assert.match(sql,/v\.status='a_caminho' and p_status='entregue'/);
+ for(const sig of [
+  'bipstart_courier_claim_invite(uuid)',
+  'bipstart_courier_my_shops()',
+  'bipstart_courier_queue()',
+  'bipstart_courier_accept(uuid)',
+  'bipstart_courier_set_status(uuid,text)'
+ ]){
+  assert.ok(sql.includes('revoke all on function public.'+sig+' from public,anon'),sig);
+  assert.ok(sql.includes('grant execute on function public.'+sig+' to authenticated'),sig);
+ }
+ assert.doesNotMatch(sql,/drop table|truncate table|delete from public\.orders/i);
+});
+test('integração não depende das tabelas originais Salgatti nem de checkout Mercado Pago',()=>{
+ for(const path of ['/motoboy','/motoboy.js','/motoboy.css'])
+  assert.ok(server.includes("'"+path+"'"),path);
+ assert.doesNotMatch(sql,/public\.settings|public\.orders|salgatti/i);
+ assert.match(client,/\/motoboy\?convite=/);
+ assert.match(client,/data-copy-invite/);
+ assert.match(client,/offered_courier_id/);
+ assert.match(client,/data-new="delivery"/);
+});
