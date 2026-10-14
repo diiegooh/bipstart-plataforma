@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-let cfg=null,session=null,shop=null,ent=null,products=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[];
+let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[];
 let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
@@ -204,9 +204,10 @@ async function openShop(){
   await reloadData();renderNav();renderPage();
 }
 async function reloadData(){
-  products=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];
+  products=[];categories=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];
   const get=(t,fields='*')=>rest(t,{query:{select:fields,shop_id:'eq.'+shop.id,order:'created_at.desc',limit:'200'}});
   if(shop.model==='pdv'||shop.model==='cardapio')products=await get('shop_products');
+  if(shop.model==='cardapio')categories=(await get('shop_menu_categories')).sort((a,b)=>a.sort_order-b.sort_order||a.name.localeCompare(b.name));
   if(shop.model==='pdv')sales=await get('shop_sales');
   if(shop.model==='agenda'){
     services=await rest('shop_services',{query:{select:'*',shop_id:'eq.'+shop.id}});
@@ -255,7 +256,26 @@ function publicLinkTile(){
 function imageUrl(path){if(!path)return '';return cfg.supabaseUrl+'/storage/v1/object/public/bipstart-images/'+path.split('/').map(encodeURIComponent).join('/')}
 function editBtn(kind,id){return '<button data-edit="'+esc(kind)+'" data-id="'+esc(id)+'">Editar</button>'}
 function productRows(){
-  return products.length?'<div class="stack">'+products.map(p=>'<div class="item">'+(p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="">':'')+'<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' • '+fmt(p.price)+' • Estoque: '+esc(p.stock)+'</small></div><div class="actions">'+editBtn('product',p.id)+'</div></div>').join('')+'</div>':empty('Cadastre o primeiro produto.')
+  return products.length?'<div class="stack">'+products.map(p=>'<div class="item">'+(p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="">':'')+'<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' • '+fmt(p.price)+(shop.model==='pdv'?' • Estoque: '+esc(p.stock):'')+'</small>'+
+   (shop.model==='cardapio'&&p.description?'<p class="muted small">'+esc(p.description)+'</p>':'')+'</div><div class="actions">'+editBtn('product',p.id)+'</div></div>').join('')+'</div>':empty('Cadastre o primeiro produto.')
+}
+function categoryOptions(selected){
+  const names=[...new Set(['Geral',...categories.map(c=>c.name),...products.map(p=>p.category||'Geral')])];
+  return names.map(name=>'<option value="'+esc(name)+'"'+(name===selected?' selected':'')+'>'+esc(name)+'</option>').join('');
+}
+function cardapioEditor(){
+ const list=categories.length?categories.map(cat=>{
+  const count=products.filter(p=>p.category.toLocaleLowerCase('pt-BR')===cat.name.toLocaleLowerCase('pt-BR')).length;
+  return '<div class="menu-category-line"><strong>'+esc(cat.name)+'</strong><small>'+count+' item(ns)</small></div>';
+ }).join(''):'<p class="muted">Comece adicionando uma categoria, como Salgados ou Bebidas.</p>';
+ return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.','<button class="button" data-new="product">+ Adicionar item</button>')+
+ '<div class="menu-editor-grid"><section class="menu-editor-panel"><h3>Categorias</h3>'+
+ '<form id="categoryForm" class="menu-category-form"><label>Nova categoria<input type="text" name="name" placeholder="Ex.: Bebidas" required maxlength="65"></label>'+
+ '<button class="button" type="submit">+ Adicionar categoria</button></form>'+
+ '<div class="menu-category-list">'+list+'</div></section>'+
+ '<section class="menu-editor-panel"><h3>Adicionar ou editar item</h3>'+
+ (showForm?.kind==='product'?productForm(showForm.value):'<p class="muted">Clique em "+ Adicionar item" para cadastrar nome, categoria, descrição, valor e imagem.</p>')+
+ '</section></div><section class="menu-editor-panel menu-editor-items"><h3>Itens do cardápio</h3>'+productRows()+'</section>';
 }
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
@@ -268,11 +288,12 @@ function renderPage(){
     if(shop.model==='pdv')content+='<div class="grid">'+tile('Produtos',products.length)+tile('Vendas',sales.length)+tile('Total vendido',fmt(sales.reduce((a,s)=>a+Number(s.total),0)))+'</div>';
     if(shop.model==='agenda')content+='<div class="grid">'+tile('Serviços',services.length)+tile('Agendamentos',appointments.length)+'</div>';
     if(shop.model==='cardapio')content+='<div class="grid public-overview-grid">'+tile('Itens cadastrados',products.length)+publicLinkTile()+'</div>';
-  }else if(tab==='produtos'||tab==='cardapio'){
-    content=heading(tab==='cardapio'?'Meu cardápio':'Produtos e estoque','Cadastre itens, preços, imagens e quantidades.','<button class="button" data-new="product">+ Novo item</button>');
+  }else if(tab==='cardapio'){
+    content=cardapioEditor();
+  }else if(tab==='produtos'){
+    content=heading('Produtos e estoque','Cadastre itens, preços, imagens e quantidades.','<button class="button" data-new="product">+ Novo item</button>');
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
     content+=productRows();
-    if(tab==='cardapio')content+='<p class="muted">O cardápio público pode receber pedidos pelo WhatsApp quando você informar seu número comercial.</p>';
   }else if(tab==='caixa'){
     content=heading('Frente de caixa','As vendas registradas são reais no sistema e atualizam o estoque, mas NÃO cobram o cartão ou Pix.');
     content+='<div class="stack">'+(products.filter(p=>p.active&&p.stock>0).map(p=>'<div class="item"><div><strong>'+esc(p.name)+'</strong><small>'+fmt(p.price)+' • Disponível: '+p.stock+'</small></div><button data-cart="'+esc(p.id)+'">Adicionar</button></div>').join('')||empty('Cadastre produtos com estoque disponível.'))+'</div>';
@@ -314,14 +335,22 @@ function renderPage(){
 }
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
 function formShell(kind,id,inside){return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="columns">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
-function productForm(p){p=p||{};return formShell('product',p.id,
-  field('name','Nome', 'text',p.name,'required maxlength="160"')+field('category','Categoria','text',p.category||'Geral')
-  +field('price','Preço de venda (R$)','number',p.price||0,'required min="0" step="0.01"')
-  +field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')
-  +field('stock','Quantidade em estoque','number',p.stock||0,'required min="0" step="1"')
-  +'<label>Foto do item (até 5 MB)<input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>'
-  +'<div class="paste-area" data-image-paste tabindex="0" role="button" aria-label="Colar imagem do produto" style="border:1px dashed #9068c8;border-radius:12px;padding:16px;cursor:pointer;min-height:75px">Clique aqui e pressione Ctrl+V para colar uma imagem copiada.<div data-image-preview aria-live="polite" style="margin-top:8px"></div></div>'
-);
+function productForm(p){
+ p=p||{};
+ const isMenu=shop.model==='cardapio';
+ const categoryField=isMenu?
+  '<label>Categoria<select name="category" required>'+categoryOptions(p.category||'Geral')+'</select></label>':
+  field('category','Categoria','text',p.category||'Geral');
+ return formShell('product',p.id,
+  field('name','Nome do item', 'text',p.name,'required maxlength="160"')+
+  categoryField+
+  field('price','Preço (R$)','number',p.price??0,'required min="0" step="0.01"')+
+  (isMenu?'<label>Descrição<textarea name="description" maxlength="1000" placeholder="Ingredientes, opções e informações do produto">'+esc(p.description||'')+'</textarea></label>':
+  field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')+
+  field('stock','Quantidade em estoque','number',p.stock||0,'required min="0" step="1"'))+
+  '<label>Imagem do item (até 5 MB)<input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>'+
+  '<div class="paste-area" data-image-paste tabindex="0" role="button" aria-label="Colar imagem do produto" style="border:1px dashed #9068c8;border-radius:12px;padding:16px;cursor:pointer;min-height:75px">Clique aqui e pressione Ctrl+V para colar uma imagem copiada.<div data-image-preview aria-live="polite" style="margin-top:8px"></div></div>'
+ );
 }
 function serviceForm(p){p=p||{};return formShell('service',p.id,
  field('name','Serviço','text',p.name,'required')+field('price','Valor (R$)','number',p.price||0,'required min="0" step=".01"')
@@ -384,12 +413,32 @@ async function handleSubmit(form){
       shop=created?.[0];if(!shop)throw Error('A loja não pôde ser criada.');
       await openShop();msg(v.signup_choice==='trial'?'Loja criada! Seus 7 dias gratuitos começaram.':'Loja cadastrada! Peça a contratação pelo WhatsApp e aguarde a liberação.');break;
     }
+    case 'categoryForm':{
+      if(shop.model!=='cardapio')throw Error('Categorias disponíveis somente para cardápios.');
+      const name=String(v.name||'').trim();
+      if(name.length<1||name.length>65)throw Error('Informe uma categoria válida (até 65 caracteres).');
+      if(categories.some(c=>c.name.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR')))throw Error('Esta categoria já está cadastrada.');
+      const order=categories.reduce((max,c)=>Math.max(max,Number(c.sort_order)||0),0)+10;
+      await rest('shop_menu_categories',{method:'POST',body:{shop_id:shop.id,name,sort_order:order}});
+      break;
+    }
     case 'productForm':{
       const file=pastedProductImage||form.querySelector('input[name=image]').files[0];
       const p=products.find(p=>p.id===id);
       const image_path=file?await uploadImage(file):p?.image_path||null;
-      const body={name:v.name.trim(),category:v.category.trim()||'Geral',price:Number(v.price),cost:Number(v.cost),stock:Number(v.stock),image_path};
-      if(!body.name||!Number.isInteger(body.stock)||body.stock<0||body.price<0||body.cost<0)throw Error('Confira nome, preços e estoque.');
+      const isMenu=shop.model==='cardapio';
+      const body={
+       name:v.name.trim(),category:v.category.trim()||'Geral',price:Number(v.price),image_path,
+       ...(isMenu?{description:String(v.description||'').trim()}:{
+        cost:Number(v.cost),stock:Number(v.stock)
+       })
+      };
+      if(!body.name||!Number.isFinite(body.price)||body.price<0)throw Error('Confira o nome e o preço.');
+      if(isMenu){
+        if(![...categories.map(c=>c.name),'Geral',...products.map(p=>p.category)].includes(body.category))throw Error('Categoria inválida.');
+        if(body.description.length>1000)throw Error('Descrição muito longa.');
+      }else if(!Number.isInteger(body.stock)||body.stock<0||!Number.isFinite(body.cost)||body.cost<0)
+        throw Error('Confira preços e estoque.');
       await storeForm(form,'shop_products',body,id);
       break;
     }
