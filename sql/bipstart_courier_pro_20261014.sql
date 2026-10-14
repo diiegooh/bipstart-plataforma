@@ -13,6 +13,26 @@ create unique index if not exists bipstart_courier_invitation_unique
  on public.shop_couriers(invite_code) where invite_code is not null;
 create unique index if not exists bipstart_courier_account_shop_unique
  on public.shop_couriers(shop_id,account_id) where account_id is not null;
+create or replace function public.bipstart_guard_courier_account()
+returns trigger language plpgsql security definer set search_path=''
+as $
+begin
+ if TG_OP='INSERT' then
+  if new.account_id is not null then
+   raise exception 'Motoboy deve aceitar seu próprio convite' using errcode='42501';
+  end if;
+ elsif new.account_id is distinct from old.account_id and new.account_id is not null then
+  if new.account_id is distinct from auth.uid() then
+   raise exception 'Conta de motoboy só pode ser vinculada pelo próprio titular' using errcode='42501';
+  end if;
+ end if;
+ return new;
+end $;
+drop trigger if exists bipstart_guard_courier_account on public.shop_couriers;
+create trigger bipstart_guard_courier_account
+ before insert or update on public.shop_couriers for each row
+ execute function public.bipstart_guard_courier_account();
+revoke all on function public.bipstart_guard_courier_account() from public,anon,authenticated;
 
 alter table public.shop_deliveries
   add column if not exists offered_courier_id uuid,
@@ -152,6 +172,8 @@ begin
  if v_courier is null then
    raise exception 'Motoboy não autorizado para esta entrega' using errcode='42501';
  end if;
+ -- Serializa dois aceites simultâneos do mesmo motoboy.
+ perform 1 from public.shop_couriers where id=v_courier for update;
  if exists(select 1 from public.shop_deliveries d where d.courier_id=v_courier
    and d.status in ('atribuida','a_caminho')) then
    raise exception 'Conclua a entrega atual antes de aceitar outra' using errcode='23514';
