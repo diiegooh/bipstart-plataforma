@@ -4,10 +4,10 @@ WhatsApp do atendimento de planos: (11) 97835-3820 | https://wa.me/5511978353820
 
 ## Fluxo de contratação
 
-- Cadastro + e-mail confirmado + escolha de plano Básico (R$29,99 único), Personalizado (R$49,99 único) ou Pro (R$99,90/mês).
+- Cadastro + e-mail confirmado + escolha de plano Básico (R$ 29,90, pagamento único) ou Premium (R$ 79,90/mês; código interno `pro`).
 - Testar por 7 dias cria entitlement trialing até agora + 7 dias. Após expirar, acesso e operações ficam bloqueados.
 - Contratar pelo WhatsApp cria entitlement pending, sem teste. Cliente solicita e combina pagamento pelo WhatsApp; administrador libera manualmente.
-- Em /admin, usuário previamente autorizado no Supabase pode ativar e suspender, com auditoria. Pro tem 30 dias de prazo por ativação; Básico/Personalizado não vencem automaticamente.
+- Em /admin, usuário previamente autorizado no Supabase pode ativar e suspender, com auditoria. Premium tem 30 dias de prazo por ativação; Básico não vence automaticamente.
 - A loja e seus dados permanecem salvos após bloqueio. Não são feitas cobranças automáticas.
 
 ## MIGRAÇÃO — aplicada ao Supabase BipStart em 13/10/2026
@@ -28,7 +28,7 @@ A conta confirmada diiegovicente@gmail.com já foi autorizada em public.bipstart
 - Contratação direta deve continuar pending até liberação manual.
 - 7 dias devem ser reais (timestamp do servidor), e expiração bloqueia o painel, leitura RLS e gravações.
 - Loja e dados devem ficar preservados; administrador pode ativar com plano certo e suspender com confirmação.
-- Pro deve vencer 30 dias depois da liberação. Básico e Personalizado ficam sem vencimento automático.
+- Premium deve vencer 30 dias depois da liberação. Básico fica sem vencimento automático.
 - Cardápio público da loja vencida deve ficar indisponível.
 - Nunca mesclar PR rascunho #8 diretamente antes dos testes em homologação. Main publica na produção automaticamente.
 
