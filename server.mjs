@@ -5,6 +5,27 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const port = Number(process.env.PORT || 3000);
+const escapeMeta = value => String(value??'').replace(/[&<>"']/g, c => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+}[c]));
+
+async function publicCardapioTitle(slug){
+  const url=String(process.env.SUPABASE_URL||'').replace(/\/$/,'');
+  const key=String(process.env.SUPABASE_PUBLISHABLE_KEY||'');
+  if(!url||!key||!/^[a-z0-9-]{3,60}$/.test(slug))return null;
+  const response=await fetch(url+'/rest/v1/rpc/bipstart_public_menu',{
+    method:'POST',
+    headers:{apikey:key,'Content-Type':'application/json'},
+    body:JSON.stringify({p_slug:slug}),
+    signal:AbortSignal.timeout(2500)
+  });
+  if(!response.ok)return null;
+  const data=await response.json();
+  const name=typeof data?.name==='string'?data.name.trim():'';
+  if(!name||name.length>120)return null;
+  return 'CARDÁPIO ('+name+')';
+}
+
 const routes = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/index.html': ['index.html', 'text/html; charset=utf-8'],
@@ -30,9 +51,10 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(405, { 'allow': 'GET, HEAD' });
     return res.end();
   }
-  let pathname;
+  let pathname, requestUrl;
   try {
-    pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    requestUrl = new URL(req.url, 'http://localhost');
+    pathname = decodeURIComponent(requestUrl.pathname);
   } catch {
     res.writeHead(400, { 'content-type': 'text/plain; charset=utf-8' });
     return res.end('Requisição inválida');
@@ -58,7 +80,26 @@ const server = http.createServer(async (req, res) => {
     return res.end('Página não encontrada');
   }
   try {
-    const body = await fs.readFile(path.join(root, file[0]));
+    let body = await fs.readFile(path.join(root, file[0]));
+    if (req.method === 'GET' && (pathname === '/cardapio' || pathname === '/cardapio.html')) {
+      let title = null;
+      try {
+        title = await publicCardapioTitle(requestUrl.searchParams.get('loja')||'');
+      } catch (error) {
+        console.error('Prévia de cardápio indisponível:', error?.message||error);
+      }
+      if (title) {
+        const escaped = escapeMeta(title);
+        const head = '<title>'+escaped+'</title>'+
+          '<meta property="og:type" content="website">'+
+          '<meta property="og:title" content="'+escaped+'">'+
+          '<meta name="twitter:card" content="summary">'+
+          '<meta name="twitter:title" content="'+escaped+'">';
+        body = Buffer.from(body.toString('utf8').replace(
+          '<title>Cardápio digital • BipStart</title>', head
+        ));
+      }
+    }
     res.writeHead(200, {
       'content-type': file[1],
       'cache-control': 'no-store',
