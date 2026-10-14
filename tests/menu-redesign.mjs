@@ -95,7 +95,7 @@ test('HTML tem controle de categorias, carrinho e informações da loja',()=>{
   assert.ok(html.includes('id="'+id+'"'),id);
  }
  assert.match(css,/\.category\[open\]/);
- assert.match(html,/cardapio\.css\?v=1/);
+ assert.match(html,/cardapio\.css\?v=2/);
  assert.match(publicJS,/<img src="\/bipstart-logo\.svg" alt="Logo BipStart">/);
  assert.match(html,/cardapio\.js\?v=3/);
  assert.match(readFileSync('server.mjs','utf8'),/cardapio\.css/);
