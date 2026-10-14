@@ -16,8 +16,8 @@ test('homepage comercial divulga só dois planos e não agenda',()=>{
  assert.equal(plans.length,2);
  assert.match(homepage,/Plano Básico/);
  assert.match(homepage,/Plano Premium/);
- assert.match(homepage,/R\$ <strong>29,99<\/strong>/);
- assert.match(homepage,/R\$ <strong>99,90<\/strong>/);
+ assert.match(homepage,/R\$ <strong>29,90<\/strong>/);
+ assert.match(homepage,/R\$ <strong>79,90<\/strong>/);
  assert.match(homepage,/suporte mensal/i);
  assert.match(homepage,/motoboys próprios/i);
  assert.doesNotMatch(homepage,/Agenda de serviços|Plano Personalizado|Plano Pro\b|data-model="agenda"/i);
