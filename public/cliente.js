@@ -539,12 +539,12 @@ function renderPage(){
       '<label>Inserir logo próprio (JPG, PNG ou WebP, até 5 MB)<input name="logo" type="file" accept="image/png,image/jpeg,image/webp"></label>'+
       (shop.logo_path?'<label><input type="checkbox" name="remove_logo"> Remover logo atual</label>':'')+
       '</div>':
-      (isMenu?'<p class="muted">Logo própria e cores personalizadas são exclusivas do Premium vigente. O Básico utiliza a identidade BipStart.</p>':'');
+      '';
     content=heading('Configurações da loja',isMenu?'Defina horário, localização, pagamentos e entrega.':'Nome da empresa, WhatsApp e cor principal.')
       +'<div class="data-form"><form id="settingsForm">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
-      +(canCustomize()?field('brand_color','Cor principal do cardápio','color',shop.brand_color||'#7c3aed'):'<p class="muted">Identidade BipStart padrão. A troca de cores é exclusiva do Premium.</p>')
+      +(canCustomize()?field('brand_color','Cor principal do cardápio','color',shop.brand_color||'#7c3aed'):'')
       +(isMenu?'<div class="menu-settings">'
        +field('opening_hours','Horário de atendimento','text',shop.opening_hours||'','maxlength="160" placeholder="Ex.: Segunda a sábado, 18h às 23h"')
        +field('location_text','Localização ou endereço','text',shop.location_text||'','maxlength="240" placeholder="Ex.: Rua das Flores, 100 — Centro"')
@@ -552,8 +552,7 @@ function renderPage(){
        +'<fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +logoSection+'</div>':'')
-      +'<button class="button">Salvar configurações</button></form></div>'
-      +(isMenu?'<p class="muted">Seu endereço do cardápio é: '+esc(publicShopUrl())+'</p>':'');
+      +'<button class="button">Salvar configurações</button></form></div>';
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
       +'<div class="data-form"><form id="customForm"><label>Descreva sua solicitação<textarea name="details" minlength="10" maxlength="3000" placeholder="Envie sua logo e conte as mudanças desejadas..." required></textarea></label><button class="button">Enviar solicitação</button></form></div>'
