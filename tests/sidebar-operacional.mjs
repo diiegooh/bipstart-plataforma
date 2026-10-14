@@ -1,0 +1,88 @@
+import assert from 'node:assert/strict';
+import {test} from 'node:test';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+
+const html=readFileSync('public/cliente.html','utf8');
+const css=readFileSync('public/cliente.css','utf8');
+const js=readFileSync('public/cliente.js','utf8');
+
+test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',()=>{
+ new vm.Script(js,{filename:'public/cliente.js'});
+ for(const id of ['sidebar','sideShopLogo','sideShopName','sideSettings','sideColor','sideOpenMenu','sideLogout','sideToggle','sideBackdrop']){
+  assert.match(html,new RegExp('id="'+id+'"'),id);
+ }
+ assert.match(html,/Central de operação/);
+ assert.match(html,/Alterar cor/);
+ assert.match(html,/Abrir cardápio/);
+ assert.match(html,/Sair/);
+ assert.match(html,/cliente\.js\?v=11/);
+ assert.match(html,/cliente\.css\?v=6/);
+});
+
+test('coluna mostra exatamente as seis opções na ordem da referência Godzilla',()=>{
+ const start=js.indexOf('function operationalMenuItems(){');
+ const end=js.indexOf('function renderNav(){',start);
+ assert.ok(start>=0&&end>start);
+ const items=new Function(js.slice(start,end)+';return operationalMenuItems();')();
+ assert.deepEqual(items.map(x=>x[1]),['PDV','Produtos','Estoque','Pedidos online','Motoboys','Vendas']);
+ assert.deepEqual(items.map(x=>x[0]),['caixa','produtos','estoque','pedidos','motoboys','vendas']);
+ assert.match(css,/#workspace \.side #nav nav button\.active\{background:linear-gradient\(100deg,#fc0816,#f51b20\)/);
+});
+
+function mockNav(premium){
+ const nodes=new Map();
+ function node(id){
+  if(!nodes.has(id))nodes.set(id,{
+   innerHTML:'',textContent:'',src:'',alt:'',href:'',
+   classList:{toggle(){}}
+  });
+  return nodes.get(id);
+ }
+ const start=js.indexOf('function operationalMenuItems(){');
+ const end=js.indexOf('function heading(',start);
+ assert.ok(start>=0&&end>start);
+ const create=new Function('$','esc','tab','shop','proAccess','canCustomize','imageUrl','publicShopUrl',
+  js.slice(start,end)+';return renderNav;');
+ const render=create(node,x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
+  'caixa',{name:'Adega <Teste>',logo_path:'loja-id/logo.png'},()=>premium,()=>premium,
+  path=>'https://images.example/'+path,()=>'https://bipstart.example/cardapio?loja=adega-teste');
+ render();
+ return {node};
+}
+test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do Básico',()=>{
+ const basic=mockNav(false);
+ assert.match(basic.node('nav').innerHTML,/data-nav="caixa" class="active" aria-current="page"/);
+ assert.match(basic.node('nav').innerHTML,/data-nav="motoboys" class="locked"/);
+ assert.match(basic.node('nav').innerHTML,/Premium/);
+ assert.equal(basic.node('sideShopLogo').src,'/bipstart-marca-icon.png');
+ assert.equal(basic.node('sideShopName').textContent,'Adega <Teste>');
+ assert.equal(basic.node('sideOpenMenu').href,'https://bipstart.example/cardapio?loja=adega-teste');
+ const premium=mockNav(true);
+ assert.match(premium.node('nav').innerHTML,/data-nav="motoboys" class=""/);
+ assert.equal(premium.node('sideShopLogo').src,'https://images.example/loja-id/logo.png');
+});
+
+test('abas Estoque e Pedidos online possuem telas reais, sem prometer pedidos automáticos',()=>{
+ assert.match(js,/a\.push\(\['estoque','Estoque'\],\['pedidos','Pedidos online'\]\)/);
+ assert.match(js,/tab==='estoque'/);
+ assert.match(js,/Estoque baixo \(1 a 5\)/);
+ assert.match(js,/stock<=0\?'Esgotado':stock<=5\?'Estoque baixo':'Disponível'/);
+ assert.match(js,/tab==='pedidos'/);
+ assert.match(js,/Os pedidos recebidos por WhatsApp ainda não são importados automaticamente/);
+ assert.match(js,/data-nav="cardapio">Gerenciar cardápio/);
+ assert.match(js,/data-nav="entregas">Acessar fila de entregas/);
+ assert.match(js,/if\(nav\.dataset\.nav==='motoboys'&&!proAccess\(\)\)/);
+ assert.match(js,/if\(!canCustomize\(\)\)return msg\('Alterar a cor do cardápio está disponível somente no plano Premium\.'/);
+ assert.match(js,/if\(e\.target\.closest\('#sideLogout'\)\)\{closeSideMenu\(\);\$\('logout'\)\.click\(\);return\}/);
+});
+
+test('menu mobile abre em coluna, fecha no backdrop e Escape e tem foco',()=>{
+ assert.match(html,/aria-controls="sidebar" aria-expanded="false"/);
+ assert.match(css,/#workspace \.side\{position:fixed;inset:0 auto 0 0;width:min\(292px,88vw\)/);
+ assert.match(css,/#workspace \.side\.open\{transform:translateX\(0\);visibility:visible\}/);
+ assert.match(css,/#workspace \.side #nav nav\{display:grid;overflow:visible/);
+ assert.match(js,/const show=!\$\('sidebar'\)\.classList\.contains\('open'\)/);
+ assert.match(js,/if\(e\.target\.closest\('#sideBackdrop'\)\)\{closeSideMenu\(\);return\}/);
+ assert.match(js,/if\(event\.key==='Escape'&&\$\('sidebar'\)\.classList\.contains\('open'\)\)closeSideMenu\(\)/);
+});

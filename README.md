@@ -32,6 +32,12 @@ No Premium, o painel habilita `Motoboys`, `Entregas`, `Mudanças e suporte` e pe
 
 Solicitações de mudança ficam armazenadas no Supabase e podem ser gerenciadas no painel `/admin`. O atendimento avalia escopo, prazos e eventuais custos adicionais.
 
+## Coluna de operação da loja
+
+Dentro do **PDV + CARDÁPIO**, o menu lateral segue a navegação visual da Godzilla Adega: **PDV, Produtos, Estoque, Pedidos online, Motoboys, Vendas**. O topo mostra a logo e o nome da loja; o rodapé oferece **Alterar cor** (Premium), **Abrir cardápio** e **Sair**. O Básico vê o recurso de motoboys identificado como Premium e sem acesso, enquanto a opção de cores informa a restrição. Configurações ficam no ícone de engrenagem ao lado do nome da loja. No celular, a coluna abre pelo botão Menu e mantém layout vertical.
+
+**Pedidos online:** a lista não recebe pedidos automaticamente; as solicitações são enviadas ao WhatsApp do lojista. Esta tela explica a etapa manual, permite compartilhar/gerenciar o cardápio e, no Premium, acessar a fila de entregas. **Estoque** apresenta quantidade e sinaliza itens esgotados e baixos. Não há alteração no banco de dados por causa da barra lateral.
+
 ## Projeto técnico
 
 - Servidor HTTP: `server.mjs`, Node.js.
