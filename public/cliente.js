@@ -290,14 +290,13 @@ function cardapioEditor(){
 }
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
-  if(tab==='personalizar'&&!canCustomize())tab='resumo';
+  if(!pages().some(([key])=>key===tab))tab='resumo';
   renderNav();
   let content='';
   if(tab==='resumo'){
     content=heading('Bem-vindo à BipStart','PDV com estoque e cardápio online integrados. Seus dados ficam separados das demais lojas.')
       +'<div class="grid">'+tile('Modelo',models[shop.model])+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',trialValid()?'Teste gratuito':'Ativo')+'</div>';
     if(shop.model==='pdv')content+='<div class="grid">'+tile('Produtos',products.length)+tile('Vendas',sales.length)+tile('Total vendido',fmt(sales.reduce((a,s)=>a+Number(s.total),0)))+'</div>';
-    if(shop.model==='agenda')content+='<div class="grid">'+tile('Serviços',services.length)+tile('Agendamentos',appointments.length)+'</div>';
     if(shop.model==='pdv')content+='<div class="grid public-overview-grid">'+tile('Itens cadastrados',products.length)+publicLinkTile()+'</div>';
   }else if(tab==='cardapio'){
     content=cardapioEditor();
@@ -312,14 +311,6 @@ function renderPage(){
   }else if(tab==='vendas'){
     content=heading('Histórico de vendas','Vendas registradas no PDV e seus totais.')
       +(sales.length?'<div class="stack">'+sales.map(s=>'<div class="item"><span>'+new Date(s.created_at).toLocaleString('pt-BR')+'</span><span>'+fmt(s.total)+' • '+esc(s.payment_method)+'</span></div>').join('')+'</div>':empty());
-  }else if(tab==='servicos'){
-    content=heading('Serviços e preços','Defina os serviços e o tempo de atendimento.','<button class="button" data-new="service">+ Novo serviço</button>');
-    content+=showForm?.kind==='service'?serviceForm(showForm.value):'';
-    content+=services.length?'<div class="stack">'+services.map(s=>'<div class="item"><div><strong>'+esc(s.name)+'</strong><small>'+fmt(s.price)+' • '+s.duration_minutes+' minutos</small></div>'+editBtn('service',s.id)+'</div>').join('')+'</div>':empty();
-  }else if(tab==='agenda'){
-    content=heading('Agendamentos','Organize horários e clientes.','<button class="button" data-new="appointment">+ Novo agendamento</button>');
-    content+=showForm?.kind==='appointment'?appointmentForm(showForm.value):'';
-    content+=appointments.length?'<div class="stack">'+appointments.map(a=>'<div class="item"><div><strong>'+esc(a.customer_name)+'</strong><small>'+new Date(a.starts_at).toLocaleString('pt-BR')+' • '+esc(a.status)+'</small></div>'+editBtn('appointment',a.id)+'</div>').join('')+'</div>':empty();
   }else if(tab==='motoboys'){
     content=heading('Motoboys • Plano Pro','Cadastre entregadores e compartilhe os convites de acesso.','<button class="button" data-new="courier">+ Novo motoboy</button>');
     content+='<p class="muted">Cada motoboy cria sua própria conta e aceita o convite. O acesso é individual e restrito às entregas da loja.</p>';
@@ -363,7 +354,7 @@ function renderPage(){
       +'<div class="data-form"><form id="settingsForm">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
-      +field('brand_color','Cor principal','color',shop.brand_color||'#7c3aed')
+      +(canCustomize()?field('brand_color','Cor principal do cardápio','color',shop.brand_color||'#7c3aed'):'<p class="muted">Identidade BipStart padrão. A troca de cores é exclusiva do Premium.</p>')
       +(isMenu?'<div class="menu-settings">'
        +field('opening_hours','Horário de atendimento','text',shop.opening_hours||'','maxlength="160" placeholder="Ex.: Segunda a sábado, 18h às 23h"')
        +field('location_text','Localização ou endereço','text',shop.location_text||'','maxlength="240" placeholder="Ex.: Rua das Flores, 100 — Centro"')
@@ -400,13 +391,6 @@ function productForm(p){
   '<div class="paste-area" data-image-paste tabindex="0" role="button" aria-label="Colar imagem do produto" style="border:1px dashed #9068c8;border-radius:12px;padding:16px;cursor:pointer;min-height:75px">Clique aqui e pressione Ctrl+V para colar uma imagem copiada.<div data-image-preview aria-live="polite" style="margin-top:8px"></div></div>'
  );
 }
-function serviceForm(p){p=p||{};return formShell('service',p.id,
- field('name','Serviço','text',p.name,'required')+field('price','Valor (R$)','number',p.price||0,'required min="0" step=".01"')
- +field('duration_minutes','Duração (minutos)','number',p.duration_minutes||30,'required min="5" max="480"'))}
-function appointmentForm(a){a=a||{};let dt='';if(a.starts_at){const d=new Date(a.starts_at);const pad=n=>String(n).padStart(2,'0');dt=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());}return formShell('appointment',a.id,
- field('customer_name','Nome do cliente','text',a.customer_name,'required')+field('customer_phone','Telefone','tel',a.customer_phone||'')
- +'<label>Serviço<select name="service_id" required>'+services.map(s=>'<option value="'+esc(s.id)+'" '+(s.id===a.service_id?'selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select></label>'
- +field('starts_at','Data e hora','datetime-local',dt,'required')+field('notes','Observação','text',a.notes||''))}
 function courierForm(c){c=c||{};return formShell('courier',c.id,
   field('name','Nome completo','text',c.name,'required maxlength="100"')+
   field('phone','Telefone ou WhatsApp','tel',c.phone||'','required minlength="10" maxlength="20"')+
@@ -467,7 +451,7 @@ async function handleSubmit(form){
       const slug=normalized+'-'+crypto.randomUUID().slice(0,7);
       const user=await requireVerifiedEmail();
       if(!['trial','whatsapp'].includes(v.signup_choice))throw Error('Escolha entre experimentar 7 dias ou contratar pelo WhatsApp.');
-      if(!plans[v.requested_plan])throw Error('Escolha um plano válido.');
+      if(!plans[v.requested_plan]||v.model!=='pdv')throw Error('Escolha um plano válido para PDV e cardápio.');
       const created=await rest('shops',{method:'POST',body:{owner_id:user.id,name:v.name.trim(),whatsapp:v.whatsapp?.replace(/\D/g,'')||null,slug,model:v.model,requested_plan:v.requested_plan,signup_choice:v.signup_choice}});
       shop=created?.[0];if(!shop)throw Error('A loja não pôde ser criada.');
       await openShop();msg(v.signup_choice==='trial'?'Loja criada! Seus 7 dias gratuitos começaram.':'Loja cadastrada! Peça a contratação pelo WhatsApp e aguarde a liberação.');break;
@@ -503,18 +487,6 @@ async function handleSubmit(form){
       await storeForm(form,'shop_products',body,id);
       break;
     }
-    case 'serviceForm':await storeForm(form,'shop_services',{name:v.name.trim(),price:Number(v.price),duration_minutes:Number(v.duration_minutes)},id);break;
-    case 'appointmentForm':{
-      const service=services.find(s=>s.id===v.service_id);
-      if(!service)throw Error('Cadastre um serviço antes.');
-      const starts=new Date(v.starts_at);
-      if(!Number.isFinite(starts.getTime()))throw Error('Data inválida.');
-      const ends=new Date(starts.getTime()+service.duration_minutes*60000);
-      const overlap=appointments.some(a=>a.id!==id&&a.status!=='cancelado'&&new Date(a.starts_at)<ends&&new Date(a.ends_at)>starts);
-      if(overlap)throw Error('Já existe um agendamento nesse horário.');
-      await storeForm(form,'shop_appointments',{service_id:service.id,customer_name:v.customer_name.trim(),customer_phone:v.customer_phone,starts_at:starts.toISOString(),ends_at:ends.toISOString(),notes:v.notes},id);
-      break;
-    }
     case 'saleForm':{
       if(!cart.length)throw Error('Adicione produtos ao carrinho.');
       const data=await rpc('bipstart_complete_sale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),p_payment_method:v.payment_method});
@@ -548,7 +520,11 @@ async function handleSubmit(form){
       const whatsapp=(v.whatsapp||'').replace(/\D/g,'');
       if(whatsapp&&!/^\d{10,13}$/.test(whatsapp))throw Error('Informe um telefone WhatsApp com DDD.');
       if(!v.name?.trim())throw Error('Informe o nome do estabelecimento.');
-      const body={name:v.name.trim(),whatsapp:whatsapp||null,brand_color:v.brand_color};
+      const body={name:v.name.trim(),whatsapp:whatsapp||null};
+      if(canCustomize()){
+        if(!/^#[0-9a-f]{6}$/i.test(String(v.brand_color||'')))throw Error('Selecione uma cor válida.');
+        body.brand_color=v.brand_color;
+      }
       if(shop.model==='pdv'){
         const methods=[...form.querySelectorAll('input[name=payment_methods]:checked')].map(input=>input.value);
         const fee=Number(v.delivery_fee||0);
