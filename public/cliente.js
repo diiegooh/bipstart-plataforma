@@ -427,7 +427,7 @@ function deliveryForm(d){d=d||{};return formShell('delivery',d.id,
   '<label>Oferecer para<select name="offered_courier_id"><option value="">Qualquer motoboy disponível</option>'+
    couriers.filter(c=>c.active).map(c=>'<option value="'+esc(c.id)+'"'+(c.id===d.offered_courier_id?' selected':'')+'>'+esc(c.name)+'</option>').join('')+
   '</select></label>'
-)
+)}
 async function uploadImage(file){
   if(!file)return null;
   if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error('Selecione uma imagem JPG, PNG ou WebP de até 5 MB.');
