@@ -16,17 +16,17 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.match(html,/Alterar cor/);
  assert.match(html,/Abrir cardápio/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=12/);
+ assert.match(html,/cliente\.js\?v=13/);
  assert.match(html,/cliente\.css\?v=7/);
 });
 
-test('coluna mostra exatamente as seis opções na ordem da referência Godzilla',()=>{
+test('coluna mostra cinco opções, sem aba separada de Estoque',()=>{
  const start=js.indexOf('function operationalMenuItems(){');
  const end=js.indexOf('function renderNav(){',start);
  assert.ok(start>=0&&end>start);
  const items=new Function(js.slice(start,end)+';return operationalMenuItems();')();
- assert.deepEqual(items.map(x=>x[1]),['PDV','Produtos','Estoque','Pedidos online','Motoboys','Vendas']);
- assert.deepEqual(items.map(x=>x[0]),['caixa','produtos','estoque','pedidos','motoboys','vendas']);
+ assert.deepEqual(items.map(x=>x[1]),['PDV','Produtos','Pedidos online','Motoboys','Vendas']);
+ assert.deepEqual(items.map(x=>x[0]),['caixa','produtos','pedidos','motoboys','vendas']);
  assert.match(css,/#workspace \.side #nav nav button\.active\{background:linear-gradient\(100deg,#fc0816,#f51b20\)/);
 });
 
@@ -63,9 +63,11 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
  assert.equal(premium.node('sideShopLogo').src,'https://images.example/loja-id/logo.png');
 });
 
-test('abas Estoque e Pedidos online possuem telas reais, sem prometer pedidos automáticos',()=>{
- assert.match(js,/a\.push\(\['estoque','Estoque'\],\['pedidos','Pedidos online'\]\)/);
- assert.match(js,/tab==='estoque'/);
+test('Produtos incorpora estoque e Pedidos online não promete pedidos automáticos',()=>{
+ assert.match(js,/a\.push\(\['pedidos','Pedidos online'\]\)/);
+ assert.doesNotMatch(js,/\['estoque','Estoque'\]/);
+ assert.doesNotMatch(js,/tab==='estoque'/);
+ assert.match(js,/tab==='produtos'/);
  assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='low'\)/);
  assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='out'\)/);
  assert.match(js,/tab==='pedidos'/);

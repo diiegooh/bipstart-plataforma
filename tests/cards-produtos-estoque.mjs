@@ -36,7 +36,7 @@ test('o estado usa mínimo por produto e diferencia normal, baixo e esgotado',()
  assert.equal(productStockState(product({stock:5,min_stock:5})).state,'low');
 });
 
-test('cadastro e estoque exibem cards quadrados com foto e todas as informações',()=>{
+test('Produtos exibe cards com foto e informações de estoque',()=>{
  const {productCard,productGrid}=cardSystem([product()]);
  const html=productCard(product());
  assert.match(html,/class="inventory-card"/);
@@ -65,7 +65,7 @@ test('cards exibem foto de substituição e protegem contra HTML malicioso',()=>
  assert.match(html,/&lt;script&gt;/);
 });
 
-test('formulário em Produtos/Estoque mostra e preserva mínimo; Cardápio não altera estoque',()=>{
+test('formulário em Produtos preserva estoque mínimo; Cardápio não altera saldo',()=>{
  const start=client.indexOf('function productForm(p){');
  const end=client.indexOf('function courierForm(c)',start);
  assert.ok(start>0&&end>start);
@@ -76,20 +76,18 @@ test('formulário em Produtos/Estoque mostra e preserva mínimo; Cardápio não 
     (_kind,_id,inside)=>'<form id="productForm">'+inside+'</form>',
     ()=>'<option>Geral</option>',esc)(product());
  }
- for(const mode of ['produtos','estoque']){
-  const html=renderForm(mode);
-  assert.match(html,/name="min_stock" value="10"/);
-  assert.match(html,/name="stock" value="13"/);
-  assert.match(html,/name="image"/);
- }
+ const html=renderForm('produtos');
+ assert.match(html,/name="min_stock" value="10"/);
+ assert.match(html,/name="stock" value="13"/);
+ assert.match(html,/name="image"/);
  assert.doesNotMatch(renderForm('cardapio'),/name="min_stock"/);
  assert.match(client,/cost:Number\(v\.cost\),stock:Number\(v\.stock\),min_stock:Number\(v\.min_stock\)/);
  assert.match(client,/!Number\.isInteger\(body\.min_stock\)\|\|body\.min_stock<0/);
 });
 
-test('abas compartilham o catálogo de cards e avisam usando mínimo individual',()=>{
+test('aba Produtos reúne cards e avisos de estoque mínimo individual',()=>{
  assert.match(client,/tab==='produtos'/);
- assert.match(client,/tab==='estoque'/);
+ assert.doesNotMatch(client,/tab==='estoque'/);
  assert.match(client,/content\+=productGrid\(\)/);
  assert.match(client,/products\.filter\(p=>productStockState\(p\)\.state==='low'\)/);
  assert.match(client,/products\.filter\(p=>productStockState\(p\)\.state==='out'\)/);

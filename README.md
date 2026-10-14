@@ -34,15 +34,15 @@ Solicitações de mudança ficam armazenadas no Supabase e podem ser gerenciadas
 
 ## Coluna de operação da loja
 
-Dentro do **PDV + CARDÁPIO**, o menu lateral segue a navegação visual da Godzilla Adega: **PDV, Produtos, Estoque, Pedidos online, Motoboys, Vendas**. O topo mostra a logo e o nome da loja; o rodapé oferece **Alterar cor** (Premium), **Abrir cardápio** e **Sair**. O Básico vê o recurso de motoboys identificado como Premium e sem acesso, enquanto a opção de cores informa a restrição. Configurações ficam no ícone de engrenagem ao lado do nome da loja. No celular, a coluna abre pelo botão Menu e mantém layout vertical.
+Dentro do **PDV + CARDÁPIO**, o menu lateral segue a navegação visual da Godzilla Adega: **PDV, Produtos, Pedidos online, Motoboys, Vendas**. O topo mostra a logo e o nome da loja; o rodapé oferece **Alterar cor** (Premium), **Abrir cardápio** e **Sair**. O Básico vê o recurso de motoboys identificado como Premium e sem acesso, enquanto a opção de cores informa a restrição. Configurações ficam no ícone de engrenagem ao lado do nome da loja. No celular, a coluna abre pelo botão Menu e mantém layout vertical.
 
-**Pedidos online:** a lista não recebe pedidos automaticamente; as solicitações são enviadas ao WhatsApp do lojista. Esta tela explica a etapa manual, permite compartilhar/gerenciar o cardápio e, no Premium, acessar a fila de entregas. **Estoque** apresenta quantidade e sinaliza itens esgotados e baixos. Não há alteração no banco de dados por causa da barra lateral.
+**Pedidos online:** a lista não recebe pedidos automaticamente; as solicitações são enviadas ao WhatsApp do lojista. Esta tela explica a etapa manual, permite compartilhar/gerenciar o cardápio e, no Premium, acessar a fila de entregas. **Produtos** reúne cadastro, quantidades e alertas de estoque baixo ou esgotado. Não existe uma aba separada para estoque. Não há alteração no banco de dados por causa da barra lateral.
 
-## Cards de cadastro e estoque — 14/10/2026
+## Cards de produtos com controle de estoque — 14/10/2026
 
-As abas **Produtos** (cadastro) e **Estoque** exibem uma grade responsiva de cartões individuais por produto, com foto (ou imagem neutra), nome, categoria, preço de venda, preço de custo, **quantidade atual**, **estoque mínimo** e botão **Editar**. No celular, a grade adapta o número de colunas.
+A aba **Produtos** exibe uma grade responsiva de cartões individuais por produto, com foto (ou imagem neutra), nome, categoria, preço de venda, preço de custo, **quantidade atual**, **estoque mínimo** e botão **Editar**. No celular, a grade adapta o número de colunas.
 
-O status depende do mínimo de cada produto: **Sem estoque** (saldo zero), **Estoque baixo** (saldo positivo menor ou igual ao mínimo) e **Estoque normal** (saldo maior que o mínimo). A cor diferencia as situações e o saldo é atualizado após vendas concluídas no PDV. O formulário permite configurar o mínimo por item. A migração `sql/bipstart_product_min_stock_20261014.sql` adiciona `shop_products.min_stock` com valor inicial 5 e restrição para não negativos; não altera o saldo, o preço nem os produtos existentes.
+No topo da aba Produtos também há contadores de itens cadastrados, estoque baixo e sem estoque. O status depende do mínimo de cada produto: **Sem estoque** (saldo zero), **Estoque baixo** (saldo positivo menor ou igual ao mínimo) e **Estoque normal** (saldo maior que o mínimo). A cor diferencia as situações e o saldo é atualizado após vendas concluídas no PDV. O formulário permite configurar o mínimo por item. A migração `sql/bipstart_product_min_stock_20261014.sql` adiciona `shop_products.min_stock` com valor inicial 5 e restrição para não negativos; não altera o saldo, o preço nem os produtos existentes.
 
 ## Projeto técnico
 
