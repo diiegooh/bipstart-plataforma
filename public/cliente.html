@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#100721"><title>Minha loja • BipStart</title>
-<link rel="stylesheet" href="/cliente.css?v=7">
+<link rel="stylesheet" href="/cliente.css?v=8">
 </head>
 <body>
 <header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><a href="/">Conhecer os planos</a> <button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
@@ -70,16 +70,13 @@
     </div>
   </section>
   <section id="workspace" class="hidden">
-    <div class="heading">
-      <button type="button" id="sideToggle" class="side-toggle ghost" aria-label="Abrir menu da loja" aria-controls="sidebar" aria-expanded="false">☰ <span>Menu</span></button>
-      <div class="workspace-heading-copy"><span class="kicker">PAINEL BIPSTART</span><h1 id="shopName">Minha loja</h1><p id="shopStatus" class="muted"></p></div>
-      <div class="workspace-top-actions"><button type="button" id="backToModes" class="ghost">← Voltar às opções</button><a id="publicMenuLink" class="ghost hidden" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a><button type="button" id="switchShop" class="ghost">Ver planos</button></div>
+    <div class="pdv-mobile-menu">
+      <button type="button" id="sideToggle" class="side-toggle ghost" aria-label="Abrir menu da loja" aria-controls="sidebar" aria-expanded="false">☰ <span>Menu da loja</span></button>
     </div>
     <div id="sideBackdrop" class="side-backdrop hidden" aria-hidden="true"></div>
     <div class="dashboard">
       <aside class="side" id="sidebar" aria-label="Central de operação da loja">
         <div class="side-store">
-          <span class="side-logo"><img id="sideShopLogo" src="/bipstart-marca-icon.png" alt="Logotipo da loja"></span>
           <div class="side-store-text"><strong id="sideShopName">Minha loja</strong><small>Central de operação</small></div>
           <button type="button" class="side-settings" id="sideSettings" data-nav="configuracoes" aria-label="Configurações da loja" title="Configurações da loja">⚙</button>
         </div>
@@ -87,7 +84,10 @@
         <div class="side-actions">
           <button type="button" id="sideColor" class="side-action"><span aria-hidden="true">🎨</span><span>Alterar cor</span><small id="sideColorPremium" class="hidden">Premium</small></button>
           <a id="sideOpenMenu" class="side-action" href="/cardapio" target="_blank" rel="noopener noreferrer"><span>Abrir cardápio ↗</span></a>
-          <button type="button" id="sideLogout" class="side-action">Sair</button>
+          <div class="side-actions-row">
+            <button type="button" id="backToModes" class="side-action">Voltar às opções</button>
+            <button type="button" id="sideLogout" class="side-action">Sair</button>
+          </div>
         </div>
       </aside>
       <div class="content"><div id="page"></div></div>
@@ -95,5 +95,5 @@
   </section>
 </main>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=13" defer></script>
+<script src="/cliente.js?v=14" defer></script>
 </body></html>
