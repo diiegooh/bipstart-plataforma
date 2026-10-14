@@ -88,7 +88,7 @@ test('formulário em Produtos preserva estoque mínimo; Cardápio não altera sa
 test('aba Produtos reúne cards e avisos de estoque mínimo individual',()=>{
  assert.match(client,/tab==='produtos'/);
  assert.doesNotMatch(client,/tab==='estoque'/);
- assert.match(client,/content\+=productGrid\(\)/);
+ assert.match(client,/content\+=productGrid\(selectedCategoryFilter\)/);
  assert.match(client,/products\.filter\(p=>productStockState\(p\)\.state==='low'\)/);
  assert.match(client,/products\.filter\(p=>productStockState\(p\)\.state==='out'\)/);
  assert.match(client,/document\.getElementById\('productForm'\)\?\.scrollIntoView/);
