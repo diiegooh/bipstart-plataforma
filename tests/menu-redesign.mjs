@@ -82,6 +82,8 @@ test('SQL preserva dados existentes e restringe logo aos planos adequados',()=>{
  assert.match(sql,/create policy menu_categories_owner_read/);
  assert.match(sql,/public\.can_write_shop\(shop_id\)/);
  assert.match(sql,/bipstart_guard_shop_logo/);
+ assert.match(sql,/before insert or update on public\.shops/);
+ assert.match(sql,/if TG_OP='INSERT'/);
  assert.match(sql,/public\.bipstart_can_customize\(new\.id\)/);
  assert.match(sql,/when e\.plan_code in \('personalizado','pro'\)/);
  assert.match(sql,/e\.status='trialing'/);
@@ -94,6 +96,7 @@ test('HTML tem controle de categorias, carrinho e informações da loja',()=>{
  }
  assert.match(css,/\.category\[open\]/);
  assert.match(html,/cardapio\.css\?v=1/);
+ assert.match(publicJS,/<img src="\/bipstart-logo\.svg" alt="Logo BipStart">/);
  assert.match(html,/cardapio\.js\?v=3/);
  assert.match(readFileSync('server.mjs','utf8'),/cardapio\.css/);
 });
