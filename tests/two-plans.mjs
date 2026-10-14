@@ -72,3 +72,29 @@ test('RLS e planos do banco impedem agenda e assinatura intermediária',()=>{
  assert.match(sql,/case when e\.plan_code='pro' then s\.brand_color else '#7c3aed' end/);
  assert.doesNotMatch(sql,/truncate|delete from public\.shops|drop table/i);
 });
+
+
+test('preços apresentados são Básico R$ 29,90 e Premium R$ 79,90',()=>{
+ const files=[
+  'public/index.html','public/cliente.html','public/cliente.js',
+  'public/admin.html','public/app.js','README.md',
+  'WHATSAPP_PLANOS_MANUAL.md','PROMPT_REDESIGN_CARDAPIO_BIPSTART.md',
+  'MOTOBOYS_PLANO_PRO.md'
+ ];
+ for(const path of files){
+  const content=readFileSync(path,'utf8');
+  assert.doesNotMatch(content,/R\$\s*(?:29,99|99,90|49,99)/,path);
+ }
+ const signup=readFileSync('public/cliente.html','utf8');
+ const front=readFileSync('public/index.html','utf8');
+ const admin=readFileSync('public/admin.html','utf8');
+ assert.match(front,/R\$ <strong>29,90<\/strong>/);
+ assert.match(front,/R\$ <strong>79,90<\/strong>/);
+ assert.match(signup,/Básico — R\$ 29,90/);
+ assert.match(signup,/Premium — R\$ 79,90\/mês/);
+ assert.match(admin,/Premium custa R\$ 79,90/);
+ assert.match(client,/const planPrices=\{basic:'R\$ 29,90 \(pagamento único\)',pro:'R\$ 79,90\/mês'\}/);
+ assert.match(app,/change===3\?'R\$ 79,90 por mês':fmt\(29\.90\)/);
+ assert.match(front,/\/app\.js\?v=3/);
+ assert.match(signup,/\/cliente\.js\?v=7/);
+});
