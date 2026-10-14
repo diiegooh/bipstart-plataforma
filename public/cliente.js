@@ -233,7 +233,7 @@ async function reloadData(){
 function pages(){
   const a=[['resumo','Visão geral']];
   a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['cardapio','Meu cardápio'],['vendas','Histórico de vendas']);
-  a.push(['estoque','Estoque'],['pedidos','Pedidos online']);
+  a.push(['pedidos','Pedidos online']);
   if(proAccess())a.push(['motoboys','Motoboys'],['entregas','Entregas']);
   if(canCustomize())a.push(['personalizar','Mudanças e suporte']);
   a.push(['configuracoes','Configurações']);
@@ -243,7 +243,6 @@ function operationalMenuItems(){
   return [
     ['caixa','PDV','🛒'],
     ['produtos','Produtos','📦'],
-    ['estoque','Estoque','📊'],
     ['pedidos','Pedidos online','🚚'],
     ['motoboys','Motoboys','🛵'],
     ['vendas','Vendas','💰']
@@ -303,7 +302,7 @@ function publicLinkTile(){
 function imageUrl(path){if(!path)return '';return cfg.supabaseUrl+'/storage/v1/object/public/bipstart-images/'+path.split('/').map(encodeURIComponent).join('/')}
 function editBtn(kind,id){return '<button data-edit="'+esc(kind)+'" data-id="'+esc(id)+'">Editar</button>'}
 function productRows(){
-  return products.length?'<div class="stack">'+products.map(p=>'<div class="item">'+(p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="">':'')+'<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' • '+fmt(p.price)+((tab==='produtos'||tab==='estoque')?' • Estoque: '+esc(p.stock):'')+'</small>'+
+  return products.length?'<div class="stack">'+products.map(p=>'<div class="item">'+(p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="">':'')+'<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' • '+fmt(p.price)+(tab==='produtos'?' • Estoque: '+esc(p.stock):'')+'</small>'+
    (tab==='cardapio'&&p.description?'<p class="muted small">'+esc(p.description)+'</p>':'')+'</div><div class="actions">'+editBtn('product',p.id)+'</div></div>').join('')+'</div>':empty('Cadastre o primeiro produto.')
 }
 function productStockState(product){
@@ -457,14 +456,9 @@ function renderPage(){
   }else if(tab==='cardapio'){
     content=cardapioEditor();
   }else if(tab==='produtos'){
-    content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','Cada produto em um card com foto, preços, estoque e quantidade mínima.',
-      '<button type="button" class="button" data-new="product">+ Novo produto</button>');
-    content+=showForm?.kind==='product'?productForm(showForm.value):'';
-    content+=productGrid();
-  }else if(tab==='estoque'){
     const lowStock=products.filter(p=>productStockState(p).state==='low').length;
     const outOfStock=products.filter(p=>productStockState(p).state==='out').length;
-    content='<div class="inventory-kicker">CONTROLE</div>'+heading('Estoque','Itens que atingem ou ficam abaixo do estoque mínimo são destacados automaticamente.',
+    content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','Cadastre produtos e acompanhe fotos, preços, quantidades e estoque mínimo na mesma tela.',
       '<button type="button" class="button" data-new="product">+ Novo produto</button>');
     content+='<div class="grid stock-stats">'+tile('Produtos cadastrados',products.length)+tile('Estoque baixo',lowStock)+tile('Sem estoque',outOfStock)+'</div>';
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
