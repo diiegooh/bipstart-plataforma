@@ -200,7 +200,7 @@ async function openShop(){
   $('shopStatus').textContent=trialValid()?'Avaliação gratuita até '+new Date(ent.trial_until).toLocaleString('pt-BR'):
     'Plano '+(plans[ent.plan_code]||'')+' ativo'+(ent.active_until?' até '+new Date(ent.active_until).toLocaleDateString('pt-BR'):'');
   hiding('publicMenuLink',shop.model==='cardapio');
-  if(shop.model==='cardapio')$('publicMenuLink').href='/cardapio?loja='+encodeURIComponent(shop.slug);
+  if(shop.model==='cardapio')$('publicMenuLink').href=publicShopUrl();
   await reloadData();renderNav();renderPage();
 }
 async function reloadData(){
@@ -234,6 +234,22 @@ function renderNav(){
 function heading(title,subtitle,action=''){return '<div class="toolbar"><div><h2>'+esc(title)+'</h2><p class="muted">'+esc(subtitle)+'</p></div>'+action+'</div>'}
 function empty(t='Nenhum registro até agora.'){return '<div class="empty">'+esc(t)+'</div>'}
 function tile(t,v,sub){return '<div class="tile"><small>'+esc(t)+'</small><strong>'+esc(v)+'</strong><small>'+esc(sub||'')+'</small></div>'}
+function publicShopUrl(){
+  return location.origin+'/cardapio?loja='+encodeURIComponent(shop.slug);
+}
+function publicLinkTile(){
+  const url=publicShopUrl();
+  const whatsapp='https://wa.me/?text='+encodeURIComponent('Confira o cardápio da '+shop.name+': '+url);
+  return '<div class="tile public-link-tile">'+
+    '<small>Link público do cardápio</small>'+
+    '<a class="public-link-url" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" title="Abrir meu cardápio">'+esc(url)+'</a>'+
+    '<div class="public-share-actions">'+
+      '<button type="button" class="button share-primary" data-share-shop>Compartilhar ↗</button>'+
+      '<button type="button" class="ghost" data-copy-shop>Copiar link</button>'+
+      '<a class="ghost" href="'+esc(whatsapp)+'" target="_blank" rel="noopener noreferrer">WhatsApp</a>'+
+    '</div></div>';
+}
+
 function imageUrl(path){if(!path)return '';return cfg.supabaseUrl+'/storage/v1/object/public/bipstart-images/'+path.split('/').map(encodeURIComponent).join('/')}
 function editBtn(kind,id){return '<button data-edit="'+esc(kind)+'" data-id="'+esc(id)+'">Editar</button>'}
 function productRows(){
@@ -249,7 +265,7 @@ function renderPage(){
       +'<div class="grid">'+tile('Modelo',models[shop.model])+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',trialValid()?'Teste gratuito':'Ativo')+'</div>';
     if(shop.model==='pdv')content+='<div class="grid">'+tile('Produtos',products.length)+tile('Vendas',sales.length)+tile('Total vendido',fmt(sales.reduce((a,s)=>a+Number(s.total),0)))+'</div>';
     if(shop.model==='agenda')content+='<div class="grid">'+tile('Serviços',services.length)+tile('Agendamentos',appointments.length)+'</div>';
-    if(shop.model==='cardapio')content+='<div class="grid">'+tile('Itens cadastrados',products.length)+tile('Link público',shop.slug)+'</div>';
+    if(shop.model==='cardapio')content+='<div class="grid public-overview-grid">'+tile('Itens cadastrados',products.length)+publicLinkTile()+'</div>';
   }else if(tab==='produtos'||tab==='cardapio'){
     content=heading(tab==='cardapio'?'Meu cardápio':'Produtos e estoque','Cadastre itens, preços, imagens e quantidades.','<button class="button" data-new="product">+ Novo item</button>');
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
@@ -429,6 +445,28 @@ document.addEventListener('paste',e=>{
 });
 document.addEventListener('change',e=>{if(e.target.matches('#productForm input[name=image]')){pastedProductImage=null;const preview=document.querySelector('[data-image-preview]');if(preview)preview.replaceChildren();}});
 document.addEventListener('click',async e=>{
+  const share=e.target.closest('[data-share-shop]');
+  const copy=e.target.closest('[data-copy-shop]');
+  if(share||copy){
+    if(!shop||shop.model!=='cardapio'||!hasAccess())return;
+    const url=publicShopUrl();
+    if(share&&typeof navigator.share==='function'){
+      try{
+        await navigator.share({title:'Cardápio • '+shop.name,text:'Confira nosso cardápio!',url});
+        return;
+      }catch(error){
+        if(error?.name==='AbortError')return;
+      }
+    }
+    try{
+      if(!navigator.clipboard?.writeText)throw Error('Área de transferência indisponível');
+      await navigator.clipboard.writeText(url);
+      msg('Link do cardápio copiado! Compartilhe onde quiser.');
+    }catch{
+      window.prompt('Copie o link do cardápio:',url);
+    }
+    return;
+  }
   const pasteArea=e.target.closest('[data-image-paste]');if(pasteArea){pasteArea.focus();return}
   const nav=e.target.closest('[data-nav]');if(nav){tab=nav.dataset.nav;showForm=null;pastedProductImage=null;renderPage();return}
   const add=e.target.closest('[data-new]');if(add){showForm={kind:add.dataset.new,value:null};pastedProductImage=null;renderPage();return}
