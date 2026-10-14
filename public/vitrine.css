@@ -74,3 +74,11 @@
  .onlinecart{padding-bottom:calc(20px + env(safe-area-inset-bottom))}
 }
 @media(prefers-reduced-motion:reduce){.dproduct{transition:none}.onlinecart{transition:none}}
+
+/* Link de gestão visível apenas para lojista autenticado e proprietário. */
+.owner-editor-link{display:inline-flex;align-items:center;justify-content:center;min-height:40px;white-space:nowrap;text-decoration:none;font-size:12px;font-weight:850;color:var(--green);background:#131b16;border:1px solid var(--green);border-radius:12px;padding:9px 11px}
+.owner-editor-link:hover{background:#1d271d}
+.owner-editor-link:focus-visible{outline:3px solid var(--green);outline-offset:3px}
+.stock-notice{display:block;margin-top:8px;color:#ffc5c5;font-size:12px;font-weight:850}
+.dproduct .btn:disabled{background:#252d25!important;color:#a8b3a9!important;opacity:.82;cursor:not-allowed;border:1px solid #4b594b;box-shadow:none}
+@media(max-width:600px){.owner-editor-link{font-size:10px;min-height:35px;white-space:normal;max-width:100px;text-align:center;padding:6px}}

@@ -13,10 +13,10 @@ A BipStart é uma plataforma para pequenos negócios, com painel de loja e card�
 
 Depois de entrar na conta confirmada e com plano vigente, o lojista vê duas opções:
 
-- **CARDÁPIO:** abre **diretamente** `/cardapio?loja=SLUG` (sem editor ou painel intermediário). A vitrine utiliza o layout do delivery da Godzilla como referência, mas as informações e as imagens pertencem à loja BipStart: banner, logo, categorias dinâmicas, busca, produtos, carrinho, entrega/retirada e pedido enviado ao WhatsApp do estabelecimento. A opção `Meu cardápio` continua disponível na navegação do PDV para **cadastrar e editar** categorias, produtos, preços e fotos.
+- **CARDÁPIO:** abre **diretamente** `/cardapio?loja=SLUG` (sem editor ou painel intermediário). A vitrine utiliza o layout do delivery da Godzilla como referência, mas as informações e as imagens pertencem à loja BipStart: banner, logo, categorias dinâmicas, busca, produtos, carrinho, entrega/retirada e pedido enviado ao WhatsApp do estabelecimento. O lojista autenticado e dono da loja vê o botão **Gerenciar cardápio** na vitrine, que abre diretamente o editor em `/cliente?editar=cardapio`; visitantes não veem esse atalho. O editor também fica disponível na navegação do PDV para **cadastrar e editar** categorias, produtos, preços e fotos.
 - **PDV + CARDÁPIO:** abre **diretamente a frente de caixa** inspirada no projeto privado `diiegooh/godzilla-adega`, sem passar por visão geral. A tela apresenta grade de produtos, busca, filtro por categoria, carrinho lateral, dinheiro/Pix/cartões, troco em dinheiro e simulação informativa de taxas. O botão `Abrir cardápio` aponta para o mesmo cardápio público da loja.
 
-Ambas as opções operam a **mesma loja e o mesmo cadastro de produtos**. O PDV continua salvando vendas pela função protegida `bipstart_complete_sale` do Supabase, com baixa de estoque; nenhuma cobrança de cartão ou Pix é processada na BipStart. A simulação de taxas não é gravada como lançamento financeiro.
+Ambas as opções operam a **mesma loja e o mesmo cadastro de produtos**. O PDV continua salvando vendas pela função protegida `bipstart_complete_sale` do Supabase, com baixa de estoque; nenhuma cobrança de cartão ou Pix é processada na BipStart. A simulação de taxas não é gravada como lançamento financeiro. Produtos sem estoque são marcados como **Esgotado** na vitrine pública. Antes de abrir o WhatsApp, o sistema consulta o catálogo novamente e informa se algum item esgotou ou mudou de preço. **Pedidos por WhatsApp não reservam estoque nem criam vendas automaticamente**; o estabelecimento ainda deve confirmar e registrar o pedido.
 
 Os repositórios e os dados da Godzilla Adega não são alterados: a BipStart usa apenas a referência de interface do cardápio e do PDV. Cada lojista continua isolado no Supabase da BipStart; o cardápio de clientes não acessa nem utiliza senhas ou dados da Godzilla.
 
@@ -38,7 +38,8 @@ Solicitações de mudança ficam armazenadas no Supabase e podem ser gerenciadas
 - Frontends: `public/cliente.js`, `public/vitrine.js` (vitrine no endereço `/cardapio`), `public/cardapio.js` (layout anterior em `/cardapio.html`), `public/motoboy.js` e `public/admin.js`.
 - Banco de dados: Supabase com migrations versionadas em `sql/`.
 - Migração dos dois planos: `sql/bipstart_two_plans_unified_20261014.sql`, aplicada em 14/10/2026 ao projeto BipStart.
-- Testes: `npm test` e GitHub Actions `Validar BipStart`; nova cobertura em `tests/vitrine-godzilla.mjs`.
+- Disponibilidade no cardápio público: `sql/bipstart_public_menu_stock_20261014.sql` (adiciona apenas o indicador booleano `in_stock` sem divulgar a quantidade exata); executar e validar no mesmo projeto Supabase antes do deploy do frontend.
+- Testes: `npm test` e GitHub Actions `Validar BipStart`; cobertura em `tests/vitrine-godzilla.mjs` e `tests/cardapio-gestao-estoque.mjs`.
 
 ## Desenvolvimento e homologação
 
@@ -49,6 +50,6 @@ npm start
 
 As variáveis de ambiente necessárias para as páginas com autenticação são `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` e, quando configurado, `TURNSTILE_SITE_KEY`. Nunca exponha uma chave secreta do Supabase no navegador.
 
-Branch de homologação: `feature/whatsapp-planos-manual-20261013`. O fluxo de acesso direto está em revisão na branch `feature/acesso-direto-godzilla-20261014` (PR #9 para a branch de homologação). O serviço Northflank `bipstart-homologacao` permite testar atualizações sem mesclar em `main`, que alimenta a produção. O deploy da homologação é manual após CI aprovado, seguido de revisão visual e teste real de acesso, pedido WhatsApp e venda PDV.
+Branch de homologação: `feature/whatsapp-planos-manual-20261013`. O fluxo de acesso direto foi integrado via PR #9 à branch de homologação. As correções de gestão e estoque estão em `fix/gestao-cardapio-estoque-20261014` até validação. O serviço Northflank `bipstart-homologacao` permite testar atualizações sem mesclar em `main`, que alimenta a produção. O deploy da homologação é manual após CI aprovado, seguido de revisão visual e teste real de acesso, pedido WhatsApp e venda PDV.
 
 O site original da Salgatti é um projeto separado e não deve ser modificado por mudanças na BipStart.

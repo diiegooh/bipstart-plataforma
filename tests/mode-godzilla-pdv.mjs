@@ -30,7 +30,7 @@ test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do lay
  assert.match(client,/Abrir cardápio ↗/);
  assert.match(html,/id="publicMenuLink"[^>]*>Abrir cardápio ↗<\/a>/);
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
- assert.match(html,/\/cliente\.js\?v=9/);
+ assert.match(html,/\/cliente\.js\?v=10/);
  assert.match(html,/\/cliente\.css\?v=5/);
 });
 function pdv(props={}){
