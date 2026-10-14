@@ -28,7 +28,7 @@ async function wait(){
 }
 try{
   await wait();
-  const files=['/','/style.css','/app.js','/cliente','/cliente.css','/cliente.js','/bipstart-logo.svg','/cardapio','/cardapio.js'];
+  const files=['/','/style.css','/app.js','/cliente','/cliente.css','/cliente.js','/bipstart-logo.svg','/cardapio','/cardapio.js','/motoboy','/motoboy.js','/motoboy.css'];
   for(const file of files){
     const r=await fetch(root+file);
     assert.equal(r.status,200,file);
