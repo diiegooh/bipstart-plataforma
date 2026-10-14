@@ -237,12 +237,14 @@ function tile(t,v,sub){return '<div class="tile"><small>'+esc(t)+'</small><stron
 function publicShopUrl(){
   return location.origin+'/cardapio?loja='+encodeURIComponent(shop.slug);
 }
+function shareTitle(){return 'CARDÁPIO ('+shop.name+')'}
 function publicLinkTile(){
   const url=publicShopUrl();
-  const whatsapp='https://wa.me/?text='+encodeURIComponent('Confira o cardápio da '+shop.name+': '+url);
+  const title=shareTitle();
+  const whatsapp='https://wa.me/?text='+encodeURIComponent(title+'\n'+url);
   return '<div class="tile public-link-tile">'+
     '<small>Link público do cardápio</small>'+
-    '<a class="public-link-url" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" title="Abrir meu cardápio">'+esc(url)+'</a>'+
+    '<a class="public-link-url" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" title="Abrir meu cardápio">'+esc(title)+'</a>'+
     '<div class="public-share-actions">'+
       '<button type="button" class="button share-primary" data-share-shop>Compartilhar ↗</button>'+
       '<button type="button" class="ghost" data-copy-shop>Copiar link</button>'+
@@ -452,7 +454,7 @@ document.addEventListener('click',async e=>{
     const url=publicShopUrl();
     if(share&&typeof navigator.share==='function'){
       try{
-        await navigator.share({title:'Cardápio • '+shop.name,text:'Confira nosso cardápio!',url});
+        await navigator.share({title:shareTitle(),text:shareTitle(),url});
         return;
       }catch(error){
         if(error?.name==='AbortError')return;
