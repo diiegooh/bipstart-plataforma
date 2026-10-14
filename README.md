@@ -4,8 +4,8 @@ A BipStart é uma plataforma para pequenos negócios, com painel de loja e card�
 
 | Plano | Preço de referência | Recursos |
 | --- | --- | --- |
-| **Básico** | **R$ 29,99, pagamento único** | PDV com estoque, vendas e cardápio online com categorias, fotos, preços e carrinho via WhatsApp |
-| **Premium** | **R$ 99,90/mês** | Tudo do Básico, delivery com motoboys próprios, logo e cores próprias, solicitações de mudanças sob avaliação de escopo e suporte mensal |
+| **Básico** | **R$ 29,90, pagamento único** | PDV com estoque, vendas e cardápio online com categorias, fotos, preços e carrinho via WhatsApp |
+| **Premium** | **R$ 79,90/mês** | Tudo do Básico, delivery com motoboys próprios, logo e cores próprias, solicitações de mudanças sob avaliação de escopo e suporte mensal |
 
 **O catálogo comercial tem apenas Básico e Premium.** Cada cliente cria uma única loja com os módulos de PDV e cardápio integrados, compartilhando o mesmo cadastro de produtos.
 
