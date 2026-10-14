@@ -16,7 +16,7 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.match(html,/Alterar cor/);
  assert.match(html,/Abrir cardápio/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=11/);
+ assert.match(html,/cliente\.js\?v=12/);
  assert.match(html,/cliente\.css\?v=6/);
 });
 
@@ -66,8 +66,8 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
 test('abas Estoque e Pedidos online possuem telas reais, sem prometer pedidos automáticos',()=>{
  assert.match(js,/a\.push\(\['estoque','Estoque'\],\['pedidos','Pedidos online'\]\)/);
  assert.match(js,/tab==='estoque'/);
- assert.match(js,/Estoque baixo \(1 a 5\)/);
- assert.match(js,/stock<=0\?'Esgotado':stock<=5\?'Estoque baixo':'Disponível'/);
+ assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='low'\)/);
+ assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='out'\)/);
  assert.match(js,/tab==='pedidos'/);
  assert.match(js,/Os pedidos recebidos por WhatsApp ainda não são importados automaticamente/);
  assert.match(js,/data-nav="cardapio">Gerenciar cardápio/);
