@@ -6,10 +6,10 @@ let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=
 let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
-const plans={basic:'Básico',personalizado:'Personalizado',pro:'Pro'};
-const planPrices={basic:'R$ 29,99 (pagamento único)',personalizado:'R$ 49,99 (pagamento único)',pro:'R$ 99,90/mês'};
+const plans={basic:'Básico',pro:'Premium'};
+const planPrices={basic:'R$ 29,99 (pagamento único)',pro:'R$ 99,90/mês'};
 const BIPSTART_PLAN_WHATSAPP='5511978353820';
-const models={pdv:'PDV com estoque',agenda:'Agenda',cardapio:'Cardápio online'};
+const models={pdv:'PDV com estoque + cardápio online'};
 const hiding=(id,on)=>$(id).classList.toggle('hidden',!on);
 function msg(t,error=false){const box=$('toast');box.textContent=t;box.style.borderColor=error?'#e9768d':'#8052ce';box.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.add('hidden'),5500)}
 function status(t){const box=$('notice');box.textContent=t;box.classList.remove('hidden')}
@@ -161,7 +161,7 @@ function subscriptionValid(){
 }
 function hasAccess(){return trialValid()||subscriptionValid()}
 function proAccess(){return ent?.plan_code==='pro'&&hasAccess()}
-function canCustomize(){return hasAccess()&&['personalizado','pro'].includes(ent?.plan_code)}
+function canCustomize(){return proAccess()}
 function contactUrl(reason='contratacao'){
   const chosen=plans[shop?.requested_plan]||'Básico';
   const price=planPrices[shop?.requested_plan]||planPrices.basic;
@@ -199,15 +199,15 @@ async function openShop(){
   $('shopName').textContent=shop.name;
   $('shopStatus').textContent=trialValid()?'Avaliação gratuita até '+new Date(ent.trial_until).toLocaleString('pt-BR'):
     'Plano '+(plans[ent.plan_code]||'')+' ativo'+(ent.active_until?' até '+new Date(ent.active_until).toLocaleDateString('pt-BR'):'');
-  hiding('publicMenuLink',shop.model==='cardapio');
-  if(shop.model==='cardapio')$('publicMenuLink').href=publicShopUrl();
+  hiding('publicMenuLink',shop.model==='pdv');
+  if(shop.model==='pdv')$('publicMenuLink').href=publicShopUrl();
   await reloadData();renderNav();renderPage();
 }
 async function reloadData(){
   products=[];categories=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];
   const get=(t,fields='*')=>rest(t,{query:{select:fields,shop_id:'eq.'+shop.id,order:'created_at.desc',limit:'200'}});
-  if(shop.model==='pdv'||shop.model==='cardapio')products=await get('shop_products');
-  if(shop.model==='cardapio'){
+  products=await get('shop_products');
+  if(shop.model==='pdv'){
     try{
       categories=(await get('shop_menu_categories')).sort((a,b)=>a.sort_order-b.sort_order||a.name.localeCompare(b.name));
       menuSchemaReady=true;
@@ -217,11 +217,7 @@ async function reloadData(){
       menuSchemaReady=false;
     }
   }
-  if(shop.model==='pdv')sales=await get('shop_sales');
-  if(shop.model==='agenda'){
-    services=await rest('shop_services',{query:{select:'*',shop_id:'eq.'+shop.id}});
-    appointments=await get('shop_appointments');
-  }
+  sales=await get('shop_sales');
   requests=await get('shop_customization_requests');
   if(proAccess()){
     couriers=await rest('shop_couriers',{query:{select:'*',shop_id:'eq.'+shop.id}});
@@ -230,11 +226,9 @@ async function reloadData(){
 }
 function pages(){
   const a=[['resumo','Visão geral']];
-  if(shop.model==='pdv')a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['vendas','Histórico de vendas']);
-  if(shop.model==='agenda')a.push(['agenda','Agendamentos'],['servicos','Serviços']);
-  if(shop.model==='cardapio')a.push(['cardapio','Meu cardápio']);
+  a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['cardapio','Meu cardápio'],['vendas','Histórico de vendas']);
   if(proAccess())a.push(['motoboys','Motoboys'],['entregas','Entregas']);
-  if(canCustomize())a.push(['personalizar','Solicitar personalização']);
+  if(canCustomize())a.push(['personalizar','Mudanças e suporte']);
   a.push(['configuracoes','Configurações']);
   return a;
 }
@@ -265,8 +259,8 @@ function publicLinkTile(){
 function imageUrl(path){if(!path)return '';return cfg.supabaseUrl+'/storage/v1/object/public/bipstart-images/'+path.split('/').map(encodeURIComponent).join('/')}
 function editBtn(kind,id){return '<button data-edit="'+esc(kind)+'" data-id="'+esc(id)+'">Editar</button>'}
 function productRows(){
-  return products.length?'<div class="stack">'+products.map(p=>'<div class="item">'+(p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="">':'')+'<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' • '+fmt(p.price)+(shop.model==='pdv'?' • Estoque: '+esc(p.stock):'')+'</small>'+
-   (shop.model==='cardapio'&&p.description?'<p class="muted small">'+esc(p.description)+'</p>':'')+'</div><div class="actions">'+editBtn('product',p.id)+'</div></div>').join('')+'</div>':empty('Cadastre o primeiro produto.')
+  return products.length?'<div class="stack">'+products.map(p=>'<div class="item">'+(p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="">':'')+'<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' • '+fmt(p.price)+(tab==='produtos'?' • Estoque: '+esc(p.stock):'')+'</small>'+
+   (tab==='cardapio'&&p.description?'<p class="muted small">'+esc(p.description)+'</p>':'')+'</div><div class="actions">'+editBtn('product',p.id)+'</div></div>').join('')+'</div>':empty('Cadastre o primeiro produto.')
 }
 function categoryOptions(selected){
   const names=[...new Set(['Geral',...categories.map(c=>c.name),...products.map(p=>p.category||'Geral')])];
@@ -300,11 +294,11 @@ function renderPage(){
   renderNav();
   let content='';
   if(tab==='resumo'){
-    content=heading('Bem-vindo à BipStart','Seus dados ficam salvos no Supabase e são separados dos demais clientes.')
+    content=heading('Bem-vindo à BipStart','PDV com estoque e cardápio online integrados. Seus dados ficam separados das demais lojas.')
       +'<div class="grid">'+tile('Modelo',models[shop.model])+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',trialValid()?'Teste gratuito':'Ativo')+'</div>';
     if(shop.model==='pdv')content+='<div class="grid">'+tile('Produtos',products.length)+tile('Vendas',sales.length)+tile('Total vendido',fmt(sales.reduce((a,s)=>a+Number(s.total),0)))+'</div>';
     if(shop.model==='agenda')content+='<div class="grid">'+tile('Serviços',services.length)+tile('Agendamentos',appointments.length)+'</div>';
-    if(shop.model==='cardapio')content+='<div class="grid public-overview-grid">'+tile('Itens cadastrados',products.length)+publicLinkTile()+'</div>';
+    if(shop.model==='pdv')content+='<div class="grid public-overview-grid">'+tile('Itens cadastrados',products.length)+publicLinkTile()+'</div>';
   }else if(tab==='cardapio'){
     content=cardapioEditor();
   }else if(tab==='produtos'){
@@ -354,7 +348,7 @@ function renderPage(){
         (d.status==='pendente'?editBtn('delivery',d.id):'')+'</div></div>';
     }).join('')+'</div>':empty();
   }else if(tab==='configuracoes'){
-    const isMenu=shop.model==='cardapio';
+    const isMenu=shop.model==='pdv';
     const paymentChoices=[['pix','Pix'],['credito','Cartão de crédito'],['debito','Cartão de débito'],['dinheiro','Dinheiro']];
     const currentMethods=Array.isArray(shop.payment_methods)?shop.payment_methods:['pix','dinheiro'];
     const logoAllowed=canCustomize()&&isMenu;
@@ -364,7 +358,7 @@ function renderPage(){
       '<label>Inserir logo próprio (JPG, PNG ou WebP, até 5 MB)<input name="logo" type="file" accept="image/png,image/jpeg,image/webp"></label>'+
       (shop.logo_path?'<label><input type="checkbox" name="remove_logo"> Remover logo atual</label>':'')+
       '</div>':
-      (isMenu?'<p class="muted">Logo próprio disponível nos planos Personalizado e Pro com acesso vigente. O Básico utiliza a identidade BipStart.</p>':'');
+      (isMenu?'<p class="muted">Logo própria e cores personalizadas são exclusivas do Premium vigente. O Básico utiliza a identidade BipStart.</p>':'');
     content=heading('Configurações da loja',isMenu?'Defina horário, localização, pagamentos e entrega.':'Nome da empresa, WhatsApp e cor principal.')
       +'<div class="data-form"><form id="settingsForm">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
@@ -380,7 +374,7 @@ function renderPage(){
       +'<button class="button">Salvar configurações</button></form></div>'
       +(isMenu?'<p class="muted">Seu endereço do cardápio é: '+esc(publicShopUrl())+'</p>':'');
   }else if(tab==='personalizar'){
-    content=heading('Solicitar personalização','Conte como quer sua logo, cores, páginas e funcionalidades.')
+    content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
       +'<div class="data-form"><form id="customForm"><label>Descreva sua solicitação<textarea name="details" minlength="10" maxlength="3000" placeholder="Envie sua logo e conte as mudanças desejadas..." required></textarea></label><button class="button">Enviar solicitação</button></form></div>'
       +'<p class="muted small">Sua solicitação ficará registrada para atendimento pela BipStart. O contato e os prazos serão combinados com você.</p>'
       +(requests.length?'<div class="stack">'+requests.map(r=>'<div class="item"><div><strong>'+esc(r.status)+'</strong><small>'+new Date(r.created_at).toLocaleDateString('pt-BR')+'</small><p>'+esc(r.details)+'</p></div></div>').join('')+'</div>':'');
@@ -391,7 +385,7 @@ function field(name,label,type='text',value='',extra=''){return '<label>'+esc(la
 function formShell(kind,id,inside){return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="columns">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
 function productForm(p){
  p=p||{};
- const isMenu=shop.model==='cardapio';
+ const isMenu=tab==='cardapio';
  const categoryField=isMenu?
   '<label>Categoria<select name="category" required>'+categoryOptions(p.category||'Geral')+'</select></label>':
   field('category','Categoria','text',p.category||'Geral');
@@ -480,7 +474,7 @@ async function handleSubmit(form){
     }
     case 'categoryForm':{
       if(!menuSchemaReady)throw Error('Categorias aguardando atualização do banco de dados.');
-      if(shop.model!=='cardapio')throw Error('Categorias disponíveis somente para cardápios.');
+      if(shop.model!=='pdv')throw Error('Categorias disponíveis somente para lojas.');
       const name=String(v.name||'').trim();
       if(name.length<1||name.length>65)throw Error('Informe uma categoria válida (até 65 caracteres).');
       if(categories.some(c=>c.name.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR')))throw Error('Esta categoria já está cadastrada.');
@@ -489,11 +483,11 @@ async function handleSubmit(form){
       break;
     }
     case 'productForm':{
-      if(shop?.model==='cardapio'&&!menuSchemaReady)throw Error('Aguarde a atualização do banco de dados para editar o cardápio.');
+      if(tab==='cardapio'&&!menuSchemaReady)throw Error('Aguarde a atualização do banco de dados para editar o cardápio.');
       const file=pastedProductImage||form.querySelector('input[name=image]').files[0];
       const p=products.find(p=>p.id===id);
       const image_path=file?await uploadImage(file):p?.image_path||null;
-      const isMenu=shop.model==='cardapio';
+      const isMenu=tab==='cardapio';
       const body={
        name:v.name.trim(),category:v.category.trim()||'Geral',price:Number(v.price),image_path,
        ...(isMenu?{description:String(v.description||'').trim()}:{
@@ -555,7 +549,7 @@ async function handleSubmit(form){
       if(whatsapp&&!/^\d{10,13}$/.test(whatsapp))throw Error('Informe um telefone WhatsApp com DDD.');
       if(!v.name?.trim())throw Error('Informe o nome do estabelecimento.');
       const body={name:v.name.trim(),whatsapp:whatsapp||null,brand_color:v.brand_color};
-      if(shop.model==='cardapio'){
+      if(shop.model==='pdv'){
         const methods=[...form.querySelectorAll('input[name=payment_methods]:checked')].map(input=>input.value);
         const fee=Number(v.delivery_fee||0);
         if(!Number.isFinite(fee)||fee<0||fee>9999.99)throw Error('Informe uma taxa de entrega válida.');
@@ -565,7 +559,7 @@ async function handleSubmit(form){
         const file=form.querySelector('input[name=logo]')?.files?.[0];
         const removeLogo=form.querySelector('input[name=remove_logo]')?.checked===true;
         if(file&&removeLogo)throw Error('Escolha entre enviar uma logo ou remover a atual.');
-        if((file||removeLogo)&&!canCustomize())throw Error('Logo próprio disponível apenas no Personalizado ou Pro.');
+        if((file||removeLogo)&&!canCustomize())throw Error('Logo próprio disponível apenas no Premium.');
         if(file)body.logo_path=await uploadImage(file);
         else if(removeLogo)body.logo_path=null;
       }
@@ -575,7 +569,7 @@ async function handleSubmit(form){
       break;
     }
     case 'customForm':{
-      if(!canCustomize())throw Error('Personalização disponível somente nos planos Personalizado e Pro.');
+      if(!canCustomize())throw Error('Mudanças e suporte estão disponíveis apenas no Premium vigente.');
       await rest('shop_customization_requests',{method:'POST',body:{shop_id:shop.id,details:v.details.trim()}});
       msg('Solicitação recebida para acompanhamento.');break;
     }
@@ -604,7 +598,7 @@ document.addEventListener('click',async e=>{
   const share=e.target.closest('[data-share-shop]');
   const copy=e.target.closest('[data-copy-shop]');
   if(share||copy){
-    if(!shop||shop.model!=='cardapio'||!hasAccess())return;
+    if(!shop||shop.model!=='pdv'||!hasAccess())return;
     const url=publicShopUrl();
     if(share&&typeof navigator.share==='function'){
       try{
