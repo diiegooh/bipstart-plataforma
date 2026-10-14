@@ -9,6 +9,7 @@ const html=readFileSync('public/cliente.html','utf8');
 const publicMenu=readFileSync('public/vitrine.js','utf8');
 const previousMenu=readFileSync('public/cardapio.js','utf8');
 const sql=readFileSync('sql/bipstart_menu_price_20261014.sql','utf8');
+const onlineSql=readFileSync('sql/bipstart_online_enabled_20261014.sql','utf8');
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({
  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 }[char]));
@@ -78,8 +79,9 @@ test('o preço diferente aparece nos cards do cadastro, preservando preço do PD
  const c=catalog(goods);
  const price=c.productCard(goods[1]);
  assert.match(price,/R\$ 10\.00/);
- assert.match(price,/Cardápio online: <strong>R\$ 12\.50<\/strong>/);
- assert.doesNotMatch(c.productCard(goods[0]),/Cardápio online:/);
+ assert.match(price,/Venda online: Sim · R\$ 12\.50/);
+ assert.match(c.productCard({...goods[0],online_enabled:false}),/Somente PDV/);
+ assert.doesNotMatch(c.productCard({...goods[0],online_enabled:false}),/Venda online: Sim/);
 });
 
 function renderForm(tab,product={}){
@@ -89,24 +91,33 @@ function renderForm(tab,product={}){
  return new Function('tab','field','formShell','categoryOptions','esc',
     js.slice(begin,end)+';return productForm;')(
   tab,
-  (name,label,_type,val)=>'<input name="'+name+'" value="'+esc(val)+'">',
+  (name,label,_type,val,extra='')=>'<label>'+esc(label)+'<input name="'+name+'" value="'+esc(val)+'" '+extra+'></label>',
   (_kind,_id,content)=>'<form id="productForm">'+content+'</form>',
   ()=>'<option>Geral</option>',esc)(product);
 }
-test('o formulário mantém preço do PDV e permite ativar preço online em ambos editores',()=>{
+test('o formulário pergunta Venda online? e exige valor apenas no Sim',()=>{
  for(const tab of ['produtos','cardapio']){
-  const product=renderForm(tab,goods[1]);
-  assert.match(product,/name="price" value="10"/);
-  assert.match(product,/name="menu_price" value="12.5"/);
-  assert.match(product,/name="menu_price_enabled" checked/);
-  assert.match(product,/Usar preço diferente no cardápio online/);
+  const form=renderForm(tab,{...goods[1],online_enabled:true});
+  assert.match(form,/name="price" value="10"/);
+  assert.match(form,/name="menu_price" value="12.5"/);
+  assert.match(form,/name="online_enabled" required/);
+  assert.match(form,/value="true" selected/);
+  assert.match(form,/Valor no cardápio online/);
+  assert.match(form,/Venda online\?/);
+  assert.match(form,/name="menu_price"[^>]*required/);
+  const no=renderForm(tab,{...goods[1],online_enabled:false});
+  assert.match(no,/value="false" selected/);
+  assert.match(no,/online-sale-price hidden/);
+  assert.match(no,/name="menu_price"[^>]*disabled/);
  }
- assert.doesNotMatch(renderForm('produtos',goods[0]),/name="menu_price_enabled" checked/);
- assert.match(js,/menu_price_enabled:form\.querySelector\('input\[name="menu_price_enabled"\]'\)\.checked/);
- assert.match(js,/body\.menu_price_enabled&&body\.menu_price===null/);
+ const fresh=renderForm('produtos');
+ assert.match(fresh,/value="" selected disabled>Selecione Sim ou Não/);
+ assert.match(js,/online_enabled:v\.online_enabled==='true'/);
+ assert.match(js,/menu_price_enabled:v\.online_enabled==='true'/);
+ assert.match(js,/body\.online_enabled&&\(!String\(v\.menu_price/);
  assert.match(js,/min_stock:Number\(v\.min_stock\)/);
- assert.match(html,/cliente\.js\?v=15/);
- assert.match(html,/cliente\.css\?v=9/);
+ assert.match(html,/cliente\.js\?v=16/);
+ assert.match(html,/cliente\.css\?v=10/);
 });
 
 test('RPC pública devolve preço efetivo sem expor custo ou estoque exato',()=>{
@@ -124,5 +135,20 @@ test('RPC pública devolve preço efetivo sem expor custo ou estoque exato',()=>
  assert.match(publicMenu,/Number\(fresh\.price\)!==oldPrices\.get\(id\)/);
  assert.match(previousMenu,/item\.price/);
  assert.match(js,/price:Number\(v\.price\)/);
+ assert.match(js,/rpc\('bipstart_complete_sale'/);
+});
+
+test('Venda online Não retira o produto da RPC pública sem afetar o PDV',()=>{
+ assert.match(onlineSql,/add column if not exists online_enabled boolean not null default true/);
+ assert.match(onlineSql,/where p\.shop_id=s\.id and p\.active=true and p\.online_enabled=true/);
+ assert.match(onlineSql,/cp\.shop_id=s\.id and cp\.active=true and cp\.online_enabled=true/);
+ assert.match(onlineSql,/p\.menu_price_enabled and p\.menu_price is not null then p\.menu_price else p\.price end/);
+ assert.match(onlineSql,/where s\.slug=p_slug and s\.model='pdv'/);
+ assert.doesNotMatch(onlineSql,/UPDATE\s+public\.shop_products|DELETE\s+FROM\s+public\.shop_products/i);
+ assert.match(js,/const body=\{[\s\S]*online_enabled:v\.online_enabled==='true'/);
+ assert.match(js,/v\.online_enabled==='true'\?Number\(v\.menu_price\):p\?\.menu_price\?\?null/);
+ assert.match(js,/if\(!\['true','false'\]\.includes\(v\.online_enabled\)\)/);
+ assert.match(js,/input\.required=online/);
+ assert.match(js,/group\.classList\.toggle\('hidden',!online\)/);
  assert.match(js,/rpc\('bipstart_complete_sale'/);
 });

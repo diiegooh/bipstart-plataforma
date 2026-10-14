@@ -450,3 +450,19 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 @media(max-width:360px){
  #workspace .inventory-grid.compact{grid-template-columns:1fr}
 }
+
+
+/* Cadastro: Venda online? Sim exige preço; Não mantém o produto apenas no PDV. */
+#workspace .menu-price-controls .online-sale-question{
+ display:block;margin:0 0 10px;font-size:15px;font-weight:850;color:#fff
+}
+#workspace .menu-price-controls .online-sale-question select{
+ display:block;width:100%;margin-top:7px;min-height:44px;
+ border:1px solid #856cb1;border-radius:10px;padding:8px 11px;
+ color:#fff;background:#25193d;font-size:14px;font-weight:700;
+}
+#workspace .menu-price-controls .online-sale-price{padding:12px;border:1px solid #4d4270;border-radius:11px;background:#1f1834;margin-bottom:10px}
+#workspace .menu-price-controls .online-sale-price label{margin:0 0 7px;display:block}
+#workspace .menu-price-controls .online-sale-price>small{display:block;line-height:1.5}
+#workspace .inventory-online-status{font-size:11px;color:#bdedce;font-weight:750;line-height:1.4}
+#workspace .inventory-online-status.offline{color:#f4b7b7}
