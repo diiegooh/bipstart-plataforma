@@ -79,7 +79,7 @@ test('o preço diferente aparece nos cards do cadastro, preservando preço do PD
  const c=catalog(goods);
  const price=c.productCard(goods[1]);
  assert.match(price,/R\$ 10\.00/);
- assert.match(price,/Venda online: Sim · R\\$ 12\\.50/);
+ assert.match(price,/Venda online: Sim · R\$ 12\.50/);
  assert.match(c.productCard({...goods[0],online_enabled:false}),/Somente PDV/);
  assert.doesNotMatch(c.productCard({...goods[0],online_enabled:false}),/Venda online: Sim/);
 });
@@ -91,7 +91,7 @@ function renderForm(tab,product={}){
  return new Function('tab','field','formShell','categoryOptions','esc',
     js.slice(begin,end)+';return productForm;')(
   tab,
-  (name,label,_type,val)=>'<input name="'+name+'" value="'+esc(val)+'">',
+  (name,label,_type,val,extra='')=>'<input name="'+name+'" value="'+esc(val)+'" '+extra+'>',
   (_kind,_id,content)=>'<form id="productForm">'+content+'</form>',
   ()=>'<option>Geral</option>',esc)(product);
 }
