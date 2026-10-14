@@ -141,6 +141,7 @@ test('RPC pública devolve preço efetivo sem expor custo ou estoque exato',()=>
 test('Venda online Não retira o produto da RPC pública sem afetar o PDV',()=>{
  assert.match(onlineSql,/add column if not exists online_enabled boolean not null default true/);
  assert.match(onlineSql,/where p\.shop_id=s\.id and p\.active=true and p\.online_enabled=true/);
+ assert.match(onlineSql,/cp\.shop_id=s\.id and cp\.active=true and cp\.online_enabled=true/);
  assert.match(onlineSql,/p\.menu_price_enabled and p\.menu_price is not null then p\.menu_price else p\.price end/);
  assert.match(onlineSql,/where s\.slug=p_slug and s\.model='pdv'/);
  assert.doesNotMatch(onlineSql,/UPDATE\s+public\.shop_products|DELETE\s+FROM\s+public\.shop_products/i);
