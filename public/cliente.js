@@ -268,7 +268,14 @@ function cardapioEditor(){
   const count=products.filter(p=>p.category.toLocaleLowerCase('pt-BR')===cat.name.toLocaleLowerCase('pt-BR')).length;
   return '<div class="menu-category-line"><strong>'+esc(cat.name)+'</strong><small>'+count+' item(ns)</small></div>';
  }).join(''):'<p class="muted">Comece adicionando uma categoria, como Salgados ou Bebidas.</p>';
+ const details=[
+  ['Horário',shop.opening_hours||'Configurar'],
+  ['Localização',shop.location_text||'Configurar'],
+  ['Pagamento',(shop.payment_methods||[]).join(', ')||'Configurar'],
+  ['Entrega',fmt(shop.delivery_fee||0)]
+ ];
  return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.','<button class="button" data-new="product">+ Adicionar item</button>')+
+ '<div class="menu-editor-meta">'+details.map(([label,value])=>'<button type="button" data-nav="configuracoes" title="Editar nas configurações"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></button>').join('')+'</div>'+
  '<div class="menu-editor-grid"><section class="menu-editor-panel"><h3>Categorias</h3>'+
  '<form id="categoryForm" class="menu-category-form"><label>Nova categoria<input type="text" name="name" placeholder="Ex.: Bebidas" required maxlength="65"></label>'+
  '<button class="button" type="submit">+ Adicionar categoria</button></form>'+
