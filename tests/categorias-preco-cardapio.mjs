@@ -91,7 +91,7 @@ function renderForm(tab,product={}){
  return new Function('tab','field','formShell','categoryOptions','esc',
     js.slice(begin,end)+';return productForm;')(
   tab,
-  (name,label,_type,val,extra='')=>'<input name="'+name+'" value="'+esc(val)+'" '+extra+'>',
+  (name,label,_type,val,extra='')=>'<label>'+esc(label)+'<input name="'+name+'" value="'+esc(val)+'" '+extra+'></label>',
   (_kind,_id,content)=>'<form id="productForm">'+content+'</form>',
   ()=>'<option>Geral</option>',esc)(product);
 }
