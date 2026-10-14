@@ -244,7 +244,6 @@ function renderPage(){
   if(tab==='resumo'){
     content=heading('Bem-vindo à BipStart','Seus dados ficam salvos no Supabase e são separados dos demais clientes.')
       +'<div class="grid">'+tile('Modelo',models[shop.model])+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',trialValid()?'Teste gratuito':'Ativo')+'</div>'
-      +'<p class="warn">Planos BipStart: contratação e pagamento combinados pelo WhatsApp, com liberação manual. Não há cobrança automática.</p>'
       +'<p><a class="button" target="_blank" rel="noopener noreferrer" href="'+esc(contactUrl())+'">Solicitar plano pelo WhatsApp</a></p>';
     if(shop.model==='pdv')content+='<div class="grid">'+tile('Produtos',products.length)+tile('Vendas',sales.length)+tile('Total vendido',fmt(sales.reduce((a,s)=>a+Number(s.total),0)))+'</div>';
     if(shop.model==='agenda')content+='<div class="grid">'+tile('Serviços',services.length)+tile('Agendamentos',appointments.length)+'</div>';
