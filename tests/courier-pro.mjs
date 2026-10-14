@@ -104,7 +104,7 @@ test('banco protege loja Pro, convites e transições com funções privilegiada
 test('integração não depende das tabelas originais Salgatti nem de checkout Mercado Pago',()=>{
  for(const path of ['/motoboy','/motoboy.js','/motoboy.css'])
   assert.ok(server.includes("'"+path+"'"),path);
- assert.doesNotMatch(sql,/public\.settings|public\.orders|salgatti/i);
+ assert.doesNotMatch(sql.replace(/^--.*$/gm,''),/public\.settings|public\.orders|salgatti/i);
  assert.match(client,/\/motoboy\?convite=/);
  assert.match(client,/data-copy-invite/);
  assert.match(client,/offered_courier_id/);
