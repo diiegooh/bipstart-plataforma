@@ -234,7 +234,8 @@ function pages(){
   return a;
 }
 function renderNav(){
-  $('nav').innerHTML='<nav>'+pages().map(([id,name])=>'<button type="button" data-nav="'+esc(id)+'" class="'+(tab===id?'active':'')+'">'+esc(name)+'</button>').join('')+'</nav>';
+  const icons={resumo:'⌂',caixa:'🛒',produtos:'📦',cardapio:'▣',vendas:'💰',motoboys:'🛵',entregas:'🚚',personalizar:'🎨',configuracoes:'⚙'};
+  $('nav').innerHTML='<nav>'+pages().map(([id,name])=>'<button type="button" data-nav="'+esc(id)+'" class="'+(tab===id?'active':'')+'"><span aria-hidden="true">'+(icons[id]||'▣')+'</span><b>'+esc(name)+'</b></button>').join('')+'</nav>';
 }
 function heading(title,subtitle,action=''){return '<div class="toolbar"><div><h2>'+esc(title)+'</h2><p class="muted">'+esc(subtitle)+'</p></div>'+action+'</div>'}
 function empty(t='Nenhum registro até agora.'){return '<div class="empty">'+esc(t)+'</div>'}
@@ -337,7 +338,7 @@ function renderGodzillaPDV(){
  const paymentChoices=[['pix','Pix'],['dinheiro','Dinheiro'],['credito','Cartão de crédito'],['debito','Cartão de débito']];
  const choiceHtml=paymentChoices.map(([code,label])=>'<option value="'+code+'"'+(pdvPayment===code?' selected':'')+'>'+label+'</option>').join('');
  return '<div class="godzilla-pdv">'+
- '<div class="pdv-title"><div><span class="kicker">VENDA PRESENCIAL</span><h2>Frente de caixa</h2>'+
+ '<div class="pdv-title"><div><span class="kicker">VENDA PRESENCIAL</span><h2>PDV</h2>'+
  '<p>Produtos, estoque e vendas integrados ao seu cardápio.</p></div>'+
  '<a class="button pdv-menu-link" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a></div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
@@ -674,7 +675,13 @@ document.addEventListener('click',async e=>{
   const mode=e.target.closest('[data-open-mode]');
   if(mode){
     if(!shop||!hasAccess())return;
-    tab=mode.dataset.openMode==='cardapio'?'cardapio':'caixa';
+    if(mode.dataset.openMode==='cardapio'){
+      // A opção Cardápio abre a vitrine pública em tela cheia, sem o editor intermediário.
+      location.assign(publicShopUrl());
+      return;
+    }
+    // O PDV entra diretamente na frente de caixa, mantendo estoque e vendas da loja.
+    tab='caixa';
     showForm=null;pastedProductImage=null;
     hiding('modeChooser',false);hiding('workspace',true);
     renderPage();
