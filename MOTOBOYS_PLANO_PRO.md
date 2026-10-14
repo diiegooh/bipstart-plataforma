@@ -1,9 +1,9 @@
-# Motoboys BipStart — Plano Pro (R$ 99,90/mês)
+# Motoboys BipStart — Plano Premium (R$ 99,90/mês)
 
 ## Funcionalidades
 A área da BipStart adapta o sistema original de entregadores da Salgatti para múltiplas lojas, de maneira isolada.
 
-- **Acesso exclusivo ao Pro vigente** (incluindo a avaliação gratuita do Pro, enquanto válida), validado no navegador e no Supabase.
+- **Acesso exclusivo ao Premium vigente** (incluindo a avaliação gratuita do Premium, enquanto válida), validado no navegador e no Supabase.
 - O lojista cadastra motoboys em **/cliente → Motoboys** e gera convite individual.
 - O motoboy acessa **/motoboy**, cria conta com e-mail, senha e confirmação, e usa convite de uso único.
 - Lojista cadastra entregas manualmente a partir dos pedidos recebidos via WhatsApp, com cliente, endereço, itens e valor.
@@ -12,7 +12,7 @@ A área da BipStart adapta o sistema original de entregadores da Salgatti para m
 - Etapas: **Aceita → Saiu para entrega → Entregue**.
 - Links para Google Maps e Waze, atualização automática a cada 20 segundos.
 - A senha e a sessão usam Supabase Auth, não as credenciais da Salgatti original.
-- Suspensão, vencimento ou mudança do plano Pro bloqueiam o acesso às entregas.
+- Suspensão, vencimento ou mudança do plano Premium bloqueiam o acesso às entregas.
 
 ## Limitações iniciais
 O cliente ainda finaliza o pedido pelo WhatsApp da loja. O lojista o registra manualmente na fila de entregas. Não há criação automática do pedido pelo WhatsApp, cálculo de distância, otimização de múltiplas paradas ou notificações push nesta versão.
