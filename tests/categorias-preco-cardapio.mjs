@@ -116,7 +116,7 @@ test('o formulário pergunta Venda online? e exige valor apenas no Sim',()=>{
  assert.match(js,/menu_price_enabled:v\.online_enabled==='true'/);
  assert.match(js,/body\.online_enabled&&\(!String\(v\.menu_price/);
  assert.match(js,/min_stock:Number\(v\.min_stock\)/);
- assert.match(html,/cliente\.js\?v=16/);
+ assert.match(html,/cliente\.js\?v=17/);
  assert.match(html,/cliente\.css\?v=10/);
 });
 
