@@ -327,13 +327,32 @@ function renderPage(){
     content+=showForm?.kind==='appointment'?appointmentForm(showForm.value):'';
     content+=appointments.length?'<div class="stack">'+appointments.map(a=>'<div class="item"><div><strong>'+esc(a.customer_name)+'</strong><small>'+new Date(a.starts_at).toLocaleString('pt-BR')+' • '+esc(a.status)+'</small></div>'+editBtn('appointment',a.id)+'</div>').join('')+'</div>':empty();
   }else if(tab==='motoboys'){
-    content=heading('Motoboys fixos','Disponível no Plano Pro ativo.','<button class="button" data-new="courier">+ Novo motoboy</button>');
+    content=heading('Motoboys • Plano Pro','Cadastre entregadores e compartilhe os convites de acesso.','<button class="button" data-new="courier">+ Novo motoboy</button>');
+    content+='<p class="muted">Cada motoboy cria sua própria conta e aceita o convite. O acesso é individual e restrito às entregas da loja.</p>';
     content+=showForm?.kind==='courier'?courierForm(showForm.value):'';
-    content+=couriers.length?'<div class="stack">'+couriers.map(c=>'<div class="item"><div><strong>'+esc(c.name)+'</strong><small>'+esc(c.phone||'Sem telefone')+'</small></div>'+editBtn('courier',c.id)+'</div>').join('')+'</div>':empty();
+    content+=couriers.length?'<div class="stack">'+couriers.map(c=>{
+      const link=c.invite_code?location.origin+'/motoboy?convite='+encodeURIComponent(c.invite_code):'';
+      return '<div class="item"><div><strong>'+esc(c.name)+'</strong><small>'+esc(c.phone||'Sem telefone')+
+        ' • '+(c.account_id?'Conta vinculada':'Aguardando aceite do convite')+
+        ' • '+(c.active?'Ativo':'Desativado')+'</small>'+
+        (link?'<p class="muted small">Convite individual: <a target="_blank" rel="noopener noreferrer" href="'+esc(link)+'">'+esc(link)+'</a></p>':'')+
+        '</div><div class="actions">'+(link?'<button type="button" data-copy-invite="'+esc(link)+'">Copiar convite</button>':'')+editBtn('courier',c.id)+'</div></div>';
+    }).join('')+'</div>':empty();
   }else if(tab==='entregas'){
-    content=heading('Entregas','Acompanhe o andamento das entregas próprias.','<button class="button" data-new="delivery">+ Nova entrega</button>');
+    content=heading('Fila de entregas • Plano Pro','Entregas pendentes são oferecidas aos motoboys disponíveis.','<button class="button" data-new="delivery">+ Nova entrega</button>');
+    content+='<p class="muted">Depois de receber o pedido pelo WhatsApp, cadastre aqui a entrega. O primeiro motoboy autorizado que aceitar assume o pedido.</p>';
     content+=showForm?.kind==='delivery'?deliveryForm(showForm.value):'';
-    content+=deliveries.length?'<div class="stack">'+deliveries.map(d=>'<div class="item"><div><strong>'+esc(d.address)+'</strong><small>'+esc(d.status)+'</small></div></div>').join('')+'</div>':empty();
+    const statusNames={pendente:'Aguardando motoboy',atribuida:'Aceita',a_caminho:'Saiu para entrega',entregue:'Entregue',cancelada:'Cancelada'};
+    content+=deliveries.length?'<div class="stack">'+deliveries.map(d=>{
+      const name=couriers.find(c=>c.id===d.courier_id)?.name||'Ainda não atribuída';
+      const mapUrl='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.address);
+      return '<div class="item"><div><strong>'+esc(d.customer_name||'Entrega')+'</strong>'+
+        '<small>'+esc(d.address)+' • '+esc(statusNames[d.status]||d.status)+'</small>'+
+        '<small>Motoboy: '+esc(name)+' • '+fmt(d.total||0)+'</small>'+
+        (d.items_text?'<p class="muted small">'+esc(d.items_text)+'</p>':'')+
+        '</div><div class="actions"><a class="ghost" href="'+esc(mapUrl)+'" target="_blank" rel="noopener noreferrer">Mapa ↗</a>'+
+        (d.status==='pendente'?editBtn('delivery',d.id):'')+'</div></div>';
+    }).join('')+'</div>':empty();
   }else if(tab==='configuracoes'){
     const isMenu=shop.model==='cardapio';
     const paymentChoices=[['pix','Pix'],['credito','Cartão de crédito'],['debito','Cartão de débito'],['dinheiro','Dinheiro']];
@@ -394,10 +413,21 @@ function appointmentForm(a){a=a||{};let dt='';if(a.starts_at){const d=new Date(a
  field('customer_name','Nome do cliente','text',a.customer_name,'required')+field('customer_phone','Telefone','tel',a.customer_phone||'')
  +'<label>Serviço<select name="service_id" required>'+services.map(s=>'<option value="'+esc(s.id)+'" '+(s.id===a.service_id?'selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select></label>'
  +field('starts_at','Data e hora','datetime-local',dt,'required')+field('notes','Observação','text',a.notes||''))}
-function courierForm(c){c=c||{};return formShell('courier',c.id,field('name','Nome','text',c.name,'required')+field('phone','Telefone','tel',c.phone||''))}
-function deliveryForm(d){d=d||{};return formShell('delivery',d.id,field('address','Endereço da entrega','text',d.address,'required')
- +'<label>Motoboy<select name="courier_id"><option value="">Sem atribuição</option>'+couriers.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('')+'</select></label>'
- +'<label>Status<select name="status">'+['pendente','atribuida','a_caminho','entregue','cancelada'].map(s=>'<option value="'+s+'">'+s+'</option>').join('')+'</select></label>')}
+function courierForm(c){c=c||{};return formShell('courier',c.id,
+  field('name','Nome completo','text',c.name,'required maxlength="100"')+
+  field('phone','Telefone ou WhatsApp','tel',c.phone||'','required minlength="10" maxlength="20"')+
+  '<label>Disponibilidade<select name="active"><option value="true"'+(c.active!==false?' selected':'')+'>Ativo</option><option value="false"'+(c.active===false?' selected':'')+'>Desativado</option></select></label>'
+)}
+function deliveryForm(d){d=d||{};return formShell('delivery',d.id,
+  field('customer_name','Cliente','text',d.customer_name||'','required maxlength="120"')+
+  field('customer_phone','Telefone do cliente','tel',d.customer_phone||'','maxlength="20"')+
+  field('address','Endereço da entrega','text',d.address||'','required maxlength="500"')+
+  field('total','Valor dos produtos (R$)','number',d.total??0,'min="0" step="0.01"')+
+  '<label>Itens ou observações<textarea name="items_text" maxlength="3000" placeholder="Ex.: 2x Combo e 1x Refrigerante">'+esc(d.items_text||'')+'</textarea></label>'+
+  '<label>Oferecer para<select name="offered_courier_id"><option value="">Qualquer motoboy disponível</option>'+
+   couriers.filter(c=>c.active).map(c=>'<option value="'+esc(c.id)+'"'+(c.id===d.offered_courier_id?' selected':'')+'>'+esc(c.name)+'</option>').join('')+
+  '</select></label>'
+)
 async function uploadImage(file){
   if(!file)return null;
   if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error('Selecione uma imagem JPG, PNG ou WebP de até 5 MB.');
@@ -496,8 +526,30 @@ async function handleSubmit(form){
       const data=await rpc('bipstart_complete_sale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),p_payment_method:v.payment_method});
       cart=[];msg('Venda registrada: '+fmt(data.total));break;
     }
-    case 'courierForm':await storeForm(form,'shop_couriers',{name:v.name.trim(),phone:v.phone},id);break;
-    case 'deliveryForm':await storeForm(form,'shop_deliveries',{address:v.address.trim(),courier_id:v.courier_id||null,status:v.status},id);break;
+    case 'courierForm':{
+      if(!proAccess())throw Error('Motoboys disponíveis somente no Plano Pro vigente.');
+      const phone=String(v.phone||'').replace(/\D/g,'');
+      if(!v.name?.trim()||phone.length<10||phone.length>13)throw Error('Informe nome e telefone com DDD.');
+      await storeForm(form,'shop_couriers',{name:v.name.trim(),phone,active:v.active!=='false'},id);
+      break;
+    }
+    case 'deliveryForm':{
+      if(!proAccess())throw Error('Entregas disponíveis somente no Plano Pro vigente.');
+      const total=Number(v.total||0);
+      if(!v.customer_name?.trim()||!v.address?.trim()||!Number.isFinite(total)||total<0)
+        throw Error('Informe cliente, endereço e valor válido.');
+      const payload={
+        customer_name:v.customer_name.trim(),customer_phone:String(v.customer_phone||'').trim(),
+        address:v.address.trim(),items_text:String(v.items_text||'').trim(),total,
+        offered_courier_id:v.offered_courier_id||null,status:'pendente',courier_id:null
+      };
+      if(id){
+        const current=deliveries.find(d=>d.id===id);
+        if(!current||current.status!=='pendente')throw Error('Somente entregas pendentes podem ser editadas.');
+        await rest('shop_deliveries',{method:'PATCH',query:{id:'eq.'+id,shop_id:'eq.'+shop.id,status:'eq.pendente'},body:payload});
+      }else await storeForm(form,'shop_deliveries',payload,null);
+      break;
+    }
     case 'settingsForm':{
       const whatsapp=(v.whatsapp||'').replace(/\D/g,'');
       if(whatsapp&&!/^\d{10,13}$/.test(whatsapp))throw Error('Informe um telefone WhatsApp com DDD.');
@@ -569,6 +621,12 @@ document.addEventListener('click',async e=>{
     }catch{
       window.prompt('Copie o link do cardápio:',url);
     }
+    return;
+  }
+  const invite=e.target.closest('[data-copy-invite]');
+  if(invite){
+    try{await navigator.clipboard.writeText(invite.dataset.copyInvite);msg('Link do convite copiado.')}
+    catch{window.prompt('Copie o link do motoboy:',invite.dataset.copyInvite)}
     return;
   }
   const pasteArea=e.target.closest('[data-image-paste]');if(pasteArea){pasteArea.focus();return}
