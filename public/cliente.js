@@ -318,13 +318,31 @@ function renderPage(){
     content+=showForm?.kind==='delivery'?deliveryForm(showForm.value):'';
     content+=deliveries.length?'<div class="stack">'+deliveries.map(d=>'<div class="item"><div><strong>'+esc(d.address)+'</strong><small>'+esc(d.status)+'</small></div></div>').join('')+'</div>':empty();
   }else if(tab==='configuracoes'){
-    content=heading('Configurações da loja','Nome da empresa, WhatsApp e cor principal.')
+    const isMenu=shop.model==='cardapio';
+    const paymentChoices=[['pix','Pix'],['credito','Cartão de crédito'],['debito','Cartão de débito'],['dinheiro','Dinheiro']];
+    const currentMethods=Array.isArray(shop.payment_methods)?shop.payment_methods:['pix','dinheiro'];
+    const logoAllowed=canCustomize()&&isMenu;
+    const logoSection=logoAllowed?
+      '<div class="menu-logo-settings"><h3>Logo do estabelecimento</h3>'+
+      (shop.logo_path?'<img class="menu-logo-preview" src="'+esc(imageUrl(shop.logo_path))+'" alt="Logo atual">':'')+
+      '<label>Inserir logo próprio (JPG, PNG ou WebP, até 5 MB)<input name="logo" type="file" accept="image/png,image/jpeg,image/webp"></label>'+
+      (shop.logo_path?'<label><input type="checkbox" name="remove_logo"> Remover logo atual</label>':'')+
+      '</div>':
+      (isMenu?'<p class="muted">Logo próprio disponível nos planos Personalizado e Pro com acesso vigente. O Básico utiliza a identidade BipStart.</p>':'');
+    content=heading('Configurações da loja',isMenu?'Defina horário, localização, pagamentos e entrega.':'Nome da empresa, WhatsApp e cor principal.')
       +'<div class="data-form"><form id="settingsForm">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
       +field('brand_color','Cor principal','color',shop.brand_color||'#7c3aed')
+      +(isMenu?'<div class="menu-settings">'
+       +field('opening_hours','Horário de atendimento','text',shop.opening_hours||'','maxlength="160" placeholder="Ex.: Segunda a sábado, 18h às 23h"')
+       +field('location_text','Localização ou endereço','text',shop.location_text||'','maxlength="240" placeholder="Ex.: Rua das Flores, 100 — Centro"')
+       +field('delivery_fee','Taxa de entrega (R$)','number',shop.delivery_fee??0,'min="0" max="9999.99" step="0.01"')
+       +'<fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
+        paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
+       +logoSection+'</div>':'')
       +'<button class="button">Salvar configurações</button></form></div>'
-      +'<p class="muted">Seu endereço do cardápio é: '+esc(location.origin+'/cardapio?loja='+shop.slug)+'</p>';
+      +(isMenu?'<p class="muted">Seu endereço do cardápio é: '+esc(publicShopUrl())+'</p>':'');
   }else if(tab==='personalizar'){
     content=heading('Solicitar personalização','Conte como quer sua logo, cores, páginas e funcionalidades.')
       +'<div class="data-form"><form id="customForm"><label>Descreva sua solicitação<textarea name="details" minlength="10" maxlength="3000" placeholder="Envie sua logo e conte as mudanças desejadas..." required></textarea></label><button class="button">Enviar solicitação</button></form></div>'
@@ -464,8 +482,24 @@ async function handleSubmit(form){
     case 'settingsForm':{
       const whatsapp=(v.whatsapp||'').replace(/\D/g,'');
       if(whatsapp&&!/^\d{10,13}$/.test(whatsapp))throw Error('Informe um telefone WhatsApp com DDD.');
-      await rest('shops',{method:'PATCH',query:{id:'eq.'+shop.id},body:{name:v.name.trim(),whatsapp:whatsapp||null,brand_color:v.brand_color}});
-      shop={...shop,name:v.name.trim(),whatsapp:whatsapp||null,brand_color:v.brand_color};
+      if(!v.name?.trim())throw Error('Informe o nome do estabelecimento.');
+      const body={name:v.name.trim(),whatsapp:whatsapp||null,brand_color:v.brand_color};
+      if(shop.model==='cardapio'){
+        const methods=[...form.querySelectorAll('input[name=payment_methods]:checked')].map(input=>input.value);
+        const fee=Number(v.delivery_fee||0);
+        if(!Number.isFinite(fee)||fee<0||fee>9999.99)throw Error('Informe uma taxa de entrega válida.');
+        if(String(v.opening_hours||'').length>160||String(v.location_text||'').length>240)throw Error('Confira o horário e o endereço.');
+        Object.assign(body,{opening_hours:String(v.opening_hours||'').trim(),location_text:String(v.location_text||'').trim(),
+         payment_methods:methods,delivery_fee:fee});
+        const file=form.querySelector('input[name=logo]')?.files?.[0];
+        const removeLogo=form.querySelector('input[name=remove_logo]')?.checked===true;
+        if(file&&removeLogo)throw Error('Escolha entre enviar uma logo ou remover a atual.');
+        if((file||removeLogo)&&!canCustomize())throw Error('Logo próprio disponível apenas no Personalizado ou Pro.');
+        if(file)body.logo_path=await uploadImage(file);
+        else if(removeLogo)body.logo_path=null;
+      }
+      await rest('shops',{method:'PATCH',query:{id:'eq.'+shop.id},body});
+      shop={...shop,...body};
       $('shopName').textContent=shop.name;
       break;
     }
