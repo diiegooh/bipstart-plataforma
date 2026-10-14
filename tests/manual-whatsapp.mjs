@@ -100,7 +100,7 @@ test('admin mostra e-mail cadastrado por loja, com escape de HTML e RPC autoriza
  assert.match(sql,/revoke all on function public\.bipstart_admin_list_shops_with_emails\(\) from public,anon/);
  assert.match(admin,/request\('bipstart_admin_list_shops_with_emails'\)/);
  assert.match(admin,/escapeHtml\(item\.owner_email/);
- assert.match(readFileSync('public/admin.html','utf8'),/admin\.js\?v=3/);
+ assert.match(readFileSync('public/admin.html','utf8'),/admin\.js\?v=4/);
 });
 
 
@@ -128,4 +128,57 @@ test('políticas de segurança impedem acesso à personalização do Básico',()
  assert.match(sql,/alter policy custom_owner_insert/);
  assert.match(sql,/alter policy custom_owner_read/);
  assert.match(sql,/public\.can_write_shop\(shop_id\)/);
+});
+
+
+test('admin controla solicitações com status existentes e histórico protegido',()=>{
+ const sql=readFileSync('sql/bipstart_admin_customization_queue.sql','utf8');
+ assert.match(sql,/create or replace function public\.bipstart_admin_list_customization_requests/);
+ assert.match(sql,/create or replace function public\.bipstart_admin_update_customization_status/);
+ assert.match(sql,/a\.user_id=auth\.uid\(\)/);
+ assert.match(sql,/join auth\.users u on u\.id=s\.owner_id/);
+ assert.match(sql,/p_status not in \('novo','em_analise','concluido'\)/);
+ assert.match(sql,/public\.bipstart_customization_audit/);
+ assert.match(sql,/revoke all on function public\.bipstart_admin_list_customization_requests\(\) from public,anon/);
+ assert.match(sql,/revoke all on function public\.bipstart_admin_update_customization_status\(uuid,text\) from public,anon/);
+ assert.match(admin,/request\('bipstart_admin_list_customization_requests'\)/);
+ assert.match(admin,/request\('bipstart_admin_update_customization_status'/);
+ assert.match(admin,/window\.confirm\('Atualizar esta solicitação/);
+ const page=readFileSync('public/admin.html','utf8');
+ assert.match(page,/id="customizationSection"/);
+ assert.match(page,/id="customRequests"/);
+ assert.match(page,/admin\.js\?v=4/);
+});
+test('cartão administrativo escapa descrição e e-mail, mostra plano, data, status e WhatsApp',()=>{
+ const start=admin.indexOf('const REQUEST_STATUS=');
+ const end=admin.indexOf('async function load(){',start);
+ assert.ok(start>0&&end>start);
+ const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const {requestCard,contactWhatsapp}=new Function('escapeHtml','PLAN',
+  admin.slice(start,end)+';return {requestCard,contactWhatsapp};')(
+    escapeHtml,{basic:'Básico',personalizado:'Personalizado',pro:'Pro'});
+ const item={
+  request_id:'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',
+  shop_name:'Loja <teste>',
+  owner_email:'teste@example.com',
+  shop_whatsapp:'11978353820',plan_code:'personalizado',
+  details:'Adicionar imagem <img src=x onerror=alert(1)>',
+  request_status:'novo',
+  created_at:'2026-10-13T20:00:00Z'
+ };
+ const html=requestCard(item);
+ assert.match(html,/Loja &lt;teste&gt;/);
+ assert.match(html,/teste@example.com/);
+ assert.match(html,/Personalizado/);
+ assert.match(html,/Pendente/);
+ assert.match(html,/Em andamento/);
+ assert.match(html,/Concluído/);
+ assert.match(html,/&lt;img src=x onerror=alert\(1\)&gt;/);
+ assert.doesNotMatch(html,/<img src=x/);
+ const url=new URL(contactWhatsapp(item).replaceAll('&amp;','&'));
+ assert.equal(url.hostname,'wa.me');
+ assert.equal(url.pathname,'/5511978353820');
+ assert.match(url.searchParams.get('text'),/Loja <teste>/);
+ assert.equal(contactWhatsapp({...item,shop_whatsapp:null}),'');
+ assert.equal(contactWhatsapp({...item,shop_whatsapp:'abc'}),'');
 });
