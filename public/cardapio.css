@@ -18,3 +18,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}a{color:inherit}
 @media(max-width:680px){.menu-shell{padding:16px 12px}.menu-top{height:67px}.bipstart-logo{height:43px}.cart-open{padding:9px}.cart-open>span:nth-child(2){display:none}.cover-picture{inset:0 0 0 25%;opacity:.42}.menu-cover,.cover-content{min-height:215px}.cover-content{padding:22px}.store-details{gap:9px;margin-bottom:24px}.detail{padding:11px;gap:9px}.detail-icon{font-size:20px}.detail strong{font-size:12px}.detail p{font-size:12px}.category summary{padding:16px;font-size:17px}.category-items{grid-template-columns:1fr;padding:0 10px 10px}.product{padding:10px}.product img{width:90px;height:85px}.bottom-cart{border-radius:0;padding:10px 13px}.bottom-cart .button-primary{padding:12px 14px}.cart-panel{padding:16px}}
 @media(max-width:380px){.store-details{grid-template-columns:1fr}.detail p{margin-bottom:0}.product img{width:78px;height:78px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* A cor pública da loja só é liberada pelo backend quando Premium vigente. */
+.category[open]{border-color:var(--purple)}
+.add-button{background:var(--purple);border-color:var(--purple)}
+.button-primary{background:linear-gradient(110deg,var(--violet),var(--purple))}
+.menu-cover{border-color:var(--purple)}
+.count{background:var(--purple)}
