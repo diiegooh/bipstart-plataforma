@@ -274,7 +274,7 @@ function toggleSideMenu(){
   $('sideToggle').setAttribute('aria-label',show?'Fechar menu da loja':'Abrir menu da loja');
   document.body.classList.toggle('sidebar-open',show);
 }
-function heading(title,subtitle,action=''){return '<div class="toolbar"><div><h2>'+esc(title)+'</h2><p class="muted">'+esc(subtitle)+'</p></div>'+action+'</div>'}
+function heading(title,subtitle,action=''){return '<div class="toolbar"><div><h2>'+esc(title)+'</h2>'+(subtitle?'<p class="muted">'+esc(subtitle)+'</p>':'')+'</div>'+action+'</div>'}
 function empty(t='Nenhum registro até agora.'){return '<div class="empty">'+esc(t)+'</div>'}
 function tile(t,v,sub){return '<div class="tile"><small>'+esc(t)+'</small><strong>'+esc(v)+'</strong><small>'+esc(sub||'')+'</small></div>'}
 function publicShopUrl(){
@@ -475,7 +475,7 @@ function renderPage(){
   }else if(tab==='produtos'){
     const lowStock=products.filter(p=>productStockState(p).state==='low').length;
     const outOfStock=products.filter(p=>productStockState(p).state==='out').length;
-    content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','Cadastre produtos e acompanhe fotos, preços, quantidades e estoque mínimo na mesma tela.',
+    content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','',
       '<button type="button" class="button" data-new="product">+ Novo produto</button>');
     content+='<div class="grid stock-stats">'+tile('Produtos cadastrados',products.length)+tile('Estoque baixo',lowStock)+tile('Sem estoque',outOfStock)+'</div>';
     if(selectedCategoryFilter!=='all'&&!products.some(p=>normalizedProductCategory(p)===selectedCategoryFilter))selectedCategoryFilter='all';
