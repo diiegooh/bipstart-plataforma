@@ -149,7 +149,7 @@ async function requireVerifiedEmail(){
 }
 async function loadShops(){
   await requireVerifiedEmail();
-  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,created_at',order:'created_at.desc',limit:'20'}});
+  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,created_at',order:'created_at.desc',limit:'20'}});
   if(!rows?.length){hideAll();hiding('createShop',true);hiding('logout',true);return}
   shop=rows[0];await openShop();
 }
