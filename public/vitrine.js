@@ -111,7 +111,7 @@ function renderCart(){
   count+=qty;
   lines.push('<div class="cartline"><div><b>'+esc(item.name)+'</b><div class="muted">'+qty+' × '+money(item.price)+'</div></div>'+
    '<div class="qty-group"><button type="button" class="btn alt" data-dec="'+esc(id)+'" aria-label="Diminuir '+esc(item.name)+'">−</button>'+
-   '<strong>'+qty+'</strong><button type="button" class="btn alt" data-inc="'+esc(id)+'" aria-label="Aumentar '+esc(item.name)+'">+</button></div></div>');
+   '<strong>'+qty+'</strong><button type="button" class="btn alt" data-inc="'+esc(id)+'"'+(item.in_stock===false?' disabled aria-disabled="true"':'')+' aria-label="Aumentar '+esc(item.name)+'">+</button></div></div>');
  }
  $('cartItems').innerHTML=lines.join('')||'<p class="muted">Seu carrinho está vazio.</p>';
  $('headerCartCount').textContent=String(count);
@@ -178,7 +178,7 @@ document.addEventListener('click',event=>{
   const button=add||inc||dec;
   const id=button.dataset.add||button.dataset.inc||button.dataset.dec;
   const product=products.find(p=>p.id===id);
-  if(!product||product.in_stock===false)return;
+  if(!product||(product.in_stock===false&&!dec))return;
   const next=(cart.get(id)||0)+(dec?-1:1);
   if(next<=0)cart.delete(id);else if(next<=99)cart.set(id,next);
   renderCart();
@@ -219,12 +219,18 @@ async function checkAvailabilityBeforeCheckout(){
  const updated=await response.json();
  if(!updated||!Array.isArray(updated.items))throw Error('O cardápio está temporariamente indisponível.');
  const items=new Map(updated.items.map(item=>[item.id,item]));
+ const oldPrices=new Map(products.map(item=>[item.id,Number(item.price)]));
+ let removed=false,priceChanged=false;
  for(const [id] of cart){
-  const current=products.find(item=>item.id===id);
   const fresh=items.get(id);
-  if(!fresh||fresh.in_stock===false)throw Error('Um item do carrinho esgotou. Remova o produto e tente novamente.');
-  if(Number(fresh.price)!==Number(current?.price))throw Error('O preço de um produto foi atualizado. Reabra o cardápio e revise seu pedido.');
+  if(!fresh||fresh.in_stock===false){cart.delete(id);removed=true;continue;}
+  if(Number(fresh.price)!==oldPrices.get(id))priceChanged=true;
  }
+ products=updated.items;
+ renderProducts();
+ renderCart();
+ if(removed)throw Error('Um produto esgotou e foi retirado do carrinho. Revise seu pedido.');
+ if(priceChanged)throw Error('O preço de um produto mudou. Revise o total atualizado e envie novamente.');
 }
 $('sendOrder').addEventListener('click',async()=>{
  const button=$('sendOrder');
@@ -234,7 +240,8 @@ $('sendOrder').addEventListener('click',async()=>{
   if(!digits)throw Error('O estabelecimento ainda não configurou o WhatsApp comercial.');
   await checkAvailabilityBeforeCheckout();
   const url='https://wa.me/'+digits+'?text='+encodeURIComponent(checkoutMessage());
-  window.open(url,'_blank','noopener,noreferrer');
+  // Navegação na própria aba evita bloqueio de pop-up após a conferência assíncrona.
+  location.assign(url);
  }catch(error){showErr(error.message);closeCart();window.scrollTo({top:0,behavior:'smooth'});}
  finally{renderCart();}
 });
