@@ -21,8 +21,8 @@ function access(ent){
  const init=new Function('ent','shop','plans','planPrices','BIPSTART_PLAN_WHATSAPP',
   client.slice(start,stop)+';return {trialValid,subscriptionValid,hasAccess,proAccess,canCustomize,contactUrl};');
  return init(ent,{name:'Minha loja',id:'c49e0b8f-6f84-4d60-8abd-bc98c76449d6',requested_plan:'basic'},
-  {basic:'Básico',personalizado:'Personalizado',pro:'Pro'},
-  {basic:'R$ 29,99 (pagamento único)',personalizado:'R$ 49,99 (pagamento único)',pro:'R$ 99,90/mês'},
+  {basic:'Básico',pro:'Premium'},
+  {basic:'R$ 29,90 (pagamento único)',pro:'R$ 79,90/mês'},
   '5511978353820');
 }
 const future=()=>new Date(Date.now()+86400000).toISOString();
@@ -51,7 +51,7 @@ test('WhatsApp correto, com identificação e preço do plano sem cobrança',()=
  assert.equal(url.pathname,'/5511978353820');
  const body=url.searchParams.get('text');
  assert.match(body,/Minha loja/);
- assert.match(body,/R\$ 29,99/);
+ assert.match(body,/R\$ 29,90/);
  assert.match(body,/Identificador da loja/);
 });
 test('cadastro exige escolha explícita de caminho e oferece tela de bloqueio',()=>{
