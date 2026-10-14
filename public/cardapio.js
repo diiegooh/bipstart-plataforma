@@ -50,6 +50,10 @@ function subtotal(){return [...cart].reduce((total,[id,qty])=>{
 },0)}
 function deliveryCost(){return $('shippingMode').value==='delivery'?Number(menu?.delivery_fee||0):0}
 function render(){
+ if(/^#[0-9a-fA-F]{6}$/.test(String(menu.brand_color||''))){
+  document.documentElement.style.setProperty('--purple',menu.brand_color);
+  document.documentElement.style.setProperty('--violet',menu.brand_color);
+ }
  $('store').textContent=menu.name;
  document.title='CARDÁPIO ('+menu.name+')';
  $('hours').textContent=menu.opening_hours||'Consulte a loja';
