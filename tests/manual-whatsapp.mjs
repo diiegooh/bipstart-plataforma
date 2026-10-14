@@ -19,7 +19,7 @@ const stop=client.indexOf('function renderAccessGate(){',start);
 assert.ok(start>0&&stop>start);
 function access(ent){
  const init=new Function('ent','shop','plans','planPrices','BIPSTART_PLAN_WHATSAPP',
-  client.slice(start,stop)+';return {trialValid,subscriptionValid,hasAccess,proAccess,contactUrl};');
+  client.slice(start,stop)+';return {trialValid,subscriptionValid,hasAccess,proAccess,canCustomize,contactUrl};');
  return init(ent,{name:'Minha loja',id:'c49e0b8f-6f84-4d60-8abd-bc98c76449d6',requested_plan:'basic'},
   {basic:'Básico',personalizado:'Personalizado',pro:'Pro'},
   {basic:'R$ 29,99 (pagamento único)',personalizado:'R$ 49,99 (pagamento único)',pro:'R$ 99,90/mês'},
@@ -101,4 +101,31 @@ test('admin mostra e-mail cadastrado por loja, com escape de HTML e RPC autoriza
  assert.match(admin,/request\('bipstart_admin_list_shops_with_emails'\)/);
  assert.match(admin,/escapeHtml\(item\.owner_email/);
  assert.match(readFileSync('public/admin.html','utf8'),/admin\.js\?v=3/);
+});
+
+
+test('personalização só funciona em plano Personalizado ou Pro com acesso vigente',()=>{
+ const plans=['basic','personalizado','pro'];
+ for(const plan of plans){
+  const allowed=plan!=='basic';
+  assert.equal(access({status:'trialing',trial_until:future(),plan_code:plan}).canCustomize(),allowed);
+  assert.equal(access({status:'active',active_until:null,plan_code:plan}).canCustomize(),allowed);
+  assert.equal(access({status:'trialing',trial_until:past(),plan_code:plan}).canCustomize(),false);
+  assert.equal(access({status:'active',active_until:past(),plan_code:plan}).canCustomize(),false);
+  assert.equal(access({status:'pending',trial_until:future(),plan_code:plan}).canCustomize(),false);
+ }
+});
+test('menu e envio de personalização verificam direito ao plano',()=>{
+ assert.match(client,/if\(canCustomize\(\)\)a\.push\(\['personalizar','Solicitar personalização'\]\)/);
+ assert.match(client,/if\(tab==='personalizar'&&!canCustomize\(\)\)tab='resumo'/);
+ assert.match(client,/case 'customForm':\{\s*if\(!canCustomize\(\)\)throw Error/);
+});
+test('políticas de segurança impedem acesso à personalização do Básico',()=>{
+ const sql=readFileSync('sql/bipstart_customization_plan_access.sql','utf8');
+ assert.match(sql,/e\.plan_code in \('personalizado','pro'\)/);
+ assert.match(sql,/create or replace function public\.bipstart_can_customize/);
+ assert.match(sql,/revoke all on function public\.bipstart_can_customize\(uuid\) from public,anon/);
+ assert.match(sql,/alter policy custom_owner_insert/);
+ assert.match(sql,/alter policy custom_owner_read/);
+ assert.match(sql,/public\.can_write_shop\(shop_id\)/);
 });
