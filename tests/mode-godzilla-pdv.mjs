@@ -18,7 +18,9 @@ test('login mostra CARDÁPIO e PDV + CARDÁPIO antes de abrir a área administra
  assert.match(client,/hiding\('modeChooser',true\)/);
  assert.match(client,/hiding\('modeChooser',false\);hiding\('workspace',true\)/);
  assert.match(client,/if\(!shop\|\|!hasAccess\(\)\)return/);
- assert.match(client,/tab=mode\.dataset\.openMode==='cardapio'\?'cardapio':'caixa'/);
+ assert.match(client,/if\(mode\.dataset\.openMode==='cardapio'\)/);
+ assert.match(client,/location\.assign\(publicShopUrl\(\)\)/);
+ assert.match(client,/tab='caixa'/);
  assert.match(client,/function hideAll\(\)\{[^}]*'modeChooser'/);
 });
 test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do layout existente',()=>{
@@ -27,9 +29,9 @@ test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do lay
  assert.match(client,/<iframe src="'\+esc\(publicShopUrl\(\)\)/);
  assert.match(client,/Abrir cardápio ↗/);
  assert.match(html,/id="publicMenuLink"[^>]*>Abrir cardápio ↗<\/a>/);
- assert.match(server,/'\/cardapio':\s*\['cardapio\.html'/);
- assert.match(html,/\/cliente\.js\?v=8/);
- assert.match(html,/\/cliente\.css\?v=4/);
+ assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
+ assert.match(html,/\/cliente\.js\?v=9/);
+ assert.match(html,/\/cliente\.css\?v=5/);
 });
 function pdv(props={}){
  const source=client.slice(client.indexOf('function filteredPdvProducts(){'),client.indexOf('function renderPage(){'));
@@ -92,5 +94,5 @@ test('checkout permanece no RPC seguro de BipStart, sem pagamentos automáticos'
  assert.match(client,/Informe um valor recebido suficiente/);
  assert.match(client,/não é cobrada nem registrada na venda/);
  assert.match(client,/shop_id:'eq\.'\+shop\.id/);
- assert.match(html,/Acessar cardápio/);
+ assert.match(html,/Abrir cardápio/);
 });

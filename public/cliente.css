@@ -146,3 +146,41 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 .menu-live-head strong{font-size:18px}.menu-live-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
 .menu-live-preview iframe{width:100%;height:490px;display:block;border:1px solid #4e346e;border-radius:14px;background:#070510}
 @media(max-width:600px){.menu-live-preview iframe{height:460px}.menu-live-preview{padding:10px}}
+
+/* PDV em tela direta, inspirado no painel administrativo Godzilla. */
+.shell:has(#workspace:not(.hidden)){max-width:1600px;padding:17px 16px 70px}
+#workspace>.heading{min-height:112px;background:linear-gradient(115deg,#1b142b,#0c0a13);border:1px solid #49355e;border-radius:23px;padding:20px 24px;margin:0 0 15px;box-shadow:0 18px 60px #0006}
+#workspace>.heading h1{font-size:clamp(23px,3vw,34px);margin:5px 0}
+#workspace>.heading p{margin:0}
+#workspace .dashboard{grid-template-columns:240px minmax(0,1fr);gap:15px}
+#workspace .side{min-height:calc(100vh - 175px);position:sticky;top:12px;border-radius:22px;background:linear-gradient(180deg,#181021,#0a0911);border:1px solid #453458;padding:17px}
+#workspace .side nav{gap:8px}
+#workspace .side nav button{display:flex;align-items:center;gap:11px;border-radius:13px;text-align:left;min-height:46px;padding:12px 13px;font-size:13px}
+#workspace .side nav button span{font-size:20px;width:25px;flex:0 0 25px;text-align:center}
+#workspace .side nav button b{font-weight:750}
+#workspace .side nav button.active{background:linear-gradient(90deg,#9c6aed,#b47cff);border-color:#ac75f8;color:#140922;box-shadow:0 0 23px #9354e539}
+#workspace .side nav button:hover:not(.active){background:#241535;border-color:#4e3a65}
+#workspace .content{border-radius:22px;background:linear-gradient(160deg,#171024,#0b0913);border:1px solid #49335c;min-width:0}
+#workspace .pdv-title{border-bottom:1px solid #473456;padding-bottom:14px}
+#workspace .pdv-title h2{font-size:clamp(28px,3.4vw,34px)}
+#workspace .pdv-panel{background:linear-gradient(180deg,#1a1326,#0e0b17);border:1px solid #473459}
+#workspace .pdv-product{background:linear-gradient(180deg,#241832,#100d19)}
+#workspace .pdv-product .pdv-add{background:linear-gradient(90deg,#9c64ea,#ba7dfc)}
+#workspace .pdv-product .pdv-add:disabled{opacity:.45}
+#workspace .pdv-sale-panel{position:sticky;top:12px}
+#workspace .pdv-finish{font-size:15px;min-height:49px}
+@media(max-width:900px){
+ .shell:has(#workspace:not(.hidden)){padding:12px 9px 60px}
+ #workspace .dashboard{grid-template-columns:1fr}
+ #workspace .side{position:static;min-height:0}
+ #workspace .side nav{display:flex;flex-wrap:nowrap;overflow-x:auto}
+ #workspace .side nav button{flex:0 0 auto;min-width:125px}
+ #workspace .pdv-sale-panel{position:static}
+}
+@media(max-width:580px){
+ #workspace>.heading{padding:15px;border-radius:17px}
+ #workspace .content{padding:11px}
+ #workspace .side{padding:10px}
+ #workspace .side nav button{min-height:42px;padding:8px 9px;min-width:108px}
+ #workspace .side nav button b{font-size:11px}
+}
