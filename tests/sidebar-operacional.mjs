@@ -12,7 +12,8 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  for(const id of ['sidebar','sideShopName','sideSettings','sideColor','sideOpenMenu','sideLogout','sideToggle','sideBackdrop']){
   assert.match(html,new RegExp('id="'+id+'"'),id);
  }
- assert.match(html,/Central de operação/);
+ assert.doesNotMatch(html,/Central de operação/);
+ assert.match(html,/aria-label="Menu da loja"/);
  assert.match(html,/Alterar cor/);
  assert.match(html,/Abrir cardápio/);
  assert.match(html,/Sair/);
