@@ -95,3 +95,23 @@ html,body{max-width:100%;overflow-x:clip}
 .plans-two{grid-template-columns:repeat(2,minmax(0,1fr));max-width:1020px;margin-inline:auto}
 .solution-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:760px){.plans-two,.solution-grid{grid-template-columns:1fr;max-width:550px;margin-inline:auto}}
+
+/* Ao clicar em Planos, alinhe o título abaixo do cabeçalho fixo,
+   em vez de alinhar o início da seção (que tem padding superior). */
+.pricing-title#planos{scroll-margin-top:12px}
+
+/* Maior legibilidade nas informações e vantagens dos planos. */
+.pricing-section .pricing-title>p{font-size:clamp(16px,1.35vw,19px);line-height:1.65;font-weight:550;color:#e5d4f4}
+.pricing-section .plan h3{font-size:clamp(25px,2.2vw,29px);font-weight:900;letter-spacing:-.8px}
+.pricing-section .plan-index{font-size:12px;font-weight:900;letter-spacing:1.5px;color:#dfbcff}
+.pricing-section .plan-top>p{font-size:clamp(16px,1.25vw,18px);line-height:1.5;font-weight:650;color:#f0e4fa;min-height:0}
+.pricing-section .plan-top>small{font-size:14px;line-height:1.5;font-weight:650;color:#e0ceec}
+.pricing-section .plan ul li{font-size:15px;line-height:1.65;font-weight:600;color:#f0eaf7}
+.pricing-section .plan ul li strong{font-weight:850;color:#fff}
+.pricing-section .price-note{font-size:13px;line-height:1.7;color:#d5c5e2}
+.pricing-section .plan>.button{font-size:15px;font-weight:850;min-height:48px}
+@media(max-width:760px){
+ .pricing-section .plan-top>p{font-size:16px}
+ .pricing-section .plan ul li{font-size:15px}
+ .pricing-section .plan h3{font-size:25px}
+}
