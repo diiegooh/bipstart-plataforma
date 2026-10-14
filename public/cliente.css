@@ -24,3 +24,12 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 .signup-choices .option-line small{font-weight:400;color:var(--muted);line-height:1.55}
 #accessGate .button{display:inline-block;text-align:center;text-decoration:none;margin:4px 0 12px}
 #accessGate #refreshAccess{margin-left:9px}
+
+/* Compartilhamento do cardápio individual de cada loja. */
+.public-overview-grid{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}
+.public-link-tile{display:flex;flex-direction:column;gap:9px}
+.public-link-url{display:block;overflow-wrap:anywhere;word-break:break-word;color:#dec8ff;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.public-share-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:auto}
+.public-share-actions .button,.public-share-actions .ghost{min-height:38px;padding:9px 12px;font-size:13px;text-align:center;white-space:normal}
+.public-share-actions .ghost{display:inline-flex;align-items:center;justify-content:center}
+@media(max-width:540px){.public-overview-grid{grid-template-columns:1fr}.public-share-actions{align-items:stretch}.public-share-actions .button,.public-share-actions .ghost{flex:1 1 100%}}
