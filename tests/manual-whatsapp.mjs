@@ -100,14 +100,14 @@ test('admin mostra e-mail cadastrado por loja, com escape de HTML e RPC autoriza
  assert.match(sql,/revoke all on function public\.bipstart_admin_list_shops_with_emails\(\) from public,anon/);
  assert.match(admin,/request\('bipstart_admin_list_shops_with_emails'\)/);
  assert.match(admin,/escapeHtml\(item\.owner_email/);
- assert.match(readFileSync('public/admin.html','utf8'),/admin\.js\?v=4/);
+ assert.match(readFileSync('public/admin.html','utf8'),/admin\.js\?v=5/);
 });
 
 
-test('personalização só funciona em plano Personalizado ou Pro com acesso vigente',()=>{
- const plans=['basic','personalizado','pro'];
+test('personalização só funciona no Premium com acesso vigente',()=>{
+ const plans=['basic','pro'];
  for(const plan of plans){
-  const allowed=plan!=='basic';
+  const allowed=plan==='pro';
   assert.equal(access({status:'trialing',trial_until:future(),plan_code:plan}).canCustomize(),allowed);
   assert.equal(access({status:'active',active_until:null,plan_code:plan}).canCustomize(),allowed);
   assert.equal(access({status:'trialing',trial_until:past(),plan_code:plan}).canCustomize(),false);
@@ -116,8 +116,8 @@ test('personalização só funciona em plano Personalizado ou Pro com acesso vig
  }
 });
 test('menu e envio de personalização verificam direito ao plano',()=>{
- assert.match(client,/if\(canCustomize\(\)\)a\.push\(\['personalizar','Solicitar personalização'\]\)/);
- assert.match(client,/if\(tab==='personalizar'&&!canCustomize\(\)\)tab='resumo'/);
+ assert.match(client,/if\(canCustomize\(\)\)a\.push\(\['personalizar','Mudanças e suporte'\]\)/);
+ assert.match(client,/if\(!pages\(\)\.some\(\(\[key\]\)=>key===tab\)\)tab='resumo'/);
  assert.match(client,/case 'customForm':\{\s*if\(!canCustomize\(\)\)throw Error/);
 });
 test('políticas de segurança impedem acesso à personalização do Básico',()=>{
@@ -147,7 +147,7 @@ test('admin controla solicitações com status existentes e histórico protegido
  const page=readFileSync('public/admin.html','utf8');
  assert.match(page,/id="customizationSection"/);
  assert.match(page,/id="customRequests"/);
- assert.match(page,/admin\.js\?v=4/);
+ assert.match(page,/admin\.js\?v=5/);
 });
 test('cartão administrativo escapa descrição e e-mail, mostra plano, data, status e WhatsApp',()=>{
  const start=admin.indexOf('const REQUEST_STATUS=');
@@ -156,12 +156,12 @@ test('cartão administrativo escapa descrição e e-mail, mostra plano, data, st
  const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const {requestCard,contactWhatsapp}=new Function('escapeHtml','PLAN',
   admin.slice(start,end)+';return {requestCard,contactWhatsapp};')(
-    escapeHtml,{basic:'Básico',personalizado:'Personalizado',pro:'Pro'});
+    escapeHtml,{basic:'Básico',pro:'Premium'});
  const item={
   request_id:'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',
   shop_name:'Loja <teste>',
   owner_email:'teste@example.com',
-  shop_whatsapp:'11978353820',plan_code:'personalizado',
+  shop_whatsapp:'11978353820',plan_code:'pro',
   details:'Adicionar imagem <img src=x onerror=alert(1)>',
   request_status:'novo',
   created_at:'2026-10-13T20:00:00Z'
@@ -169,7 +169,7 @@ test('cartão administrativo escapa descrição e e-mail, mostra plano, data, st
  const html=requestCard(item);
  assert.match(html,/Loja &lt;teste&gt;/);
  assert.match(html,/teste@example.com/);
- assert.match(html,/Personalizado/);
+ assert.match(html,/Premium/);
  assert.match(html,/Pendente/);
  assert.match(html,/Em andamento/);
  assert.match(html,/Concluído/);
@@ -229,7 +229,7 @@ test('compartilhamento usa dispositivo nativo, cópia e alternativa em desktop',
  assert.match(client,/await navigator\.share\(/);
  assert.match(client,/navigator\.clipboard\.writeText\(url\)/);
  assert.match(client,/window\.prompt\('Copie o link do cardápio:',url\)/);
- assert.match(client,/if\(!shop\|\|shop\.model!=='cardapio'\|\|!hasAccess\(\)\)return/);
+ assert.match(client,/if\(!shop\|\|shop\.model!=='pdv'\|\|!hasAccess\(\)\)return/);
  assert.match(readFileSync('public/cliente.html','utf8'),/cliente\.js\?v=6/);
 });
 
