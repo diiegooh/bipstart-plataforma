@@ -43,6 +43,7 @@ const routes = {
   '/admin.js': ['admin.js', 'text/javascript; charset=utf-8'],
   '/cardapio': ['cardapio.html', 'text/html; charset=utf-8'],
   '/cardapio.html': ['cardapio.html', 'text/html; charset=utf-8'],
+  '/cardapio.css': ['cardapio.css', 'text/css; charset=utf-8'],
   '/cardapio.js': ['cardapio.js', 'text/javascript; charset=utf-8']
 };
 
