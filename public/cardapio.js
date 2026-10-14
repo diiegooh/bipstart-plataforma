@@ -5,7 +5,7 @@ const money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'B
 let menu=null,cart=new Map();
 function showErr(msg){$('error').classList.remove('hidden');$('error').textContent=msg;}
 function render(){
-  $('store').textContent=menu.name;document.title=menu.name+' • Cardápio';
+  $('store').textContent=menu.name;document.title='CARDÁPIO ('+menu.name+')';
   $('items').innerHTML=(menu.items||[]).length?menu.items.map(p=>
     '<article class="menu-item">'+(p.image_path?'<img src="'+esc(menu.src+'/'+p.image_path.split('/').map(encodeURIComponent).join('/'))+'" alt="">':'')+
     '<h3>'+esc(p.name)+'</h3><span class="muted">'+esc(p.category||'Geral')+'</span><strong class="price">'+money(p.price)+'</strong><button class="button" data-add="'+esc(p.id)+'">Adicionar</button></article>'
