@@ -4,6 +4,7 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[];
 let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false;
+let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix';
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
 const plans={basic:'Básico',pro:'Premium'};
@@ -57,7 +58,7 @@ async function rest(table,{method='GET',query={},body}={}){
 async function rpc(name,body){
   return api('/rest/v1/rpc/'+name,{method:'POST',body});
 }
-function hideAll(){['auth','setup','createShop','workspace','resetPass','accessGate'].forEach(id=>hiding(id,false));}
+function hideAll(){['auth','setup','createShop','modeChooser','workspace','resetPass','accessGate'].forEach(id=>hiding(id,false));}
 function showAuth(){hideAll();hiding('auth',true);hiding('logout',false);renderActiveCaptcha();}
 function authTab(signup){
   hiding('loginForm',!signup);hiding('signupForm',signup);
@@ -195,13 +196,13 @@ async function openShop(){
   const [access]=await rest('shop_entitlements',{query:{select:'plan_code,status,trial_until,active_until',shop_id:'eq.'+shop.id,limit:'1'}});
   ent=access||null;
   if(!hasAccess()){hiding('accessGate',true);renderAccessGate();return}
-  hiding('workspace',true);
   $('shopName').textContent=shop.name;
   $('shopStatus').textContent=trialValid()?'Avaliação gratuita até '+new Date(ent.trial_until).toLocaleString('pt-BR'):
     'Plano '+(plans[ent.plan_code]||'')+' ativo'+(ent.active_until?' até '+new Date(ent.active_until).toLocaleDateString('pt-BR'):'');
   hiding('publicMenuLink',shop.model==='pdv');
   if(shop.model==='pdv')$('publicMenuLink').href=publicShopUrl();
-  await reloadData();renderNav();renderPage();
+  await reloadData();renderNav();hiding('modeChooser',true);
+  $('modeChooserTitle').textContent='Como deseja começar na '+shop.name+'?';
 }
 async function reloadData(){
   products=[];categories=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];
@@ -277,7 +278,7 @@ function cardapioEditor(){
   ['Pagamento',(shop.payment_methods||[]).join(', ')||'Configurar'],
   ['Entrega',fmt(shop.delivery_fee||0)]
  ];
- return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.','<button class="button" data-new="product">+ Adicionar item</button>')+
+ return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.','<div class="menu-heading-actions"><a class="ghost" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a><button class="button" data-new="product">+ Adicionar item</button></div>')+
  (menuSchemaReady?'':'<p class="warn">A nova versão do cardápio está aguardando a atualização do banco de dados. Não salve alterações até a configuração terminar.</p>')+
  '<div class="menu-editor-meta">'+details.map(([label,value])=>'<button type="button" data-nav="configuracoes" title="Editar nas configurações"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></button>').join('')+'</div>'+
  '<div class="menu-editor-grid"><section class="menu-editor-panel"><h3>Categorias</h3>'+
@@ -287,6 +288,88 @@ function cardapioEditor(){
  '<section class="menu-editor-panel"><h3>Adicionar ou editar item</h3>'+
  (showForm?.kind==='product'?productForm(showForm.value):'<p class="muted">Clique em "+ Adicionar item" para cadastrar nome, categoria, descrição, valor e imagem.</p>')+
  '</section></div><section class="menu-editor-panel menu-editor-items"><h3>Itens do cardápio</h3>'+productRows()+'</section>';
+}
+
+/* Frente de caixa inspirada no fluxo visual da Godzilla Adega.
+   Todas as gravações continuam na API isolada da loja BipStart. */
+function filteredPdvProducts(){
+ const term=pdvQuery.trim().toLocaleLowerCase('pt-BR');
+ return products.filter(p=>p.active!==false
+   &&(!pdvInStockOnly||Number(p.stock)>0)
+   &&(!pdvCategory||String(p.category||'Geral')===pdvCategory)
+   &&(!term||[p.name,p.category].some(value=>String(value||'').toLocaleLowerCase('pt-BR').includes(term))));
+}
+function pdvProductCards(){
+ const available=filteredPdvProducts();
+ return available.length?available.map(p=>{
+  const count=cart.find(c=>c.id===p.id)?.qty||0;
+  const soldOut=Number(p.stock)<=count;
+  const photo=p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="pdv-no-photo" aria-hidden="true">▣</div>';
+  return '<article class="pdv-product">'+
+   '<div class="pdv-product-media">'+photo+'</div>'+
+   '<div class="pdv-product-info"><h3>'+esc(p.name)+'</h3>'+
+   '<p>'+esc(p.category||'Geral')+' · Estoque: '+esc(p.stock)+'</p>'+
+   '<strong class="pdv-product-price">'+fmt(p.price)+'</strong>'+
+   '<button type="button" class="button pdv-add" data-cart="'+esc(p.id)+'" '+(soldOut?'disabled':'')+'>'+
+   (soldOut?'Sem estoque':'+ Adicionar')+'</button></div></article>';
+ }).join(''):'<div class="empty pdv-empty">Nenhum produto corresponde à busca. Cadastre produtos ou altere os filtros.</div>';
+}
+function renderGodzillaPDV(){
+ const sum=cart.reduce((a,c)=>a+c.qty*c.price,0);
+ const count=cart.reduce((a,c)=>a+c.qty,0);
+ const categoriesList=[...new Set(products.map(p=>String(p.category||'Geral')))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ const categoriesHtml='<option value="">Todas as categorias</option>'+
+   categoriesList.map(name=>'<option value="'+esc(name)+'"'+(pdvCategory===name?' selected':'')+'>'+esc(name)+'</option>').join('');
+ const cash=pdvPayment==='dinheiro',isCard=['credito','debito'].includes(pdvPayment);
+ const cartItems=cart.map(c=>{
+  const p=products.find(p=>p.id===c.id);
+  return '<div class="pdv-sale-item"><div><strong>'+esc(c.name)+'</strong><small>'+
+   fmt(c.price)+' por unidade'+(p?' · Estoque '+esc(p.stock):'')+'</small></div>'+
+   '<div class="pdv-sale-qty">'+
+   '<button type="button" data-qty-less="'+esc(c.id)+'" aria-label="Diminuir '+esc(c.name)+'">−</button>'+
+   '<b>'+c.qty+'</b><button type="button" data-cart="'+esc(c.id)+'" aria-label="Aumentar '+esc(c.name)+'">+</button>'+
+   '<button type="button" data-remove="'+esc(c.id)+'" aria-label="Remover '+esc(c.name)+'">×</button>'+
+   '</div><strong>'+fmt(c.qty*c.price)+'</strong></div>';
+ }).join('');
+ const paymentChoices=[['pix','Pix'],['dinheiro','Dinheiro'],['credito','Cartão de crédito'],['debito','Cartão de débito']];
+ const choiceHtml=paymentChoices.map(([code,label])=>'<option value="'+code+'"'+(pdvPayment===code?' selected':'')+'>'+label+'</option>').join('');
+ return '<div class="godzilla-pdv">'+
+ '<div class="pdv-title"><div><span class="kicker">VENDA PRESENCIAL</span><h2>Frente de caixa</h2>'+
+ '<p>Produtos, estoque e vendas integrados ao seu cardápio.</p></div>'+
+ '<a class="button pdv-menu-link" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a></div>'+
+ '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
+ '<div class="pdv-filters">'+
+ '<label class="pdv-search-label"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Buscar produto ou categoria" value="'+esc(pdvQuery)+'" autocomplete="off"></label>'+
+ '<label class="pdv-category-label"><span class="sr-only">Filtrar categoria</span><select id="pdvCategory">'+categoriesHtml+'</select></label>'+
+ '<button type="button" id="pdvStockToggle" class="ghost'+(pdvInStockOnly?' active':'')+'">'+
+ (pdvInStockOnly?'✓ Só disponíveis':'Todos os produtos')+'</button></div>'+
+ '<div class="pdv-list-head"><strong>Produtos da loja</strong><small>'+products.length+' cadastrados</small></div>'+
+ '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
+ '</section><aside class="pdv-panel pdv-sale-panel" aria-label="Venda atual">'+
+ '<div class="pdv-sale-head"><div><span class="kicker">CAIXA</span><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
+ '<div class="pdv-sale-list">'+(cartItems||'<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>')+'</div>'+
+ '<div class="pdv-sale-total"><span>'+count+' item(ns) · Total</span><strong>'+fmt(sum)+'</strong></div>'+
+ '<form id="saleForm" class="pdv-payment-form"><label>Forma de pagamento<select name="payment_method" id="pdvPaymentMethod">'+choiceHtml+'</select></label>'+
+ '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="number" id="pdvReceived" name="received" min="0" step="0.01" placeholder="0,00"></label>'+
+ '<div class="pdv-calculation">Troco <strong id="pdvChange">'+fmt(0)+'</strong></div></div>'+
+ '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'"><label>Taxa do cartão (%) — simulação<input id="pdvFeePercent" name="card_fee_percent" type="number" min="0" max="100" step="0.01" value="3.99"></label>'+
+ '<div class="pdv-calculation">Líquido estimado <strong id="pdvNet">'+fmt(sum*0.9601)+'</strong></div>'+
+ '<small class="muted">Estimativa informativa; não é cobrada nem registrada na venda.</small></div>'+
+ '<button type="submit" class="button pdv-finish" '+(!cart.length?'disabled':'')+'>Finalizar venda ↗</button>'+
+ '<p class="muted small">Registre apenas pagamentos recebidos fora da BipStart. O sistema atualiza o estoque após confirmar a venda.</p></form>'+
+ '</aside></div></div>';
+}
+function updatePdvEstimates(){
+ const total=cart.reduce((a,c)=>a+c.qty*c.price,0);
+ const received=document.getElementById('pdvReceived');
+ const change=document.getElementById('pdvChange');
+ if(received&&change)change.textContent=fmt(Math.max(0,Number(received.value||0)-total));
+ const fee=document.getElementById('pdvFeePercent');
+ const net=document.getElementById('pdvNet');
+ if(fee&&net){
+   const percent=Math.min(100,Math.max(0,Number(fee.value||0)));
+   net.textContent=fmt(total*(1-percent/100));
+ }
 }
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
@@ -305,9 +388,7 @@ function renderPage(){
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
     content+=productRows();
   }else if(tab==='caixa'){
-    content=heading('Frente de caixa','As vendas registradas são reais no sistema e atualizam o estoque, mas NÃO cobram o cartão ou Pix.');
-    content+='<div class="stack">'+(products.filter(p=>p.active&&p.stock>0).map(p=>'<div class="item"><div><strong>'+esc(p.name)+'</strong><small>'+fmt(p.price)+' • Disponível: '+p.stock+'</small></div><button data-cart="'+esc(p.id)+'">Adicionar</button></div>').join('')||empty('Cadastre produtos com estoque disponível.'))+'</div>';
-    content+='<div class="cart"><h3>Carrinho</h3>'+cart.map(c=>'<div class="item"><span>'+esc(c.name)+' × '+c.qty+'</span><span>'+fmt(c.price*c.qty)+' <button data-remove="'+esc(c.id)+'">Remover</button></span></div>').join('')+'<div class="total">Total: '+fmt(cart.reduce((a,c)=>a+c.qty*c.price,0))+'</div><form id="saleForm"><label>Forma de pagamento<select name="payment_method"><option value="dinheiro">Dinheiro</option><option value="pix">Pix</option><option value="credito">Cartão de crédito</option><option value="debito">Cartão de débito</option></select></label><button class="button" '+(!cart.length?'disabled':'')+'>Registrar venda</button></form><small class="muted">Registre aqui somente pagamentos que você já recebeu fora da plataforma.</small></div>';
+    content=renderGodzillaPDV();
   }else if(tab==='vendas'){
     content=heading('Histórico de vendas','Vendas registradas no PDV e seus totais.')
       +(sales.length?'<div class="stack">'+sales.map(s=>'<div class="item"><span>'+new Date(s.created_at).toLocaleString('pt-BR')+'</span><span>'+fmt(s.total)+' • '+esc(s.payment_method)+'</span></div>').join('')+'</div>':empty());
@@ -489,6 +570,12 @@ async function handleSubmit(form){
     }
     case 'saleForm':{
       if(!cart.length)throw Error('Adicione produtos ao carrinho.');
+      if(v.payment_method==='dinheiro'){
+        const total=cart.reduce((a,c)=>a+c.qty*c.price,0);
+        if(!Number.isFinite(Number(v.received))||v.received===''||Number(v.received)+0.001<total)
+          throw Error('Informe um valor recebido suficiente para finalizar a venda em dinheiro.');
+      }
+      pdvPayment=v.payment_method;
       const data=await rpc('bipstart_complete_sale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),p_payment_method:v.payment_method});
       cart=[];msg('Venda registrada: '+fmt(data.total));break;
     }
@@ -569,8 +656,36 @@ document.addEventListener('paste',e=>{
   preview.append(img,document.createTextNode(' Imagem pronta para salvar'));
   msg('Imagem colada! Agora salve o produto.');
 });
+document.addEventListener('input',e=>{
+ if(e.target.id==='pdvSearch'){
+  pdvQuery=e.target.value;
+  const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();
+ }else if(e.target.id==='pdvReceived'||e.target.id==='pdvFeePercent')updatePdvEstimates();
+});
+document.addEventListener('change',e=>{
+ if(e.target.id==='pdvCategory'){pdvCategory=e.target.value;const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();}
+ if(e.target.id==='pdvPaymentMethod'){pdvPayment=e.target.value;renderPage();}
+});
 document.addEventListener('change',e=>{if(e.target.matches('#productForm input[name=image]')){pastedProductImage=null;const preview=document.querySelector('[data-image-preview]');if(preview)preview.replaceChildren();}});
 document.addEventListener('click',async e=>{
+  const mode=e.target.closest('[data-open-mode]');
+  if(mode){
+    if(!shop||!hasAccess())return;
+    tab=mode.dataset.openMode==='cardapio'?'cardapio':'caixa';
+    showForm=null;pastedProductImage=null;
+    hiding('modeChooser',false);hiding('workspace',true);
+    renderPage();
+    return;
+  }
+  if(e.target.closest('#pdvStockToggle')){
+    pdvInStockOnly=!pdvInStockOnly;renderPage();return;
+  }
+  const less=e.target.closest('[data-qty-less]');
+  if(less){
+    const found=cart.find(c=>c.id===less.dataset.qtyLess);
+    if(found){found.qty--;if(found.qty<=0)cart=cart.filter(c=>c.id!==found.id);renderPage();}
+    return;
+  }
   const share=e.target.closest('[data-share-shop]');
   const copy=e.target.closest('[data-copy-shop]');
   if(share||copy){
@@ -628,7 +743,8 @@ $('signupForm').addEventListener('input',()=>{
 });
 $('showLogin').onclick=()=>authTab(false);
 $('showSignup').onclick=()=>authTab(true);
-$('logout').onclick=()=>{session=null;shop=null;saveSession();showAuth();msg('Você saiu com segurança.')};
+$('logout').onclick=()=>{session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
+$('backToModes').onclick=()=>{if(!shop||!hasAccess())return;hiding('workspace',false);hiding('modeChooser',true);showForm=null;};
 $('switchShop').onclick=()=>{location.href='/#planos'};
 $('refreshAccess').onclick=async()=>{try{await openShop();msg(hasAccess()?'Seu acesso está liberado!':'Ainda aguardando liberação. Confira o WhatsApp.')}catch(e){msg(e.message,true)}};
 window.addEventListener('focus',()=>{if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate()}});
