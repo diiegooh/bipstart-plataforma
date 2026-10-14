@@ -15,7 +15,7 @@ create unique index if not exists bipstart_courier_account_shop_unique
  on public.shop_couriers(shop_id,account_id) where account_id is not null;
 create or replace function public.bipstart_guard_courier_account()
 returns trigger language plpgsql security definer set search_path=''
-as $
+as $guard$
 begin
  if TG_OP='INSERT' then
   if new.account_id is not null then
@@ -27,7 +27,7 @@ begin
   end if;
  end if;
  return new;
-end $;
+end $guard$;
 drop trigger if exists bipstart_guard_courier_account on public.shop_couriers;
 create trigger bipstart_guard_courier_account
  before insert or update on public.shop_couriers for each row
