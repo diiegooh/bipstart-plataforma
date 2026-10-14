@@ -182,3 +182,11 @@ test('cartão administrativo escapa descrição e e-mail, mostra plano, data, st
  assert.equal(contactWhatsapp({...item,shop_whatsapp:null}),'');
  assert.equal(contactWhatsapp({...item,shop_whatsapp:'abc'}),'');
 });
+
+
+test('visão geral sem botão de WhatsApp, mas contratação permanece no bloqueio',()=>{
+ assert.doesNotMatch(client,/Solicitar plano pelo WhatsApp/);
+ assert.match(client,/function contactUrl\(/);
+ assert.match(client,/\$\('gateWhatsapp'\)\.href=contactUrl\(/);
+ assert.match(html,/id="gateWhatsapp"/);
+});
