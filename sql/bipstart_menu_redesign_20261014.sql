@@ -56,6 +56,13 @@ create or replace function public.bipstart_guard_shop_logo()
 returns trigger language plpgsql security definer set search_path=''
 as $$
 begin
+ if TG_OP='INSERT' then
+   if new.logo_path is not null then
+     raise exception 'O cadastro de uma nova loja não pode incluir logo próprio antes da validação do plano'
+       using errcode='42501';
+   end if;
+   return new;
+ end if;
  if new.logo_path is distinct from old.logo_path then
    if new.logo_path is not null then
      if new.model <> 'cardapio' or not public.bipstart_can_customize(new.id) then
@@ -71,7 +78,7 @@ begin
  return new;
 end $$;
 drop trigger if exists bipstart_guard_shop_logo on public.shops;
-create trigger bipstart_guard_shop_logo before update on public.shops
+create trigger bipstart_guard_shop_logo before insert or update on public.shops
  for each row execute function public.bipstart_guard_shop_logo();
 revoke all on function public.bipstart_guard_shop_logo() from public,anon,authenticated;
 
