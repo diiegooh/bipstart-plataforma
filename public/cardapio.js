@@ -64,7 +64,7 @@ function render(){
  $('deliveryFee').textContent=Number(menu.delivery_fee)>0?money(menu.delivery_fee):'Grátis / a combinar';
  const logo=menu.logo_path?imageUrl(menu.logo_path):'';
  $('brandMark').innerHTML=logo?'<img src="'+esc(logo)+'" alt="Logo da loja '+esc(menu.name)+'">':
-   '<span class="brand-fallback">BipStart</span>';
+   '<img src="/bipstart-logo.svg" alt="Logo BipStart">';
  const first=(menu.items||[]).find(p=>p.image_path)?.image_path;
  if(first)$('coverPicture').style.backgroundImage='url("'+imageUrl(first).replace(/["\\()]/g,'')+'")';
  $('categories').innerHTML=categoryGroups(menu).map(categoryCard).join('')||'<p class="empty">Este estabelecimento ainda não cadastrou produtos.</p>';
