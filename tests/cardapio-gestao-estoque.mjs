@@ -34,7 +34,8 @@ test('produto esgotado aparece marcado e não pode ser incluído pelo botão da 
  assert.match(soldOut,/>Esgotado<\/button>/);
  const available=render({id:'2',name:'Disponível',category:'Bebidas',price:12,in_stock:true});
  assert.doesNotMatch(available,/disabled aria-disabled="true"/);
- assert.match(available,/>🛒 Adicionar<\/button>/);
+ assert.match(available,/>Pedir <svg/);
+ assert.match(available,/aria-label="Adicionar ao pedido: Disponível"/);
  assert.match(css,/\.dproduct \.btn:disabled/);
 });
 

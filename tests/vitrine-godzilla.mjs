@@ -21,7 +21,7 @@ test('vitrine Godzilla está no endereço direto do cardápio, sem login ou pain
 });
 
 test('o visual do cardápio inclui vitrine, categorias dinâmicas, produtos e carrinho',()=>{
- for(const text of ['hero-green','hero-city','category-strip','combo-banner','catalog-toolbar','delivery-grid','onlinecart','cartfloat','bottom-nav']){
+ for(const text of ['hero-green','hero-visual','category-strip','catalog-toolbar','product-list','onlinecart','cartfloat','bottom-nav']){
   assert.match(html,new RegExp('class="[^"]*\\b'+text+'\\b'),text);
  }
  for(const id of ['storeName','quickCategories','catalog','search','category','cartDrawer','cartItems','shipping','address','pay','cartTotal','sendOrder','error']){

@@ -30,7 +30,7 @@ test('coluna mostra exatamente as seis opções na ordem da referência Godzilla
  assert.match(css,/#workspace \.side #nav nav button\.active\{background:linear-gradient\(100deg,#fc0816,#f51b20\)/);
 });
 
-function mockNav(premium){
+function mockNav(premium,tab='caixa'){
  const nodes=new Map();
  function node(id){
   if(!nodes.has(id))nodes.set(id,{
@@ -45,7 +45,7 @@ function mockNav(premium){
  const create=new Function('$','esc','tab','shop','proAccess','canCustomize','imageUrl','publicShopUrl',
   js.slice(start,end)+';return renderNav;');
  const render=create(node,x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
-  'caixa',{name:'Adega <Teste>',logo_path:'loja-id/logo.png'},()=>premium,()=>premium,
+  tab,{name:'Adega <Teste>',logo_path:'loja-id/logo.png'},()=>premium,()=>premium,
   path=>'https://images.example/'+path,()=>'https://bipstart.example/cardapio?loja=adega-teste');
  render();
  return {node};
@@ -61,20 +61,91 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
  const premium=mockNav(true);
  assert.match(premium.node('nav').innerHTML,/data-nav="motoboys" class=""/);
  assert.equal(premium.node('sideShopLogo').src,'https://images.example/loja-id/logo.png');
+ const deliveries=mockNav(true,'entregas');
+ assert.match(deliveries.node('nav').innerHTML,/data-nav="motoboys" class="active" aria-current="page"/);
 });
 
-test('abas Estoque e Pedidos online possuem telas reais, sem prometer pedidos automáticos',()=>{
+test('Estoque mantém controle real e atalhos respeitam acesso ao Premium',()=>{
  assert.match(js,/a\.push\(\['estoque','Estoque'\],\['pedidos','Pedidos online'\]\)/);
  assert.match(js,/tab==='estoque'/);
  assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='low'\)/);
  assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='out'\)/);
- assert.match(js,/tab==='pedidos'/);
- assert.match(js,/Os pedidos recebidos por WhatsApp ainda não são importados automaticamente/);
- assert.match(js,/data-nav="cardapio">Gerenciar cardápio/);
- assert.match(js,/data-nav="entregas">Acessar fila de entregas/);
+ assert.match(js,/data-nav="entregas">Fila de entregas/);
  assert.match(js,/if\(nav\.dataset\.nav==='motoboys'&&!proAccess\(\)\)/);
  assert.match(js,/if\(!canCustomize\(\)\)return msg\('Alterar a cor do cardápio está disponível somente no plano Premium\.'/);
  assert.match(js,/if\(e\.target\.closest\('#sideLogout'\)\)\{closeSideMenu\(\);\$\('logout'\)\.click\(\);return\}/);
+});
+
+function menuNavigation(shop={slug:'adega-centro'},access=true){
+ const result={urls:[],messages:[],closed:0,rendered:0};
+ let click;
+ const context=vm.createContext({
+  shop,tab:'caixa',showForm:{kind:'product'},pastedProductImage:{},
+  document:{addEventListener(type,handler){assert.equal(type,'click');click=handler;}},
+  location:{origin:'https://bipstart.example',assign(url){result.urls.push(url);}},
+  hasAccess:()=>access,
+  msg:(message,error)=>result.messages.push({message,error}),
+  closeSideMenu:()=>result.closed++,
+  renderPage:()=>result.rendered++,
+  proAccess:()=>false,
+  pages:()=>[['caixa','PDV'],['produtos','Produtos'],['pedidos','Pedidos online']]
+ });
+ const helpers=js.slice(js.indexOf('function publicShopUrl(){'),js.indexOf('function shareTitle(){'));
+ const handler=js.slice(js.indexOf("document.addEventListener('click',async e=>{"),js.indexOf('// Validação instantânea'));
+ vm.runInContext(helpers+handler,context);
+ return {
+  result,context,
+  clickNav(id){return click({target:{closest:selector=>selector==='[data-nav]'?{dataset:{nav:id}}:null}});},
+  clickMode(){return click({target:{closest:selector=>selector==='[data-open-mode]'?{dataset:{openMode:'cardapio'}}:null}});}
+ };
+}
+
+test('Pedidos online abre diretamente o cardápio da loja e fecha a navegação mobile',async()=>{
+ const nav=menuNavigation({slug:'adega centro/&'});
+ await nav.clickNav('pedidos');
+ assert.deepEqual(nav.result.urls,['https://bipstart.example/cardapio?loja=adega%20centro%2F%26']);
+ assert.equal(nav.result.closed,1);
+ assert.equal(nav.result.rendered,0);
+ assert.equal(nav.context.tab,'caixa');
+ assert.doesNotMatch(js,/tab==='pedidos'/);
+
+ const other=menuNavigation({slug:'pizzaria-outra'});
+ await other.clickNav('pedidos');
+ assert.deepEqual(other.result.urls,['https://bipstart.example/cardapio?loja=pizzaria-outra']);
+ assert.notEqual(other.result.urls[0],nav.result.urls[0]);
+});
+
+test('Pedidos online protege lojas sem acesso ou endereço público',async()=>{
+ for(const shop of [null,{},{slug:null},{slug:'   '}]){
+  const nav=menuNavigation(shop);
+  await nav.clickNav('pedidos');
+  assert.deepEqual(nav.result.urls,[]);
+  assert.equal(nav.result.closed,0);
+  assert.equal(nav.result.rendered,0);
+  if(shop)assert.equal(nav.result.messages[0]?.error,true);
+ }
+ const blocked=menuNavigation({slug:'loja-bloqueada'},false);
+ await blocked.clickNav('pedidos');
+ assert.deepEqual(blocked.result.urls,[]);
+ assert.equal(blocked.result.closed,0);
+});
+
+test('Cardápio inicial e navegação operacional usam o mesmo destino',async()=>{
+ const nav=menuNavigation({slug:'minha-loja'});
+ await nav.clickMode();
+ assert.deepEqual(nav.result.urls,['https://bipstart.example/cardapio?loja=minha-loja']);
+ assert.equal(nav.result.rendered,0);
+
+ const missing=menuNavigation({slug:''});
+ await missing.clickMode();
+ assert.deepEqual(missing.result.urls,[]);
+ assert.equal(missing.result.messages[0]?.error,true);
+
+ const internal=menuNavigation();
+ await internal.clickNav('produtos');
+ assert.deepEqual(internal.result.urls,[]);
+ assert.equal(internal.context.tab,'produtos');
+ assert.equal(internal.result.rendered,1);
 });
 
 test('menu mobile abre em coluna, fecha no backdrop e Escape e tem foco',()=>{

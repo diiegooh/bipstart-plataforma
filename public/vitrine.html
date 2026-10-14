@@ -6,56 +6,51 @@
   <meta name="theme-color" content="#080b09">
   <meta name="description" content="Cardápio digital: veja os produtos e envie seu pedido diretamente ao estabelecimento.">
   <title>Cardápio digital • BipStart</title>
-  <link rel="stylesheet" href="/vitrine.css?v=2">
+  <link rel="stylesheet" href="/vitrine.css?v=3">
 </head>
 <body class="delivery-page">
 <div class="delivery-app">
   <header class="store-header">
-    <button id="jumpCategories" class="icon-btn menu-btn" type="button" aria-label="Ver categorias">☰</button>
-    <div class="header-logo"><img id="headerLogo" src="/bipstart-logo.svg" alt="Logotipo da loja"></div>
+    <button id="jumpCategories" class="icon-btn menu-btn" type="button" aria-label="Ver categorias"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
+    <div class="header-logo"><img id="headerLogo" src="/bipstart-marca-icon.png" alt="Logotipo da loja"><span id="storeName">Sua loja</span></div>
     <div class="header-actions">
       <a id="ownerEditorLink" class="owner-editor-link hidden" href="/cliente?editar=cardapio" rel="nofollow">⚙ Gerenciar cardápio</a>
-      <button class="icon-btn" id="focusSearch" type="button" aria-label="Buscar produtos">⌕</button>
-      <button class="icon-btn cart-icon-btn" id="headerCart" type="button" aria-label="Abrir carrinho">🛒<span id="headerCartCount">0</span></button>
+      <button class="icon-btn" id="focusSearch" type="button" aria-label="Buscar produtos"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg></button>
+      <button class="icon-btn cart-icon-btn" id="headerCart" type="button" aria-label="Abrir carrinho"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 12h11l2-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg><span id="headerCartCount">0</span></button>
     </div>
   </header>
   <div id="error" class="summary error-message hidden" role="alert"></div>
-  <section class="location-row" aria-label="Informações da loja">
-    <div class="location-card"><span class="location-pin">●</span><span><small>Localização / retirada</small><b id="storeLocation">Consulte a loja</b></span><a id="locationLink" class="location-map hidden" href="#" target="_blank" rel="noopener noreferrer" aria-label="Ver no mapa">↗</a></div>
-    <div class="delivery-badge"><span class="delivery-bike">🛵</span><span><b>Pedidos online</b><small id="deliveryBadge">Consulte a taxa de entrega</small></span></div>
-  </section>
-  <section class="hero-green" aria-labelledby="storeName">
-    <div class="hero-city" aria-hidden="true"></div>
+  <section class="hero-green" aria-labelledby="heroTitle">
     <div class="hero-copy">
-      <div class="eyebrow">CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP</div>
-      <h1><span id="storeName">Sua loja</span><strong>ESCOLHA</strong><strong>SEUS FAVORITOS</strong></h1>
-      <p id="heroSubtitle">Confira os produtos, adicione ao carrinho e envie o pedido para a loja.</p>
-      <button id="heroOrder" class="hero-cta" type="button">VER PRODUTOS <span>›</span></button>
+      <div class="eyebrow">SEU PRÓXIMO FAVORITO ESTÁ AQUI</div>
+      <h1 id="heroTitle">FEITO PARA<br><strong>VOCÊ PEDIR.</strong></h1>
+      <p id="heroSubtitle">Escolha seus favoritos.<br>O resto é com a gente.</p>
+      <button id="heroOrder" class="hero-cta" type="button">Explorar cardápio <span aria-hidden="true">↗</span></button>
     </div>
-    <div class="hero-logo-glow"><img id="heroLogo" src="/bipstart-logo.svg" alt=""></div>
+    <div class="hero-visual"><div class="hero-orbit" aria-hidden="true"></div><img id="heroLogo" src="/bipstart-marca-icon.png" alt=""></div>
   </section>
   <section class="category-strip" id="quickCategories" aria-label="Categorias do cardápio"></section>
-  <section class="combo-banner hidden" id="comboBanner">
-    <div><small>ENCONTRE SEUS FAVORITOS</small><h2>VEJA NOSSOS<br><strong>COMBOS</strong></h2><button id="seeCombos" type="button">VER COMBOS <span>›</span></button></div>
-    <div class="combo-art" aria-hidden="true"><div class="bucket">🛍️</div><div class="combo-note">MAIS<br>OPÇÕES</div></div>
-  </section>
   <section class="catalog-shell" id="catalogue">
     <div class="section-title-row">
-      <div><span class="flame">✦</span><h2>NOSSOS <strong>PRODUTOS</strong></h2></div>
-      <button id="showAll" type="button">Ver todos ›</button>
+      <div><span class="section-line" aria-hidden="true"></span><h2 id="catalogTitle">DESTAQUES</h2></div>
+      <button id="showAll" type="button">Ver todos <span aria-hidden="true">↗</span></button>
     </div>
     <div class="catalog-toolbar">
-      <label class="searchbox"><span>⌕</span><input id="search" type="search" placeholder="Buscar produtos..." autocomplete="off" aria-label="Buscar produtos"></label>
+      <label class="searchbox"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><input id="search" type="search" placeholder="O que você quer pedir?" autocomplete="off" aria-label="Buscar produtos"></label>
       <select id="category" class="select" aria-label="Filtrar por categoria"><option value="">Todas as categorias</option></select>
     </div>
-    <main id="catalog" class="delivery-grid" aria-live="polite"><p>Carregando produtos...</p></main>
+    <main id="catalog" class="delivery-grid product-list" aria-live="polite" aria-label="Produtos do cardápio"><p class="summary catalog-empty">Carregando produtos...</p></main>
   </section>
   <section class="benefits-row">
-    <div><span>⚡</span><b>Pedido simples</b><small>Escolha os produtos no cardápio</small></div>
-    <div><span>🛒</span><b>Carrinho de compras</b><small>Revise itens e valores</small></div>
-    <div><span>✓</span><b>Direto com a loja</b><small>Pagamento combinado com o estabelecimento</small></div>
+    <div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v10H3zM14 10h4l3 4v3h-7"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg><span><b>Entrega ou retirada</b><small>Você escolhe</small></span></div>
+    <div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 9-9 9-9-9zM8 12l4 4 4-4"/></svg><span><b>Pagamento flexível</b><small>Combine com a loja</small></span></div>
+    <div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6zM8 12l3 3 5-6"/></svg><span><b>Pedido pelo WhatsApp</b><small>Direto com a loja</small></span></div>
   </section>
-  <footer class="store-extra"><div><strong>Horários</strong><span id="openingHours">Consulte a loja</span></div><div><strong>Formas de pagamento</strong><span id="paymentMethods">Consulte a loja</span></div></footer>
+  <footer class="store-extra">
+    <div><strong>Localização / retirada</strong><span id="storeLocation">Consulte a loja</span><a id="locationLink" class="location-map hidden" href="#" target="_blank" rel="noopener noreferrer">Ver no mapa ↗</a></div>
+    <div><strong>Horários</strong><span id="openingHours">Consulte a loja</span></div>
+    <div><strong>Formas de pagamento</strong><span id="paymentMethods">Consulte a loja</span><span id="deliveryBadge">Consulte a taxa de entrega</span></div>
+  </footer>
   <nav class="bottom-nav" aria-label="Navegação do cardápio">
     <button id="bottomHome" class="active" type="button">⌂<span>Início</span></button>
     <button id="bottomCategories" type="button">⌗<span>Categorias</span></button>
@@ -81,6 +76,6 @@
   <button id="sendOrder" type="button" class="btn checkout-btn" disabled>Enviar pelo WhatsApp ↗</button>
   <p class="checkout-disclaimer">A loja confirma a disponibilidade, a entrega e o pagamento diretamente com você. A BipStart não processa pagamentos.</p>
 </aside>
-<script src="/vitrine.js?v=2" defer></script>
+<script src="/vitrine.js?v=3" defer></script>
 </body>
 </html>

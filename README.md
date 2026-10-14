@@ -36,7 +36,7 @@ Solicitações de mudança ficam armazenadas no Supabase e podem ser gerenciadas
 
 Dentro do **PDV + CARDÁPIO**, o menu lateral segue a navegação visual da Godzilla Adega: **PDV, Produtos, Estoque, Pedidos online, Motoboys, Vendas**. O topo mostra a logo e o nome da loja; o rodapé oferece **Alterar cor** (Premium), **Abrir cardápio** e **Sair**. O Básico vê o recurso de motoboys identificado como Premium e sem acesso, enquanto a opção de cores informa a restrição. Configurações ficam no ícone de engrenagem ao lado do nome da loja. No celular, a coluna abre pelo botão Menu e mantém layout vertical.
 
-**Pedidos online:** a lista não recebe pedidos automaticamente; as solicitações são enviadas ao WhatsApp do lojista. Esta tela explica a etapa manual, permite compartilhar/gerenciar o cardápio e, no Premium, acessar a fila de entregas. **Estoque** apresenta quantidade e sinaliza itens esgotados e baixos. Não há alteração no banco de dados por causa da barra lateral.
+**Pedidos online:** abre diretamente o link público `/cardapio?loja=SLUG` da própria loja, na mesma aba. O cardápio apresenta fundo escuro, detalhes verdes (ou a cor personalizada da loja), banner com foto de um produto, categorias circulares e produtos em lista com foto, descrição, preço e botão **Pedir**. O carrinho continua enviando a solicitação pelo WhatsApp do lojista, sem criar vendas automaticamente. O lojista encontra **Gerenciar cardápio** na vitrine; a fila de entregas Premium fica acessível em **Motoboys**. **Estoque** apresenta quantidade e sinaliza itens esgotados e baixos. Não há alteração no banco de dados por causa da barra lateral.
 
 ## Cards de cadastro e estoque — 14/10/2026
 

@@ -250,7 +250,7 @@ function operationalMenuItems(){
   ];
 }
 function renderNav(){
-  const current=tab==='cardapio'||tab==='entregas'?'pedidos':tab;
+  const current=tab==='cardapio'?'pedidos':tab==='entregas'?'motoboys':tab;
   $('nav').innerHTML='<nav aria-label="Navegação operacional">'+operationalMenuItems().map(([id,name,icon])=>{
     const premium=id==='motoboys'&&!proAccess();
     return '<button type="button" data-nav="'+esc(id)+'" class="'+(current===id?'active':premium?'locked':'')+'"'+(current===id?' aria-current="page"':'')+(premium?' aria-label="Motoboys: exclusivo Premium" title="Exclusivo do Premium"':'')+'>'+
@@ -284,6 +284,12 @@ function empty(t='Nenhum registro até agora.'){return '<div class="empty">'+esc
 function tile(t,v,sub){return '<div class="tile"><small>'+esc(t)+'</small><strong>'+esc(v)+'</strong><small>'+esc(sub||'')+'</small></div>'}
 function publicShopUrl(){
   return location.origin+'/cardapio?loja='+encodeURIComponent(shop.slug);
+}
+function openPublicMenu(){
+  if(!shop||!hasAccess())return;
+  if(typeof shop.slug!=='string'||!shop.slug.trim())return msg('O endereço do cardápio desta loja ainda não está disponível.',true);
+  closeSideMenu();
+  location.assign(publicShopUrl());
 }
 function shareTitle(){return 'CARDÁPIO ('+shop.name+')'}
 function publicLinkTile(){
@@ -469,27 +475,13 @@ function renderPage(){
     content+='<div class="grid stock-stats">'+tile('Produtos cadastrados',products.length)+tile('Estoque baixo',lowStock)+tile('Sem estoque',outOfStock)+'</div>';
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
     content+=productGrid();
-  }else if(tab==='pedidos'){
-    const businessPhone=String(shop.whatsapp||'').replace(/\D/g,'');
-    const whatsapp=businessPhone?(businessPhone.startsWith('55')?'https://wa.me/'+businessPhone:'https://wa.me/55'+businessPhone):'';
-    content=heading('Pedidos online','Os clientes montam o carrinho no cardápio e enviam os pedidos diretamente para o WhatsApp da sua loja.');
-    content+='<div class="orders-intro"><span aria-hidden="true">🚚</span><div><h3>Pedidos pelo WhatsApp</h3><p>Os pedidos recebidos por WhatsApp ainda não são importados automaticamente para o PDV nem dão baixa no estoque. Confirme a disponibilidade e registre a venda no caixa.</p></div></div>';
-    content+='<div class="orders-actions"><a class="button" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a>'+
-      '<button type="button" class="ghost" data-nav="cardapio">Gerenciar cardápio</button>'+
-      '<button type="button" class="ghost" data-nav="configuracoes">Configurar WhatsApp</button>'+
-      (whatsapp?'<a class="ghost" href="'+esc(whatsapp)+'" target="_blank" rel="noopener noreferrer">Abrir WhatsApp ↗</a>':'')+'</div>';
-    if(proAccess()){
-      content+='<div class="orders-premium"><h3>Entregas do Premium</h3><p>'+deliveries.length+' entrega(s) registradas manualmente após contato com o cliente.</p>'+
-        '<button type="button" class="button" data-nav="entregas">Acessar fila de entregas</button></div>';
-    }else content+='<p class="muted small">Gerenciamento de motoboys e entregas próprias disponível no plano Premium.</p>';
-    content+=publicLinkTile();
   }else if(tab==='caixa'){
     content=renderGodzillaPDV();
   }else if(tab==='vendas'){
     content=heading('Histórico de vendas','Vendas registradas no PDV e seus totais.')
       +(sales.length?'<div class="stack">'+sales.map(s=>'<div class="item"><span>'+new Date(s.created_at).toLocaleString('pt-BR')+'</span><span>'+fmt(s.total)+' • '+esc(s.payment_method)+'</span></div>').join('')+'</div>':empty());
   }else if(tab==='motoboys'){
-    content=heading('Motoboys • Plano Premium','Cadastre entregadores e compartilhe os convites de acesso.','<button class="button" data-new="courier">+ Novo motoboy</button>');
+    content=heading('Motoboys • Plano Premium','Cadastre entregadores e compartilhe os convites de acesso.','<div class="actions"><button type="button" class="ghost" data-nav="entregas">Fila de entregas</button><button class="button" data-new="courier">+ Novo motoboy</button></div>');
     content+='<p class="muted">Cada motoboy cria sua própria conta e aceita o convite. O acesso é individual e restrito às entregas da loja.</p>';
     content+=showForm?.kind==='courier'?courierForm(showForm.value):'';
     content+=couriers.length?'<div class="stack">'+couriers.map(c=>{
@@ -782,7 +774,7 @@ document.addEventListener('click',async e=>{
     if(!shop||!hasAccess())return;
     if(mode.dataset.openMode==='cardapio'){
       // A opção Cardápio abre a vitrine pública em tela cheia, sem o editor intermediário.
-      location.assign(publicShopUrl());
+      openPublicMenu();
       return;
     }
     // O PDV entra diretamente na frente de caixa, mantendo estoque e vendas da loja.
@@ -831,6 +823,7 @@ document.addEventListener('click',async e=>{
   }
   const pasteArea=e.target.closest('[data-image-paste]');if(pasteArea){pasteArea.focus();return}
   const nav=e.target.closest('[data-nav]');if(nav){
+    if(nav.dataset.nav==='pedidos'){openPublicMenu();return;}
     if(nav.dataset.nav==='motoboys'&&!proAccess())return msg('Motoboys disponíveis somente no plano Premium.',true);
     if(!pages().some(([key])=>key===nav.dataset.nav))return;
     tab=nav.dataset.nav;showForm=null;pastedProductImage=null;closeSideMenu();renderPage();return

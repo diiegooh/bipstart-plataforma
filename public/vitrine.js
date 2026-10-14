@@ -40,7 +40,8 @@ function categoryEmoji(value){
 }
 function applyBrand(){
  const color=String(menu.brand_color||'').trim();
- if(/^#[0-9a-fA-F]{6}$/.test(color)){
+ // A cor padrão anterior da BipStart acompanha agora o tema verde do cardápio.
+ if(/^#[0-9a-fA-F]{6}$/.test(color)&&color.toLowerCase()!=='#7c3aed'){
   document.documentElement.style.setProperty('--green',color);
   document.documentElement.style.setProperty('--green2',color);
   const parts=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255);
@@ -55,10 +56,13 @@ function drawPage(){
  $('storeLocation').textContent=menu.location||'Localização a combinar';
  $('openingHours').textContent=menu.opening_hours||'Consulte a loja';
  $('cartStore').textContent=menu.name.toLocaleUpperCase('pt-BR');
- const logo=logoUrl();
+ const logo=menu.logo_path?logoUrl():'/bipstart-marca-icon.png';
  $('headerLogo').src=logo;
  $('headerLogo').alt='Logotipo '+menu.name;
- $('heroLogo').src=logo;
+ const featured=products.find(item=>item.image_path&&item.in_stock!==false)||products.find(item=>item.image_path);
+ $('heroLogo').src=featured?imageUrl(featured.image_path):logo;
+ $('heroLogo').alt=featured?featured.name:'Logotipo '+menu.name;
+ $('heroLogo').classList.toggle('featured-product',Boolean(featured));
  const link=$('locationLink');
  if(menu.location){
   link.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(menu.location);
@@ -72,29 +76,48 @@ function drawPage(){
  }
  const categories=categoryNames();
  $('category').innerHTML='<option value="">Todas as categorias</option>'+categories.map(name=>'<option value="'+esc(name)+'">'+esc(name)+'</option>').join('');
- $('quickCategories').innerHTML=categories.map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'"><span>'+categoryEmoji(name)+'</span><b>'+esc(name)+'</b><i>›</i></button>').join('');
- const combos=categories.find(name=>/combo/i.test(fold(name)));
- $('comboBanner').classList.toggle('hidden',!combos);
- $('seeCombos').dataset.category=combos||'';
+ $('quickCategories').innerHTML=categories.map(name=>{
+  const photo=products.find(item=>fold(item.category||'Geral')===fold(name)&&item.image_path);
+  return '<button type="button" class="category-tile" data-cat="'+esc(name)+'" aria-pressed="false">'+
+   '<span class="category-photo"><span aria-hidden="true">'+categoryEmoji(name)+'</span>'+
+   (photo?'<img src="'+esc(imageUrl(photo.image_path))+'" alt="" loading="lazy">':'')+'</span><b>'+esc(name)+'</b></button>';
+ }).join('');
  renderProducts();
  renderCart();
 }
 function itemCard(item){
  const soldOut=item.in_stock===false;
- const image=item.image_path?'<img src="'+esc(imageUrl(item.image_path))+'" alt="'+esc(item.name)+'" loading="lazy">':'<div class="product-img-placeholder" aria-hidden="true">🛍️</div>';
- return '<article class="dproduct">'+image+'<div class="body"><span class="pill">'+esc(item.category||'Produto')+'</span>'+
+ const image='<div class="product-photo"><span class="product-img-placeholder" aria-hidden="true">🛍️</span>'+
+  (item.image_path?'<img src="'+esc(imageUrl(item.image_path))+'" alt="'+esc(item.name)+'" loading="lazy">':'')+'</div>';
+ return '<article class="dproduct'+(soldOut?' sold-out':'')+'">'+image+'<div class="body"><span class="pill">'+esc(item.category||'Produto')+'</span>'+
   '<h3>'+esc(item.name)+'</h3>'+(item.description?'<p class="description">'+esc(item.description)+'</p>':'')+
-  '<div class="price">'+money(item.price)+'</div>'+
+  '<div class="price">'+money(item.price)+'</div></div><div class="product-action">'+
   (soldOut?'<span class="stock-notice" role="status">Produto esgotado</span>':'')+
-  '<button type="button" class="btn add" data-add="'+esc(item.id)+'"'+(soldOut?' disabled aria-disabled="true"':'')+'>'+(soldOut?'Esgotado':'🛒 Adicionar')+'</button></div></article>';
+  '<button type="button" class="btn add" aria-label="'+esc((soldOut?'Esgotado: ':'Adicionar ao pedido: ')+item.name)+'" data-add="'+esc(item.id)+'"'+(soldOut?' disabled aria-disabled="true"':'')+'>'+
+  (soldOut?'Esgotado':'Pedir <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h3l3 12h11l2-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>')+'</button></div></article>';
 }
 function renderProducts(){
  if(!menu)return;
  const query=fold($('search').value.trim()),category=fold($('category').value);
  const visible=products.filter(item=>(!query||fold(item.name).includes(query)||fold(item.category).includes(query))&&(!category||fold(item.category||'Geral')===category));
  $('catalog').innerHTML=visible.length?visible.map(itemCard).join(''):'<p class="summary catalog-empty">Nenhum produto encontrado nesta categoria.</p>';
- for(const btn of document.querySelectorAll('[data-cat]'))btn.classList.toggle('active',fold(btn.dataset.cat)===category&&!!category);
+ $('catalogTitle').textContent=$('category').value||'DESTAQUES';
+ for(const btn of document.querySelectorAll('[data-cat]')){
+  const active=fold(btn.dataset.cat)===category&&!!category;
+  btn.classList.toggle('active',active);
+  btn.setAttribute('aria-pressed',String(active));
+ }
 }
+// Fotos ausentes continuam exibindo uma alternativa local, sem quebrar a lista.
+document.addEventListener('error',event=>{
+ const image=event.target;
+ if(image.tagName!=='IMG')return;
+ if(image.closest('.product-photo,.category-photo'))image.remove();
+ else if(image.id==='heroLogo'){
+  if(image.dataset.fallback){image.hidden=true;return;}
+  image.dataset.fallback='true';image.src='/bipstart-marca-icon.png';image.classList.remove('featured-product');image.alt='BipStart';
+ }
+},true);
 function subtotal(){
  return [...cart.entries()].reduce((total,[id,qty])=>{
   const item=products.find(p=>p.id===id);
@@ -200,7 +223,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('cartDrawer').cla
 $('heroOrder').addEventListener('click',goToCatalogue);
 $('focusSearch').addEventListener('click',()=>{goToCatalogue();$('search').focus({preventScroll:true});});
 $('showAll').addEventListener('click',()=>{$('search').value='';filterCategory('');});
-$('seeCombos').addEventListener('click',()=>filterCategory($('seeCombos').dataset.category));
 $('jumpCategories').addEventListener('click',()=>document.getElementById('quickCategories').scrollIntoView({behavior:'smooth'}));
 $('bottomCategories').addEventListener('click',()=>document.getElementById('quickCategories').scrollIntoView({behavior:'smooth'}));
 $('bottomProducts').addEventListener('click',goToCatalogue);
