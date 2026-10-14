@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
-    "test": "node tests/smoke.mjs && node --test tests/manual-whatsapp.mjs"
+    "test": "node tests/smoke.mjs && node --test tests/manual-whatsapp.mjs tests/share-meta.mjs"
   },
   "engines": {
     "node": ">=18"
