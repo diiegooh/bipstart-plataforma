@@ -6,7 +6,7 @@ Layout preto/grafite com roxo/lilás neon, semelhante à referência enviada pel
 ## Planos
 - **Básico — R$ 29,99 (pagamento único)**: PDV com estoque, histórico de vendas e cardápio online com produtos compartilhados. Marca e cor padrão da BipStart.
 - **Premium — R$ 99,90/mês**: tudo do Básico, motoboys próprios com convites, ofertas e rotas, inserção de logo própria, alteração da cor do cardápio, solicitações de mudanças conforme a necessidade e suporte mensal. Mudanças sob avaliação de escopo.
-- Nenhum modelo de agenda e nenhum plano Personalizado intermediário.
+- Há somente dois planos comerciais: Básico e Premium, com PDV e cardápio integrados.
 - Código interno do Premium no banco: `pro`; do Básico: `basic`.
 
 ## Área da loja
