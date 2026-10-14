@@ -28,7 +28,7 @@ test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do lay
  assert.match(client,/class="menu-live-preview"/);
  assert.match(client,/<iframe src="'\+esc\(publicShopUrl\(\)\)/);
  assert.match(client,/Abrir cardápio ↗/);
- assert.match(html,/id="publicMenuLink"[^>]*>Abrir cardápio ↗<\/a>/);
+ assert.match(html,/id="sideOpenMenu"[^>]*>\s*<span>Abrir cardápio ↗<\/span><\/a>/);
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
  assert.match(html,/\/cliente\.js\?v=14/);
  assert.match(html,/\/cliente\.css\?v=8/);
