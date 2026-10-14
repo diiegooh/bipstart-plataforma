@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[];
-let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null;
+let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
 const plans={basic:'Básico',personalizado:'Personalizado',pro:'Pro'};
@@ -207,7 +207,16 @@ async function reloadData(){
   products=[];categories=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];
   const get=(t,fields='*')=>rest(t,{query:{select:fields,shop_id:'eq.'+shop.id,order:'created_at.desc',limit:'200'}});
   if(shop.model==='pdv'||shop.model==='cardapio')products=await get('shop_products');
-  if(shop.model==='cardapio')categories=(await get('shop_menu_categories')).sort((a,b)=>a.sort_order-b.sort_order||a.name.localeCompare(b.name));
+  if(shop.model==='cardapio'){
+    try{
+      categories=(await get('shop_menu_categories')).sort((a,b)=>a.sort_order-b.sort_order||a.name.localeCompare(b.name));
+      menuSchemaReady=true;
+    }catch(err){
+      console.warn('Categorias do cardápio aguardando atualização do banco:',err.message);
+      categories=[...new Set(products.map(p=>p.category||'Geral'))].map((name,i)=>({name,sort_order:i*10}));
+      menuSchemaReady=false;
+    }
+  }
   if(shop.model==='pdv')sales=await get('shop_sales');
   if(shop.model==='agenda'){
     services=await rest('shop_services',{query:{select:'*',shop_id:'eq.'+shop.id}});
@@ -275,6 +284,7 @@ function cardapioEditor(){
   ['Entrega',fmt(shop.delivery_fee||0)]
  ];
  return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.','<button class="button" data-new="product">+ Adicionar item</button>')+
+ (menuSchemaReady?'':'<p class="warn">A nova versão do cardápio está aguardando a atualização do banco de dados. Não salve alterações até a configuração terminar.</p>')+
  '<div class="menu-editor-meta">'+details.map(([label,value])=>'<button type="button" data-nav="configuracoes" title="Editar nas configurações"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></button>').join('')+'</div>'+
  '<div class="menu-editor-grid"><section class="menu-editor-panel"><h3>Categorias</h3>'+
  '<form id="categoryForm" class="menu-category-form"><label>Nova categoria<input type="text" name="name" placeholder="Ex.: Bebidas" required maxlength="65"></label>'+
@@ -439,6 +449,7 @@ async function handleSubmit(form){
       await openShop();msg(v.signup_choice==='trial'?'Loja criada! Seus 7 dias gratuitos começaram.':'Loja cadastrada! Peça a contratação pelo WhatsApp e aguarde a liberação.');break;
     }
     case 'categoryForm':{
+      if(!menuSchemaReady)throw Error('Categorias aguardando atualização do banco de dados.');
       if(shop.model!=='cardapio')throw Error('Categorias disponíveis somente para cardápios.');
       const name=String(v.name||'').trim();
       if(name.length<1||name.length>65)throw Error('Informe uma categoria válida (até 65 caracteres).');
@@ -448,6 +459,7 @@ async function handleSubmit(form){
       break;
     }
     case 'productForm':{
+      if(shop?.model==='cardapio'&&!menuSchemaReady)throw Error('Aguarde a atualização do banco de dados para editar o cardápio.');
       const file=pastedProductImage||form.querySelector('input[name=image]').files[0];
       const p=products.find(p=>p.id===id);
       const image_path=file?await uploadImage(file):p?.image_path||null;
