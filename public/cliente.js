@@ -161,6 +161,7 @@ function subscriptionValid(){
 }
 function hasAccess(){return trialValid()||subscriptionValid()}
 function proAccess(){return ent?.plan_code==='pro'&&hasAccess()}
+function canCustomize(){return hasAccess()&&['personalizado','pro'].includes(ent?.plan_code)}
 function contactUrl(reason='contratacao'){
   const chosen=plans[shop?.requested_plan]||'Básico';
   const price=planPrices[shop?.requested_plan]||planPrices.basic;
@@ -223,7 +224,8 @@ function pages(){
   if(shop.model==='agenda')a.push(['agenda','Agendamentos'],['servicos','Serviços']);
   if(shop.model==='cardapio')a.push(['cardapio','Meu cardápio']);
   if(proAccess())a.push(['motoboys','Motoboys'],['entregas','Entregas']);
-  a.push(['personalizar','Solicitar personalização'],['configuracoes','Configurações']);
+  if(canCustomize())a.push(['personalizar','Solicitar personalização']);
+  a.push(['configuracoes','Configurações']);
   return a;
 }
 function renderNav(){
@@ -239,6 +241,7 @@ function productRows(){
 }
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
+  if(tab==='personalizar'&&!canCustomize())tab='resumo';
   renderNav();
   let content='';
   if(tab==='resumo'){
@@ -401,6 +404,7 @@ async function handleSubmit(form){
       break;
     }
     case 'customForm':{
+      if(!canCustomize())throw Error('Personalização disponível somente nos planos Personalizado e Pro.');
       await rest('shop_customization_requests',{method:'POST',body:{shop_id:shop.id,details:v.details.trim()}});
       msg('Solicitação recebida para acompanhamento.');break;
     }
