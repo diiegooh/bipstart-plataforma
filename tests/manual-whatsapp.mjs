@@ -221,7 +221,7 @@ test('cada loja tem um link público único, pronto para compartilhar',()=>{
  assert.match(decodeURIComponent(new URL(whatsapp[1]).searchParams.get('text')),/adega-a/);
  const unsafe=render({name:'Loja <script>alert(1)</script>',slug:'a&b'});
  assert.doesNotMatch(unsafe.html,/<script>/);
- assert.match(unsafe.html,/Loja &lt;script&gt;/);
+ assert.match(unsafe.html,/Loja%20%3Cscript%3E/);
  assert.match(unsafe.url,/a%26b/);
 });
 test('compartilhamento usa dispositivo nativo, cópia e alternativa em desktop',()=>{
