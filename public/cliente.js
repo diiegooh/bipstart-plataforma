@@ -253,7 +253,7 @@ function renderNav(){
   const current=tab==='cardapio'||tab==='entregas'?'pedidos':tab;
   $('nav').innerHTML='<nav aria-label="Navegação operacional">'+operationalMenuItems().map(([id,name,icon])=>{
     const premium=id==='motoboys'&&!proAccess();
-    return '<button type="button" data-nav="'+esc(id)+'" class="'+(current===id?'active':'')+(premium?' locked':'')+'"'+(current===id?' aria-current="page"':'')+(premium?' aria-label="Motoboys: exclusivo Premium" title="Exclusivo do Premium"':'')+'>'+
+    return '<button type="button" data-nav="'+esc(id)+'" class="'+(current===id?'active':premium?'locked':'')+'"'+(current===id?' aria-current="page"':'')+(premium?' aria-label="Motoboys: exclusivo Premium" title="Exclusivo do Premium"':'')+'>'+
       '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b>'+(premium?'<small class="side-lock">Premium</small>':'')+'</button>';
   }).join('')+'</nav>';
   $('sideShopName').textContent=shop.name;
