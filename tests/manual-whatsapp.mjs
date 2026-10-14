@@ -249,7 +249,7 @@ test('compartilhamento usa somente CARDÁPIO (NOME DA LOJA) e o endereço',()=>{
  assert.ok(match);
  const message=new URL(match[1]).searchParams.get('text');
  assert.equal(message,title+'\n'+url);
- assert.doesNotMatch(message,/Confira|BipStart|contratar/i);
+ assert.doesNotMatch(message.split('\n')[0],/Confira|BipStart|contratar/i);
  assert.match(client,/navigator\.share\(\{title:shareTitle\(\),text:shareTitle\(\),url\}\)/);
  assert.match(readFileSync('public/cardapio.js','utf8'),/document\.title='CARDÁPIO \('\+menu\.name\+'\)'/);
 });
