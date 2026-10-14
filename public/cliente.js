@@ -7,7 +7,7 @@ let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSc
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
 const plans={basic:'Básico',pro:'Premium'};
-const planPrices={basic:'R$ 29,99 (pagamento único)',pro:'R$ 99,90/mês'};
+const planPrices={basic:'R$ 29,90 (pagamento único)',pro:'R$ 79,90/mês'};
 const BIPSTART_PLAN_WHATSAPP='5511978353820';
 const models={pdv:'PDV com estoque + cardápio online'};
 const hiding=(id,on)=>$(id).classList.toggle('hidden',!on);
