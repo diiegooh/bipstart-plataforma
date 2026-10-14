@@ -33,3 +33,15 @@ test('a demonstração mantém PDV, cardápio, pedidos e motoboys sem tela de ag
  assert.match(css,/\.record-row\{/);
  assert.doesNotMatch(source,/serviceModal|appointmentModal|serviceForm|appointmentForm|ws\.appointments|ws\.services/);
 });
+
+test('link Planos centraliza o título logo abaixo do cabeçalho fixo',()=>{
+ const html=readFileSync('public/index.html','utf8');
+ const css=readFileSync('public/style.css','utf8');
+ assert.match(html,/<a href="#planos">Planos<\/a>/);
+ assert.match(html,/<section class="section pricing-section"><div class="container"><div class="pricing-title" id="planos">/);
+ assert.doesNotMatch(html,/<section[^>]+id="planos"/);
+ assert.equal((html.match(/id="planos"/g)||[]).length,1);
+ assert.match(css,/html\{scroll-padding-top:90px\}/);
+ assert.match(css,/\.pricing-title#planos\{scroll-margin-top:12px\}/);
+ assert.match(html,/\/style\.css\?v=3/);
+});
