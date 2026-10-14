@@ -457,14 +457,14 @@ function renderPage(){
   }else if(tab==='cardapio'){
     content=cardapioEditor();
   }else if(tab==='produtos'){
-    content=heading('Cadastro de produtos','Cada produto em um card com foto, preços, estoque e quantidade mínima.',
+    content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','Cada produto em um card com foto, preços, estoque e quantidade mínima.',
       '<button type="button" class="button" data-new="product">+ Novo produto</button>');
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
     content+=productGrid();
   }else if(tab==='estoque'){
     const lowStock=products.filter(p=>productStockState(p).state==='low').length;
     const outOfStock=products.filter(p=>productStockState(p).state==='out').length;
-    content=heading('Estoque','Itens que atingem ou ficam abaixo do estoque mínimo são destacados automaticamente.',
+    content='<div class="inventory-kicker">CONTROLE</div>'+heading('Estoque','Itens que atingem ou ficam abaixo do estoque mínimo são destacados automaticamente.',
       '<button type="button" class="button" data-new="product">+ Novo produto</button>');
     content+='<div class="grid stock-stats">'+tile('Produtos cadastrados',products.length)+tile('Estoque baixo',lowStock)+tile('Sem estoque',outOfStock)+'</div>';
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
@@ -835,10 +835,10 @@ document.addEventListener('click',async e=>{
     if(!pages().some(([key])=>key===nav.dataset.nav))return;
     tab=nav.dataset.nav;showForm=null;pastedProductImage=null;closeSideMenu();renderPage();return
   }
-  const add=e.target.closest('[data-new]');if(add){showForm={kind:add.dataset.new,value:null};pastedProductImage=null;renderPage();return}
+  const add=e.target.closest('[data-new]');if(add){showForm={kind:add.dataset.new,value:null};pastedProductImage=null;renderPage();if(add.dataset.new==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return}
   const edit=e.target.closest('[data-edit]');if(edit){
     const lists={product:products,service:services,appointment:appointments,courier:couriers,delivery:deliveries};
-    showForm={kind:edit.dataset.edit,value:(lists[edit.dataset.edit]||[]).find(v=>v.id===edit.dataset.id)||null};pastedProductImage=null;renderPage();return
+    showForm={kind:edit.dataset.edit,value:(lists[edit.dataset.edit]||[]).find(v=>v.id===edit.dataset.id)||null};pastedProductImage=null;renderPage();if(edit.dataset.edit==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return
   }
   if(e.target.closest('[data-cancel]')){showForm=null;renderPage();return}
   const c=e.target.closest('[data-cart]');if(c){const p=products.find(p=>p.id===c.dataset.cart);if(!p)return;const old=cart.find(x=>x.id===p.id);if((old?.qty||0)>=p.stock)return msg('Estoque insuficiente',true);if(old)old.qty++;else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});renderPage();return}
