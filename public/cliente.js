@@ -233,14 +233,51 @@ async function reloadData(){
 function pages(){
   const a=[['resumo','Visão geral']];
   a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['cardapio','Meu cardápio'],['vendas','Histórico de vendas']);
+  a.push(['estoque','Estoque'],['pedidos','Pedidos online']);
   if(proAccess())a.push(['motoboys','Motoboys'],['entregas','Entregas']);
   if(canCustomize())a.push(['personalizar','Mudanças e suporte']);
   a.push(['configuracoes','Configurações']);
   return a;
 }
+function operationalMenuItems(){
+  return [
+    ['caixa','PDV','🛒'],
+    ['produtos','Produtos','📦'],
+    ['estoque','Estoque','📊'],
+    ['pedidos','Pedidos online','🚚'],
+    ['motoboys','Motoboys','🛵'],
+    ['vendas','Vendas','💰']
+  ];
+}
 function renderNav(){
-  const icons={resumo:'⌂',caixa:'🛒',produtos:'📦',cardapio:'▣',vendas:'💰',motoboys:'🛵',entregas:'🚚',personalizar:'🎨',configuracoes:'⚙'};
-  $('nav').innerHTML='<nav>'+pages().map(([id,name])=>'<button type="button" data-nav="'+esc(id)+'" class="'+(tab===id?'active':'')+'"><span aria-hidden="true">'+(icons[id]||'▣')+'</span><b>'+esc(name)+'</b></button>').join('')+'</nav>';
+  const current=tab==='cardapio'||tab==='entregas'?'pedidos':tab;
+  $('nav').innerHTML='<nav aria-label="Navegação operacional">'+operationalMenuItems().map(([id,name,icon])=>{
+    const premium=id==='motoboys'&&!proAccess();
+    return '<button type="button" data-nav="'+esc(id)+'" class="'+(current===id?'active':'')+(premium?' locked':'')+'"'+(current===id?' aria-current="page"':'')+(premium?' aria-label="Motoboys: exclusivo Premium" title="Exclusivo do Premium"':'')+'>'+
+      '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b>'+(premium?'<small class="side-lock">Premium</small>':'')+'</button>';
+  }).join('')+'</nav>';
+  $('sideShopName').textContent=shop.name;
+  $('sideShopLogo').src=canCustomize()&&shop.logo_path?imageUrl(shop.logo_path):'/bipstart-marca-icon.png';
+  $('sideShopLogo').alt='Logotipo '+shop.name;
+  $('sideOpenMenu').href=publicShopUrl();
+  $('sideColorPremium').classList.toggle('hidden',canCustomize());
+  $('sideColor').classList.toggle('locked',!canCustomize());
+  $('sideSettings').classList.toggle('active',tab==='configuracoes');
+}
+function closeSideMenu(){
+  $('sidebar').classList.remove('open');
+  $('sideBackdrop').classList.add('hidden');
+  $('sideToggle').setAttribute('aria-expanded','false');
+  $('sideToggle').setAttribute('aria-label','Abrir menu da loja');
+  document.body.classList.remove('sidebar-open');
+}
+function toggleSideMenu(){
+  const show=!$('sidebar').classList.contains('open');
+  $('sidebar').classList.toggle('open',show);
+  $('sideBackdrop').classList.toggle('hidden',!show);
+  $('sideToggle').setAttribute('aria-expanded',String(show));
+  $('sideToggle').setAttribute('aria-label',show?'Fechar menu da loja':'Abrir menu da loja');
+  document.body.classList.toggle('sidebar-open',show);
 }
 function heading(title,subtitle,action=''){return '<div class="toolbar"><div><h2>'+esc(title)+'</h2><p class="muted">'+esc(subtitle)+'</p></div>'+action+'</div>'}
 function empty(t='Nenhum registro até agora.'){return '<div class="empty">'+esc(t)+'</div>'}
@@ -266,7 +303,7 @@ function publicLinkTile(){
 function imageUrl(path){if(!path)return '';return cfg.supabaseUrl+'/storage/v1/object/public/bipstart-images/'+path.split('/').map(encodeURIComponent).join('/')}
 function editBtn(kind,id){return '<button data-edit="'+esc(kind)+'" data-id="'+esc(id)+'">Editar</button>'}
 function productRows(){
-  return products.length?'<div class="stack">'+products.map(p=>'<div class="item">'+(p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="">':'')+'<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' • '+fmt(p.price)+(tab==='produtos'?' • Estoque: '+esc(p.stock):'')+'</small>'+
+  return products.length?'<div class="stack">'+products.map(p=>'<div class="item">'+(p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="">':'')+'<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' • '+fmt(p.price)+((tab==='produtos'||tab==='estoque')?' • Estoque: '+esc(p.stock):'')+'</small>'+
    (tab==='cardapio'&&p.description?'<p class="muted small">'+esc(p.description)+'</p>':'')+'</div><div class="actions">'+editBtn('product',p.id)+'</div></div>').join('')+'</div>':empty('Cadastre o primeiro produto.')
 }
 function categoryOptions(selected){
