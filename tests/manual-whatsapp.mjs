@@ -190,3 +190,45 @@ test('visão geral sem botão de WhatsApp, mas contratação permanece no bloque
  assert.match(client,/\$\('gateWhatsapp'\)\.href=contactUrl\(/);
  assert.match(html,/id="gateWhatsapp"/);
 });
+
+
+test('cada loja tem um link público único, pronto para compartilhar',()=>{
+ const begin=client.indexOf('function publicShopUrl(){');
+ const end=client.indexOf('function imageUrl(',begin);
+ assert.ok(begin>0&&end>begin);
+ const helpers=client.slice(begin,end);
+ const render=(shop,origin='https://bipstart.exemplo')=>
+  new Function('shop','location','esc',helpers+';return {url:publicShopUrl(),html:publicLinkTile()};')(
+   shop,{origin},
+   text=>String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+  );
+ const a=render({name:'Adega A',slug:'adega-a'});
+ const b=render({name:'Pizzaria B',slug:'pizzaria-b'});
+ assert.equal(a.url,'https://bipstart.exemplo/cardapio?loja=adega-a');
+ assert.equal(b.url,'https://bipstart.exemplo/cardapio?loja=pizzaria-b');
+ assert.notEqual(a.url,b.url);
+ for(const result of [a,b]){
+  assert.match(result.html,/data-share-shop/);
+  assert.match(result.html,/data-copy-shop/);
+  assert.match(result.html,/Compartilhar/);
+  assert.match(result.html,/Copiar link/);
+  assert.match(result.html,/WhatsApp/);
+  assert.match(result.html,/rel="noopener noreferrer"/);
+ }
+ const whatsapp=a.html.match(/href="(https:\/\/wa\.me\/\?text=[^"]+)"/);
+ assert.ok(whatsapp);
+ assert.match(decodeURIComponent(new URL(whatsapp[1]).searchParams.get('text')),/Adega A/);
+ assert.match(decodeURIComponent(new URL(whatsapp[1]).searchParams.get('text')),/adega-a/);
+ const unsafe=render({name:'Loja <script>alert(1)</script>',slug:'a&b'});
+ assert.doesNotMatch(unsafe.html,/<script>/);
+ assert.match(unsafe.html,/Loja &lt;script&gt;/);
+ assert.match(unsafe.url,/a%26b/);
+});
+test('compartilhamento usa dispositivo nativo, cópia e alternativa em desktop',()=>{
+ assert.match(client,/typeof navigator\.share==='function'/);
+ assert.match(client,/await navigator\.share\(/);
+ assert.match(client,/navigator\.clipboard\.writeText\(url\)/);
+ assert.match(client,/window\.prompt\('Copie o link do cardápio:',url\)/);
+ assert.match(client,/if\(!shop\|\|shop\.model!=='cardapio'\|\|!hasAccess\(\)\)return/);
+ assert.match(readFileSync('public/cliente.html','utf8'),/cliente\.js\?v=3/);
+});
