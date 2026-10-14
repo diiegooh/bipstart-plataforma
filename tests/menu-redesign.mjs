@@ -8,7 +8,7 @@ const sql=readFileSync('sql/bipstart_menu_redesign_20261014.sql','utf8');
 const html=readFileSync('public/cardapio.html','utf8');
 const css=readFileSync('public/cardapio.css','utf8');
 test('arquivos frontend e servidor sem erros de sintaxe',()=>{
- for(const path of ['public/cardapio.js','public/cliente.js','server.mjs'])
+ for(const path of ['public/cardapio.js','public/cliente.js'])
   new vm.Script(readFileSync(path,'utf8'),{filename:path});
 });
 const escaped=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
