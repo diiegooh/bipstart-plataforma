@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#100721"><title>Minha loja • BipStart</title>
-<link rel="stylesheet" href="/cliente.css?v=3">
+<link rel="stylesheet" href="/cliente.css?v=4">
 </head>
 <body>
 <header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><a href="/">Conhecer os planos</a> <button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
@@ -54,11 +54,26 @@
     <button type="button" class="ghost" id="refreshAccess">Atualizar meu acesso</button>
     <p class="muted small">Seus dados continuam guardados. O acesso é liberado somente após confirmação manual do pagamento pela BipStart.</p>
   </section>
-  <section id="workspace" class="hidden"><div class="heading"><div><span class="kicker">PAINEL BIPSTART</span><h1 id="shopName">Minha loja</h1><p id="shopStatus" class="muted"></p></div><div><a id="publicMenuLink" class="ghost hidden" target="_blank" rel="noopener">Abrir meu cardápio ↗</a></div></div>
+  <section id="modeChooser" class="mode-chooser hidden" aria-labelledby="modeChooserTitle">
+    <span class="kicker">SUA LOJA • BIPSTART</span>
+    <h1 id="modeChooserTitle">Como deseja começar?</h1>
+    <p class="muted">Escolha a área que deseja acessar. Seu cadastro e seus produtos são os mesmos nas duas opções.</p>
+    <div class="mode-options">
+      <button type="button" class="mode-option mode-menu" data-open-mode="cardapio">
+        <span class="mode-option-icon" aria-hidden="true">▣</span>
+        <span class="mode-option-content"><strong>CARDÁPIO</strong><small>Gerenciar categorias, fotos e preços. Abrir o cardápio digital pronto para seus clientes.</small><span class="mode-option-cta">Acessar cardápio ↗</span></span>
+      </button>
+      <button type="button" class="mode-option mode-pdv" data-open-mode="caixa">
+        <span class="mode-option-icon" aria-hidden="true">▦</span>
+        <span class="mode-option-content"><strong>PDV + CARDÁPIO</strong><small>Frente de caixa no estilo Godzilla, estoque, vendas e acesso ao mesmo cardápio digital.</small><span class="mode-option-cta">Acessar PDV e cardápio ↗</span></span>
+      </button>
+    </div>
+  </section>
+  <section id="workspace" class="hidden"><div class="heading"><div><span class="kicker">PAINEL BIPSTART</span><h1 id="shopName">Minha loja</h1><p id="shopStatus" class="muted"></p></div><div class="workspace-top-actions"><button type="button" id="backToModes" class="ghost">← Voltar às opções</button><a id="publicMenuLink" class="ghost hidden" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a></div></div>
     <div class="dashboard"><aside class="side"><div id="nav"></div><button type="button" id="switchShop" class="ghost">Ver planos BipStart</button></aside>
     <div class="content"><div id="page"></div></div></div>
   </section>
 </main>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=7" defer></script>
+<script src="/cliente.js?v=8" defer></script>
 </body></html>
