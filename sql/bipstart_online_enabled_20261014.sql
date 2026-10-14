@@ -23,6 +23,11 @@ as $$
    'categories',coalesce((
      select jsonb_agg(jsonb_build_object('name',c.name) order by c.sort_order,c.name)
      from public.shop_menu_categories c where c.shop_id=s.id
+       and exists (
+         select 1 from public.shop_products cp
+         where cp.shop_id=s.id and cp.active=true and cp.online_enabled=true
+           and lower(btrim(cp.category))=lower(btrim(c.name))
+       )
    ),'[]'::jsonb),
    'items',coalesce((
      select jsonb_agg(jsonb_build_object(
