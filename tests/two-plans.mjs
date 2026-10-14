@@ -52,7 +52,9 @@ test('Premium exibe motoboys, suporte, logo e edição de cores',()=>{
  assert.match(client,/if\(canCustomize\(\)\)a\.push\(\['personalizar','Mudanças e suporte'\]\)/);
  assert.match(client,/canCustomize\(\)\?field\('brand_color'/);
  assert.match(client,/if\(canCustomize\(\)\)\{/);
- assert.match(client,/Logo própria e cores personalizadas são exclusivas do Premium vigente/);
+ assert.doesNotMatch(client,/Logo própria e cores personalizadas são exclusivas do Premium vigente/);
+ assert.doesNotMatch(client,/Identidade BipStart padrão\. A troca de cores é exclusiva do Premium\./);
+ assert.doesNotMatch(client,/Seu endereço do cardápio é:/);
  assert.match(admin,/const PLAN=\{basic:'Básico',pro:'Premium'\}/);
  assert.doesNotMatch(admin,/personalizado/);
  assert.match(menu,/document\.documentElement\.style\.setProperty\('--purple',menu\.brand_color\)/);
@@ -96,5 +98,5 @@ test('preços apresentados são Básico R$ 29,90 e Premium R$ 79,90',()=>{
  assert.match(client,/const planPrices=\{basic:'R\$ 29,90 \(pagamento único\)',pro:'R\$ 79,90\/mês'\}/);
  assert.match(app,/change===3\?'R\$ 79,90 por mês':fmt\(29\.90\)/);
  assert.match(front,/\/app\.js\?v=3/);
- assert.match(signup,/\/cliente\.js\?v=17/);
+ assert.match(signup,/\/cliente\.js\?v=18/);
 });
