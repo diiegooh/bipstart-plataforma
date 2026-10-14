@@ -11,15 +11,37 @@
 .admin-table button{font-size:12px;margin:3px;padding:8px 12px}
 .admin-wrap{overflow-x:auto}.admin-status{font-weight:700}.admin-muted{font-weight:400;color:var(--muted)}.admin-email{font-weight:600;word-break:break-word;color:#dfc9ff;margin-top:3px}
 .admin-actions{display:flex;flex-wrap:wrap;gap:5px}.admin-actions .ghost{border:1px solid #604b80}
+.admin-shortcut{font-weight:600;color:#d2a9ff;text-decoration:none}
+.customization-grid{display:grid;gap:16px;margin-top:16px}
+.customization-card{padding:20px;background:#1e1532;border:1px solid #594273;border-radius:16px}
+.customization-head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:start}
+.customization-head h3{margin:0;font-size:19px}
+.customization-head p{margin:5px 0;line-height:1.5}
+.customization-status{padding:6px 10px;border:1px solid #7553a1;border-radius:24px;font-size:12px;font-weight:700}
+.customization-details{margin:15px 0;padding:14px;border:1px solid #493760;background:#130d23;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65}
+.customization-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.customization-actions label{display:flex;flex-direction:column;gap:6px;font-weight:650}
+.customization-actions select{min-width:170px}
+.customization-actions button{min-height:42px}
+.custom-contact{display:inline-flex;align-items:center;text-decoration:none;border:1px solid #6e5493;border-radius:10px;padding:12px 14px}
+@media(max-width:640px){.customization-card{padding:14px}.customization-actions{align-items:stretch}.customization-actions button,.custom-contact{width:100%;justify-content:center}}
 </style></head><body>
 <header class="top"><a href="/" class="brand"><img src="/bipstart-logo.svg" alt="BipStart" width="220" height="60"></a>
 <nav><a href="/cliente">Voltar à minha loja</a></nav></header>
 <main class="admin-main">
- <div class="admin-header"><div><span class="kicker">ACESSO RESTRITO</span><h1>Administração dos planos</h1><p class="muted">Liberação manual depois de conferir o pagamento pelo WhatsApp.</p><p id="adminAccount" class="muted" aria-live="polite">Verificando a conta conectada...</p></div>
+ <div class="admin-header"><div><span class="kicker">ACESSO RESTRITO</span><h1>Administração dos planos</h1><p class="muted">Liberação manual depois de conferir o pagamento pelo WhatsApp.</p><p id="adminAccount" class="muted" aria-live="polite">Verificando a conta conectada...</p><p><a class="admin-shortcut" href="#customizationSection">Ver solicitações de personalização ↓</a></p></div>
  <button id="reload" class="button" type="button">Atualizar lista</button></div>
  <section class="card"><p id="adminMessage" role="status">Carregando lojas...</p>
  <div class="admin-wrap"><table class="admin-table"><thead><tr><th>Loja</th><th>Plano solicitado</th><th>Status</th><th>Plano para liberar</th><th>Ações</th></tr></thead>
  <tbody id="adminRows"></tbody></table></div>
  </section>
  <p class="muted">Planos Básico e Personalizado têm pagamento único. O Pro vale por 30 dias por ativação manual. O sistema não recebe nem confirma pagamentos automaticamente.</p>
-</main><script src="/admin.js?v=3" defer></script></body></html>
+ <section id="customizationSection" class="card" aria-labelledby="customizationHeading">
+  <div class="admin-header">
+   <div><span class="kicker">ATENDIMENTO</span><h2 id="customizationHeading">Solicitações de personalização</h2>
+   <p class="muted">Pedidos dos clientes, andamento do atendimento e contato comercial.</p></div>
+  </div>
+  <p id="customMessage" role="status" aria-live="polite">Carregando solicitações...</p>
+  <div id="customRequests" class="customization-grid"></div>
+ </section>
+</main><script src="/admin.js?v=4" defer></script></body></html>
