@@ -69,6 +69,45 @@ function row(item){
    '<button type="button" class="button" data-action="activate">Ativar</button>'+
    '<button type="button" class="ghost" data-action="suspend">Suspender</button></div></td></tr>';
 }
+const REQUEST_STATUS={novo:'Pendente',em_analise:'Em andamento',concluido:'Concluído'};
+function contactWhatsapp(item){
+ let phone=String(item.shop_whatsapp||'').replace(/\D/g,'');
+ if(/^\d{10,11}$/.test(phone))phone='55'+phone;
+ if(!/^55\d{10,11}$/.test(phone))return '';
+ const text=[
+  'Olá! Aqui é do atendimento BipStart.',
+  'Estou entrando em contato sobre a solicitação de personalização da loja '+String(item.shop_name||'')+'.',
+  'Podemos conversar sobre os detalhes?'
+ ].join('\n');
+ return 'https://wa.me/'+phone+'?text='+encodeURIComponent(text);
+}
+function requestCard(item){
+ const status=REQUEST_STATUS[item.request_status]?item.request_status:'novo';
+ const plan=PLAN[item.plan_code]||'Não identificado';
+ const contact=contactWhatsapp(item);
+ const created=item.created_at?new Date(item.created_at).toLocaleString('pt-BR'):'Data indisponível';
+ const options=Object.entries(REQUEST_STATUS).map(([value,label])=>
+  '<option value="'+value+'"'+(value===status?' selected':'')+'>'+label+'</option>').join('');
+ const action=contact?'<a class="ghost custom-contact" href="'+escapeHtml(contact)+'" target="_blank" rel="noopener noreferrer">Conversar pelo WhatsApp ↗</a>':
+  '<span class="admin-muted">WhatsApp não cadastrado</span>';
+ return '<article class="customization-card" data-request-id="'+escapeHtml(item.request_id)+'">'+
+  '<div class="customization-head"><div><h3>'+escapeHtml(item.shop_name)+'</h3>'+
+  '<p class="admin-email">'+escapeHtml(item.owner_email||'E-mail não disponível')+'</p>'+
+  '<p class="admin-muted">Plano: '+escapeHtml(plan)+' · Enviado em '+escapeHtml(created)+'</p></div>'+
+  '<span class="customization-status">'+escapeHtml(REQUEST_STATUS[status])+'</span></div>'+
+  '<div class="customization-details">'+escapeHtml(item.details)+'</div>'+
+  '<div class="customization-actions">'+
+  '<label>Status <select aria-label="Status da solicitação">'+options+'</select></label>'+
+  '<button type="button" class="button" data-custom-action="save">Salvar status</button>'+action+
+  '</div></article>';
+}
+async function loadCustomization(){
+ $('customMessage').textContent='Carregando solicitações...';
+ const items=await request('bipstart_admin_list_customization_requests');
+ if(!Array.isArray(items))throw Error('Resposta inesperada ao consultar as solicitações.');
+ $('customRequests').innerHTML=items.map(requestCard).join('');
+ $('customMessage').textContent=items.length?items.length+' solicitação(ões) encontrada(s).':'Nenhuma solicitação de personalização até agora.';
+}
 async function load(){
  if(busy)return;busy=true;$('reload').disabled=true;message('Buscando lojas...');
  try{
@@ -78,7 +117,9 @@ async function load(){
    const items=await request('bipstart_admin_list_shops_with_emails');
    $('adminRows').innerHTML=(Array.isArray(items)?items:[]).map(row).join('');
    message((items||[]).length+' loja(s) encontradas. Confirme o pagamento antes de liberar.');
- }catch(e){$('adminRows').replaceChildren();message(e.message,true)}
+   try{await loadCustomization()}
+   catch(e){$('customRequests').replaceChildren();$('customMessage').textContent='Não foi possível carregar as solicitações: '+e.message}
+ }catch(e){$('adminRows').replaceChildren();$('customRequests').replaceChildren();$('customMessage').textContent='Faça login com uma conta administradora para visualizar as solicitações.';message(e.message,true)}
  finally{busy=false;$('reload').disabled=false}
 }
 $('reload').addEventListener('click',load);
@@ -98,5 +139,28 @@ $('adminRows').addEventListener('click',async e=>{
   message('Acesso atualizado. Nenhuma cobrança foi processada pela BipStart.');
  }catch(err){message(err.message,true)}
  finally{busy=false;btn.disabled=false;await load()}
+});
+$('customRequests').addEventListener('click',async event=>{
+ const button=event.target.closest('[data-custom-action="save"]');
+ if(!button||busy)return;
+ const card=button.closest('[data-request-id]');
+ const requestId=card?.dataset.requestId;
+ const status=card?.querySelector('select')?.value;
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId||'')||
+    !Object.hasOwn(REQUEST_STATUS,status||''))return;
+ if(!window.confirm('Atualizar esta solicitação para "'+REQUEST_STATUS[status]+'"?'))return;
+ busy=true;button.disabled=true;$('reload').disabled=true;
+ try{
+  const result=await request('bipstart_admin_update_customization_status',{
+   p_request_id:requestId,p_status:status
+  });
+  if(result!==true)throw Error('O Supabase não confirmou a atualização.');
+  $('customMessage').textContent='Status atualizado com sucesso.';
+ }catch(e){$('customMessage').textContent='Não foi possível atualizar: '+e.message}
+ finally{busy=false;button.disabled=false;$('reload').disabled=false}
+ if(!busy){
+  try{await loadCustomization()}
+  catch(e){$('customMessage').textContent='Não foi possível atualizar a lista: '+e.message}
+ }
 });
 load();
