@@ -38,6 +38,12 @@ Dentro do **PDV + CARDÁPIO**, o menu lateral segue a navegação visual da Godz
 
 **Pedidos online:** a lista não recebe pedidos automaticamente; as solicitações são enviadas ao WhatsApp do lojista. Esta tela explica a etapa manual, permite compartilhar/gerenciar o cardápio e, no Premium, acessar a fila de entregas. **Estoque** apresenta quantidade e sinaliza itens esgotados e baixos. Não há alteração no banco de dados por causa da barra lateral.
 
+## Cards de cadastro e estoque — 14/10/2026
+
+As abas **Produtos** (cadastro) e **Estoque** exibem uma grade responsiva de cartões individuais por produto, com foto (ou imagem neutra), nome, categoria, preço de venda, preço de custo, **quantidade atual**, **estoque mínimo** e botão **Editar**. No celular, a grade adapta o número de colunas.
+
+O status depende do mínimo de cada produto: **Sem estoque** (saldo zero), **Estoque baixo** (saldo positivo menor ou igual ao mínimo) e **Estoque normal** (saldo maior que o mínimo). A cor diferencia as situações e o saldo é atualizado após vendas concluídas no PDV. O formulário permite configurar o mínimo por item. A migração `sql/bipstart_product_min_stock_20261014.sql` adiciona `shop_products.min_stock` com valor inicial 5 e restrição para não negativos; não altera o saldo, o preço nem os produtos existentes.
+
 ## Projeto técnico
 
 - Servidor HTTP: `server.mjs`, Node.js.
