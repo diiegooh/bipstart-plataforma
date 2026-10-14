@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080b09">
+  <meta name="description" content="Cardápio digital: veja os produtos e envie seu pedido diretamente ao estabelecimento.">
+  <title>Cardápio digital • BipStart</title>
+  <link rel="stylesheet" href="/vitrine.css?v=1">
+</head>
+<body class="delivery-page">
+<div class="delivery-app">
+  <header class="store-header">
+    <button id="jumpCategories" class="icon-btn menu-btn" type="button" aria-label="Ver categorias">☰</button>
+    <div class="header-logo"><img id="headerLogo" src="/bipstart-logo.svg" alt="Logotipo da loja"></div>
+    <div class="header-actions">
+      <button class="icon-btn" id="focusSearch" type="button" aria-label="Buscar produtos">⌕</button>
+      <button class="icon-btn cart-icon-btn" id="headerCart" type="button" aria-label="Abrir carrinho">🛒<span id="headerCartCount">0</span></button>
+    </div>
+  </header>
+  <div id="error" class="summary error-message hidden" role="alert"></div>
+  <section class="location-row" aria-label="Informações da loja">
+    <div class="location-card"><span class="location-pin">●</span><span><small>Localização / retirada</small><b id="storeLocation">Consulte a loja</b></span><a id="locationLink" class="location-map hidden" href="#" target="_blank" rel="noopener noreferrer" aria-label="Ver no mapa">↗</a></div>
+    <div class="delivery-badge"><span class="delivery-bike">🛵</span><span><b>Pedidos online</b><small id="deliveryBadge">Consulte a taxa de entrega</small></span></div>
+  </section>
+  <section class="hero-green" aria-labelledby="storeName">
+    <div class="hero-city" aria-hidden="true"></div>
+    <div class="hero-copy">
+      <div class="eyebrow">CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP</div>
+      <h1><span id="storeName">Sua loja</span><strong>ESCOLHA</strong><strong>SEUS FAVORITOS</strong></h1>
+      <p id="heroSubtitle">Confira os produtos, adicione ao carrinho e envie o pedido para a loja.</p>
+      <button id="heroOrder" class="hero-cta" type="button">VER PRODUTOS <span>›</span></button>
+    </div>
+    <div class="hero-logo-glow"><img id="heroLogo" src="/bipstart-logo.svg" alt=""></div>
+  </section>
+  <section class="category-strip" id="quickCategories" aria-label="Categorias do cardápio"></section>
+  <section class="combo-banner hidden" id="comboBanner">
+    <div><small>ENCONTRE SEUS FAVORITOS</small><h2>VEJA NOSSOS<br><strong>COMBOS</strong></h2><button id="seeCombos" type="button">VER COMBOS <span>›</span></button></div>
+    <div class="combo-art" aria-hidden="true"><div class="bucket">🛍️</div><div class="combo-note">MAIS<br>OPÇÕES</div></div>
+  </section>
+  <section class="catalog-shell" id="catalogue">
+    <div class="section-title-row">
+      <div><span class="flame">✦</span><h2>NOSSOS <strong>PRODUTOS</strong></h2></div>
+      <button id="showAll" type="button">Ver todos ›</button>
+    </div>
+    <div class="catalog-toolbar">
+      <label class="searchbox"><span>⌕</span><input id="search" type="search" placeholder="Buscar produtos..." autocomplete="off" aria-label="Buscar produtos"></label>
+      <select id="category" class="select" aria-label="Filtrar por categoria"><option value="">Todas as categorias</option></select>
+    </div>
+    <main id="catalog" class="delivery-grid" aria-live="polite"><p>Carregando produtos...</p></main>
+  </section>
+  <section class="benefits-row">
+    <div><span>⚡</span><b>Pedido simples</b><small>Escolha os produtos no cardápio</small></div>
+    <div><span>🛒</span><b>Carrinho de compras</b><small>Revise itens e valores</small></div>
+    <div><span>✓</span><b>Direto com a loja</b><small>Pagamento combinado com o estabelecimento</small></div>
+  </section>
+  <footer class="store-extra"><div><strong>Horários</strong><span id="openingHours">Consulte a loja</span></div><div><strong>Formas de pagamento</strong><span id="paymentMethods">Consulte a loja</span></div></footer>
+  <nav class="bottom-nav" aria-label="Navegação do cardápio">
+    <button id="bottomHome" class="active" type="button">⌂<span>Início</span></button>
+    <button id="bottomCategories" type="button">⌗<span>Categorias</span></button>
+    <button id="bottomProducts" type="button">◇<span>Produtos</span></button>
+    <button id="bottomOrders" type="button">🛒<span>Meu pedido</span></button>
+  </nav>
+</div>
+<button id="openCart" class="cartfloat" type="button" aria-label="Abrir carrinho"><span>🛒</span><b id="cartCount">0</b></button>
+<div id="cartBackdrop" class="cart-backdrop hidden"></div>
+<aside id="cartDrawer" class="onlinecart" role="dialog" aria-modal="true" aria-labelledby="cartTitle" aria-hidden="true">
+  <div class="modalhead"><div><small id="cartStore">CARDÁPIO DIGITAL</small><h2 id="cartTitle">Seu pedido</h2></div><button id="closeCart" class="close" type="button" aria-label="Fechar carrinho">×</button></div>
+  <div id="cartItems"></div>
+  <div class="total"><span>Produtos</span><span id="cartSubtotal">R$ 0,00</span></div>
+  <div class="formgrid">
+    <label class="span2">Nome (opcional)<input id="name" class="input" autocomplete="name" maxlength="120" placeholder="Como podemos chamar você?"></label>
+    <label class="span2">Recebimento<select id="shipping" class="select"><option value="pickup">Retirar no estabelecimento</option><option value="delivery">Receber por entrega</option></select></label>
+    <label id="addressField" class="span2 hidden">Endereço completo<textarea id="address" rows="3" maxlength="300" placeholder="Rua, número, bairro e complemento"></textarea></label>
+    <label class="span2">Forma de pagamento<select id="pay" class="select"><option value="a_combinar">A combinar</option><option value="pix">Pix</option><option value="dinheiro">Dinheiro</option><option value="credito">Cartão de crédito</option><option value="debito">Cartão de débito</option></select></label>
+    <label class="span2">Observações (opcional)<textarea id="notes" rows="2" maxlength="500" placeholder="Ex.: sem cebola, troco para R$ 50..."></textarea></label>
+  </div>
+  <div class="cart-fee hidden" id="deliveryLine"><span>Entrega</span><strong id="deliveryTotal">R$ 0,00</strong></div>
+  <div class="total grand-total"><span>Total</span><span id="cartTotal">R$ 0,00</span></div>
+  <button id="sendOrder" type="button" class="btn checkout-btn" disabled>Enviar pelo WhatsApp ↗</button>
+  <p class="checkout-disclaimer">A loja confirma a disponibilidade, a entrega e o pagamento diretamente com você. A BipStart não processa pagamentos.</p>
+</aside>
+<script src="/vitrine.js?v=1" defer></script>
+</body>
+</html>
