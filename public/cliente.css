@@ -402,3 +402,51 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
  }
  #workspace .pdv-mobile-menu #sideToggle:focus-visible{outline:3px solid #ff5963;outline-offset:2px}
 }
+
+
+/* Categorias do cadastro: cartões clicáveis acima dos produtos. */
+#workspace .inventory-category-section{margin:20px 0 17px}
+#workspace .inventory-category-heading{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 10px}
+#workspace .inventory-category-heading strong{font-size:17px;color:#fff}
+#workspace .inventory-category-heading small{font-size:12px;color:#9cafa1}
+#workspace .inventory-category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+#workspace .inventory-category-card{display:flex;flex-direction:column;gap:3px;align-items:flex-start;justify-content:center;
+ text-align:left;min-width:0;min-height:66px;padding:11px 13px;border:1px solid #30463a;border-radius:13px;
+ background:#111d16;color:#f5fbf5;transition:background .15s,border-color .15s,transform .15s}
+#workspace .inventory-category-card strong{font-size:14px;font-weight:850;overflow-wrap:anywhere}
+#workspace .inventory-category-card small{font-size:11px;color:#a3b9aa}
+#workspace .inventory-category-card:hover{border-color:#6d9980;transform:translateY(-1px)}
+#workspace .inventory-category-card.active{background:linear-gradient(100deg,#fe101e,#e82631);
+ color:#fff;border-color:#ff6470;box-shadow:0 7px 18px #e7223630}
+#workspace .inventory-category-card.active small{color:#ffe5e5}
+#workspace .inventory-category-card:focus-visible{outline:3px solid #ff8191;outline-offset:3px}
+
+/* Os cards eram de no mínimo 230px; 174px equivale a ~40% menos largura visual.
+   Imagem, tipografia e espaçamento também reduzem proporcionalmente. */
+#workspace .inventory-grid.compact{grid-template-columns:repeat(auto-fill,minmax(174px,1fr));gap:11px;margin-top:12px}
+#workspace .inventory-grid.compact .inventory-card{border-radius:14px}
+#workspace .inventory-grid.compact .inventory-photo-wrap{min-height:105px;aspect-ratio:4/3}
+#workspace .inventory-grid.compact .inventory-card-body{padding:10px;gap:8px}
+#workspace .inventory-grid.compact .inventory-card-heading small{font-size:10px}
+#workspace .inventory-grid.compact .inventory-card-heading h3{font-size:14px;line-height:1.25}
+#workspace .inventory-grid.compact .inventory-card-prices>strong{font-size:16px}
+#workspace .inventory-grid.compact .inventory-card-prices>small{font-size:10px}
+#workspace .inventory-grid.compact .inventory-stock-meta{font-size:10px;gap:3px}
+#workspace .inventory-grid.compact .inventory-status{font-size:12px}
+#workspace .inventory-grid.compact .inventory-actions button{min-height:36px;font-size:12px;padding:7px 10px}
+#workspace .inventory-online-price{display:block;font-size:11px;color:#cfb4ff;font-weight:650}
+#workspace .inventory-online-price strong{color:#e5d5ff}
+#workspace .menu-price-controls{grid-column:1/-1;background:#19132a;border:1px solid #5f4682;border-radius:13px;padding:12px 15px}
+#workspace .menu-price-controls .menu-price-toggle{display:flex;gap:10px;align-items:center;font-size:14px;color:#fff;margin:3px 0 9px}
+#workspace .menu-price-controls .menu-price-toggle input{flex:0 0 19px;width:19px;height:19px;margin:0;accent-color:#ad72ff}
+#workspace .menu-price-controls>label:not(.menu-price-toggle){margin:8px 0}
+#workspace .menu-price-controls>small{display:block;line-height:1.5;margin:9px 0 2px}
+@media(max-width:600px){
+ #workspace .inventory-category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #workspace .inventory-grid.compact{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #workspace .inventory-grid.compact .inventory-photo-wrap{min-height:93px}
+ #workspace .inventory-category-heading{gap:5px;flex-direction:column}
+}
+@media(max-width:360px){
+ #workspace .inventory-grid.compact{grid-template-columns:1fr}
+}
