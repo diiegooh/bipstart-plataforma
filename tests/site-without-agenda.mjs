@@ -43,7 +43,7 @@ test('link Planos centraliza o título logo abaixo do cabeçalho fixo',()=>{
  assert.equal((html.match(/id="planos"/g)||[]).length,1);
  assert.match(css,/html\{scroll-padding-top:90px\}/);
  assert.match(css,/\.pricing-title#planos\{scroll-margin-top:12px\}/);
- assert.match(html,/\/style\.css\?v=3/);
+ assert.match(html,/\/style\.css\?v=4/);
 });
 
 test('tipografia dos planos permanece legível e destacada no desktop e no celular',()=>{
@@ -53,4 +53,36 @@ test('tipografia dos planos permanece legível e destacada no desktop e no celul
  assert.match(css,/\.pricing-section \.plan-top>small\{font-size:14px/);
  assert.match(css,/\.pricing-section \.pricing-title>p\{font-size:clamp\(16px,1\.35vw,19px\)/);
  assert.match(css,/@media\(max-width:760px\)/);
+});
+
+
+test('FAQ Premium, solicitações gratuitas e pagamentos refletem a oferta comercial',()=>{
+ const html=readFileSync('public/index.html','utf8');
+ assert.match(html,/O que inclui o Premium\?/);
+ assert.match(html,/sistema integrado de motoboys particulares/i);
+ assert.match(html,/depois de cadastrados na fila de entregas/);
+ assert.match(html,/O envio automático do cardápio ainda não está disponível/);
+ assert.match(html,/Você poderá solicitar mudanças conforme seu negócio\. Sem nenhum custo\./);
+ assert.match(html,/Por questões de segurança, os pagamentos são realizados diretamente na sua loja física ou combinados pelo WhatsApp/);
+ assert.doesNotMatch(html,/eventuais custos extras/);
+});
+test('botões de escolher plano têm o mesmo estilo e rótulos proporcionais',()=>{
+ const html=readFileSync('public/index.html','utf8');
+ const css=readFileSync('public/style.css','utf8');
+ assert.match(html,/class="button button-primary button-plan-select" data-plan="1">Escolher Básico/);
+ assert.match(html,/class="button button-primary button-plan-select" data-plan="3">Escolher Premium/);
+ assert.equal((html.match(/class="button button-primary button-plan-select"/g)||[]).length,2);
+ assert.match(css,/\.pricing-section \.plan>\.button-plan-select\{/);
+ assert.match(css,/width:100%/);
+ assert.match(css,/min-height:52px/);
+});
+test('celular oferece link direto Entrar para a área autenticada mesmo sem menu desktop',()=>{
+ const html=readFileSync('public/index.html','utf8');
+ const css=readFileSync('public/style.css','utf8');
+ assert.match(html,/class="mobile-login" href="\/cliente" aria-label="Entrar na conta da loja">Entrar<\/a>/);
+ assert.match(css,/\.mobile-login\{display:none\}/);
+ assert.match(css,/@media\(max-width:760px\)\{/);
+ assert.match(css,/\.mobile-login\{\s*display:inline-flex/);
+ assert.match(css,/@media\(max-width:430px\)/);
+ assert.match(css,/@media\(max-width:350px\)/);
 });
