@@ -312,7 +312,7 @@ function renderPage(){
     content=heading('Histórico de vendas','Vendas registradas no PDV e seus totais.')
       +(sales.length?'<div class="stack">'+sales.map(s=>'<div class="item"><span>'+new Date(s.created_at).toLocaleString('pt-BR')+'</span><span>'+fmt(s.total)+' • '+esc(s.payment_method)+'</span></div>').join('')+'</div>':empty());
   }else if(tab==='motoboys'){
-    content=heading('Motoboys • Plano Pro','Cadastre entregadores e compartilhe os convites de acesso.','<button class="button" data-new="courier">+ Novo motoboy</button>');
+    content=heading('Motoboys • Plano Premium','Cadastre entregadores e compartilhe os convites de acesso.','<button class="button" data-new="courier">+ Novo motoboy</button>');
     content+='<p class="muted">Cada motoboy cria sua própria conta e aceita o convite. O acesso é individual e restrito às entregas da loja.</p>';
     content+=showForm?.kind==='courier'?courierForm(showForm.value):'';
     content+=couriers.length?'<div class="stack">'+couriers.map(c=>{
@@ -324,7 +324,7 @@ function renderPage(){
         '</div><div class="actions">'+(link?'<button type="button" data-copy-invite="'+esc(link)+'">Copiar convite</button>':'')+editBtn('courier',c.id)+'</div></div>';
     }).join('')+'</div>':empty();
   }else if(tab==='entregas'){
-    content=heading('Fila de entregas • Plano Pro','Entregas pendentes são oferecidas aos motoboys disponíveis.','<button class="button" data-new="delivery">+ Nova entrega</button>');
+    content=heading('Fila de entregas • Plano Premium','Entregas pendentes são oferecidas aos motoboys disponíveis.','<button class="button" data-new="delivery">+ Nova entrega</button>');
     content+='<p class="muted">Depois de receber o pedido pelo WhatsApp, cadastre aqui a entrega. O primeiro motoboy autorizado que aceitar assume o pedido.</p>';
     content+=showForm?.kind==='delivery'?deliveryForm(showForm.value):'';
     const statusNames={pendente:'Aguardando motoboy',atribuida:'Aceita',a_caminho:'Saiu para entrega',entregue:'Entregue',cancelada:'Cancelada'};
@@ -493,14 +493,14 @@ async function handleSubmit(form){
       cart=[];msg('Venda registrada: '+fmt(data.total));break;
     }
     case 'courierForm':{
-      if(!proAccess())throw Error('Motoboys disponíveis somente no Plano Pro vigente.');
+      if(!proAccess())throw Error('Motoboys disponíveis somente no Plano Premium vigente.');
       const phone=String(v.phone||'').replace(/\D/g,'');
       if(!v.name?.trim()||phone.length<10||phone.length>13)throw Error('Informe nome e telefone com DDD.');
       await storeForm(form,'shop_couriers',{name:v.name.trim(),phone,active:v.active!=='false'},id);
       break;
     }
     case 'deliveryForm':{
-      if(!proAccess())throw Error('Entregas disponíveis somente no Plano Pro vigente.');
+      if(!proAccess())throw Error('Entregas disponíveis somente no Plano Premium vigente.');
       const total=Number(v.total||0);
       if(!v.customer_name?.trim()||!v.address?.trim()||!Number.isFinite(total)||total<0)
         throw Error('Informe cliente, endereço e valor válido.');
