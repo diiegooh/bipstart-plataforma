@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#080b09">
   <meta name="description" content="Cardápio digital: veja os produtos e envie seu pedido diretamente ao estabelecimento.">
   <title>Cardápio digital • BipStart</title>
-  <link rel="stylesheet" href="/vitrine.css?v=1">
+  <link rel="stylesheet" href="/vitrine.css?v=2">
 </head>
 <body class="delivery-page">
 <div class="delivery-app">
@@ -14,6 +14,7 @@
     <button id="jumpCategories" class="icon-btn menu-btn" type="button" aria-label="Ver categorias">☰</button>
     <div class="header-logo"><img id="headerLogo" src="/bipstart-logo.svg" alt="Logotipo da loja"></div>
     <div class="header-actions">
+      <a id="ownerEditorLink" class="owner-editor-link hidden" href="/cliente?editar=cardapio" rel="nofollow">⚙ Gerenciar cardápio</a>
       <button class="icon-btn" id="focusSearch" type="button" aria-label="Buscar produtos">⌕</button>
       <button class="icon-btn cart-icon-btn" id="headerCart" type="button" aria-label="Abrir carrinho">🛒<span id="headerCartCount">0</span></button>
     </div>
@@ -80,6 +81,6 @@
   <button id="sendOrder" type="button" class="btn checkout-btn" disabled>Enviar pelo WhatsApp ↗</button>
   <p class="checkout-disclaimer">A loja confirma a disponibilidade, a entrega e o pagamento diretamente com você. A BipStart não processa pagamentos.</p>
 </aside>
-<script src="/vitrine.js?v=1" defer></script>
+<script src="/vitrine.js?v=2" defer></script>
 </body>
 </html>
