@@ -42,6 +42,14 @@ Dentro do **PDV + CARDÁPIO**, o menu lateral segue a navegação visual da Godz
 
 **Pedidos online:** a lista não recebe pedidos automaticamente; as solicitações são enviadas ao WhatsApp do lojista. Esta tela explica a etapa manual, permite compartilhar/gerenciar o cardápio e, no Premium, acessar a fila de entregas. **Produtos** reúne cadastro, quantidades e alertas de estoque baixo ou esgotado. Não existe uma aba separada para estoque. Não há alteração no banco de dados por causa da barra lateral.
 
+## Filtro de categorias e preço do cardápio — 14/10/2026
+
+Em **Produtos**, cada categoria (incluindo **Todos**) recebe um botão em formato de card acima da grade. Ao clicar, somente os produtos da categoria aparecem. Os cards de produto ficam aproximadamente **40% menores** no desktop, com estilos responsivos, mas conservam foto, preço de venda, custo, estoque, mínimo e edição.
+
+O formulário de Produtos e o editor do cardápio têm preço normal de PDV e preço opcional para o cardápio online, controlado pela opção **Usar preço diferente no cardápio online**. Se desativado, o preço público é o preço normal; se ativado, o valor específico é obrigatório. O Supabase armazena `shop_products.menu_price` e `menu_price_enabled` e a RPC pública `bipstart_public_menu` devolve o preço público efetivo em `items[].price`. Assim a vitrine, o carrinho e o texto enviado ao WhatsApp usam um valor consistente; **o PDV e a baixa de estoque continuam utilizando `shop_products.price`**. O preço novo passa a valer assim que salvo para novas consultas à vitrine e é conferido novamente na finalização de cada pedido. Um cardápio que já está aberto deve ser atualizado para exibir o novo preço imediatamente.
+
+Migração: `sql/bipstart_menu_price_20261014.sql` no projeto Supabase da BipStart. Não modifica valores ou registros antigos; por padrão o preço alternativo começa desativado. Executar antes do deploy da nova interface.
+
 ## Cards de produtos com controle de estoque — 14/10/2026
 
 A aba **Produtos** exibe uma grade responsiva de cartões individuais por produto, com foto (ou imagem neutra), nome, categoria, preço de venda, preço de custo, **quantidade atual**, **estoque mínimo** e botão **Editar**. No celular, a grade adapta o número de colunas.
