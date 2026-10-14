@@ -62,9 +62,9 @@ test('carrinho calcula quantidade, taxa de entrega e resumo WhatsApp',()=>{
 });
 test('painel do lojista mantém estoque no PDV, não no cardápio',()=>{
  const start=client.indexOf('function productForm(');
- const end=client.indexOf('function serviceForm(',start);
+ const end=client.indexOf('function courierForm(',start);
  assert.ok(start>0&&end>start);
- assert.match(client.slice(start,end),/isMenu=shop\.model==='cardapio'/);
+ assert.match(client.slice(start,end),/isMenu=tab==='cardapio'/);
  assert.match(client.slice(start,end),/name="description"/);
  assert.match(client.slice(start,end),/Quantidade em estoque/);
  assert.match(client,/function cardapioEditor\(/);
@@ -97,6 +97,6 @@ test('HTML tem controle de categorias, carrinho e informações da loja',()=>{
  assert.match(css,/\.category\[open\]/);
  assert.match(html,/cardapio\.css\?v=2/);
  assert.match(publicJS,/<img src="\/bipstart-logo\.svg" alt="Logo BipStart">/);
- assert.match(html,/cardapio\.js\?v=3/);
+ assert.match(html,/cardapio\.js\?v=4/);
  assert.match(readFileSync('server.mjs','utf8'),/cardapio\.css/);
 });
