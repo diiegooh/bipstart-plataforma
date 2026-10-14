@@ -90,3 +90,8 @@ html,body{max-width:100%;overflow-x:clip}
 
 .nav-links .bipstart-client-link{color:#d9b8ff;border:1px solid #8051e9;border-radius:999px;padding:8px 13px;white-space:nowrap}
 .nav-links .bipstart-client-link:hover{background:#5f28b54d}
+
+/* Planos BipStart: duas opções, sem modelo de agenda. */
+.plans-two{grid-template-columns:repeat(2,minmax(0,1fr));max-width:1020px;margin-inline:auto}
+.solution-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:760px){.plans-two,.solution-grid{grid-template-columns:1fr;max-width:550px;margin-inline:auto}}
