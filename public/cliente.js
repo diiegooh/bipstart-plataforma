@@ -221,7 +221,7 @@ function pages(){
   const a=[['resumo','Visão geral']];
   if(shop.model==='pdv')a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['vendas','Histórico de vendas']);
   if(shop.model==='agenda')a.push(['agenda','Agendamentos'],['servicos','Serviços']);
-  if(shop.model==='cardapio')a.push(['cardapio','Itens e fotos']);
+  if(shop.model==='cardapio')a.push(['cardapio','Meu cardápio']);
   if(proAccess())a.push(['motoboys','Motoboys'],['entregas','Entregas']);
   a.push(['personalizar','Solicitar personalização'],['configuracoes','Configurações']);
   return a;
