@@ -103,3 +103,10 @@ test('migration adiciona mínimo com padrão 5 e restrição, sem modificar esto
  assert.doesNotMatch(sql,/\bdelete\s+from\s+public\.shop_products\b/i);
  assert.doesNotMatch(sql,/\bdrop\s+table\b/i);
 });
+
+
+test('Cadastro de produtos não tem descrição redundante nem parágrafo vazio',()=>{
+ assert.doesNotMatch(client,/Cadastre produtos e acompanhe fotos, preços, quantidades e estoque mínimo na mesma tela\./);
+ assert.match(client,/heading\('Cadastro de produtos','',/);
+ assert.match(client,/subtitle\?'<p class="muted">'\+esc\(subtitle\)/);
+});
