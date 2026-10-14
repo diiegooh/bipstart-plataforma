@@ -344,3 +344,10 @@ body.sidebar-open{overflow:hidden}
  #workspace .inventory-photo-wrap{min-height:180px}
  #workspace .inventory-card-body{padding:14px}
 }
+
+#workspace .inventory-kicker{color:#ff5262;font-weight:900;font-size:11px;letter-spacing:.17em;margin:2px 0 8px;text-transform:uppercase}
+#workspace .inventory-kicker + .toolbar{margin-bottom:15px}
+#workspace .content:has(.inventory-kicker){background:linear-gradient(150deg,#24120e 0%,#111511 27%,#0b120e 100%);border-color:#314034}
+#workspace .content:has(.inventory-kicker) .toolbar p{color:#a5b6aa}
+#workspace .content:has(.inventory-kicker) .data-form{background:#101910;border-color:#365444}
+#workspace .content:has(.inventory-kicker) .data-form input,#workspace .content:has(.inventory-kicker) .data-form select{background:#0d1510;border-color:#3b6047;color:#f4faf5}
