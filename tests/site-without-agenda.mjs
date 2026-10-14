@@ -45,3 +45,12 @@ test('link Planos centraliza o título logo abaixo do cabeçalho fixo',()=>{
  assert.match(css,/\.pricing-title#planos\{scroll-margin-top:12px\}/);
  assert.match(html,/\/style\.css\?v=3/);
 });
+
+test('tipografia dos planos permanece legível e destacada no desktop e no celular',()=>{
+ const css=readFileSync('public/style.css','utf8');
+ assert.match(css,/\.pricing-section \.plan-top>p\{font-size:clamp\(16px,1\.25vw,18px\)/);
+ assert.match(css,/\.pricing-section \.plan ul li\{font-size:15px/);
+ assert.match(css,/\.pricing-section \.plan-top>small\{font-size:14px/);
+ assert.match(css,/\.pricing-section \.pricing-title>p\{font-size:clamp\(16px,1\.35vw,19px\)/);
+ assert.match(css,/@media\(max-width:760px\)/);
+});
