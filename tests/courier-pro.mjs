@@ -71,8 +71,8 @@ test('os motoboys aparecem somente em Pro com acesso vigente',()=>{
  assert.equal(access({status:'active',plan_code:'personalizado',active_until:future}).proAccess(),false);
  assert.equal(access({status:'active',plan_code:'pro',active_until:past}).proAccess(),false);
  assert.match(client,/if\(proAccess\(\)\)a\.push\(\['motoboys','Motoboys'\],\['entregas','Entregas'\]\)/);
- assert.match(client,/Motoboys disponíveis somente no Plano Pro vigente/);
- assert.match(client,/Entregas disponíveis somente no Plano Pro vigente/);
+ assert.match(client,/Motoboys disponíveis somente no Plano Premium vigente/);
+ assert.match(client,/Entregas disponíveis somente no Plano Premium vigente/);
 });
 test('banco protege loja Pro, convites e transições com funções privilegiadas restritas',()=>{
  assert.match(sql,/public\.has_delivery_access\(c\.shop_id\)/);
