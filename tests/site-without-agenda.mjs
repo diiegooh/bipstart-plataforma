@@ -43,7 +43,7 @@ test('link Planos centraliza o título logo abaixo do cabeçalho fixo',()=>{
  assert.equal((html.match(/id="planos"/g)||[]).length,1);
  assert.match(css,/html\{scroll-padding-top:90px\}/);
  assert.match(css,/\.pricing-title#planos\{scroll-margin-top:12px\}/);
- assert.match(html,/\/style\.css\?v=4/);
+ assert.match(html,/\/style\.css\?v=5/);
 });
 
 test('tipografia dos planos permanece legível e destacada no desktop e no celular',()=>{
@@ -85,4 +85,23 @@ test('celular oferece link direto Entrar para a área autenticada mesmo sem menu
  assert.match(css,/\.mobile-login\{\s*display:inline-flex/);
  assert.match(css,/@media\(max-width:430px\)/);
  assert.match(css,/@media\(max-width:350px\)/);
+});
+
+
+test('planos ficam compactos em notebooks e empilhados com legibilidade no celular',()=>{
+ const css=readFileSync('public/style.css','utf8');
+ const html=readFileSync('public/index.html','utf8');
+ assert.match(css,/@media\(min-width:831px\)\{/);
+ assert.match(css,/\.pricing-section\.section\{padding-top:24px;padding-bottom:26px\}/);
+ assert.match(css,/\.pricing-section \.pricing-title\{margin-bottom:19px\}/);
+ assert.match(css,/\.pricing-section \.plans-two>\.plan\{/);
+ assert.match(css,/\.pricing-section \.plan ul\{gap:8px;margin-bottom:15px\}/);
+ assert.match(css,/\.pricing-section \.plan>\.button-plan-select\{/);
+ assert.match(css,/min-height:44px/);
+ assert.match(css,/@media\(min-width:831px\) and \(max-height:900px\)\{/);
+ assert.match(css,/@media\(max-width:830px\)\{/);
+ assert.match(css,/\.pricing-section \.plans-two\{grid-template-columns:1fr;gap:25px\}/);
+ assert.match(css,/\.pricing-section \.plan>\.button-plan-select\{min-height:48px\}/);
+ assert.equal((html.match(/class="plan-top"/g)||[]).length,2);
+ assert.equal((html.match(/class="button button-primary button-plan-select"/g)||[]).length,2);
 });
