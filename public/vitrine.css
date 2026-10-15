@@ -62,12 +62,8 @@
 @media(prefers-reduced-motion:reduce){.dproduct{transition:none}.onlinecart{transition:none}}
 
 /* Link de gestão visível apenas para lojista autenticado e proprietário. */
-.owner-editor-link{display:inline-flex;align-items:center;justify-content:center;min-height:40px;white-space:nowrap;text-decoration:none;font-size:12px;font-weight:850;color:var(--green);background:#131b16;border:1px solid var(--green);border-radius:12px;padding:9px 11px}
-.owner-editor-link:hover{background:#1d271d}
-.owner-editor-link:focus-visible{outline:3px solid var(--green);outline-offset:3px}
 .stock-notice{display:block;margin-top:8px;color:#ffc5c5;font-size:12px;font-weight:850}
 .dproduct .btn:disabled{background:#252d25!important;color:#a8b3a9!important;opacity:.82;cursor:not-allowed;border:1px solid #4b594b;box-shadow:none}
-@media(max-width:600px){.owner-editor-link{font-size:10px;min-height:35px;white-space:normal;max-width:100px;text-align:center;padding:6px}}
 
 
 /* Cardápio público sem banner grande: título central substitui a logo da loja. */
@@ -131,7 +127,7 @@
 .owner-modes-link:hover{border-color:var(--green);color:var(--green)}
 @media(max-width:600px){
  .owner-nav{margin:0 12px 12px;gap:8px}
- .owner-modes-link,.owner-nav .owner-editor-link{flex:1 1 130px;max-width:none;font-size:11px;padding:9px 8px}
+ .owner-modes-link{flex:1 1 130px;max-width:none;font-size:11px;padding:9px 8px}
  .product-quantity{gap:4px}
  .product-quantity-buttons{gap:4px}
  .quantity-step{width:30px;height:30px}
