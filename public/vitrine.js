@@ -4,7 +4,7 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 const money=value=>Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const paymentLabels={pix:'Pix',credito:'Cartão de crédito',debito:'Cartão de débito',dinheiro:'Dinheiro',a_combinar:'A combinar'};
 const fold=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
-let menu=null,products=[],cart=new Map(),lastFocus=null,publicConfig=null,orderToken=null;
+let menu=null,products=[],cart=new Map(),selectedQty=new Map(),lastFocus=null,publicConfig=null,orderToken=null;
 function showErr(text){$('error').textContent=String(text);$('error').classList.remove('hidden');}
 function imageUrl(path){
  if(!path||!menu?.src)return '';
@@ -75,12 +75,19 @@ function drawPage(){
 }
 function itemCard(item){
  const soldOut=item.in_stock===false;
+ const qty=selectedQty.get(item.id)||1;
  const image=item.image_path?'<img src="'+esc(imageUrl(item.image_path))+'" alt="'+esc(item.name)+'" loading="lazy">':'<div class="product-img-placeholder" aria-hidden="true">🛍️</div>';
  return '<article class="dproduct">'+image+'<div class="body"><span class="pill">'+esc(item.category||'Produto')+'</span>'+
   '<h3>'+esc(item.name)+'</h3>'+(item.description?'<p class="description">'+esc(item.description)+'</p>':'')+
-  '<div class="price">'+money(item.price)+'</div>'+
+  '<div class="price">'+money(item.price)+' <small>/ unidade</small></div>'+
   (soldOut?'<span class="stock-notice" role="status">Produto esgotado</span>':'')+
-  '<button type="button" class="btn add" data-add="'+esc(item.id)+'"'+(soldOut?' disabled aria-disabled="true"':'')+'>'+(soldOut?'Esgotado':'🛒 Adicionar')+'</button></div></article>';
+  '<div class="product-quantity"><span>Quantidade</span><div class="product-quantity-buttons">'+
+   '<button type="button" class="quantity-step" data-card-dec="'+esc(item.id)+'" aria-label="Diminuir quantidade de '+esc(item.name)+'"'+(soldOut||qty<=1?' disabled':'')+'>−</button>'+
+   '<strong data-card-qty="'+esc(item.id)+'" aria-live="polite">'+qty+'</strong>'+
+   '<button type="button" class="quantity-step" data-card-inc="'+esc(item.id)+'" aria-label="Aumentar quantidade de '+esc(item.name)+'"'+(soldOut||qty>=99?' disabled':'')+'>+</button></div></div>'+
+  '<div class="card-item-total">Total: <strong data-card-total="'+esc(item.id)+'">'+money(Number(item.price)*qty)+'</strong></div>'+
+  '<button type="button" class="btn add" data-add="'+esc(item.id)+'"'+(soldOut?' disabled aria-disabled="true"':'')+'>'+(soldOut?'Esgotado':'🛒 Adicionar ao pedido')+'</button>'+
+  '<small class="card-feedback" data-card-feedback="'+esc(item.id)+'" role="status" aria-live="polite"></small></div></article>';
 }
 function renderProducts(){
  if(!menu)return;
@@ -170,17 +177,40 @@ function checkoutMessage(orderId=''){
  return lines.join('\n');
 }
 document.addEventListener('click',event=>{
+ const cardInc=event.target.closest('[data-card-inc]'),cardDec=event.target.closest('[data-card-dec]');
+ if(cardInc||cardDec){
+  const button=cardInc||cardDec;
+  const id=button.dataset.cardInc||button.dataset.cardDec;
+  const product=products.find(p=>p.id===id);
+  if(!product||product.in_stock===false)return;
+  const qty=Math.max(1,Math.min(99,(selectedQty.get(id)||1)+(cardInc?1:-1)));
+  selectedQty.set(id,qty);
+  const card=button.closest('.dproduct');
+  card.querySelector('[data-card-qty]').textContent=String(qty);
+  card.querySelector('[data-card-total]').textContent=money(Number(product.price)*qty);
+  card.querySelector('[data-card-dec]').disabled=qty<=1;
+  card.querySelector('[data-card-inc]').disabled=qty>=99;
+  card.querySelector('[data-card-feedback]').textContent='';
+  return;
+ }
  const add=event.target.closest('[data-add]'),inc=event.target.closest('[data-inc]'),dec=event.target.closest('[data-dec]');
  if(add||inc||dec){
   const button=add||inc||dec;
   const id=button.dataset.add||button.dataset.inc||button.dataset.dec;
   const product=products.find(p=>p.id===id);
   if(!product||(product.in_stock===false&&!dec))return;
+  const qty=add?(selectedQty.get(id)||1):1;
+  const next=(cart.get(id)||0)+(dec?-1:qty);
+  if(next>99){
+   if(add)add.closest('.dproduct').querySelector('[data-card-feedback]').textContent='Limite de 99 unidades por produto no pedido.';
+   return;
+  }
   orderToken=null;
-  const next=(cart.get(id)||0)+(dec?-1:1);
-  if(next<=0)cart.delete(id);else if(next<=99)cart.set(id,next);
+  if(next<=0)cart.delete(id);else cart.set(id,next);
   renderCart();
-  if(add)openCart();
+  if(add){
+   add.closest('.dproduct').querySelector('[data-card-feedback]').textContent='✓ '+qty+' '+(qty===1?'unidade adicionada':'unidades adicionadas')+' ao pedido';
+  }
   return;
  }
  const cat=event.target.closest('[data-cat]');
@@ -286,7 +316,7 @@ async function revealOwnerEditorLink(config,slug){
   const response=await fetch(url,{headers:{apikey:config.publishableKey,Authorization:'Bearer '+saved.access_token},cache:'no-store'});
   if(!response.ok)return;
   const rows=await response.json();
-  if(Array.isArray(rows)&&rows.some(row=>row.slug===slug))$('ownerEditorLink').classList.remove('hidden');
+  if(Array.isArray(rows)&&rows.some(row=>row.slug===slug))$('ownerNav').classList.remove('hidden');
  }catch{ /* A vitrine é pública e continua funcionando mesmo sem sessão de lojista. */ }
 }
 async function boot(){
