@@ -291,6 +291,20 @@ async function registerOnlineOrder(){
  // Não envie uma mensagem com valores divergentes dos que o servidor registrou.
  if(Math.abs(Number(result.total)-(subtotal()+deliveryCost()))>0.009)
   throw Error('O valor do pedido mudou. Atualize o cardápio e confira os preços.');
+ if($('whatsappOptIn')?.checked){
+  try{
+   const permission=await fetch(publicConfig.supabaseUrl+'/rest/v1/rpc/bipstart_set_online_order_whatsapp_optin',{
+    method:'POST',
+    headers:{apikey:publicConfig.publishableKey,'Content-Type':'application/json'},
+    body:JSON.stringify({p_order_id:result.id,p_client_token:orderToken,p_opt_in:true}),
+    cache:'no-store'
+   });
+   if(!permission.ok||await permission.json().catch(()=>false)!==true)
+    showErr('Seu pedido foi registrado, mas não foi possível habilitar os avisos por WhatsApp.');
+  }catch{
+   showErr('Seu pedido foi registrado, mas não foi possível habilitar os avisos por WhatsApp.');
+  }
+ }
  return result;
 }
 $('sendOrder').addEventListener('click',async()=>{
