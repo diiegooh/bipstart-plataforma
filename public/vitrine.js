@@ -10,7 +10,6 @@ function imageUrl(path){
  if(!path||!menu?.src)return '';
  return menu.src+'/'+String(path).split('/').map(encodeURIComponent).join('/');
 }
-function logoUrl(){return menu?.logo_path?imageUrl(menu.logo_path):'/bipstart-logo.svg';}
 function normalizeWhatsApp(value){
  let digits=String(value||'').replace(/\D/g,'');
  if(/^\d{10,11}$/.test(digits))digits='55'+digits;
