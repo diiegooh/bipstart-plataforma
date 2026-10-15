@@ -17,17 +17,17 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.match(html,/Alterar cor/);
  assert.match(html,/Abrir cardápio/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=22/);
- assert.match(html,/cliente\.css\?v=13/);
+ assert.match(html,/cliente\.js\?v=23/);
+ assert.match(html,/cliente\.css\?v=14/);
 });
 
-test('coluna mostra cinco opções, sem aba separada de Estoque',()=>{
+test('coluna mostra seis opções, incluindo link externo do cardápio, sem aba separada de Estoque',()=>{
  const start=js.indexOf('function operationalMenuItems(){');
  const end=js.indexOf('function renderNav(){',start);
  assert.ok(start>=0&&end>start);
  const items=new Function(js.slice(start,end)+';return operationalMenuItems();')();
- assert.deepEqual(items.map(x=>x[1]),['PDV','Produtos','Pedidos online','Motoboys','Vendas']);
- assert.deepEqual(items.map(x=>x[0]),['caixa','produtos','pedidos','motoboys','vendas']);
+ assert.deepEqual(items.map(x=>x[1]),['PDV','Produtos','Cardápio online','Pedidos online','Motoboys','Vendas']);
+ assert.deepEqual(items.map(x=>x[0]),['caixa','produtos','cardapio_publico','pedidos','motoboys','vendas']);
  assert.match(css,/#workspace \.side #nav nav button\.active\{background:linear-gradient\(100deg,#fc0816,#f51b20\)/);
 });
 
@@ -59,10 +59,30 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
  assert.match(basic.node('nav').innerHTML,/Premium/);
  assert.doesNotMatch(html,/id="sideShopLogo"/);
  assert.doesNotMatch(js,/\$\('sideShopLogo'\)/);
- assert.equal(basic.node('sideShopName').textContent,'Adega <Teste>');
+ const external=basic.node('nav').innerHTML;
+ assert.match(external,/<a class="side-public-menu" data-public-menu-link href="https:\/\/bipstart\.example\/cardapio\?loja=adega-teste" target="_blank" rel="noopener noreferrer"/);
+ assert.match(external,/Abrir cardápio online da loja em outra aba/);
+ assert.match(external,/<b>Cardápio online<\/b>/);
+ assert.match(external,/side-external-icon/);
+ assert.equal((external.match(/data-public-menu-link/g)||[]).length,1);
+ assert.doesNotMatch(external,/data-nav="cardapio_publico"/);
+ assert.match(css,/#workspace \.side #nav nav a\.side-public-menu\{/);
+ assert.match(css,/#workspace \.side #nav nav a\.side-public-menu:focus-visible\{/);
+  assert.equal(basic.node('sideShopName').textContent,'Adega <Teste>');
  const premium=mockNav(true);
  assert.match(premium.node('nav').innerHTML,/data-nav="motoboys" class=""/);
  assert.equal(premium.node('sideShopName').textContent,'Adega <Teste>');
+});
+
+test('link público preserva o slug de cada loja e não redireciona o PDV',()=>{
+ const start=js.indexOf('function publicShopUrl(){');
+ const end=js.indexOf('function shareTitle()',start);
+ assert.ok(start>=0&&end>start);
+ const getUrl=new Function('location','shop',js.slice(start,end)+';return publicShopUrl;');
+ assert.equal(getUrl({origin:'https://bipstart.example'},{slug:'adega e mercado'})(),
+  'https://bipstart.example/cardapio?loja=adega%20e%20mercado');
+ assert.doesNotMatch(js,/location\.assign\(publicShopUrl\(\)\).*data-public-menu-link/);
+ assert.match(js,/target="_blank" rel="noopener noreferrer"/);
 });
 
 test('Produtos incorpora estoque e Pedidos online não promete pedidos automáticos',()=>{
