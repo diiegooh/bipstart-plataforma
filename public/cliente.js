@@ -536,8 +536,6 @@ function renderPage(){
     content+='<div class="online-order-list">'+(onlineOrders.length?
       onlineOrders.map(onlineOrderCard).join(''):
       empty('Nenhum pedido online registrado. Compartilhe seu cardápio para receber pedidos.'))+'</div>';
-    content+='<div class="orders-actions"><a class="button" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a>'+
-      '<button type="button" class="ghost" data-nav="cardapio">Gerenciar cardápio</button></div>';
     if(proAccess())content+='<div class="orders-premium"><strong>Entregas com motoboys</strong><p>Após confirmar o pedido, cadastre a entrega para oferecê-la aos seus motoboys.</p>'+
       '<button type="button" class="ghost" data-nav="entregas">Abrir fila de entregas</button></div>';
   }else if(tab==='caixa'){
