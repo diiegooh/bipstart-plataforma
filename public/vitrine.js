@@ -66,7 +66,6 @@ function drawPage(){
   link.classList.remove('hidden');
  }else link.classList.add('hidden');
  const pay=(menu.payment_methods||[]).filter(x=>Object.hasOwn(paymentLabels,x)).map(x=>paymentLabels[x]);
- $('paymentMethods').textContent=pay.length?pay.join(', '):'Consulte a loja';
  if(pay.length){
   $('pay').innerHTML='<option value="a_combinar">A combinar</option>'+Object.entries(paymentLabels).filter(([key])=>key!=='a_combinar'&&(menu.payment_methods||[]).includes(key)).map(([key,label])=>'<option value="'+key+'">'+esc(label)+'</option>').join('');
  }
