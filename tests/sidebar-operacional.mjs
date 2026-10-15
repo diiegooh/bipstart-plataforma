@@ -17,8 +17,8 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.match(html,/Alterar cor/);
  assert.match(html,/Abrir cardápio/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=18/);
- assert.match(html,/cliente\.css\?v=10/);
+ assert.match(html,/cliente\.js\?v=19/);
+ assert.match(html,/cliente\.css\?v=11/);
 });
 
 test('coluna mostra cinco opções, sem aba separada de Estoque',()=>{
@@ -43,11 +43,12 @@ function mockNav(premium){
  const start=js.indexOf('function operationalMenuItems(){');
  const end=js.indexOf('function heading(',start);
  assert.ok(start>=0&&end>start);
- const create=new Function('$','esc','tab','shop','proAccess','canCustomize','imageUrl','publicShopUrl',
+ const create=new Function("$","esc","tab","shop","proAccess","canCustomize","imageUrl","publicShopUrl","document",
   js.slice(start,end)+';return renderNav;');
  const render=create(node,x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
   'caixa',{name:'Adega <Teste>',logo_path:'loja-id/logo.png'},()=>premium,()=>premium,
-  path=>'https://images.example/'+path,()=>'https://bipstart.example/cardapio?loja=adega-teste');
+  path=>'https://images.example/'+path,()=>'https://bipstart.example/cardapio?loja=adega-teste',
+  {documentElement:{style:{setProperty(){}}}});
  render();
  return {node};
 }
@@ -73,9 +74,9 @@ test('Produtos incorpora estoque e Pedidos online não promete pedidos automáti
  assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='low'\)/);
  assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='out'\)/);
  assert.match(js,/tab==='pedidos'/);
- assert.match(js,/Os pedidos recebidos por WhatsApp ainda não são importados automaticamente/);
+ assert.match(js,/O registro ocorre antes de abrir o WhatsApp/);
  assert.match(js,/data-nav="cardapio">Gerenciar cardápio/);
- assert.match(js,/data-nav="entregas">Acessar fila de entregas/);
+ assert.match(js,/data-nav="entregas">Abrir fila de entregas/);
  assert.match(js,/if\(nav\.dataset\.nav==='motoboys'&&!proAccess\(\)\)/);
  assert.match(js,/if\(!canCustomize\(\)\)return msg\('Alterar a cor do cardápio está disponível somente no plano Premium\.'/);
  assert.match(js,/if\(e\.target\.closest\('#sideLogout'\)\)\{closeSideMenu\(\);\$\('logout'\)\.click\(\);return\}/);

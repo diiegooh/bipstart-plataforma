@@ -40,7 +40,7 @@ O menu **Planos** mantém Básico e Premium. Ambos os botões de seleção têm 
 
 Dentro do **PDV + CARDÁPIO**, o menu lateral segue a navegação visual da Godzilla Adega: **PDV, Produtos, Pedidos online, Motoboys, Vendas**. O topo da barra lateral mostra **somente o nome da loja** e o acesso às configurações, sem logo da BipStart. O PDV usa a tela inteira, sem cabeçalho superior. O rodapé oferece **Alterar cor** (Premium), **Abrir cardápio** e, lado a lado, **Voltar às opções** e **Sair**. O Básico vê o recurso de motoboys identificado como Premium e sem acesso, enquanto a opção de cores informa a restrição. Configurações ficam no ícone de engrenagem ao lado do nome da loja. No celular, um botão **Menu da loja** fica visível acima do PDV, abrindo a coluna vertical; esse botão é preservado mesmo sem a barra superior.
 
-**Pedidos online:** a lista não recebe pedidos automaticamente; as solicitações são enviadas ao WhatsApp do lojista. Esta tela explica a etapa manual, permite compartilhar/gerenciar o cardápio e, no Premium, acessar a fila de entregas. **Produtos** reúne cadastro, quantidades e alertas de estoque baixo ou esgotado. Não existe uma aba separada para estoque. Não há alteração no banco de dados por causa da barra lateral.
+**Pedidos online:** ao clicar em Enviar pelo WhatsApp, a vitrine solicita **nome e telefone**, exige o endereço quando for entrega, e registra itens, preços calculados no servidor, pagamento pretendido, taxa e total **antes de abrir o WhatsApp**. O painel do lojista mostra cada pedido e permite marcar manualmente seu estado e se foi pago. O registro não comprova que o usuário confirmou o envio dentro do WhatsApp, portanto entra como **Aguardando confirmação** e **Aguardando pagamento**. As informações pessoais só podem ser lidas pelo dono da loja autenticado (RLS). O estoque do PDV não é reservado nem baixado automaticamente. No Premium, o lojista pode cadastrar a entrega confirmada na fila dos motoboys. **Produtos** reúne cadastro, quantidades e alertas de estoque baixo ou esgotado. Não existe uma aba separada para estoque. Não há alteração no banco de dados por causa da barra lateral.
 
 ## Filtro de categorias e preço do cardápio — 14/10/2026
 
@@ -51,6 +51,12 @@ O formulário de Produtos e o editor do cardápio agora perguntam **Venda online
 Migração: `sql/bipstart_menu_price_20261014.sql` no projeto Supabase da BipStart. Não modifica valores ou registros antigos; por padrão o preço alternativo começa desativado. Executar antes do deploy da nova interface.
 
 Nova migração: `sql/bipstart_online_enabled_20261014.sql` adiciona `shop_products.online_enabled` (padrão **true**, para preservar a publicação dos produtos existentes) e filtra `p.online_enabled=true` na função `bipstart_public_menu`. Novos itens exigem escolha explícita no formulário. Produtos com **Não** não aparecem na vitrine pública nem no carrinho ou pedido WhatsApp; o PDV permanece inalterado. Execute a migração do banco antes de publicar o JavaScript novo.
+
+## Pedidos online registrados e cor da loja no PDV
+
+A sidebar do PDV segue a cor de marca da loja (Premium) ou a cor padrão roxa, com contraste automático no item selecionado. O tema não altera outras lojas.
+
+Migração `sql/bipstart_online_orders_20261014.sql`: tabela `shop_online_orders` com dados pessoais protegidos por RLS, consultas/alterações restritas à loja e RPC pública `bipstart_place_online_order`. A RPC **não recebe preços arbitrários**: lê produtos online habilitados, valida o estoque disponível, calcula valores e taxa de entrega e limita requisições repetidas. O identificador do carrinho evita pedidos duplicados após tentativas de envio. Somente o dono pode marcar pagamento como recebido. **O WhatsApp não fornece confirmação de envio** ao site: o registro significa que o checkout foi iniciado e que o WhatsApp foi aberto, não que houve envio efetivo nem pagamento.
 
 ## Cards de produtos com controle de estoque — 14/10/2026
 

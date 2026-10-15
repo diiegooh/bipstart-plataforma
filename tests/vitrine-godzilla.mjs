@@ -42,13 +42,13 @@ test('cada vitrine consulta o cardápio da própria loja no Supabase',()=>{
  assert.match(js,/menu\.brand_color/);
  assert.match(js,/categoryNames\(\)/);
  assert.match(js,/imageUrl\(item\.image_path\)/);
- assert.match(js,/encodeURIComponent\(checkoutMessage\(\)\)/);
+ assert.match(js,/encodeURIComponent\(checkoutMessage\(receipt\.id\)\)/);
  assert.match(js,/https:\/\/wa\.me\//);
  assert.doesNotMatch(js,/SUPABASE_SECRET_KEY|service_role|ADMIN_PASSWORD/);
 });
 
 test('o pedido calcula total e taxa de entrega antes de abrir WhatsApp',()=>{
- const start=js.indexOf('function checkoutMessage(){');
+ const start=js.indexOf("function checkoutMessage(orderId=''){");
  const end=js.indexOf("document.addEventListener('click'",start);
  assert.ok(start>=0&&end>start);
  const fields={

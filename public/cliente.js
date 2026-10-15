@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[];
+let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[],onlineOrders=[];
 let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all';
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix';
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
@@ -208,7 +208,7 @@ async function openShop(){
   }
 }
 async function reloadData(){
-  products=[];categories=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];
+  products=[];categories=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];onlineOrders=[];
   const get=(t,fields='*')=>rest(t,{query:{select:fields,shop_id:'eq.'+shop.id,order:'created_at.desc',limit:'200'}});
   products=await get('shop_products');
   if(shop.model==='pdv'){
@@ -222,6 +222,7 @@ async function reloadData(){
     }
   }
   sales=await get('shop_sales');
+  onlineOrders=await get('shop_online_orders');
   requests=await get('shop_customization_requests');
   if(proAccess()){
     couriers=await rest('shop_couriers',{query:{select:'*',shop_id:'eq.'+shop.id}});
@@ -246,7 +247,17 @@ function operationalMenuItems(){
     ['vendas','Vendas','💰']
   ];
 }
+function applySidebarTheme(){
+ const value=canCustomize()?String(shop.brand_color||''):'#7c3aed';
+ const color=/^#[0-9a-fA-F]{6}$/.test(value)?value:'#7c3aed';
+ const rgb=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255);
+ const linear=rgb.map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));
+ const luminance=linear[0]*.2126+linear[1]*.7152+linear[2]*.0722;
+ document.documentElement.style.setProperty('--store-accent',color);
+ document.documentElement.style.setProperty('--store-accent-ink',luminance>.35?'#101510':'#ffffff');
+}
 function renderNav(){
+  applySidebarTheme();
   const current=tab==='cardapio'||tab==='entregas'?'pedidos':tab;
   $('nav').innerHTML='<nav aria-label="Navegação operacional">'+operationalMenuItems().map(([id,name,icon])=>{
     const premium=id==='motoboys'&&!proAccess();
@@ -460,6 +471,38 @@ function updatePdvEstimates(){
    net.textContent=fmt(total*(1-percent/100));
  }
 }
+
+function onlineOrderCard(order){
+ const label={awaiting_confirmation:'Aguardando confirmação',confirmed:'Confirmado',preparing:'Em preparo',
+  fulfilled:'Finalizado',cancelled:'Cancelado'};
+ const payLabel={a_combinar:'A combinar',pix:'Pix',dinheiro:'Dinheiro',credito:'Crédito',debito:'Débito'};
+ const status=Object.hasOwn(label,order.status)?order.status:'awaiting_confirmation';
+ const items=Array.isArray(order.items)?order.items:[];
+ const phone=String(order.customer_phone||'').replace(/\D/g,'');
+ const phoneUri=/^\d{10,13}$/.test(phone)?'<a class="online-order-phone" href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone);
+ const contact=phone&&/^\d{10,13}$/.test(phone)?
+    '<a class="ghost online-order-contact" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'">WhatsApp do cliente ↗</a>':'';
+ return '<article class="online-order-card" data-order-id="'+esc(order.id)+'">'+
+  '<div class="online-order-top"><div><small>Pedido #'+esc(String(order.id).slice(0,8))+' · '+
+    esc(new Date(order.created_at).toLocaleString('pt-BR'))+'</small><h3>'+esc(order.customer_name)+'</h3></div>'+
+    '<strong class="online-order-total">'+fmt(order.total)+'</strong></div>'+
+  '<div class="online-order-details"><div><span>Telefone</span><strong>'+phoneUri+'</strong></div>'+
+   '<div><span>Recebimento</span><strong>'+esc(order.delivery_method==='delivery'?'Entrega':'Retirada na loja')+'</strong></div>'+
+   '<div><span>Pagamento combinado</span><strong>'+esc(payLabel[order.payment_method]||'A combinar')+'</strong></div></div>'+
+  (order.delivery_method==='delivery'?'<p class="online-order-address"><strong>📍 Endereço:</strong> '+esc(order.delivery_address||'Não informado')+'</p>':'')+
+  '<div class="online-order-items">'+items.map(item=>
+    '<div><span>'+esc(item.qty)+'× '+esc(item.name)+'</span><strong>'+fmt(item.total)+'</strong></div>'
+  ).join('')+'</div>'+
+  '<p class="online-order-fees">Subtotal: '+fmt(order.subtotal)+' · Entrega: '+fmt(order.delivery_fee)+'</p>'+
+  (order.notes?'<p class="online-order-notes"><strong>Observações:</strong> '+esc(order.notes)+'</p>':'')+
+  '<div class="online-order-actions"><label>Situação do pedido<select data-order-status="'+esc(order.id)+'">'+
+    Object.entries(label).map(([value,text])=>'<option value="'+value+'"'+(status===value?' selected':'')+'>'+text+'</option>').join('')+
+    '</select></label><label>Pagamento<select data-order-payment="'+esc(order.id)+'">'+
+    '<option value="pending"'+(order.payment_status==='paid'?'':' selected')+'>Aguardando pagamento</option>'+
+    '<option value="paid"'+(order.payment_status==='paid'?' selected':'')+'>Pago (confirmado pela loja)</option>'+
+    '</select></label>'+contact+'</div></article>';
+}
+
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
   if(!pages().some(([key])=>key===tab))tab='resumo';
@@ -483,19 +526,20 @@ function renderPage(){
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
     content+=productGrid(selectedCategoryFilter);
   }else if(tab==='pedidos'){
-    const businessPhone=String(shop.whatsapp||'').replace(/\D/g,'');
-    const whatsapp=businessPhone?(businessPhone.startsWith('55')?'https://wa.me/'+businessPhone:'https://wa.me/55'+businessPhone):'';
-    content=heading('Pedidos online','Os clientes montam o carrinho no cardápio e enviam os pedidos diretamente para o WhatsApp da sua loja.');
-    content+='<div class="orders-intro"><span aria-hidden="true">🚚</span><div><h3>Pedidos pelo WhatsApp</h3><p>Os pedidos recebidos por WhatsApp ainda não são importados automaticamente para o PDV nem dão baixa no estoque. Confirme a disponibilidade e registre a venda no caixa.</p></div></div>';
+    const awaiting=onlineOrders.filter(o=>o.status==='awaiting_confirmation').length;
+    const active=onlineOrders.filter(o=>['confirmed','preparing'].includes(o.status)).length;
+    const paid=onlineOrders.filter(o=>o.payment_status==='paid').length;
+    content=heading('Pedidos online','Pedidos registrados pelo cardápio antes da abertura do WhatsApp.',
+      '<button type="button" class="ghost" data-orders-refresh>↻ Atualizar pedidos</button>');
+    content+='<div class="grid online-order-stats">'+tile('Aguardando confirmação',awaiting)+tile('Em andamento',active)+tile('Pagamentos marcados como recebidos',paid)+'</div>';
+    content+='<p class="muted online-order-notice">O registro ocorre antes de abrir o WhatsApp; não comprova que a mensagem foi enviada. Confirme o pedido com o cliente. O pagamento não é automático e deve ser marcado manualmente depois de recebido.</p>';
+    content+='<div class="online-order-list">'+(onlineOrders.length?
+      onlineOrders.map(onlineOrderCard).join(''):
+      empty('Nenhum pedido online registrado. Compartilhe seu cardápio para receber pedidos.'))+'</div>';
     content+='<div class="orders-actions"><a class="button" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a>'+
-      '<button type="button" class="ghost" data-nav="cardapio">Gerenciar cardápio</button>'+
-      '<button type="button" class="ghost" data-nav="configuracoes">Configurar WhatsApp</button>'+
-      (whatsapp?'<a class="ghost" href="'+esc(whatsapp)+'" target="_blank" rel="noopener noreferrer">Abrir WhatsApp ↗</a>':'')+'</div>';
-    if(proAccess()){
-      content+='<div class="orders-premium"><h3>Entregas do Premium</h3><p>'+deliveries.length+' entrega(s) registradas manualmente após contato com o cliente.</p>'+
-        '<button type="button" class="button" data-nav="entregas">Acessar fila de entregas</button></div>';
-    }else content+='<p class="muted small">Gerenciamento de motoboys e entregas próprias disponível no plano Premium.</p>';
-    content+=publicLinkTile();
+      '<button type="button" class="ghost" data-nav="cardapio">Gerenciar cardápio</button></div>';
+    if(proAccess())content+='<div class="orders-premium"><strong>Entregas com motoboys</strong><p>Após confirmar o pedido, cadastre a entrega para oferecê-la aos seus motoboys.</p>'+
+      '<button type="button" class="ghost" data-nav="entregas">Abrir fila de entregas</button></div>';
   }else if(tab==='caixa'){
     content=renderGodzillaPDV();
   }else if(tab==='vendas'){
@@ -811,7 +855,28 @@ document.addEventListener('change',e=>{
   if(preview)preview.replaceChildren();
  }
 });
+document.addEventListener('change',async e=>{
+ const status=e.target.closest('[data-order-status]');
+ const payment=e.target.closest('[data-order-payment]');
+ if(!status&&!payment)return;
+ const control=status||payment, order=onlineOrders.find(o=>o.id===(status?.dataset.orderStatus||payment?.dataset.orderPayment));
+ if(!order)return;
+ const field=status?'status':'payment_status';
+ const valid=field==='status'?['awaiting_confirmation','confirmed','preparing','fulfilled','cancelled']:['pending','paid'];
+ if(!valid.includes(control.value))return;
+ control.disabled=true;
+ try{
+  await rest('shop_online_orders',{method:'PATCH',query:{id:'eq.'+order.id,shop_id:'eq.'+shop.id},body:{[field]:control.value}});
+  order[field]=control.value;
+  renderPage();
+  msg(field==='payment_status'?'Situação do pagamento atualizada.':'Situação do pedido atualizada.');
+ }catch(error){control.disabled=false;control.value=order[field];msg(error.message,true);}
+});
 document.addEventListener('click',async e=>{
+  if(e.target.closest('[data-orders-refresh]')){
+    try{await reloadData();renderPage();msg('Pedidos atualizados.');}catch(error){msg(error.message,true);}
+    return;
+  }
   if(e.target.closest('#sideToggle')){toggleSideMenu();return}
   if(e.target.closest('#sideBackdrop')){closeSideMenu();return}
   if(e.target.closest('#sideLogout')){closeSideMenu();$('logout').click();return}
