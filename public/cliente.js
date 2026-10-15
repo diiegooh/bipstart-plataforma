@@ -617,9 +617,7 @@ function renderGodzillaPDV(){
  const paymentChoices=[['pix','Pix'],['dinheiro','Dinheiro'],['credito','Cartão de crédito'],['debito','Cartão de débito']];
  const choiceHtml=paymentChoices.map(([code,label])=>'<option value="'+code+'"'+(pdvPayment===code?' selected':'')+'>'+label+'</option>').join('');
  return '<div class="godzilla-pdv">'+
- '<div class="pdv-title"><div><span class="kicker">VENDA PRESENCIAL</span><h2>PDV</h2>'+
- '<p>Produtos, estoque e vendas integrados ao seu cardápio.</p></div>'+
- '</div>'+
+ '<div class="pdv-title"><h2>PDV</h2></div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-filters">'+
  '<label class="pdv-search-label"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Buscar produto ou categoria" value="'+esc(pdvQuery)+'" autocomplete="off"></label>'+
