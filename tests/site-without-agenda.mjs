@@ -43,7 +43,7 @@ test('link Planos centraliza o título logo abaixo do cabeçalho fixo',()=>{
  assert.equal((html.match(/id="planos"/g)||[]).length,1);
  assert.match(css,/html\{scroll-padding-top:90px\}/);
  assert.match(css,/\.pricing-title#planos\{scroll-margin-top:12px\}/);
- assert.match(html,/\/style\.css\?v=7/);
+ assert.match(html,/\/style\.css\?v=8/);
 });
 
 test('tipografia dos planos permanece legível e destacada no desktop e no celular',()=>{
@@ -136,4 +136,19 @@ test('mini cards são apenas ilustrativos e não expõem dados reais de pedidos'
  assert.match(block,/Exemplos dos recursos do cardápio digital/);
  assert.equal((block.match(/class="mini-badge"/g)||[]).length,6);
  assert.doesNotMatch(block,/id="customer|data-order-id|href="https:\/\/wa\.me/);
+});
+
+
+test('nomes dos mini cards e dos dois modelos estão mais destacados no desktop e celular',()=>{
+ const css=readFileSync('public/style.css','utf8');
+ const html=readFileSync('public/index.html','utf8');
+ const block=html.slice(html.indexOf('id="solucoes"'),html.indexOf('<section class="section pricing-section"'));
+ assert.equal((block.match(/class="solution-mini-card"/g)||[]).length,6);
+ assert.match(css,/#solucoes \.solution-mini-card>strong\{[\s\S]*font-size:17px;font-weight:900/);
+ assert.match(css,/border-left:3px solid #b969ff;padding-left:9px/);
+ assert.match(css,/#solucoes \.solution-card\.orange \.solution-mini-card>strong\{[\s\S]*color:#ffe3be;border-left-color:#ffaf66/);
+ assert.match(css,/#solucoes \.solution-card-copy h3\{margin:0 0 9px;font-size:25px/);
+ assert.match(css,/#solucoes \.solution-card-copy h3\{font-size:23px\}/);
+ assert.match(css,/#solucoes \.solution-mini-card>strong\{font-size:16px\}/);
+ assert.match(html,/\/style\.css\?v=8/);
 });
