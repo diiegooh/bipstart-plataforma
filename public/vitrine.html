@@ -6,13 +6,13 @@
   <meta name="theme-color" content="#080b09">
   <meta name="description" content="Cardápio digital: veja os produtos e envie seu pedido diretamente ao estabelecimento.">
   <title>Cardápio digital • BipStart</title>
-  <link rel="stylesheet" href="/vitrine.css?v=2">
+  <link rel="stylesheet" href="/vitrine.css?v=3">
 </head>
 <body class="delivery-page">
 <div class="delivery-app">
   <header class="store-header">
     <button id="jumpCategories" class="icon-btn menu-btn" type="button" aria-label="Ver categorias">☰</button>
-    <div class="header-logo"><img id="headerLogo" src="/bipstart-logo.svg" alt="Logotipo da loja"></div>
+    <div class="header-title"><h1>CARDÁPIO</h1><small id="storeName">Sua loja</small></div>
     <div class="header-actions">
       <a id="ownerEditorLink" class="owner-editor-link hidden" href="/cliente?editar=cardapio" rel="nofollow">⚙ Gerenciar cardápio</a>
       <button class="icon-btn" id="focusSearch" type="button" aria-label="Buscar produtos">⌕</button>
@@ -23,16 +23,6 @@
   <section class="location-row" aria-label="Informações da loja">
     <div class="location-card"><span class="location-pin">●</span><span><small>Localização / retirada</small><b id="storeLocation">Consulte a loja</b></span><a id="locationLink" class="location-map hidden" href="#" target="_blank" rel="noopener noreferrer" aria-label="Ver no mapa">↗</a></div>
     <div class="delivery-badge"><span class="delivery-bike">🛵</span><span><b>Pedidos online</b><small id="deliveryBadge">Consulte a taxa de entrega</small></span></div>
-  </section>
-  <section class="hero-green" aria-labelledby="storeName">
-    <div class="hero-city" aria-hidden="true"></div>
-    <div class="hero-copy">
-      <div class="eyebrow">CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP</div>
-      <h1><span id="storeName">Sua loja</span><strong>ESCOLHA</strong><strong>SEUS FAVORITOS</strong></h1>
-      <p id="heroSubtitle">Confira os produtos, adicione ao carrinho e envie o pedido para a loja.</p>
-      <button id="heroOrder" class="hero-cta" type="button">VER PRODUTOS <span>›</span></button>
-    </div>
-    <div class="hero-logo-glow"><img id="heroLogo" src="/bipstart-logo.svg" alt=""></div>
   </section>
   <section class="category-strip" id="quickCategories" aria-label="Categorias do cardápio"></section>
   <section class="combo-banner hidden" id="comboBanner">
@@ -82,6 +72,6 @@
   <button id="sendOrder" type="button" class="btn checkout-btn" disabled>Enviar pelo WhatsApp ↗</button>
   <p class="checkout-disclaimer">Ao continuar, seus dados e o pedido serão registrados para o estabelecimento. Confirme o envio da mensagem no WhatsApp para concluir a solicitação. A loja confirma entrega e pagamento; a BipStart não processa pagamentos.</p>
 </aside>
-<script src="/vitrine.js?v=3" defer></script>
+<script src="/vitrine.js?v=4" defer></script>
 </body>
 </html>

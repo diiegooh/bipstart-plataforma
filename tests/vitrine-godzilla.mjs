@@ -20,14 +20,22 @@ test('vitrine Godzilla está no endereço direto do cardápio, sem login ou pain
  assert.match(client,/hiding\('workspace',true\);\s*renderPage\(\);/);
 });
 
-test('o visual do cardápio inclui vitrine, categorias dinâmicas, produtos e carrinho',()=>{
- for(const text of ['hero-green','hero-city','category-strip','combo-banner','catalog-toolbar','delivery-grid','onlinecart','cartfloat','bottom-nav']){
+test('o visual do cardápio tem título central sem banner, categorias, produtos e carrinho',()=>{
+ for(const text of ['header-title','category-strip','combo-banner','catalog-toolbar','delivery-grid','onlinecart','cartfloat','bottom-nav']){
   assert.match(html,new RegExp('class="[^"]*\\b'+text+'\\b'),text);
  }
  for(const id of ['storeName','quickCategories','catalog','search','category','cartDrawer','cartItems','shipping','address','pay','cartTotal','sendOrder','error']){
   assert.ok(html.includes('id="'+id+'"'),id);
  }
- assert.match(css,/\.hero-green/);
+ assert.match(html,/<div class="header-title"><h1>CARDÁPIO<\/h1><small id="storeName">Sua loja<\/small><\/div>/);
+ assert.doesNotMatch(html,/<section class="hero-green"|id="heroLogo"|id="heroOrder"|id="headerLogo"/);
+ assert.doesNotMatch(html,/class="hero-copy"|CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP/);
+ assert.doesNotMatch(js,/heroLogo|heroOrder|headerLogo/);
+ assert.match(css,/\.store-header \.header-title h1\{/);
+ assert.match(css,/@media\(max-width:650px\)/);
+ assert.doesNotMatch(css,/\.hero-green/);
+ assert.match(html,/\/vitrine\.css\?v=3/);
+ assert.match(html,/\/vitrine\.js\?v=4/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -38,7 +46,7 @@ test('cada vitrine consulta o cardápio da própria loja no Supabase',()=>{
  assert.match(js,/rpc\/bipstart_public_menu/);
  assert.match(js,/JSON\.stringify\(\{p_slug:slug\}\)/);
  assert.match(js,/menu\.src=config\.supabaseUrl/);
- assert.match(js,/menu\.logo_path/);
+ assert.doesNotMatch(js,/menu\.logo_path/);
  assert.match(js,/menu\.brand_color/);
  assert.match(js,/categoryNames\(\)/);
  assert.match(js,/imageUrl\(item\.image_path\)/);
@@ -79,4 +87,25 @@ test('PDV mantém painel interno e acesso ao mesmo cardápio dinâmico',()=>{
  assert.match(client,/return location\.origin\+'\/cardapio\?loja='\+encodeURIComponent\(shop\.slug\)/);
  assert.match(client,/rpc\('bipstart_complete_sale'/);
  assert.match(readFileSync('public/cliente.css','utf8'),/PDV em tela direta/);
+});
+
+
+test('título CARDÁPIO é centralizado sem perder nome da loja e recursos de pedido',()=>{
+ assert.equal((html.match(/<h1>CARDÁPIO<\/h1>/g)||[]).length,1);
+ assert.equal((html.match(/id="storeName"/g)||[]).length,1);
+ assert.match(js,/\$\('storeName'\)\.textContent=menu\.name/);
+ assert.match(js,/\$\('storeName'\)\.textContent='Cardápio indisponível'/);
+ assert.match(html,/class="store-header"/);
+ assert.match(css,/\.store-header\{[\s\S]*grid-template-columns:minmax\(0,1fr\) auto minmax\(0,1fr\)/);
+ assert.match(css,/\.store-header \.header-title\{[\s\S]*justify-self:center;text-align:center/);
+ assert.match(css,/\.store-header \.header-title h1\{[\s\S]*text-transform:uppercase/);
+ assert.match(css,/\.store-header \.header-title #storeName\{/);
+ assert.match(html,/id="jumpCategories"/);
+ assert.match(html,/id="focusSearch"/);
+ assert.match(html,/id="headerCart"/);
+ assert.match(html,/id="quickCategories"/);
+ assert.match(html,/id="catalogue"/);
+ assert.match(html,/id="sendOrder"/);
+ assert.match(js,/\$\('jumpCategories'\)\.addEventListener/);
+ assert.match(js,/\$\('sendOrder'\)/);
 });
