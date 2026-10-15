@@ -34,7 +34,7 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=5/);
+ assert.match(html,/\/vitrine\.css\?v=6/);
  assert.match(html,/\/vitrine\.js\?v=6/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
@@ -154,6 +154,7 @@ test('o retorno à seleção PDV ou Cardápio aparece só ao proprietário',()=>
  assert.match(html,/id="ownerNav" class="owner-nav hidden"/);
  assert.match(html,/id="backToModesLink"[^>]*href="\/cliente"/);
  assert.match(html,/Voltar às opções: PDV ou Cardápio/);
+ assert.doesNotMatch(html,/Gerenciar cardápio|ownerEditorLink/);
  assert.match(js,/\$\('ownerNav'\)\.classList\.remove\('hidden'\)/);
  assert.match(js,/Array\.isArray\(rows\)&&rows\.some\(row=>row\.slug===slug\)/);
  assert.match(css,/\.owner-modes-link\{/);
