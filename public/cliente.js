@@ -711,6 +711,7 @@ function onlineOrderCard(order){
      '<button type="button" class="ghost online-cancel" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button>'+
     '</div></div>'+
    contact+
+   (order.whatsapp_updates_opt_in===true?'<button type="button" class="ghost online-notification-optout" data-order-optout="'+esc(order.id)+'">Desativar avisos WhatsApp</button>':'')+
    (orderNotificationLinks.has(order.id)?'<a class="ghost online-order-notification-link" target="_blank" rel="noopener noreferrer" href="'+esc(orderNotificationLinks.get(order.id))+'">Enviar atualização ao cliente no WhatsApp ↗</a>':'')+
    '</div></article>';
 }
@@ -1071,6 +1072,21 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
+  const optout=e.target.closest('[data-order-optout]');
+  if(optout){
+    const id=optout.dataset.orderOptout,order=onlineOrders.find(item=>item.id===id);
+    if(!order||!shop||!hasAccess()||!order.whatsapp_updates_opt_in)return;
+    if(!window.confirm('Desativar os avisos de WhatsApp para este pedido?'))return;
+    optout.disabled=true;
+    try{
+      await rest('shop_online_orders',{method:'PATCH',query:{id:'eq.'+id,shop_id:'eq.'+shop.id},
+       body:{whatsapp_updates_opt_in:false}});
+      order.whatsapp_updates_opt_in=false;
+      orderNotificationLinks.delete(id);
+      renderPage();msg('Avisos de WhatsApp desativados para este pedido.');
+    }catch(error){optout.disabled=false;msg(error.message,true);}
+    return;
+  }
   const advanceOrder=e.target.closest('[data-order-advance]');
   const cancelOrder=e.target.closest('[data-order-cancel]');
   const advancePayment=e.target.closest('[data-payment-advance]');
