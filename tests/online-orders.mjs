@@ -17,8 +17,8 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrineHtml,/id="name"[^>]*required/);
  assert.match(vitrineHtml,/id="phone"[^>]*required/);
  assert.match(vitrineHtml,/id="address"/);
- assert.match(vitrineHtml,/\/vitrine\.js\?v=9/);
- assert.match(panelHtml,/\/cliente\.js\?v=27/);
+ assert.match(vitrineHtml,/\/vitrine\.js\?v=10/);
+ assert.match(panelHtml,/\/cliente\.js\?v=28/);
  assert.match(panelHtml,/\/cliente\.css\?v=16/);
  assert.match(vitrine,/await registerOnlineOrder\(\)/);
  assert.match(vitrine,/checkoutMessage\(receipt\.id\)/);
@@ -64,8 +64,8 @@ test('dashboard apresenta dados e controles de pagamento; escapa nome/endereço 
  const end=panel.indexOf('function renderPage(){',begin);
  assert.ok(begin>=0&&end>begin);
  const escape=v=>String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
- const render=new Function('esc','fmt',panel.slice(begin,end)+';return onlineOrderCard')(
-  escape,v=>'R$ '+Number(v).toFixed(2));
+ const render=new Function('esc','fmt','orderNotificationLinks',panel.slice(begin,end)+';return onlineOrderCard')(
+  escape,v=>'R$ '+Number(v).toFixed(2),new Map());
  const card=render({
   id:'33333333-3333-4333-8333-333333333333',created_at:'2026-10-14T12:00:00Z',
   customer_name:'João <script>alert(1)</script>',customer_phone:'11987654321',
@@ -128,7 +128,7 @@ test('pagamentos não são marcados como pagos automaticamente nem baixam estoqu
  assert.match(migration,/payment_status text not null default 'pending'/);
  assert.match(migration,/status text not null default 'awaiting_confirmation'/);
  assert.doesNotMatch(migration,/update public\.shop_products set stock/i);
- assert.match(panel,/await rest\('shop_online_orders',\{method:'PATCH'/);
+ assert.match(panel,/fetch\('\/api\/online-order-update'/);
  assert.match(panel,/data-orders-refresh/);
  assert.match(panel,/await reloadData\(\);renderPage\(\)/);
  assert.match(panel,/O registro ocorre antes de abrir o WhatsApp/);
@@ -138,9 +138,9 @@ test('pagamentos não são marcados como pagos automaticamente nem baixam estoqu
 test('situação do pedido avança por etapas e apresenta a próxima ação',()=>{
  const begin=panel.indexOf('function nextOnlineOrderStep(status){');
  const end=panel.indexOf('function renderPage(){',begin);
- const api=new Function('esc','fmt',panel.slice(begin,end)+';return {onlineOrderCard,nextOnlineOrderStep,nextOnlinePaymentStep};')(
+ const api=new Function('esc','fmt','orderNotificationLinks',panel.slice(begin,end)+';return {onlineOrderCard,nextOnlineOrderStep,nextOnlinePaymentStep};')(
   v=>String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),
-  n=>'R$ '+Number(n).toFixed(2));
+  n=>'R$ '+Number(n).toFixed(2),new Map());
  assert.deepEqual(api.nextOnlineOrderStep('awaiting_confirmation'),{next:'confirmed',label:'Confirmar pedido'});
  assert.deepEqual(api.nextOnlineOrderStep('confirmed'),{next:'preparing',label:'Iniciar preparo'});
  assert.deepEqual(api.nextOnlineOrderStep('preparing'),{next:'fulfilled',label:'Finalizar pedido'});
@@ -175,9 +175,9 @@ test('cliques de avanço/cancelamento têm confirmação, concorrência e não m
  assert.ok(panel.includes("window.confirm(detail)"));
  assert.ok(panel.includes("Confirma que o pagamento foi realmente recebido pela loja?"));
  assert.ok(panel.includes("pendingOrderUpdates.has(key)"));
- assert.ok(panel.includes("[field]:'eq.'+previous"));
- assert.ok(panel.includes("Array.isArray(result)||result.length!==1"));
- assert.ok(panel.includes("order[field]=result[0][field]"));
+ assert.ok(panel.includes("expected:previous"));
+ assert.ok(panel.includes("if(!response.ok||!result?.updated)"));
+ assert.ok(panel.includes("order[field]=result.status"));
  assert.doesNotMatch(panel,/data-order-status=|data-order-payment=/);
  assert.match(css,/#workspace \.online-status-block\{/);
  assert.match(css,/#workspace \.online-status-controls \.online-cancel\{/);
@@ -187,4 +187,12 @@ test('status cancelado do pagamento é suportado sem reembolso ou alteração de
  assert.match(cancellationMigration,/payment_status in \('pending','paid','cancelled'\)/);
  assert.match(cancellationMigration,/drop constraint if exists shop_online_orders_payment_status_check/);
  assert.doesNotMatch(cancellationMigration,/drop table|delete from|disable row level security|grant .* to anon/i);
+});
+
+test('cliente autoriza avisos no checkout e existe opção manual de notificação',()=>{
+ assert.match(vitrineHtml,/id="whatsappOptIn" type="checkbox"/);
+ assert.match(vitrine,/bipstart_set_online_order_whatsapp_optin/);
+ assert.match(vitrine,/p_client_token:orderToken,p_opt_in:true/);
+ assert.match(panel,/orderNotificationLinks\.set\(id,result\.manualUrl\)/);
+ assert.match(panel,/Enviar atualização ao cliente no WhatsApp/);
 });
