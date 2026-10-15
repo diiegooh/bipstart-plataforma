@@ -17,8 +17,8 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.match(html,/Alterar cor/);
  assert.match(html,/Abrir cardápio/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=18/);
- assert.match(html,/cliente\.css\?v=10/);
+ assert.match(html,/cliente\.js\?v=19/);
+ assert.match(html,/cliente\.css\?v=11/);
 });
 
 test('coluna mostra cinco opções, sem aba separada de Estoque',()=>{
@@ -73,7 +73,7 @@ test('Produtos incorpora estoque e Pedidos online não promete pedidos automáti
  assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='low'\)/);
  assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='out'\)/);
  assert.match(js,/tab==='pedidos'/);
- assert.match(js,/Os pedidos recebidos por WhatsApp ainda não são importados automaticamente/);
+ assert.match(js,/O registro ocorre antes de abrir o WhatsApp/);
  assert.match(js,/data-nav="cardapio">Gerenciar cardápio/);
  assert.match(js,/data-nav="entregas">Acessar fila de entregas/);
  assert.match(js,/if\(nav\.dataset\.nav==='motoboys'&&!proAccess\(\)\)/);
