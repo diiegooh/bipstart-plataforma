@@ -76,7 +76,8 @@ test('Produtos incorpora estoque e Pedidos online não promete pedidos automáti
  assert.match(js,/tab==='pedidos'/);
  assert.match(js,/O registro ocorre antes de abrir o WhatsApp/);
  assert.doesNotMatch(js,/data-nav="cardapio">Gerenciar cardápio/);
- assert.match(html,/id="sideOpenMenu"[^>]*[\\s\\S]*Abrir cardápio/);
+ assert.match(html,/id="sideOpenMenu"/);
+ assert.match(html,/<span>Abrir cardápio ↗<\/span>/);
  assert.match(js,/data-nav="entregas">Abrir fila de entregas/);
  assert.match(js,/if\(nav\.dataset\.nav==='motoboys'&&!proAccess\(\)\)/);
  assert.match(js,/if\(!canCustomize\(\)\)return msg\('Alterar a cor do cardápio está disponível somente no plano Premium\.'/);
