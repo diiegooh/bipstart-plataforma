@@ -524,3 +524,64 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
  #workspace .online-order-top h3{font-size:17px}
  #workspace .online-order-total{font-size:19px}
 }
+
+
+/* Relatórios de vendas: filtros de período, totais e linha detalhada por produto. */
+#workspace .sales-report-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:17px 0}
+#workspace .sales-period-switch{display:inline-flex;gap:3px;padding:4px;border:1px solid #594477;background:#20152f;border-radius:12px}
+#workspace .sales-period-switch button{min-height:40px;padding:8px 17px;border:0;border-radius:9px;background:transparent;color:#d5c6e7;font-size:13px;font-weight:800}
+#workspace .sales-period-switch button.active{background:var(--store-accent,#7c3aed);color:var(--store-accent-ink,#fff)}
+#workspace .sales-period-switch button:focus-visible{outline:3px solid #c795ff;outline-offset:2px}
+#workspace .sales-report-controls>label{display:grid;gap:5px;color:#e2d6f2;font-size:12px;font-weight:800}
+#workspace .sales-report-controls input[type="date"]{min-height:44px;min-width:160px;padding:9px 12px;color:#fff;border:1px solid #594477;border-radius:10px;background:#20152f;color-scheme:dark}
+#workspace .sales-period-label{margin:5px 0 13px;color:#b6a5c6;font-size:13px}
+#workspace .sales-period-totals{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin:12px 0 16px}
+#workspace .sales-period-totals .tile{background:#171c16;border-color:#3b5340}
+#workspace .sales-period-totals .tile strong{font-size:clamp(20px,2vw,27px)}
+#workspace .sales-disclaimer{padding:10px 12px;border-left:3px solid #af86e6;border-radius:0 8px 8px 0;background:#1e1728;color:#d6c4e6;font-size:12px;line-height:1.55;margin:8px 0 17px}
+#workspace .sales-day{border:1px solid #3b4f41;border-radius:15px;background:#0e1712;overflow:hidden;margin:18px 0}
+#workspace .sales-day-heading{display:flex;justify-content:space-between;align-items:center;gap:10px 20px;flex-wrap:wrap;padding:15px 17px;border-bottom:1px solid #3b4f41;background:#17251b}
+#workspace .sales-day-heading h3{font-size:18px;color:#fff;margin:0 0 4px;text-transform:capitalize}
+#workspace .sales-day-heading small{font-size:11px;color:#a2b5a5}
+#workspace .sales-day-summary{display:flex;gap:8px 18px;flex-wrap:wrap;color:#b3c3b7;font-size:12px}
+#workspace .sales-day-summary strong{font-size:15px;color:#eaffee}
+#workspace .sales-table-wrap{width:100%;overflow-x:auto}
+#workspace .sales-table{border-collapse:collapse;width:100%;min-width:755px;font-size:12px;color:#e4f1e7}
+#workspace .sales-table th,#workspace .sales-table td{padding:11px 12px;border-bottom:1px solid #24392b;text-align:left;white-space:nowrap}
+#workspace .sales-table th{background:#102017;color:#a2c2ae;font-size:11px;font-weight:850}
+#workspace .sales-table tr:last-child td{border-bottom:0}
+#workspace .sales-table td:nth-child(2){white-space:normal;min-width:140px}
+#workspace .sales-table td:nth-child(2) strong{display:block;color:#fff;overflow-wrap:anywhere}
+#workspace .sales-table td:nth-child(2) small{display:block;color:#a5bda9;margin-top:3px}
+#workspace .sales-table td.sales-profit{color:#72ec9d;font-weight:850}
+
+/* Estoque integrado a Produtos: reposição para ultrapassar o mínimo cadastrado. */
+#workspace .restock-section{border:1px solid #486344;border-radius:16px;background:linear-gradient(155deg,#17261a,#0d1811 76%);padding:17px;margin:18px 0}
+#workspace .restock-heading{display:flex;justify-content:space-between;align-items:start;gap:15px;flex-wrap:wrap;margin-bottom:13px}
+#workspace .restock-heading h3{font-size:19px;color:#fff;margin:0 0 6px}
+#workspace .restock-heading p{color:#a8b9aa;font-size:12px;line-height:1.5;margin:0}
+#workspace .restock-total{display:flex;flex-direction:column;gap:3px;align-items:flex-end;text-align:right}
+#workspace .restock-total small{font-size:11px;color:#b9c8bd}
+#workspace .restock-total strong{color:#80efaf;font-size:23px}
+#workspace .restock-list{display:grid;gap:8px}
+#workspace .restock-item{display:grid;grid-template-columns:minmax(180px,2fr) minmax(65px,.7fr) minmax(95px,.8fr) minmax(120px,1fr);gap:12px;align-items:center;padding:11px 13px;border-radius:11px;background:#101d14;border:1px solid #37513d}
+#workspace .restock-item>div{display:grid;gap:5px;min-width:0}
+#workspace .restock-item>div>small{font-size:11px;color:#9bb4a0}
+#workspace .restock-item>div>strong{font-size:13px;color:#f1f9f2;overflow-wrap:anywhere}
+#workspace .restock-name strong{font-size:15px!important}
+#workspace .restock-note{font-size:11px;line-height:1.6;margin:12px 0 0}
+@media(max-width:750px){
+ #workspace .sales-report-controls>*{flex:1 1 auto}
+ #workspace .sales-period-switch{justify-content:space-evenly}
+ #workspace .sales-period-switch button{flex:1}
+ #workspace .restock-item{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ #workspace .restock-item>div:first-child{grid-column:1/-1;border-bottom:1px solid #273c2b;padding-bottom:8px}
+ #workspace .restock-total{align-items:flex-start;text-align:left}
+}
+@media(max-width:440px){
+ #workspace .sales-period-totals{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #workspace .sales-day-heading{padding:12px}
+ #workspace .sales-day-summary{display:grid}
+ #workspace .restock-section{padding:12px}
+ #workspace .restock-item{gap:10px}
+}
