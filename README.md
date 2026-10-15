@@ -81,6 +81,10 @@ No topo da aba Produtos também há contadores de itens cadastrados, estoque bai
 - Disponibilidade no cardápio público: `sql/bipstart_public_menu_stock_20261014.sql` (adiciona apenas o indicador booleano `in_stock` sem divulgar a quantidade exata); executar e validar no mesmo projeto Supabase antes do deploy do frontend.
 - Testes: `npm test` e GitHub Actions `Validar BipStart`; cobertura em `tests/vitrine-godzilla.mjs` e `tests/cardapio-gestao-estoque.mjs`.
 
+## Imagens dos modelos na página inicial
+
+A seção **Modelos** mostra duas prévias ilustrativas locais das interfaces, servidas de `public/modelo-pdv.svg` e `public/modelo-cardapio.svg`. As ilustrações reproduzem o visual do PDV e da vitrine de cardápio atuais, com texto alternativo e renderização responsiva. Elas não contêm dados reais de estabelecimentos e não dependem de serviços externos. Os botões **Experimentar PDV** e **Experimentar cardápio** mantêm seus fluxos existentes.
+
 ## Desenvolvimento e homologação
 
 ```bash
