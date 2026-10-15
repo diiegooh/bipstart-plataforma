@@ -34,8 +34,8 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=4/);
- assert.match(html,/\/vitrine\.js\?v=5/);
+ assert.match(html,/\/vitrine\.css\?v=5/);
+ assert.match(html,/\/vitrine\.js\?v=6/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -129,4 +129,32 @@ test('topo mostra endereço para retirada e horários sem taxa de entrega',()=>{
  assert.match(css,/@media\(max-width:600px\)\{[\s\S]*\.hours-card\{display:flex\}/);
  assert.doesNotMatch(css,/\.delivery-badge/);
  assert.match(html,/id="paymentMethods"/);
+});
+
+test('o cardápio multiplica o total no card e não abre o carrinho ao adicionar',()=>{
+ assert.doesNotMatch(html,/Ao continuar, seus dados e o pedido serão registrados/);
+ const start=js.indexOf('function itemCard(item){');
+ const end=js.indexOf('function renderProducts(){',start);
+ assert.ok(start>=0&&end>start);
+ const qty=new Map([['a',3]]);
+ const itemCard=new Function('selectedQty','esc','money','imageUrl',js.slice(start,end)+';return itemCard;')(qty,v=>String(v),v=>'R$ '+Number(v).toFixed(2),()=>'/img.png');
+ const card=itemCard({id:'a',name:'Copo Salgatti',price:12.5,category:'Salgados',in_stock:true});
+ assert.match(card,/data-card-qty="a"[^>]*>3<\/strong>/);
+ assert.match(card,/data-card-total="a"[^>]*>R\$ 37\.50<\/strong>/);
+ assert.match(card,/data-card-inc="a"/);
+ assert.match(card,/data-card-dec="a"/);
+ assert.match(card,/data-add="a"/);
+ assert.match(js,/const qty=add\?\(selectedQty\.get\(id\)\|\|1\):1/);
+ assert.match(js,/card\.querySelector\('\[data-card-total\]'\)\.textContent=money\(Number\(product\.price\)\*qty\)/);
+ assert.doesNotMatch(js,/if\(add\)openCart\(\)/);
+ assert.match(css,/\.product-quantity\{/);
+});
+
+test('o retorno à seleção PDV ou Cardápio aparece só ao proprietário',()=>{
+ assert.match(html,/id="ownerNav" class="owner-nav hidden"/);
+ assert.match(html,/id="backToModesLink"[^>]*href="\/cliente"/);
+ assert.match(html,/Voltar às opções: PDV ou Cardápio/);
+ assert.match(js,/\$\('ownerNav'\)\.classList\.remove\('hidden'\)/);
+ assert.match(js,/Array\.isArray\(rows\)&&rows\.some\(row=>row\.slug===slug\)/);
+ assert.match(css,/\.owner-modes-link\{/);
 });
