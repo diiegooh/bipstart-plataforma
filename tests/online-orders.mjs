@@ -19,7 +19,7 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrineHtml,/id="address"/);
  assert.match(vitrineHtml,/\/vitrine\.js\?v=10/);
  assert.match(panelHtml,/\/cliente\.js\?v=28/);
- assert.match(panelHtml,/\/cliente\.css\?v=17/);
+ assert.match(panelHtml,/\/cliente\.css\?v=18/);
  assert.match(vitrine,/await registerOnlineOrder\(\)/);
  assert.match(vitrine,/checkoutMessage\(receipt\.id\)/);
  assert.match(vitrine,/location\.assign\(url\)/);
@@ -77,6 +77,11 @@ test('dashboard apresenta dados e controles de pagamento; escapa nome/endereço 
  assert.doesNotMatch(card,/<script>/);
  assert.match(card,/Rua &lt;img/);
  assert.match(card,/11987654321/);
+ assert.match(card,/<strong class="online-phone-line">[\s\S]*?class="online-order-whatsapp"/);
+ assert.match(card,/href="https:\/\/wa\.me\/5511987654321"/);
+ assert.match(card,/aria-label="Conversar com João &lt;script&gt;alert\(1\)&lt;\/script&gt; no WhatsApp"/);
+ assert.match(card,/<svg viewBox="0 0 24 24"/);
+ assert.doesNotMatch(card,/WhatsApp do cliente ↗|online-order-contact/);
  assert.match(card,/Pagamento/);
  assert.match(card,/Aguardando pagamento/);
  assert.match(card,/data-order-advance=/);
@@ -143,7 +148,9 @@ test('situação do pedido avança por etapas e apresenta a próxima ação',()=
   n=>'R$ '+Number(n).toFixed(2),new Map());
  assert.deepEqual(api.nextOnlineOrderStep('awaiting_confirmation'),{next:'confirmed',label:'Confirmar pedido'});
  assert.deepEqual(api.nextOnlineOrderStep('confirmed'),{next:'preparing',label:'Iniciar preparo'});
- assert.deepEqual(api.nextOnlineOrderStep('preparing'),{next:'fulfilled',label:'Finalizar pedido'});
+ assert.deepEqual(api.nextOnlineOrderStep('preparing','delivery'),{next:'out_for_delivery',label:'Saiu para entrega'});
+ assert.deepEqual(api.nextOnlineOrderStep('preparing','pickup'),{next:'fulfilled',label:'Finalizar pedido'});
+ assert.deepEqual(api.nextOnlineOrderStep('out_for_delivery','delivery'),{next:'fulfilled',label:'Finalizar pedido'});
  assert.equal(api.nextOnlineOrderStep('fulfilled'),null);
  assert.equal(api.nextOnlineOrderStep('cancelled'),null);
  assert.deepEqual(api.nextOnlinePaymentStep('pending'),{next:'paid',label:'Confirmar pagamento'});
@@ -155,6 +162,15 @@ test('situação do pedido avança por etapas e apresenta a próxima ação',()=
  assert.match(ongoing,/Iniciar preparo/);
  assert.match(ongoing,/Cancelar pedido/);
  assert.match(ongoing,/Confirmar pagamento/);
+ const delivery=api.onlineOrderCard({...order,delivery_method:'delivery',status:'preparing'});
+ assert.match(delivery,/Saiu para entrega/);
+ assert.match(delivery,/data-order-advance=/);
+ const onTheWay=api.onlineOrderCard({...order,delivery_method:'delivery',status:'out_for_delivery'});
+ assert.match(onTheWay,/Saiu para entrega/);
+ assert.match(onTheWay,/Finalizar pedido/);
+ const pickup=api.onlineOrderCard({...order,delivery_method:'pickup',status:'preparing'});
+ assert.doesNotMatch(pickup,/Saiu para entrega/);
+ assert.match(pickup,/Finalizar pedido/);
  const done=api.onlineOrderCard({...order,status:'fulfilled',payment_status:'paid'});
  assert.match(done,/Pedido finalizado/);
  assert.match(done,/Pagamento confirmado/);
@@ -202,4 +218,14 @@ test('loja pode interromper notificações para respeitar a solicitação do cli
  assert.match(panel,/whatsapp_updates_opt_in:false/);
  assert.match(panel,/orderNotificationLinks\.delete\(id\)/);
  assert.match(css,/#workspace \.online-notification-optout\{/);
+});
+
+test('banco restringe saiu para entrega a pedidos enviados por delivery',()=>{
+ const stepMigration=readFileSync('sql/bipstart_out_for_delivery_20261015.sql','utf8');
+ assert.match(stepMigration,/out_for_delivery/);
+ assert.match(stepMigration,/shop_online_orders_status_check/);
+ assert.match(stepMigration,/status <> 'out_for_delivery' or delivery_method='delivery'/);
+ assert.match(css,/#workspace \.online-order-whatsapp\{/);
+ assert.match(panel,/\['confirmed','preparing','out_for_delivery'\]/);
+ assert.match(panel,/nextOnlineOrderStep\(previous,order\.delivery_method\)/);
 });
