@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" role="img" aria-labelledby="title desc"><title id="title">Prévia do PDV BipStart</title><desc id="desc">Interface de demonstração do PDV, com menu lateral, produtos, estoque e carrinho.</desc>
+<defs><linearGradient id="bg" x2=".9" y2="1"><stop stop-color="#080d0b"/><stop offset="1" stop-color="#15251a"/></linearGradient><linearGradient id="sidebar" x2="1" y2="1"><stop stop-color="#080f0b"/><stop offset="1" stop-color="#101e14"/></linearGradient><linearGradient id="panel" x2="1" y2="1"><stop stop-color="#17231b"/><stop offset="1" stop-color="#0f1713"/></linearGradient><linearGradient id="red" x2="1" y2="1"><stop stop-color="#fa132a"/><stop offset="1" stop-color="#d30e20"/></linearGradient><linearGradient id="bottle" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#70b7fa"/><stop offset=".5" stop-color="#e5f6fc"/><stop offset="1" stop-color="#388fd4"/></linearGradient></defs>
+<rect x="0" y="0" width="1000" height="560" rx="22" fill="url(#bg)" stroke="none" stroke-width="1"/><rect x="14" y="14" width="196" height="532" rx="17" fill="url(#sidebar)" stroke="#274432" stroke-width="1"/>
+<text x="35" y="51" fill="#fff" font-size="21" font-family="Inter,Arial,sans-serif" font-weight="850" >MINHA LOJA</text><text x="35" y="71" fill="#849c8a" font-size="12" font-family="Inter,Arial,sans-serif" font-weight="450" >Painel de operação</text>
+<path d="M34 93H190" stroke="#314739"/>
+<rect x="27" y="111" width="170" height="44" rx="10" fill="url(#red)" stroke="none" stroke-width="1"/><text x="49" y="139" fill="#fff" font-size="16" font-family="Inter,Arial,sans-serif" font-weight="850" >▣   PDV</text>
+<text x="50" y="190" fill="#c9dbcb" font-size="15" font-family="Inter,Arial,sans-serif" font-weight="650" >▤   Produtos</text><text x="50" y="230" fill="#c9dbcb" font-size="15" font-family="Inter,Arial,sans-serif" font-weight="650" >▥   Pedidos online</text>
+<text x="50" y="270" fill="#c9dbcb" font-size="15" font-family="Inter,Arial,sans-serif" font-weight="650" >✦   Motoboys</text><text x="50" y="310" fill="#c9dbcb" font-size="15" font-family="Inter,Arial,sans-serif" font-weight="650" >▥   Vendas</text>
+<rect x="28" y="459" width="167" height="29" rx="9" fill="#1b2c20" stroke="#3a5842" stroke-width="1"/><text x="49" y="478" fill="#d4e2d6" font-size="12" font-family="Inter,Arial,sans-serif" font-weight="650" >Voltar às opções</text>
+<rect x="28" y="498" width="167" height="29" rx="9" fill="#1b2c20" stroke="#3a5842" stroke-width="1"/><text x="96" y="518" fill="#d4e2d6" font-size="12" font-family="Inter,Arial,sans-serif" font-weight="650" >Sair</text>
+<text x="239" y="50" fill="#ef5769" font-size="11" font-family="Inter,Arial,sans-serif" font-weight="900" letter-spacing="2">PONTO DE VENDA</text>
+<text x="239" y="86" fill="#f5f8f6" font-size="30" font-family="Inter,Arial,sans-serif" font-weight="850" >Frente de caixa</text>
+<text x="239" y="110" fill="#98b09f" font-size="13" font-family="Inter,Arial,sans-serif" font-weight="450" >Registre vendas e controle o estoque</text>
+<rect x="239" y="137" width="475" height="41" rx="11" fill="#1b2a20" stroke="#344f39" stroke-width="1"/><text x="259" y="164" fill="#93a999" font-size="13" font-family="Inter,Arial,sans-serif" font-weight="450" >Buscar produtos no caixa...</text>
+<rect x="731" y="137" width="242" height="41" rx="11" fill="#18271d" stroke="#3c563f" stroke-width="1"/><text x="750" y="164" fill="#e6f5e8" font-size="13" font-family="Inter,Arial,sans-serif" font-weight="650" >Todos os produtos    ▾</text>
+<path d="M230 195H976" stroke="#2c4232"/>
+<rect x="238" y="211" width="151" height="228" rx="13" fill="url(#panel)" stroke="#37533c" stroke-width="1"/><rect x="249" y="221" width="129" height="127" rx="11" fill="#202e22" stroke="none" stroke-width="1"/>
+<rect x="301" y="248" width="28" height="78" rx="9" fill="url(#bottle)" stroke="#a9d7ed" stroke-width="1"/><rect x="307" y="240" width="16" height="12" rx="3" fill="#419ce6" stroke="none" stroke-width="1"/><rect x="296" y="279" width="38" height="19" rx="4" fill="#f3f9fa" stroke="none" stroke-width="1"/><text x="299" y="292" fill="#298bd5" font-size="9" font-family="Inter,Arial,sans-serif" font-weight="850" >ÁGUA</text>
+
+
+<text x="251" y="370" fill="#f3f8f4" font-size="13" font-family="Inter,Arial,sans-serif" font-weight="800" >Água mineral</text><text x="251" y="399" fill="#fff" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="850" >R$ 5,00</text>
+<rect x="249" y="410" width="129" height="22" rx="6" fill="#304b33" stroke="none" stroke-width="1"/><text x="291" y="426" fill="#c9fdd8" font-size="11" font-family="Inter,Arial,sans-serif" font-weight="800" >Adicionar +</text>
+<rect x="404" y="211" width="151" height="228" rx="13" fill="url(#panel)" stroke="#37533c" stroke-width="1"/><rect x="415" y="221" width="129" height="127" rx="11" fill="#202e22" stroke="none" stroke-width="1"/>
+
+<rect x="466" y="240" width="32" height="86" rx="8" fill="#ac2025" stroke="#ec5b55" stroke-width="1"/><rect x="471" y="235" width="22" height="11" rx="3" fill="#ddd" stroke="none" stroke-width="1"/><rect x="465" y="274" width="35" height="26" rx="5" fill="#f7e6c4" stroke="none" stroke-width="1"/><text x="468" y="290" fill="#b02727" font-size="10" font-family="Inter,Arial,sans-serif" font-weight="800" >COLA</text>
+
+<text x="417" y="370" fill="#f3f8f4" font-size="13" font-family="Inter,Arial,sans-serif" font-weight="800" >Refrigerante</text><text x="417" y="399" fill="#fff" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="850" >R$ 8,00</text>
+<rect x="415" y="410" width="129" height="22" rx="6" fill="#304b33" stroke="none" stroke-width="1"/><text x="457" y="426" fill="#c9fdd8" font-size="11" font-family="Inter,Arial,sans-serif" font-weight="800" >Adicionar +</text>
+<rect x="570" y="211" width="151" height="228" rx="13" fill="url(#panel)" stroke="#37533c" stroke-width="1"/><rect x="581" y="221" width="129" height="127" rx="11" fill="#202e22" stroke="none" stroke-width="1"/>
+
+
+<path d="M646 242 C692 290 684 328 646 331 C607 328 602 290 646 242Z" fill="#dda258" stroke="#efbf7a" stroke-width="4"/><path d="M622 289Q646 267 669 292" fill="none" stroke="#c98937" stroke-width="4"/>
+<text x="583" y="370" fill="#f3f8f4" font-size="13" font-family="Inter,Arial,sans-serif" font-weight="800" >Coxinha</text><text x="583" y="399" fill="#fff" font-size="17" font-family="Inter,Arial,sans-serif" font-weight="850" >R$ 7,00</text>
+<rect x="581" y="410" width="129" height="22" rx="6" fill="#304b33" stroke="none" stroke-width="1"/><text x="623" y="426" fill="#c9fdd8" font-size="11" font-family="Inter,Arial,sans-serif" font-weight="800" >Adicionar +</text>
+<rect x="751" y="212" width="223" height="279" rx="13" fill="#0f1713" stroke="#415741" stroke-width="1"/><text x="771" y="243" fill="#f5fcf7" font-size="21" font-family="Inter,Arial,sans-serif" font-weight="850" >Carrinho</text>
+<rect x="769" y="262" width="183" height="36" rx="7" fill="#19291d" stroke="none" stroke-width="1"/><text x="780" y="284" fill="#eaf7eb" font-size="12" font-family="Inter,Arial,sans-serif" font-weight="650" >Água mineral</text><text x="928" y="284" fill="#bddec7" font-size="12" font-family="Inter,Arial,sans-serif" font-weight="650" >1x</text>
+<rect x="769" y="304" width="183" height="36" rx="7" fill="#19291d" stroke="none" stroke-width="1"/><text x="780" y="326" fill="#eaf7eb" font-size="12" font-family="Inter,Arial,sans-serif" font-weight="650" >Refrigerante</text><text x="928" y="326" fill="#bddec7" font-size="12" font-family="Inter,Arial,sans-serif" font-weight="650" >2x</text>
+<path d="M771 363H953" stroke="#405744"/><text x="771" y="388" fill="#cbdacf" font-size="14" font-family="Inter,Arial,sans-serif" font-weight="650" >Total</text><text x="862" y="391" fill="#fff" font-size="21" font-family="Inter,Arial,sans-serif" font-weight="850" >R$ 21,00</text>
+<rect x="770" y="415" width="184" height="49" rx="10" fill="url(#red)" stroke="none" stroke-width="1"/><text x="811" y="445" fill="#fff" font-size="15" font-family="Inter,Arial,sans-serif" font-weight="850" >Finalizar venda</text>
+<text x="248" y="511" fill="#8be8aa" font-size="11" font-family="Inter,Arial,sans-serif" font-weight="850" letter-spacing="1">CONTROLE DE ESTOQUE INTEGRADO</text>
+</svg>
