@@ -304,7 +304,7 @@ $('sendOrder').addEventListener('click',async()=>{
 });
 // Exibe a área administrativa apenas se uma sessão autenticada consegue ler esta loja via RLS.
 // A verificação nunca dá acesso por si: a página /cliente revalida o plano e as permissões.
-async function revealOwnerEditorLink(config,slug){
+async function revealOwnerNavigation(config,slug){
  try{
   const raw=localStorage.getItem('bipstart_customer_session');
   const saved=raw?JSON.parse(raw):null;
@@ -339,7 +339,7 @@ async function boot(){
   products=Array.isArray(menu.items)?menu.items:[];
   menu.src=config.supabaseUrl+'/storage/v1/object/public/bipstart-images';
   drawPage();
-  await revealOwnerEditorLink(config,slug);
+  await revealOwnerNavigation(config,slug);
  }catch(error){
   $('storeName').textContent='Cardápio indisponível';
   $('catalog').innerHTML='<p class="summary catalog-empty">Não foi possível apresentar os produtos.</p>';
