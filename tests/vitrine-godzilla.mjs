@@ -34,8 +34,8 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=8/);
- assert.match(html,/\/vitrine\.js\?v=8/);
+ assert.match(html,/\/vitrine\.css\?v=9/);
+ assert.match(html,/\/vitrine\.js\?v=9/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -128,7 +128,10 @@ test('topo mostra endereço para retirada e horários sem taxa de entrega',()=>{
  assert.match(css,/\.location-card,\.hours-card\{/);
  assert.match(css,/@media\(max-width:600px\)\{[\s\S]*\.hours-card\{display:flex\}/);
  assert.doesNotMatch(css,/\.delivery-badge/);
- assert.match(html,/id="paymentMethods"/);
+ assert.doesNotMatch(html,/benefits-row|store-extra|id="paymentMethods"|Pedido simples|Carrinho de compras|Direto com a loja|Formas de pagamento/);
+ assert.doesNotMatch(js,/\$\('paymentMethods'\)/);
+ assert.doesNotMatch(css,/\.benefits-row|\.store-extra/);
+ assert.match(html,/id="pay"/);
 });
 
 test('o cardápio multiplica o total no card e não abre o carrinho ao adicionar',()=>{
