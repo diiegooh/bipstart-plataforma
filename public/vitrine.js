@@ -55,10 +55,6 @@ function drawPage(){
  $('storeLocation').textContent=menu.location||'Localização a combinar';
  $('openingHours').textContent=menu.opening_hours||'Consulte a loja';
  $('cartStore').textContent=menu.name.toLocaleUpperCase('pt-BR');
- const logo=logoUrl();
- $('headerLogo').src=logo;
- $('headerLogo').alt='Logotipo '+menu.name;
- $('heroLogo').src=logo;
  const link=$('locationLink');
  if(menu.location){
   link.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(menu.location);
@@ -201,7 +197,6 @@ $('bottomOrders').addEventListener('click',openCart);
 $('closeCart').addEventListener('click',closeCart);
 $('cartBackdrop').addEventListener('click',closeCart);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('cartDrawer').classList.contains('show'))closeCart();});
-$('heroOrder').addEventListener('click',goToCatalogue);
 $('focusSearch').addEventListener('click',()=>{goToCatalogue();$('search').focus({preventScroll:true});});
 $('showAll').addEventListener('click',()=>{$('search').value='';filterCategory('');});
 $('seeCombos').addEventListener('click',()=>filterCategory($('seeCombos').dataset.category));
