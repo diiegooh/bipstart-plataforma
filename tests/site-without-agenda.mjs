@@ -61,7 +61,7 @@ test('FAQ Premium, solicitações gratuitas e pagamentos refletem a oferta comer
  assert.match(html,/O que inclui o Premium\?/);
  assert.match(html,/sistema integrado de motoboys particulares/i);
  assert.match(html,/depois de cadastrados na fila de entregas/);
- assert.match(html,/O envio automático do cardápio ainda não está disponível/);
+ assert.doesNotMatch(html,/O envio automático do cardápio ainda não está disponível/);
  assert.match(html,/Você poderá solicitar mudanças conforme seu negócio\. Sem nenhum custo\./);
  assert.match(html,/Por questões de segurança, os pagamentos são realizados diretamente na sua loja física ou combinados pelo WhatsApp/);
  assert.doesNotMatch(html,/eventuais custos extras/);
