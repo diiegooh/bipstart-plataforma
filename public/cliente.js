@@ -247,6 +247,7 @@ function operationalMenuItems(){
   return [
     ['caixa','PDV','🛒'],
     ['produtos','Produtos','📦'],
+    ['cardapio_publico','Cardápio online','📋'],
     ['pedidos','Pedidos online','🚚'],
     ['motoboys','Motoboys','🛵'],
     ['vendas','Vendas','💰']
@@ -265,6 +266,10 @@ function renderNav(){
   applySidebarTheme();
   const current=tab==='cardapio'||tab==='entregas'?'pedidos':tab;
   $('nav').innerHTML='<nav aria-label="Navegação operacional">'+operationalMenuItems().map(([id,name,icon])=>{
+    if(id==='cardapio_publico'){
+      return '<a class="side-public-menu" data-public-menu-link href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer" aria-label="Abrir cardápio online da loja em outra aba" title="Abrir cardápio online em outra aba">'+
+        '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><span class="side-external-icon" aria-hidden="true">↗</span></a>';
+    }
     const premium=id==='motoboys'&&!proAccess();
     return '<button type="button" data-nav="'+esc(id)+'" class="'+(current===id?'active':premium?'locked':'')+'"'+(current===id?' aria-current="page"':'')+(premium?' aria-label="Motoboys: exclusivo Premium" title="Exclusivo do Premium"':'')+'>'+
       '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b>'+(premium?'<small class="side-lock">Premium</small>':'')+'</button>';
