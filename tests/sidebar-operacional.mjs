@@ -9,7 +9,7 @@ const js=readFileSync('public/cliente.js','utf8');
 
 test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',()=>{
  new vm.Script(js,{filename:'public/cliente.js'});
- for(const id of ['sidebar','sideShopName','sideSettings','sideColor','sideOpenMenu','sideLogout','sideToggle','sideBackdrop']){
+ for(const id of ['sidebar','sideShopName','sideSettings','sideColor','sideLogout','sideToggle','sideBackdrop']){
   assert.match(html,new RegExp('id="'+id+'"'),id);
  }
  assert.doesNotMatch(html,/Central de operação/);
@@ -17,7 +17,7 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.match(html,/Alterar cor/);
  assert.match(html,/Abrir cardápio/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=20/);
+ assert.match(html,/cliente\.js\?v=21/);
  assert.match(html,/cliente\.css\?v=11/);
 });
 
@@ -60,7 +60,6 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
  assert.doesNotMatch(html,/id="sideShopLogo"/);
  assert.doesNotMatch(js,/\$\('sideShopLogo'\)/);
  assert.equal(basic.node('sideShopName').textContent,'Adega <Teste>');
- assert.equal(basic.node('sideOpenMenu').href,'https://bipstart.example/cardapio?loja=adega-teste');
  const premium=mockNav(true);
  assert.match(premium.node('nav').innerHTML,/data-nav="motoboys" class=""/);
  assert.equal(premium.node('sideShopName').textContent,'Adega <Teste>');
@@ -76,8 +75,8 @@ test('Produtos incorpora estoque e Pedidos online não promete pedidos automáti
  assert.match(js,/tab==='pedidos'/);
  assert.match(js,/O registro ocorre antes de abrir o WhatsApp/);
  assert.doesNotMatch(js,/data-nav="cardapio">Gerenciar cardápio/);
- assert.match(html,/id="sideOpenMenu"/);
- assert.match(html,/<span>Abrir cardápio ↗<\/span>/);
+ assert.doesNotMatch(html,/id="sideOpenMenu"/);
+ assert.doesNotMatch(js,/\$\('sideOpenMenu'\)/);
  assert.match(js,/data-nav="entregas">Abrir fila de entregas/);
  assert.match(js,/if\(nav\.dataset\.nav==='motoboys'&&!proAccess\(\)\)/);
  assert.match(js,/if\(!canCustomize\(\)\)return msg\('Alterar a cor do cardápio está disponível somente no plano Premium\.'/);
@@ -120,5 +119,5 @@ test('aba Pedidos online não exibe botões redundantes do cardápio',()=>{
  assert.doesNotMatch(area,/Abrir cardápio ↗|Gerenciar cardápio|class="orders-actions"/);
  assert.match(area,/data-orders-refresh/);
  assert.match(area,/onlineOrderCard/);
- assert.match(js,/\$\('sideOpenMenu'\)\.href=publicShopUrl\(\)/);
+ assert.doesNotMatch(js,/\$\('sideOpenMenu'\)/);
 });
