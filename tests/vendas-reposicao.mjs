@@ -39,7 +39,7 @@ const items=[
 test('as funções compõem JavaScript válido e os arquivos usam versão nova',()=>{
  new vm.Script(source,{filename:'cliente.js'});
  assert.match(page,/cliente\.js\?v=22/);
- assert.match(page,/cliente\.css\?v=12/);
+ assert.match(page,/cliente\.css\?v=13/);
  assert.match(css,/\.sales-table-wrap/);
  assert.match(css,/\.restock-list/);
 });
@@ -133,4 +133,24 @@ test('migração adiciona snapshot de custo, sem preencher valores históricos o
  assert.match(migration,/stock=stock-v_item\.qty/);
  assert.doesNotMatch(migration,/update public\.shop_sale_items set unit_cost/i);
  assert.match(migration,/notify pgrst, 'reload schema'/);
+});
+
+
+test('filtros de Vendas padronizam altura, cores, alinhamento e mobile',()=>{
+ const css=readFileSync('public/cliente.css','utf8');
+ assert.match(css,/#workspace \.sales-report-controls\{\s*--sales-filter-height:50px;/);
+ assert.match(css,/--sales-filter-surface:#20152f/);
+ assert.match(css,/--sales-filter-border:#594477/);
+ assert.match(css,/align-items:flex-end/);
+ assert.match(css,/#workspace \.sales-period-switch\{[\s\S]*height:var\(--sales-filter-height\)/);
+ assert.match(css,/#workspace \.sales-report-controls>label\{[\s\S]*min-width:160px;margin:0/);
+ assert.match(css,/#workspace \.sales-report-controls input\[type="date"\]\{[\s\S]*height:var\(--sales-filter-height\)/);
+ assert.match(css,/#workspace \.sales-report-controls input\[type="date"\]\{[\s\S]*margin:0/);
+ assert.match(css,/#workspace \.sales-report-controls>\[data-sales-refresh\]\{[\s\S]*height:var\(--sales-filter-height\)/);
+ assert.match(css,/#workspace \.sales-report-controls>\[data-sales-refresh\]:focus-visible/);
+ assert.match(css,/#workspace \.sales-report-controls>\.sales-period-switch\{flex:1 1 100%/);
+ assert.match(css,/@media\(max-width:390px\)\{/);
+ assert.match(source,/data-sales-period/);
+ assert.match(source,/id="salesReferenceDate"/);
+ assert.match(source,/data-sales-refresh/);
 });
