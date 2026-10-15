@@ -24,9 +24,9 @@ test('JS da vitrine com verificação de disponibilidade compila e expõe o indi
 test('produto esgotado aparece marcado e não pode ser incluído pelo botão da vitrine',()=>{
  const start=js.indexOf('function itemCard(item){'),end=js.indexOf('function renderProducts(){',start);
  assert.ok(start>=0&&end>start);
- const render=new Function('esc','money','imageUrl',
+ const render=new Function('selectedQty','esc','money','imageUrl',
   js.slice(start,end)+';return itemCard;')(
-  value=>String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
+  new Map(),value=>String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
   value=>'R$ '+Number(value).toFixed(2),()=>'/produto.png');
  const soldOut=render({id:'1',name:'Sem estoque',category:'Bebidas',price:12,image_path:null,in_stock:false});
  assert.match(soldOut,/Produto esgotado/);
@@ -71,7 +71,9 @@ test('antes do WhatsApp, a vitrine remove os itens esgotados mesmo se mudaram ap
 });
 
 test('lojista autenticado e proprietário vê atalho seguro para editar o próprio cardápio',async()=>{
- assert.match(html,/id="ownerEditorLink"[^>]*class="owner-editor-link hidden"[^>]*href="\/cliente\?editar=cardapio"/);
+ assert.match(html,/id="ownerNav" class="owner-nav hidden"/);
+ assert.match(html,/id="backToModesLink"[^>]*href="\/cliente"/);
+ assert.match(html,/id="ownerEditorLink"[^>]*class="owner-editor-link"[^>]*href="\/cliente\?editar=cardapio"/);
  assert.match(client,/new URLSearchParams\(location\.search\)\.get\('editar'\)==='cardapio'/);
  assert.match(client,/hiding\('modeChooser',false\);hiding\('workspace',true\);renderPage\(\)/);
  assert.match(clientHtml,/cliente\.js\?v=23/);
