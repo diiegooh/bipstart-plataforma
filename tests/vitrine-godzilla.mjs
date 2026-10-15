@@ -29,7 +29,7 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  }
  assert.match(html,/<div class="header-title"><h1>CARDÁPIO<\/h1><small id="storeName">Sua loja<\/small><\/div>/);
  assert.doesNotMatch(html,/<section class="hero-green"|id="heroLogo"|id="heroOrder"|id="headerLogo"/);
- assert.doesNotMatch(html,/SEUS FAVORITOS|CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP/);
+ assert.doesNotMatch(html,/class="hero-copy"|CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP/);
  assert.doesNotMatch(js,/heroLogo|heroOrder|headerLogo/);
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
