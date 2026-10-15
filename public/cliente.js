@@ -5,6 +5,7 @@ const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL
 let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[],onlineOrders=[];
 let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all';
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix';
+let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
 const plans={basic:'Básico',pro:'Premium'};
@@ -195,6 +196,7 @@ function renderAccessGate(){
   $('gateStatus').textContent=waiting?'Aguardando confirmação':'Acesso temporariamente bloqueado';
 }
 async function openShop(){
+  salesRequestId++;salesReport=null;salesLoading=false;salesPeriod='day';salesDay=localReportDate();
   hideAll();hiding('logout',true);
   const [access]=await rest('shop_entitlements',{query:{select:'plan_code,status,trial_until,active_until',shop_id:'eq.'+shop.id,limit:'1'}});
   ent=access||null;
@@ -206,6 +208,9 @@ async function openShop(){
     tab='cardapio';showForm=null;pastedProductImage=null;
     hiding('modeChooser',false);hiding('workspace',true);renderPage();
   }
+}
+function localReportDate(date=new Date()){
+ return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
 }
 async function reloadData(){
   products=[];categories=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];onlineOrders=[];
@@ -311,6 +316,183 @@ function productRows(){
   return products.length?'<div class="stack">'+products.map(p=>'<div class="item">'+(p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="">':'')+'<div><strong>'+esc(p.name)+'</strong><small>'+esc(p.category)+' • '+fmt(p.price)+(tab==='produtos'?' • Estoque: '+esc(p.stock):'')+'</small>'+
    (tab==='cardapio'&&p.description?'<p class="muted small">'+esc(p.description)+'</p>':'')+'</div><div class="actions">'+editBtn('product',p.id)+'</div></div>').join('')+'</div>':empty('Cadastre o primeiro produto.')
 }
+
+function salesDateRange(period=salesPeriod,selected=salesDay){
+ const parts=String(selected).split('-').map(Number);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(selected)||parts.length!==3)throw Error('Data inválida.');
+ const [y,m,d]=parts,start=new Date(y,m-1,d);
+ if(start.getFullYear()!==y||start.getMonth()!==m-1||start.getDate()!==d)throw Error('Data inválida.');
+ start.setHours(0,0,0,0);
+ let end;
+ if(period==='day')end=new Date(y,m-1,d+1);
+ else if(period==='week'){
+   start.setDate(start.getDate()-((start.getDay()+6)%7));
+   end=new Date(start.getFullYear(),start.getMonth(),start.getDate()+7);
+ }else if(period==='month'){
+   start.setDate(1);
+   end=new Date(start.getFullYear(),start.getMonth()+1,1);
+ }else throw Error('Período inválido.');
+ const dateText=date=>date.toLocaleDateString('pt-BR');
+ return {start:start.toISOString(),end:end.toISOString(),
+  label:dateText(start)+(period==='day'?'':' a '+dateText(new Date(end.getTime()-1)))};
+}
+function saleLineFinancial(item){
+ const quantity=Number(item.quantity),unitPrice=Number(item.unit_price);
+ const current=products.find(p=>p.id===item.product_id);
+ const historicCost=item.unit_cost===null||item.unit_cost===undefined?null:Number(item.unit_cost);
+ const canEstimate=historicCost===null&&current&&Number.isFinite(Number(current.cost));
+ const unitCost=historicCost!==null?historicCost:canEstimate?Number(current.cost):null;
+ const valid=unitCost!==null&&Number.isFinite(unitCost)&&Number.isFinite(unitPrice)&&Number.isFinite(quantity);
+ const revenue=unitPrice*quantity;
+ return {quantity,unitPrice,revenue,cost:valid?unitCost*quantity:null,
+  profit:valid?revenue-unitCost*quantity:null,
+  estimated:historicCost===null&&canEstimate,missing:!valid};
+}
+function reportFigures(lines){
+ return lines.reduce((sum,entry)=>{
+   const money=entry.financial;
+   sum.revenue+=money.revenue;
+   sum.quantity+=money.quantity;
+   if(money.missing)sum.missing++;
+   else{sum.cost+=money.cost;sum.profit+=money.profit}
+   if(money.estimated)sum.estimated++;
+   return sum;
+ },{revenue:0,cost:0,profit:0,quantity:0,estimated:0,missing:0});
+}
+function salesReportData(salesList=salesReport?.sales||[],itemsList=salesReport?.items||[]){
+ const saleById=new Map(salesList.map(s=>[s.id,s]));
+ const byDay=new Map();
+ for(const item of itemsList){
+   const sale=saleById.get(item.sale_id);if(!sale)continue;
+   const dt=new Date(sale.created_at);
+   const day=localReportDate(dt);
+   if(!byDay.has(day))byDay.set(day,[]);
+   byDay.get(day).push({item,sale,financial:saleLineFinancial(item)});
+ }
+ const days=[...byDay.entries()].sort((a,b)=>b[0].localeCompare(a[0])).map(([day,lines])=>({
+  day,lines:lines.sort((a,b)=>new Date(b.sale.created_at)-new Date(a.sale.created_at)),
+  total:reportFigures(lines)
+ }));
+ const figures=reportFigures(days.flatMap(d=>d.lines));
+ const unmatchedSales=salesList.filter(s=>!itemsList.some(i=>i.sale_id===s.id));
+ return {days,figures,salesCount:salesList.length,unmatchedSales};
+}
+async function salesPaginated(table,query,pageSize=200){
+ const result=[];
+ for(let offset=0;offset<200000;offset+=pageSize){
+   const batch=await rest(table,{query:{...query,limit:String(pageSize),offset:String(offset)}});
+   if(!Array.isArray(batch))throw Error('Resposta inválida ao consultar vendas.');
+   result.push(...batch);
+   if(batch.length<pageSize)return result;
+ }
+ throw Error('Relatório muito extenso. Escolha um período menor.');
+}
+async function loadSalesReport(){
+ if(tab!=='vendas'||!shop||!hasAccess())return;
+ const req=++salesRequestId,selectedShop=shop.id,period=salesPeriod,reference=salesDay;
+ salesLoading=true;salesReport=null;renderPage();
+ try{
+   const range=salesDateRange(period,reference);
+   const found=await salesPaginated('shop_sales',{
+     select:'id,shop_id,total,payment_method,created_at',
+     shop_id:'eq.'+selectedShop,
+     and:'(created_at.gte.'+range.start+',created_at.lt.'+range.end+')',
+     order:'created_at.desc'
+   });
+   const saleItems=[];
+   for(let i=0;i<found.length;i+=70){
+     const ids=found.slice(i,i+70).map(s=>s.id).join(',');
+     const values=await salesPaginated('shop_sale_items',{
+       select:'id,sale_id,shop_id,product_id,product_name,quantity,unit_price,unit_cost',
+       shop_id:'eq.'+selectedShop,sale_id:'in.('+ids+')',order:'id.asc'
+     },500);
+     saleItems.push(...values);
+   }
+   if(req!==salesRequestId||shop?.id!==selectedShop)return;
+   salesReport={sales:found,items:saleItems,range};
+ }catch(error){
+   if(req!==salesRequestId)return;
+   salesReport={error:error.message||'Não foi possível consultar as vendas.'};
+ }finally{
+   if(req===salesRequestId){salesLoading=false;if(tab==='vendas')renderPage();}
+ }
+}
+function renderSalesReport(){
+ const range=salesDateRange();
+ const controls='<div class="sales-report-controls"><div class="sales-period-switch" aria-label="Período do relatório">'+
+  [['day','Dia'],['week','Semana'],['month','Mês']].map(([key,label])=>
+   '<button type="button" data-sales-period="'+key+'" class="'+(key===salesPeriod?'active':'')+'" aria-pressed="'+(key===salesPeriod)+'">'+label+'</button>').join('')+
+   '</div><label>Data de referência<input type="date" id="salesReferenceDate" value="'+esc(salesDay)+'"></label>'+
+   '<button class="ghost" type="button" data-sales-refresh>↻ Atualizar</button></div>';
+ let content=heading('Vendas','Detalhes de produtos, pagamentos e lucro bruto por dia.');
+ content+=controls+'<p class="sales-period-label">Período: <strong>'+esc(range.label)+'</strong> · Horário local</p>';
+ if(salesLoading)return content+'<div class="empty">Carregando vendas do período...</div>';
+ if(!salesReport)return content+'<div class="empty">Selecione o período para carregar o relatório.</div>';
+ if(salesReport.error)return content+'<div class="empty">'+esc(salesReport.error)+'</div>';
+ const report=salesReportData();
+ const figures=report.figures;
+ const caption=figures.missing?'Lucro bruto parcial':figures.estimated?'Lucro bruto estimado':'Lucro bruto';
+ content+='<div class="grid sales-period-totals">'+
+  tile('Vendas no período',report.salesCount)+
+  tile('Unidades vendidas',figures.quantity)+
+  tile('Total vendido',fmt(report.sales.reduce((sum,s)=>sum+Number(s.total),0)))+
+  tile('Custo dos itens',fmt(figures.cost))+
+  tile(caption,fmt(figures.profit))+'</div>';
+ if(figures.estimated||figures.missing)
+  content+='<p class="sales-disclaimer">'+
+   (figures.estimated?'Em '+figures.estimated+' item(ns) de vendas antigas, o custo foi estimado usando o valor cadastrado atualmente. ':'')+
+   (figures.missing?'Em '+figures.missing+' item(ns), o custo é desconhecido e o lucro não entra na soma. ':'')+
+   'Lucro bruto = venda − custo, sem descontar taxas e despesas adicionais.</p>';
+ else content+='<p class="sales-disclaimer">Lucro bruto antes de taxas, impostos e outras despesas.</p>';
+ if(report.unmatchedSales.length)
+  content+='<p class="sales-disclaimer">Há '+report.unmatchedSales.length+' venda(s) sem itens detalhados; elas entram no faturamento, mas não no lucro calculado.</p>';
+ if(!report.days.length)return content+empty('Nenhuma venda registrada neste período.');
+ const payments={pix:'Pix',dinheiro:'Dinheiro',credito:'Cartão de crédito',debito:'Cartão de débito'};
+ for(const day of report.days){
+   const summary=day.total;
+   const profitLabel=summary.missing?'Lucro parcial':summary.estimated?'Lucro estimado':'Lucro bruto';
+   const date=new Date(day.day+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+   content+='<section class="sales-day"><div class="sales-day-heading"><div><h3>'+esc(date)+'</h3><small>'+
+    day.lines.length+' produto(s) na lista</small></div><div class="sales-day-summary"><span>Vendido: <strong>'+fmt(summary.revenue)+'</strong></span>'+
+    '<span>'+profitLabel+': <strong>'+fmt(summary.profit)+'</strong></span></div></div>'+
+    '<div class="sales-table-wrap"><table class="sales-table"><thead><tr>'+
+    '<th>Horário</th><th>Produto</th><th>Qtd.</th><th>Pagamento</th><th>Custo</th><th>Preço vendido</th><th>Lucro</th>'+
+    '</tr></thead><tbody>'+day.lines.map(({sale,item,financial:x})=>{
+     const dateTime=new Date(sale.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+     const costLabel=x.missing?'Indisponível':fmt(x.cost)+(x.estimated?' *':'');
+     const profitLabel=x.missing?'—':fmt(x.profit)+(x.estimated?' *':'');
+     return '<tr><td>'+dateTime+'</td><td><strong>'+esc(item.product_name)+'</strong><small>Unit.: '+fmt(x.unitPrice)+'</small></td>'+
+      '<td>'+esc(x.quantity)+'</td><td>'+esc(payments[sale.payment_method]||sale.payment_method)+'</td>'+
+      '<td>'+costLabel+'</td><td>'+fmt(x.revenue)+'</td><td class="sales-profit">'+profitLabel+'</td></tr>';
+    }).join('')+'</tbody></table></div></section>';
+ }
+ return content;
+}
+function restockProducts(){
+ return products.filter(p=>productStockState(p).state!=='ok').map(product=>{
+   const now=Math.max(0,Number(product.stock)||0),minimum=Math.max(0,Number(product.min_stock??5)||0);
+   const target=Math.max(1,minimum+1),needed=Math.max(0,target-now);
+   const unitCost=Math.max(0,Number(product.cost)||0);
+   return {product,now,minimum,target,needed,unitCost,estimatedCost:needed*unitCost};
+ }).filter(row=>row.needed>0).sort((a,b)=>a.now-b.now||String(a.product.name).localeCompare(String(b.product.name),'pt-BR'));
+}
+function renderRestockList(){
+ const rows=restockProducts();
+ const total=rows.reduce((n,r)=>n+r.estimatedCost,0);
+ let content='<section class="restock-section"><div class="restock-heading"><div><h3>Lista de reposição</h3>'+
+   '<p>Produtos esgotados ou no mínimo. Quantidade necessária para ficar acima do estoque mínimo.</p></div>'+
+   '<div class="restock-total"><small>Investimento estimado</small><strong>'+fmt(total)+'</strong></div></div>';
+ if(!rows.length)return content+empty('Nenhum produto precisa de reposição no momento.')+'</section>';
+ content+='<div class="restock-list">'+rows.map(({product,now,minimum,needed,unitCost,estimatedCost})=>
+  '<div class="restock-item"><div class="restock-name"><strong>'+esc(product.name)+'</strong><small>'+
+  esc(product.category||'Geral')+' · Atual: '+esc(now)+' · Mínimo: '+esc(minimum)+'</small></div>'+
+  '<div><small>Repor</small><strong>'+esc(needed)+' un.</strong></div>'+
+  '<div><small>Custo unitário</small><strong>'+fmt(unitCost)+'</strong></div>'+
+  '<div><small>Valor da reposição</small><strong>'+fmt(estimatedCost)+'</strong></div></div>').join('')+'</div>'+
+  '<p class="muted restock-note">Estimativa baseada nos custos cadastrados. Confira preços e disponibilidade com o fornecedor antes de comprar.</p></section>';
+ return content;
+}
+
 function productStockState(product){
  const stock=Math.max(0,Number(product.stock)||0);
  const minimum=Math.max(0,Number(product.min_stock??5)||0);
@@ -520,6 +702,7 @@ function renderPage(){
     content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','',
       '<button type="button" class="button" data-new="product">+ Novo produto</button>');
     content+='<div class="grid stock-stats">'+tile('Produtos cadastrados',products.length)+tile('Estoque baixo',lowStock)+tile('Sem estoque',outOfStock)+'</div>';
+    content+=renderRestockList();
     if(selectedCategoryFilter!=='all'&&!products.some(p=>normalizedProductCategory(p)===selectedCategoryFilter))selectedCategoryFilter='all';
     content+=productCategoryCards(selectedCategoryFilter);
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
@@ -540,8 +723,7 @@ function renderPage(){
   }else if(tab==='caixa'){
     content=renderGodzillaPDV();
   }else if(tab==='vendas'){
-    content=heading('Histórico de vendas','Vendas registradas no PDV e seus totais.')
-      +(sales.length?'<div class="stack">'+sales.map(s=>'<div class="item"><span>'+new Date(s.created_at).toLocaleString('pt-BR')+'</span><span>'+fmt(s.total)+' • '+esc(s.payment_method)+'</span></div>').join('')+'</div>':empty());
+    content=renderSalesReport();
   }else if(tab==='motoboys'){
     content=heading('Motoboys • Plano Premium','Cadastre entregadores e compartilhe os convites de acesso.','<button class="button" data-new="courier">+ Novo motoboy</button>');
     content+='<p class="muted">Cada motoboy cria sua própria conta e aceita o convite. O acesso é individual e restrito às entregas da loja.</p>';
@@ -869,7 +1051,22 @@ document.addEventListener('change',async e=>{
   msg(field==='payment_status'?'Situação do pagamento atualizada.':'Situação do pedido atualizada.');
  }catch(error){control.disabled=false;control.value=order[field];msg(error.message,true);}
 });
+document.addEventListener('change',async event=>{
+ if(event.target.id!=='salesReferenceDate'||tab!=='vendas')return;
+ salesDay=event.target.value;
+ await loadSalesReport();
+});
 document.addEventListener('click',async e=>{
+  const salePeriod=e.target.closest('[data-sales-period]');
+  if(salePeriod&&tab==='vendas'){
+    if(!['day','week','month'].includes(salePeriod.dataset.salesPeriod))return;
+    salesPeriod=salePeriod.dataset.salesPeriod;
+    await loadSalesReport();return;
+  }
+  if(e.target.closest('[data-sales-refresh]')&&tab==='vendas'){
+    await loadSalesReport();return;
+  }
+
   if(e.target.closest('[data-orders-refresh]')){
     try{await reloadData();renderPage();msg('Pedidos atualizados.');}catch(error){msg(error.message,true);}
     return;
@@ -948,7 +1145,9 @@ document.addEventListener('click',async e=>{
   const nav=e.target.closest('[data-nav]');if(nav){
     if(nav.dataset.nav==='motoboys'&&!proAccess())return msg('Motoboys disponíveis somente no plano Premium.',true);
     if(!pages().some(([key])=>key===nav.dataset.nav))return;
-    tab=nav.dataset.nav;showForm=null;pastedProductImage=null;closeSideMenu();renderPage();return
+    tab=nav.dataset.nav;showForm=null;pastedProductImage=null;closeSideMenu();renderPage();
+    if(tab==='vendas')await loadSalesReport();
+    return
   }
   const add=e.target.closest('[data-new]');if(add){showForm={kind:add.dataset.new,value:null};pastedProductImage=null;renderPage();if(add.dataset.new==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return}
   const edit=e.target.closest('[data-edit]');if(edit){

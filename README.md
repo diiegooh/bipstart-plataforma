@@ -58,6 +58,14 @@ A sidebar do PDV segue a cor de marca da loja (Premium) ou a cor padrão roxa, c
 
 Migração `sql/bipstart_online_orders_20261014.sql`: tabela `shop_online_orders` com dados pessoais protegidos por RLS, consultas/alterações restritas à loja e RPC pública `bipstart_place_online_order`. A RPC **não recebe preços arbitrários**: lê produtos online habilitados, valida o estoque disponível, calcula valores e taxa de entrega e limita requisições repetidas. O identificador do carrinho evita pedidos duplicados após tentativas de envio. Somente o dono pode marcar pagamento como recebido. **O WhatsApp não fornece confirmação de envio** ao site: o registro significa que o checkout foi iniciado e que o WhatsApp foi aberto, não que houve envio efetivo nem pagamento.
 
+## Relatório de vendas e reposição
+
+A aba **Vendas** mostra um filtro **Dia / Semana / Mês** e uma data de referência. Cada período lista todas as vendas consultadas, agrupadas por dia, com **data, horário, produto, quantidade, forma de pagamento, custo da linha, preço vendido da linha e lucro bruto da linha**, além de somas por dia e totais do período. Consultas são paginadas e filtradas por loja e datas; só o titular autenticado pode ler as vendas via RLS.
+
+**Lucro bruto = preço vendido menos custo registrado**, antes de impostos e taxas. Para novas vendas, a migração `sql/bipstart_sales_cost_snapshot_20261014.sql` grava o custo unitário original em cada `shop_sale_items.unit_cost`. Itens vendidos antes dessa migração não têm snapshot: se o produto ainda existir, usa o custo atualmente cadastrado como **estimativa explicitamente identificada**; se o custo não puder ser encontrado, exibe valor indisponível e soma o lucro apenas das linhas conhecidas (**parcial**). Nenhuma venda antiga é regravada.
+
+No cadastro de **Produtos**, a **Lista de reposição** reúne itens esgotados ou com estoque menor ou igual ao mínimo configurado. Exibe saldo, estoque mínimo, quantidade a comprar para ficar **acima do mínimo**, custo unitário e custo estimado da reposição; o painel soma o investimento total baseado nos custos cadastrados. Isso não realiza compras nem altera estoque automaticamente.
+
 ## Cards de produtos com controle de estoque — 14/10/2026
 
 A aba **Produtos** exibe uma grade responsiva de cartões individuais por produto, com foto (ou imagem neutra), nome, categoria, preço de venda, preço de custo, **quantidade atual**, **estoque mínimo** e botão **Editar**. No celular, a grade adapta o número de colunas.
