@@ -43,7 +43,7 @@ test('link Planos centraliza o título logo abaixo do cabeçalho fixo',()=>{
  assert.equal((html.match(/id="planos"/g)||[]).length,1);
  assert.match(css,/html\{scroll-padding-top:90px\}/);
  assert.match(css,/\.pricing-title#planos\{scroll-margin-top:12px\}/);
- assert.match(html,/\/style\.css\?v=6/);
+ assert.match(html,/\/style\.css\?v=7/);
 });
 
 test('tipografia dos planos permanece legível e destacada no desktop e no celular',()=>{
@@ -107,25 +107,33 @@ test('planos ficam compactos em notebooks e empilhados com legibilidade no celul
 });
 
 
-test('seção Modelos mostra duas imagens locais ilustrando PDV e cardápio digital',()=>{
+test('Modelos apresenta três mini cards ilustrados para cada sistema, sem prévias grandes',()=>{
  const html=readFileSync('public/index.html','utf8');
  const css=readFileSync('public/style.css','utf8');
  const block=html.slice(html.indexOf('id="solucoes"'),html.indexOf('<section class="section pricing-section"'));
- assert.match(block,/src="\/modelo-pdv\.svg"[^>]*alt="Prévia ilustrativa do PDV BipStart/);
- assert.match(block,/src="\/modelo-cardapio\.svg"[^>]*alt="Prévia ilustrativa do cardápio digital BipStart/);
- assert.equal((block.match(/class="solution-preview"/g)||[]).length,2);
- assert.equal((block.match(/loading="lazy"/g)||[]).length,2);
- assert.match(block,/Experimentar PDV ↗/);
- assert.match(block,/Experimentar cardápio ↗/);
- assert.match(css,/#solucoes \.solution-preview img\{/);
- assert.match(css,/object-fit:contain/);
- assert.match(css,/@media\(max-width:760px\)[\s\S]*#solucoes \.solution-preview\{height:/);
- for(const filename of ['modelo-pdv.svg','modelo-cardapio.svg']){
-  const svg=readFileSync('public/'+filename,'utf8');
-  assert.match(svg,/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="0 0 1000 560"/);
-  assert.match(svg,/<title id="title">Prévia/);
-  assert.match(svg,/<desc id="desc">/);
-  assert.match(svg,/<\/svg>$/);
-  assert.doesNotMatch(svg,/<script|<foreignObject|onload=|(?:href|src)="https?:\/\//i);
- }
+ assert.equal((block.match(/class="solution-mini-grid"/g)||[]).length,2);
+ assert.equal((block.match(/class="solution-mini-card"/g)||[]).length,6);
+ assert.equal((block.match(/class="mini-illustration /g)||[]).length,6);
+ assert.doesNotMatch(block,/class="solution-preview"|modelo-pdv\.svg|modelo-cardapio\.svg/);
+ for(const label of ['Venda rápida','Controle automático','Resumo de vendas',
+  'Produtos organizados','Carrinho de compras','Pedido via WhatsApp'])
+  assert.match(block,new RegExp(label));
+ assert.match(block,/data-model="pdv">Experimentar PDV ↗/);
+ assert.match(block,/data-model="pdv">Experimentar cardápio ↗/);
+ assert.match(css,/#solucoes \.solution-mini-grid\{/);
+ assert.match(css,/grid-template-columns:repeat\(auto-fit,minmax\(143px,1fr\)\)/);
+ assert.match(css,/#solucoes \.mini-illustration\{/);
+ assert.match(css,/#solucoes \.mini-report>strong/);
+ assert.match(css,/@media\(max-width:430px\)\{[\s\S]*#solucoes \.solution-mini-grid\{grid-template-columns:1fr\}/);
+ assert.doesNotMatch(css,/#solucoes \.solution-preview/);
+});
+
+test('mini cards são apenas ilustrativos e não expõem dados reais de pedidos',()=>{
+ const html=readFileSync('public/index.html','utf8');
+ const block=html.slice(html.indexOf('id="solucoes"'),html.indexOf('<section class="section pricing-section"'));
+ assert.match(block,/aria-hidden="true"/);
+ assert.match(block,/Exemplos dos recursos do PDV/);
+ assert.match(block,/Exemplos dos recursos do cardápio digital/);
+ assert.equal((block.match(/class="mini-badge"/g)||[]).length,6);
+ assert.doesNotMatch(block,/id="customer|data-order-id|href="https:\/\/wa\.me/);
 });
