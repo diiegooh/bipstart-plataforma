@@ -91,7 +91,6 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 .pdv-title{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;margin:4px 0 20px}
 .pdv-title h2{font-size:clamp(26px,3.5vw,35px);margin:5px 0}
 .pdv-title p{color:var(--muted);margin:0}
-.pdv-menu-link{white-space:nowrap}
 .pdv-two-panels{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(305px,.85fr);gap:15px;align-items:start}
 .pdv-panel{background:linear-gradient(165deg,#1c142b,#0e0b19);border:1px solid #503a6a;border-radius:21px;padding:17px;min-width:0;box-shadow:0 20px 50px #0004}
 .pdv-filters{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:18px}
