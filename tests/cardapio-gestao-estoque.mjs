@@ -73,15 +73,16 @@ test('antes do WhatsApp, a vitrine remove os itens esgotados mesmo se mudaram ap
 test('lojista autenticado e proprietário vê atalho seguro para editar o próprio cardápio',async()=>{
  assert.match(html,/id="ownerNav" class="owner-nav hidden"/);
  assert.match(html,/id="backToModesLink"[^>]*href="\/cliente"/);
- assert.match(html,/id="ownerEditorLink"[^>]*class="owner-editor-link"[^>]*href="\/cliente\?editar=cardapio"/);
+ assert.doesNotMatch(html,/id="ownerEditorLink"|Gerenciar cardápio/);
+ assert.doesNotMatch(client,/class="menu-live-preview"|Prévia do seu cardápio|<iframe src=/);
  assert.match(client,/new URLSearchParams\(location\.search\)\.get\('editar'\)==='cardapio'/);
  assert.match(client,/hiding\('modeChooser',false\);hiding\('workspace',true\);renderPage\(\)/);
- assert.match(clientHtml,/cliente\.js\?v=23/);
- const start=js.indexOf('async function revealOwnerEditorLink(');
+ assert.match(clientHtml,/cliente\.js\?v=24/);
+ const start=js.indexOf('async function revealOwnerNavigation(');
  const end=js.indexOf('async function boot(){',start);
  assert.ok(start>0&&end>start);
  const build=new Function('localStorage','fetch','$','URL','Date',
-  js.slice(start,end)+';return revealOwnerEditorLink;');
+  js.slice(start,end)+';return revealOwnerNavigation;');
  let visible=false;
  const link={classList:{remove(x){if(x==='hidden')visible=true;}}};
  const config={supabaseUrl:'https://example.supabase.co',publishableKey:'test'};
