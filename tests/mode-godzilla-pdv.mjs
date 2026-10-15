@@ -26,7 +26,7 @@ test('login mostra CARDÁPIO e PDV + CARDÁPIO antes de abrir a área administra
 test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do layout existente',()=>{
  assert.match(client,/return location\.origin\+'\/cardapio\?loja='\+encodeURIComponent\(shop\.slug\)/);
  assert.doesNotMatch(client,/class="menu-live-preview"|Prévia do seu cardápio|<iframe src=/);
- assert.match(client,/<iframe src="'\+esc\(publicShopUrl\(\)\)/);
+ assert.doesNotMatch(client,/<iframe src=/);
  assert.match(client,/Abrir cardápio ↗/);
  assert.doesNotMatch(html,/id="sideOpenMenu"/);
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
