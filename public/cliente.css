@@ -466,3 +466,62 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 #workspace .menu-price-controls .online-sale-price>small{display:block;line-height:1.5}
 #workspace .inventory-online-status{font-size:11px;color:#bdedce;font-weight:750;line-height:1.4}
 #workspace .inventory-online-status.offline{color:#f4b7b7}
+
+
+/* Identidade do lojista aplicada à coluna de navegação, respeitando plano Premium. */
+#workspace .side{
+ background:linear-gradient(155deg,color-mix(in srgb,var(--store-accent,#7c3aed) 12%,#0b110d),#090d0a 72%);
+ border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 33%,#26372b);
+}
+#workspace .side-store{border-bottom-color:color-mix(in srgb,var(--store-accent,#7c3aed) 29%,#27342d)}
+#workspace .side #nav nav button.active{
+ background:linear-gradient(110deg,var(--store-accent,#7c3aed),color-mix(in srgb,var(--store-accent,#7c3aed) 74%,#101010));
+ border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 75%,#fff);
+ box-shadow:0 9px 24px color-mix(in srgb,var(--store-accent,#7c3aed) 25%,transparent);
+ color:var(--store-accent-ink,#fff);
+}
+#workspace .side #nav nav button:hover:not(.active){border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 42%,#29392d)}
+#workspace .side .side-settings.active{color:var(--store-accent,#7c3aed)}
+#workspace .side .side-action:focus-visible,
+#workspace .side #nav nav button:focus-visible,
+#workspace .side .side-settings:focus-visible{outline-color:var(--store-accent,#7c3aed)}
+#workspace .side .side-action:hover{border-color:var(--store-accent,#7c3aed)}
+#workspace .pdv-mobile-menu #sideToggle{border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 50%,#38503d)}
+
+/* Pedidos online iniciados no cardápio público, com pagamento manual. */
+#workspace .online-order-stats{grid-template-columns:repeat(3,minmax(0,1fr));margin:14px 0}
+#workspace .online-order-stats .tile{background:#121d17;border-color:#354739}
+#workspace .online-order-notice{font-size:13px;line-height:1.55;margin:4px 0 16px;padding:11px 13px;border-left:3px solid var(--store-accent,#7c3aed);background:#15161a;border-radius:0 8px 8px 0}
+#workspace .online-order-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+#workspace .online-order-card{min-width:0;background:linear-gradient(155deg,#101b15,#0d130f);border:1px solid #37513c;border-radius:16px;padding:17px;display:flex;flex-direction:column;gap:13px}
+#workspace .online-order-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+#workspace .online-order-top small{display:block;color:#a4b6aa;font-size:11px}
+#workspace .online-order-top h3{margin:5px 0 0;color:#fff;font-size:19px;overflow-wrap:anywhere}
+#workspace .online-order-total{color:#fff;font-size:23px;white-space:nowrap}
+#workspace .online-order-details{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#workspace .online-order-details>div{display:flex;flex-direction:column;gap:3px}
+#workspace .online-order-details span{font-size:11px;color:#a0b2a5}
+#workspace .online-order-details strong{font-size:13px;color:#f5faf5;overflow-wrap:anywhere}
+#workspace .online-order-phone{color:#b2ebd4;text-decoration:underline}
+#workspace .online-order-address,#workspace .online-order-notes{padding:10px 12px;background:#1d2820;border:1px solid #3b513e;border-radius:10px;color:#e4eee7;overflow-wrap:anywhere;margin:0;font-size:13px;line-height:1.5}
+#workspace .online-order-items{border-top:1px solid #36503d;border-bottom:1px solid #36503d;padding:10px 0;display:grid;gap:7px}
+#workspace .online-order-items>div{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#e6eee8}
+#workspace .online-order-items>div span{overflow-wrap:anywhere}
+#workspace .online-order-items>div strong{white-space:nowrap}
+#workspace .online-order-fees{font-size:11px;color:#a2b1a6;margin:0}
+#workspace .online-order-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:auto}
+#workspace .online-order-actions label{display:grid;gap:6px;flex:1 1 155px;font-size:12px;font-weight:750;color:#e4eee7}
+#workspace .online-order-actions select{min-height:43px;border:1px solid #4d6853;border-radius:9px;padding:9px;color:#fff;background:#1b2920;width:100%;font-size:12px}
+#workspace .online-order-actions select:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:2px}
+#workspace .online-order-contact{font-size:12px;min-height:43px;display:inline-flex;align-items:center;justify-content:center;text-align:center;flex:1 1 150px}
+@media(max-width:750px){
+ #workspace .online-order-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #workspace .online-order-stats .tile:last-child{grid-column:1/-1}
+ #workspace .online-order-list{grid-template-columns:1fr}
+}
+@media(max-width:440px){
+ #workspace .online-order-card{padding:12px;gap:10px}
+ #workspace .online-order-details{grid-template-columns:1fr 1fr}
+ #workspace .online-order-top h3{font-size:17px}
+ #workspace .online-order-total{font-size:19px}
+}
