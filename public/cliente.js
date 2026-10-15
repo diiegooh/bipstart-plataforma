@@ -563,9 +563,6 @@ function cardapioEditor(){
  ];
  return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.','<div class="menu-heading-actions"><a class="ghost" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a><button class="button" data-new="product">+ Adicionar item</button></div>')+
  (menuSchemaReady?'':'<p class="warn">A nova versão do cardápio está aguardando a atualização do banco de dados. Não salve alterações até a configuração terminar.</p>')+
- '<section class="menu-live-preview" aria-label="Prévia do cardápio online"><div class="menu-live-head"><div><strong>Prévia do seu cardápio</strong><p>Este é o cardápio já pronto que seus clientes vão abrir pelo link público.</p></div>'+
- '<a class="ghost" target="_blank" rel="noopener noreferrer" href="'+esc(publicShopUrl())+'">Abrir em outra aba ↗</a></div>'+
- '<iframe src="'+esc(publicShopUrl())+'" title="Cardápio público de '+esc(shop.name)+'" loading="lazy"></iframe></section>'+
  '<div class="menu-editor-meta">'+details.map(([label,value])=>'<button type="button" data-nav="configuracoes" title="Editar nas configurações"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></button>').join('')+'</div>'+
  '<div class="menu-editor-grid"><section class="menu-editor-panel"><h3>Categorias</h3>'+
  '<form id="categoryForm" class="menu-category-form"><label>Nova categoria<input type="text" name="name" placeholder="Ex.: Bebidas" required maxlength="65"></label>'+
