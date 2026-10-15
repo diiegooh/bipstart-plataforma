@@ -83,7 +83,7 @@ No topo da aba Produtos também há contadores de itens cadastrados, estoque bai
 
 ## Imagens dos modelos na página inicial
 
-A seção **Modelos** mostra duas prévias ilustrativas locais das interfaces, servidas de `public/modelo-pdv.svg` e `public/modelo-cardapio.svg`. As ilustrações reproduzem o visual do PDV e da vitrine de cardápio atuais, com texto alternativo e renderização responsiva. Elas não contêm dados reais de estabelecimentos e não dependem de serviços externos. Os botões **Experimentar PDV** e **Experimentar cardápio** mantêm seus fluxos existentes.
+A seção **Modelos** usa três mini cards com ilustrações de funcionalidades por sistema: no PDV, **Venda rápida**, **Controle automático** e **Resumo de vendas**; no cardápio, **Produtos organizados**, **Carrinho de compras** e **Pedido via WhatsApp**. As ilustrações são elementos HTML/CSS responsivos, com valores fictícios apenas para demonstração; as imagens SVG grandes anteriores deixaram de ser exibidas. Os botões **Experimentar PDV** e **Experimentar cardápio** preservam seus fluxos existentes.
 
 ## Desenvolvimento e homologação
 
