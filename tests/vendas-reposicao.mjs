@@ -38,8 +38,8 @@ const items=[
 
 test('as funções compõem JavaScript válido e os arquivos usam versão nova',()=>{
  new vm.Script(source,{filename:'cliente.js'});
- assert.match(page,/cliente\.js\?v=22/);
- assert.match(page,/cliente\.css\?v=13/);
+ assert.match(page,/cliente\.js\?v=23/);
+ assert.match(page,/cliente\.css\?v=14/);
  assert.match(css,/\.sales-table-wrap/);
  assert.match(css,/\.restock-list/);
 });
