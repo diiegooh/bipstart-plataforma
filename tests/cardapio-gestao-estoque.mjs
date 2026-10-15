@@ -39,7 +39,7 @@ test('produto esgotado aparece marcado e não pode ser incluído pelo botão da 
 });
 
 test('mensagem de WhatsApp nunca aceita um item conhecido como esgotado',()=>{
- const start=js.indexOf('function checkoutMessage(){'),end=js.indexOf("document.addEventListener('click'",start);
+ const start=js.indexOf("function checkoutMessage(orderId=''){"),end=js.indexOf("document.addEventListener('click'",start);
  const make=new Function('$','cart','menu','products','subtotal','deliveryCost','money','paymentLabels',
   js.slice(start,end)+';return checkoutMessage;');
  const fn=make(()=>({value:'pickup'}),new Map([['1',1]]),{name:'Loja'},
@@ -74,7 +74,7 @@ test('lojista autenticado e proprietário vê atalho seguro para editar o própr
  assert.match(html,/id="ownerEditorLink"[^>]*class="owner-editor-link hidden"[^>]*href="\/cliente\?editar=cardapio"/);
  assert.match(client,/new URLSearchParams\(location\.search\)\.get\('editar'\)==='cardapio'/);
  assert.match(client,/hiding\('modeChooser',false\);hiding\('workspace',true\);renderPage\(\)/);
- assert.match(clientHtml,/cliente\.js\?v=18/);
+ assert.match(clientHtml,/cliente\.js\?v=19/);
  const start=js.indexOf('async function revealOwnerEditorLink(');
  const end=js.indexOf('async function boot(){',start);
  assert.ok(start>0&&end>start);
