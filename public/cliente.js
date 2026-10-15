@@ -485,7 +485,7 @@ function renderRestockList(){
  const rows=restockProducts();
  const total=rows.reduce((n,r)=>n+r.estimatedCost,0);
  let content='<section class="restock-section"><div class="restock-heading"><div><h3>Lista de reposição</h3>'+
-   '<p>Produtos esgotados ou no mínimo. Quantidade necessária para ficar acima do estoque mínimo.</p></div>'+
+   '</div>'+
    '<div class="restock-total"><small>Investimento estimado</small><strong>'+fmt(total)+'</strong></div></div>';
  if(!rows.length)return content+empty('Nenhum produto precisa de reposição no momento.')+'</section>';
  content+='<div class="restock-list">'+rows.map(({product,now,minimum,needed,unitCost,estimatedCost})=>
