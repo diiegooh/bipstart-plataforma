@@ -59,7 +59,6 @@ function drawPage(){
   link.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(menu.location);
   link.classList.remove('hidden');
  }else link.classList.add('hidden');
- $('deliveryBadge').textContent=Number(menu.delivery_fee)>0?'Taxa '+money(menu.delivery_fee):'Entrega: grátis / a combinar';
  const pay=(menu.payment_methods||[]).filter(x=>Object.hasOwn(paymentLabels,x)).map(x=>paymentLabels[x]);
  $('paymentMethods').textContent=pay.length?pay.join(', '):'Consulte a loja';
  if(pay.length){
