@@ -28,9 +28,9 @@ test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do lay
  assert.match(client,/class="menu-live-preview"/);
  assert.match(client,/<iframe src="'\+esc\(publicShopUrl\(\)\)/);
  assert.match(client,/Abrir cardápio ↗/);
- assert.match(html,/id="sideOpenMenu"[^>]*>\s*<span>Abrir cardápio ↗<\/span><\/a>/);
+ assert.doesNotMatch(html,/id="sideOpenMenu"/);
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
- assert.match(html,/\/cliente\.js\?v=20/);
+ assert.match(html,/\/cliente\.js\?v=21/);
  assert.match(html,/\/cliente\.css\?v=11/);
 });
 function pdv(props={}){
@@ -72,7 +72,7 @@ test('PDV estilo Godzilla tem busca, categoria, grade de produtos e caixa lado a
  assert.match(markup,/data-cart="a"/);
  assert.match(markup,/data-qty-less="a"/);
  assert.match(markup,/data-remove="a"/);
- assert.match(markup,/href="https:\/\/bipstart\.example\/cardapio\?loja=loja-de-teste"/);
+ assert.doesNotMatch(markup,/pdv-menu-link|Abrir cardápio ↗/);
  assert.doesNotMatch(markup,/godzilla-adega|\/delivery/i);
  assert.match(css,/\.pdv-two-panels\{display:grid/);
  assert.match(css,/\.pdv-sale-panel\{position:sticky/);
@@ -95,4 +95,12 @@ test('checkout permanece no RPC seguro de BipStart, sem pagamentos automáticos'
  assert.match(client,/não é cobrada nem registrada na venda/);
  assert.match(client,/shop_id:'eq\.'\+shop\.id/);
  assert.match(html,/Abrir cardápio/);
+});
+
+test('PDV e lateral não exibem Abrir cardápio, mas a opção inicial continua funcionando',()=>{
+ assert.doesNotMatch(html,/id="sideOpenMenu"/);
+ assert.doesNotMatch(client,/pdv-menu-link/);
+ assert.doesNotMatch(pdv().renderGodzillaPDV(),/Abrir cardápio ↗/);
+ assert.match(html,/data-open-mode="cardapio"/);
+ assert.match(client,/location\.assign\(publicShopUrl\(\)\)/);
 });
