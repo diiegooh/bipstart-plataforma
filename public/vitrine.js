@@ -37,6 +37,12 @@ function categoryEmoji(value){
  if(/mercado|mercearia|mantimento/.test(text))return '🛍️';
  return '▣';
 }
+function categoryArtwork(name){
+ // Prioriza uma foto real cadastrada nesta categoria; mantém o ícone se não houver foto.
+ const photo=products.find(item=>fold(item.category||'Geral')===fold(name)&&item.image_path);
+ if(photo)return '<span class="category-art category-art-photo" aria-hidden="true"><img src="'+esc(imageUrl(photo.image_path))+'" alt="" loading="lazy" decoding="async"></span>';
+ return '<span class="category-art category-art-emoji" aria-hidden="true">'+categoryEmoji(name)+'</span>';
+}
 function applyBrand(){
  const color=String(menu.brand_color||'').trim();
  if(/^#[0-9a-fA-F]{6}$/.test(color)){
@@ -66,7 +72,7 @@ function drawPage(){
  }
  const categories=categoryNames();
  $('category').innerHTML='<option value="">Todas as categorias</option>'+categories.map(name=>'<option value="'+esc(name)+'">'+esc(name)+'</option>').join('');
- $('quickCategories').innerHTML=categories.map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'"><span>'+categoryEmoji(name)+'</span><b>'+esc(name)+'</b><i>›</i></button>').join('');
+ $('quickCategories').innerHTML=categories.map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'">'+categoryArtwork(name)+'<b>'+esc(name)+'</b><i aria-hidden="true">›</i></button>').join('');
  const combos=categories.find(name=>/combo/i.test(fold(name)));
  $('comboBanner').classList.toggle('hidden',!combos);
  $('seeCombos').dataset.category=combos||'';
