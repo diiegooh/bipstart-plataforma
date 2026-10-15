@@ -265,7 +265,6 @@ function renderNav(){
       '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b>'+(premium?'<small class="side-lock">Premium</small>':'')+'</button>';
   }).join('')+'</nav>';
   $('sideShopName').textContent=shop.name;
-  $('sideOpenMenu').href=publicShopUrl();
   $('sideColorPremium').classList.toggle('hidden',canCustomize());
   $('sideColor').classList.toggle('locked',!canCustomize());
   $('sideSettings').classList.toggle('active',tab==='configuracoes');
@@ -436,7 +435,7 @@ function renderGodzillaPDV(){
  return '<div class="godzilla-pdv">'+
  '<div class="pdv-title"><div><span class="kicker">VENDA PRESENCIAL</span><h2>PDV</h2>'+
  '<p>Produtos, estoque e vendas integrados ao seu cardápio.</p></div>'+
- '<a class="button pdv-menu-link" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a></div>'+
+ '</div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-filters">'+
  '<label class="pdv-search-label"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Buscar produto ou categoria" value="'+esc(pdvQuery)+'" autocomplete="off"></label>'+
