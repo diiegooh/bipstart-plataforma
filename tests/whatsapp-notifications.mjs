@@ -11,7 +11,7 @@ const accessToken='session.user.jwt';
 async function exercise({orderOverrides={},envOverrides={},payloadOverrides={},bearer=accessToken,metaOk=true}={}){
  const order={
   id:orderId,shop_id:shopId,customer_name:'Ana',customer_phone:'11987654321',
-  status:'awaiting_confirmation',payment_status:'pending',whatsapp_updates_opt_in:true,...orderOverrides
+  status:'awaiting_confirmation',delivery_method:'delivery',payment_status:'pending',whatsapp_updates_opt_in:true,...orderOverrides
  };
  const request=Readable.from([Buffer.from(JSON.stringify({
   orderId,shopId,field:'status',action:'advance',expected:'awaiting_confirmation',...payloadOverrides
@@ -125,4 +125,33 @@ test('template está livre de chaves privadas no navegador e mantém consentimen
  assert.doesNotMatch(js,/WHATSAPP_CLOUD_ACCESS_TOKEN|service_role/);
  const template=templatePayload({to:'5511999999999',shopName:'Salgatti',orderId,customerName:'Ana',field:'status',status:'preparing'});
  assert.equal(template.template.language.code,'pt_BR');
+});
+
+test('etapa saiu para entrega é validada no servidor e comunica o cliente',async()=>{
+ const {code,data,requests}=await exercise({
+  orderOverrides:{status:'preparing',delivery_method:'delivery'},
+  payloadOverrides:{field:'status',action:'advance',expected:'preparing'}
+ });
+ assert.equal(code,200);
+ assert.equal(data.status,'out_for_delivery');
+ const meta=requests.find(r=>r.url.includes('graph.facebook.com/'));
+ assert.ok(meta);
+ assert.equal(JSON.parse(meta.options.body).template.components[0].parameters[4].text,'Saiu para entrega');
+ assert.match(orderUpdateMessage({shopName:'Salgatti',orderId,customerName:'Ana',field:'status',status:'out_for_delivery'}),/Saiu para entrega/);
+});
+test('pedidos com retirada vão de preparo diretamente para finalizado',async()=>{
+ const {code,data}=await exercise({
+  orderOverrides:{status:'preparing',delivery_method:'pickup'},
+  payloadOverrides:{field:'status',action:'advance',expected:'preparing'}
+ });
+ assert.equal(code,200);
+ assert.equal(data.status,'fulfilled');
+});
+test('entrega só finaliza depois da etapa saiu para entrega',async()=>{
+ const {code,data}=await exercise({
+  orderOverrides:{status:'out_for_delivery',delivery_method:'delivery'},
+  payloadOverrides:{field:'status',action:'advance',expected:'out_for_delivery'}
+ });
+ assert.equal(code,200);
+ assert.equal(data.status,'fulfilled');
 });
