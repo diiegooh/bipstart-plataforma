@@ -34,8 +34,8 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=6/);
- assert.match(html,/\/vitrine\.js\?v=6/);
+ assert.match(html,/\/vitrine\.css\?v=7/);
+ assert.match(html,/\/vitrine\.js\?v=7/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -158,4 +158,31 @@ test('o retorno à seleção PDV ou Cardápio aparece só ao proprietário',()=>
  assert.match(js,/\$\('ownerNav'\)\.classList\.remove\('hidden'\)/);
  assert.match(js,/Array\.isArray\(rows\)&&rows\.some\(row=>row\.slug===slug\)/);
  assert.match(css,/\.owner-modes-link\{/);
+});
+
+test('categorias têm imagens grandes e cards transparentes, mantendo a seleção',()=>{
+ const start=js.indexOf('function categoryArtwork(name){');
+ const end=js.indexOf('function applyBrand(){',start);
+ assert.ok(start>=0&&end>start);
+ const categoryArtwork=new Function('products','fold','esc','imageUrl','categoryEmoji',
+  js.slice(start,end)+';return categoryArtwork;')(
+  [{category:'Bebidas',image_path:'categoria/bebida.png'}],
+  x=>String(x||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase(),
+  x=>String(x),x=>'/imagens/'+x,()=> '🥟'
+ );
+ const photo=categoryArtwork('Bebidas');
+ assert.match(photo,/category-art-photo/);
+ assert.match(photo,/<img src="\/imagens\/categoria\/bebida\.png"/);
+ assert.match(photo,/aria-hidden="true"/);
+ const fallback=categoryArtwork('Salgados');
+ assert.match(fallback,/category-art-emoji/);
+ assert.match(fallback,/🥟/);
+ assert.match(js,/categoryArtwork\(name\)/);
+ assert.match(js,/data-cat=/);
+ assert.match(css,/\.category-tile \.category-art\{/);
+ assert.match(css,/width:108px/);
+ assert.match(css,/background:rgba\(10,20,13,\.24\)/);
+ assert.match(css,/\.category-tile \.category-art-photo img\{/);
+ assert.match(css,/object-fit:cover/);
+ assert.match(css,/@media\(max-width:600px\)\{/);
 });
