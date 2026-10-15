@@ -24,6 +24,8 @@ Os repositórios e os dados da Godzilla Adega não são alterados: a BipStart us
 
 A área `/cliente` usa Supabase Auth com confirmação de e-mail e avaliação gratuita de sete dias. Após o vencimento, o acesso é bloqueado e os dados são preservados. A contratação dos planos ocorre **manualmente pelo WhatsApp da BipStart**; o administrador ativa o acesso em `/admin` depois da confirmação do pagamento. Premium vale por 30 dias por ativação. A BipStart não cobra pedidos/vendas dos lojistas.
 
+No **topo do cardápio público**, são exibidos **Endereço para retirada** e **Horário de funcionamento**, usando os valores `location_text` e `opening_hours` cadastrados nas configurações da loja. O link do endereço aponta para a busca no mapa somente quando houver endereço cadastrado. A faixa superior não exibe mais taxa de entrega; **a taxa configurada continua sendo apresentada e calculada no checkout de entregas**, para não ocultar o valor cobrado do comprador. O rodapé mantém as formas de pagamento, sem duplicar o horário.
+
 A demonstração da página inicial usa dados locais do navegador e **não representa um pedido real**. Uma loja real e o cardápio público usam Supabase com isolamento por loja (RLS). O cardápio público é acessível pelo endereço `/cardapio?loja=SLUG`.
 
 ## Plano Premium e entregadores
