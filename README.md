@@ -99,3 +99,21 @@ As variáveis de ambiente necessárias para as páginas com autenticação são 
 Branch de homologação: `feature/whatsapp-planos-manual-20261013`. O fluxo de acesso direto foi integrado via PR #9 à branch de homologação. As correções de gestão e estoque estão em `fix/gestao-cardapio-estoque-20261014` até validação. O serviço Northflank `bipstart-homologacao` permite testar atualizações sem mesclar em `main`, que alimenta a produção. O deploy da homologação é manual após CI aprovado, seguido de revisão visual e teste real de acesso, pedido WhatsApp e venda PDV.
 
 O site original da Salgatti é um projeto separado e não deve ser modificado por mudanças na BipStart.
+
+## Avisos de pedidos e pagamentos pelo WhatsApp (integração opcional)
+
+No painel **Pedidos online**, cada avanço de etapa ou cancelamento usa `POST /api/online-order-update`. O servidor verifica a sessão do proprietário e a transição atual no Supabase (RLS) antes de registrar o novo status. Pedido: aguardando confirmação → confirmado → em preparo → finalizado; pagamento: aguardando → pago; ambos têm cancelamento separado. Ao alterar, o servidor solicita uma **notificação transacional** ao WhatsApp Cloud API **somente** se o cliente autorizou no checkout (`whatsapp_updates_opt_in=true`). A Meta aceitar o envio não garante entrega.
+
+**Pré-requisitos de envio automático:** configurar na hospedagem (Northflank) `WHATSAPP_CLOUD_ACCESS_TOKEN`, `WHATSAPP_CLOUD_PHONE_NUMBER_ID` e, conforme a versão suportada, `WHATSAPP_GRAPH_API_VERSION`; jamais colocar tokens no frontend ou no GitHub. No Gerenciador do WhatsApp Business da Meta, criar e obter aprovação para um modelo **Utilidade**, nome `bipstart_atualizacao_pedido`, idioma `pt_BR`, corpo exato com cinco variáveis:
+
+```text
+Olá {{1}}, a loja {{2}} atualizou o {{3}} do pedido #{{4}} para: {{5}}.
+```
+
+As variáveis são nome do cliente, nome da loja, área atualizada ("pedido" ou "pagamento"), oito primeiros caracteres do número do pedido e a situação nova. Alterar `WHATSAPP_TEMPLATE_ORDER_UPDATE` caso use outro nome aprovado. A conta Meta conectada é o **número remetente da BipStart**, comunicando em nome da loja; não é automaticamente o WhatsApp cadastrado de cada estabelecimento. Mensagens pela API podem ser cobradas.
+
+**Sem API, com modelo reprovado ou erro de envio:** o status no painel é alterado normalmente e aparece o link **Enviar atualização ao cliente no WhatsApp**, com o texto preenchido para o lojista enviar manualmente. Não marcar notificações como entregues apenas porque a Meta aceitou a solicitação. Sem autorização do cliente, o sistema não envia mensagens automáticas. O lojista pode selecionar **Desativar avisos WhatsApp** em um pedido após solicitação do cliente.
+
+**Banco de dados:** aplicar `sql/bipstart_online_whatsapp_optin_20261015.sql` (campo e RPC para opt-in do cliente) e `sql/bipstart_online_whatsapp_owner_optout_20261015.sql` (permissão de desativação pelo lojista). Ambas já foram aplicadas ao projeto Supabase da BipStart. Pedidos anteriores têm opt-in inicial **false**. O token do carrinho limita a autorização via RPC pública ao próprio pedido, e as alterações de status seguem RLS por loja. Não é necessário reconfigurar o PDV ou estoque.
+
+**Atenção:** as alterações no GitHub não configuram a conta Meta nem publicam automaticamente a versão na hospedagem. É necessário cadastrar credenciais e modelo aprovado, além de realizar o deploy, para ativar avisos automáticos.
