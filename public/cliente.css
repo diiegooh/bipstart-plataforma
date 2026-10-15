@@ -522,12 +522,22 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 #workspace .online-order-items>div span{overflow-wrap:anywhere}
 #workspace .online-order-items>div strong{white-space:nowrap}
 #workspace .online-order-fees{font-size:11px;color:#a2b1a6;margin:0}
-#workspace .online-order-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-top:auto}
-#workspace .online-order-actions label{display:grid;gap:6px;flex:1 1 155px;font-size:12px;font-weight:750;color:#e4eee7}
-#workspace .online-order-actions select{min-height:43px;border:1px solid #4d6853;border-radius:9px;padding:9px;color:#fff;background:#1b2920;width:100%;font-size:12px}
-#workspace .online-order-actions select:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:2px}
-#workspace .online-order-contact{font-size:12px;min-height:43px;display:inline-flex;align-items:center;justify-content:center;text-align:center;flex:1 1 150px}
+#workspace .online-order-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:auto}
+#workspace .online-status-block{min-width:0;display:flex;flex-direction:column;gap:9px;border:1px solid #3c5442;background:#152018;border-radius:12px;padding:12px}
+#workspace .online-status-title{font-size:12px;font-weight:850;color:#ecf5ee}
+#workspace .online-state-pill{display:inline-flex;align-items:center;width:max-content;max-width:100%;border:1px solid #53785e;border-radius:999px;padding:6px 10px;color:#b9f5c7;background:#1e3824;font-size:12px;font-weight:750}
+#workspace .online-state-pill.is-done{background:#14362f;color:#90f6d4;border-color:#3c957e}
+#workspace .online-state-pill.is-cancelled{background:#3c1c25;color:#ffd0d9;border-color:#974358}
+#workspace .online-status-controls{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+#workspace .online-status-controls button{min-height:40px;flex:1 1 125px;padding:9px 11px;font-size:12px;font-weight:800;border-radius:9px;cursor:pointer}
+#workspace .online-status-controls .online-advance{background:var(--store-accent,#7c3aed);color:var(--store-accent-ink,#fff);border:1px solid var(--store-accent,#7c3aed)}
+#workspace .online-status-controls .online-cancel{color:#ffd7dc;background:rgba(146,40,55,.13);border:1px solid #b15d6a}
+#workspace .online-status-controls button:disabled{opacity:.48;cursor:not-allowed}
+#workspace .online-status-controls button:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:2px}
+#workspace .online-status-end{font-size:12px;font-weight:750;color:#d8e5dc;flex:1 1 125px}
+#workspace .online-order-contact{font-size:12px;min-height:43px;display:inline-flex;align-items:center;justify-content:center;text-align:center;grid-column:1/-1}
 @media(max-width:750px){
+ #workspace .online-order-actions{grid-template-columns:1fr}
  #workspace .online-order-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
  #workspace .online-order-stats .tile:last-child{grid-column:1/-1}
  #workspace .online-order-list{grid-template-columns:1fr}
