@@ -2,6 +2,7 @@ import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { updateOnlineOrderAndNotify } from './order-notifications.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const port = Number(process.env.PORT || 3000);
@@ -56,10 +57,6 @@ const routes = {
 };
 
 const server = http.createServer(async (req, res) => {
-  if (req.method !== 'GET' && req.method !== 'HEAD') {
-    res.writeHead(405, { 'allow': 'GET, HEAD' });
-    return res.end();
-  }
   let pathname, requestUrl;
   try {
     requestUrl = new URL(req.url, 'http://localhost');
@@ -67,6 +64,17 @@ const server = http.createServer(async (req, res) => {
   } catch {
     res.writeHead(400, { 'content-type': 'text/plain; charset=utf-8' });
     return res.end('Requisição inválida');
+  }
+  if (pathname === '/api/online-order-update') {
+    if (req.method !== 'POST') {
+      res.writeHead(405, { allow: 'POST' });
+      return res.end();
+    }
+    return updateOnlineOrderAndNotify(req, res);
+  }
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    res.writeHead(405, { allow: 'GET, HEAD' });
+    return res.end();
   }
   if (pathname === '/health') {
     res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
