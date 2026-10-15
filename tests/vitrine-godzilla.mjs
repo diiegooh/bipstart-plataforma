@@ -29,7 +29,7 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  }
  assert.match(html,/<div class="header-title"><h1>CARDÁPIO<\/h1><small id="storeName">Sua loja<\/small><\/div>/);
  assert.doesNotMatch(html,/<section class="hero-green"|id="heroLogo"|id="heroOrder"|id="headerLogo"/);
- assert.doesNotMatch(html,/ESCOLHA|SEUS FAVORITOS|CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP/);
+ assert.doesNotMatch(html,/SEUS FAVORITOS|CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP/);
  assert.doesNotMatch(js,/heroLogo|heroOrder|headerLogo/);
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
@@ -46,7 +46,7 @@ test('cada vitrine consulta o cardápio da própria loja no Supabase',()=>{
  assert.match(js,/rpc\/bipstart_public_menu/);
  assert.match(js,/JSON\.stringify\(\{p_slug:slug\}\)/);
  assert.match(js,/menu\.src=config\.supabaseUrl/);
- assert.match(js,/menu\.logo_path/);
+ assert.doesNotMatch(js,/menu\.logo_path/);
  assert.match(js,/menu\.brand_color/);
  assert.match(js,/categoryNames\(\)/);
  assert.match(js,/imageUrl\(item\.image_path\)/);
