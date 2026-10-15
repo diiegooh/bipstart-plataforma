@@ -83,7 +83,7 @@ No topo da aba Produtos também há contadores de itens cadastrados, estoque bai
 
 ## Imagens dos modelos na página inicial
 
-A seção **Modelos** usa três mini cards com ilustrações de funcionalidades por sistema: no PDV, **Venda rápida**, **Controle automático** e **Resumo de vendas**; no cardápio, **Produtos organizados**, **Carrinho de compras** e **Pedido via WhatsApp**. As ilustrações são elementos HTML/CSS responsivos, com valores fictícios apenas para demonstração; as imagens SVG grandes anteriores deixaram de ser exibidas. Os botões **Experimentar PDV** e **Experimentar cardápio** preservam seus fluxos existentes.
+A seção **Modelos** usa três mini cards com ilustrações de funcionalidades por sistema: no PDV, **Venda rápida**, **Controle automático** e **Resumo de vendas**; no cardápio, **Produtos organizados**, **Carrinho de compras** e **Pedido via WhatsApp**. As ilustrações são elementos HTML/CSS responsivos, com valores fictícios apenas para demonstração; as imagens SVG grandes anteriores deixaram de ser exibidas. Os botões **Experimentar PDV** e **Experimentar cardápio** preservam seus fluxos existentes. Em notebooks, a seção e os mini cards recebem espaçamentos menores e uma regra especial para telas de até 950 px de altura; em tablet e celular os dois modelos permanecem empilhados e com todos os textos visíveis.
 
 ## Desenvolvimento e homologação
 
