@@ -19,7 +19,7 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrineHtml,/id="address"/);
  assert.match(vitrineHtml,/\/vitrine\.js\?v=10/);
  assert.match(panelHtml,/\/cliente\.js\?v=28/);
- assert.match(panelHtml,/\/cliente\.css\?v=16/);
+ assert.match(panelHtml,/\/cliente\.css\?v=17/);
  assert.match(vitrine,/await registerOnlineOrder\(\)/);
  assert.match(vitrine,/checkoutMessage\(receipt\.id\)/);
  assert.match(vitrine,/location\.assign\(url\)/);
@@ -195,4 +195,11 @@ test('cliente autoriza avisos no checkout e existe opção manual de notificaç�
  assert.match(vitrine,/p_client_token:orderToken,p_opt_in:true/);
  assert.match(panel,/orderNotificationLinks\.set\(id,result\.manualUrl\)/);
  assert.match(panel,/Enviar atualização ao cliente no WhatsApp/);
+});
+
+test('loja pode interromper notificações para respeitar a solicitação do cliente',()=>{
+ assert.match(panel,/data-order-optout=/);
+ assert.match(panel,/whatsapp_updates_opt_in:false/);
+ assert.match(panel,/orderNotificationLinks\.delete\(id\)/);
+ assert.match(css,/#workspace \.online-notification-optout\{/);
 });
