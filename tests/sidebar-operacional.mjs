@@ -17,7 +17,7 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.match(html,/Alterar cor/);
  assert.match(html,/Abrir cardápio/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=19/);
+ assert.match(html,/cliente\.js\?v=20/);
  assert.match(html,/cliente\.css\?v=11/);
 });
 
@@ -75,7 +75,9 @@ test('Produtos incorpora estoque e Pedidos online não promete pedidos automáti
  assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='out'\)/);
  assert.match(js,/tab==='pedidos'/);
  assert.match(js,/O registro ocorre antes de abrir o WhatsApp/);
- assert.match(js,/data-nav="cardapio">Gerenciar cardápio/);
+ assert.doesNotMatch(js,/data-nav="cardapio">Gerenciar cardápio/);
+ assert.match(html,/id="sideOpenMenu"/);
+ assert.match(html,/<span>Abrir cardápio ↗<\/span>/);
  assert.match(js,/data-nav="entregas">Abrir fila de entregas/);
  assert.match(js,/if\(nav\.dataset\.nav==='motoboys'&&!proAccess\(\)\)/);
  assert.match(js,/if\(!canCustomize\(\)\)return msg\('Alterar a cor do cardápio está disponível somente no plano Premium\.'/);
@@ -108,4 +110,15 @@ test('Voltar às opções e Sair aparecem lado a lado no rodapé, preservando ac
  assert.match(html,/<div class="pdv-mobile-menu">[\s\S]*id="sideToggle"/);
  assert.match(css,/#workspace \.pdv-mobile-menu\{display:none\}/);
  assert.match(css,/@media\(max-width:900px\)\{[\s\S]*#workspace \.pdv-mobile-menu\{display:flex/);
+});
+
+test('aba Pedidos online não exibe botões redundantes do cardápio',()=>{
+ const start=js.indexOf("}else if(tab==='pedidos'){");
+ const end=js.indexOf("}else if(tab==='caixa'){",start);
+ assert.ok(start>=0&&end>start);
+ const area=js.slice(start,end);
+ assert.doesNotMatch(area,/Abrir cardápio ↗|Gerenciar cardápio|class="orders-actions"/);
+ assert.match(area,/data-orders-refresh/);
+ assert.match(area,/onlineOrderCard/);
+ assert.match(js,/\$\('sideOpenMenu'\)\.href=publicShopUrl\(\)/);
 });
