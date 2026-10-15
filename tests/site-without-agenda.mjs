@@ -126,6 +126,6 @@ test('seção Modelos mostra duas imagens locais ilustrando PDV e cardápio digi
   assert.match(svg,/<title id="title">Prévia/);
   assert.match(svg,/<desc id="desc">/);
   assert.match(svg,/<\/svg>$/);
-  assert.doesNotMatch(svg,/<script|<foreignObject|onload=|https?:\/\//i);
+  assert.doesNotMatch(svg,/<script|<foreignObject|onload=|(?:href|src)="https?:\/\//i);
  }
 });
