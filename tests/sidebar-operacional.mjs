@@ -43,7 +43,73 @@ function mockNav(premium){
  const start=js.indexOf('function operationalMenuItems(){');
  const end=js.indexOf('function heading(',start);
  assert.ok(start>=0&&end>start);
- const create=new Function('$','esc','tab','shop','proAccess','canCustomize','imageUrl','publicShopUrl',
+ const create=new Function('
+  js.slice(start,end)+';return renderNav;');
+ const render=create(node,x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
+  'caixa',{name:'Adega <Teste>',logo_path:'loja-id/logo.png'},()=>premium,()=>premium,
+  path=>'https://images.example/'+path,()=>'https://bipstart.example/cardapio?loja=adega-teste',
+  {documentElement:{style:{setProperty(){}}}});
+ render();
+ return {node};
+}
+test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do Básico',()=>{
+ const basic=mockNav(false);
+ assert.match(basic.node('nav').innerHTML,/data-nav="caixa" class="active" aria-current="page"/);
+ assert.match(basic.node('nav').innerHTML,/data-nav="motoboys" class="locked"/);
+ assert.match(basic.node('nav').innerHTML,/Premium/);
+ assert.doesNotMatch(html,/id="sideShopLogo"/);
+ assert.doesNotMatch(js,/\$\('sideShopLogo'\)/);
+ assert.equal(basic.node('sideShopName').textContent,'Adega <Teste>');
+ assert.equal(basic.node('sideOpenMenu').href,'https://bipstart.example/cardapio?loja=adega-teste');
+ const premium=mockNav(true);
+ assert.match(premium.node('nav').innerHTML,/data-nav="motoboys" class=""/);
+ assert.equal(premium.node('sideShopName').textContent,'Adega <Teste>');
+});
+
+test('Produtos incorpora estoque e Pedidos online não promete pedidos automáticos',()=>{
+ assert.match(js,/a\.push\(\['pedidos','Pedidos online'\]\)/);
+ assert.doesNotMatch(js,/\['estoque','Estoque'\]/);
+ assert.doesNotMatch(js,/tab==='estoque'/);
+ assert.match(js,/tab==='produtos'/);
+ assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='low'\)/);
+ assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='out'\)/);
+ assert.match(js,/tab==='pedidos'/);
+ assert.match(js,/O registro ocorre antes de abrir o WhatsApp/);
+ assert.match(js,/data-nav="cardapio">Gerenciar cardápio/);
+ assert.match(js,/data-nav="entregas">Abrir fila de entregas/);
+ assert.match(js,/if\(nav\.dataset\.nav==='motoboys'&&!proAccess\(\)\)/);
+ assert.match(js,/if\(!canCustomize\(\)\)return msg\('Alterar a cor do cardápio está disponível somente no plano Premium\.'/);
+ assert.match(js,/if\(e\.target\.closest\('#sideLogout'\)\)\{closeSideMenu\(\);\$\('logout'\)\.click\(\);return\}/);
+});
+
+test('menu mobile abre em coluna, fecha no backdrop e Escape e tem foco',()=>{
+ assert.match(html,/aria-controls="sidebar" aria-expanded="false"/);
+ assert.match(css,/#workspace \.side\{position:fixed;inset:0 auto 0 0;width:min\(292px,88vw\)/);
+ assert.match(css,/#workspace \.side\.open\{transform:translateX\(0\);visibility:visible\}/);
+ assert.match(css,/#workspace \.side #nav nav\{display:grid;overflow:visible/);
+ assert.match(js,/const show=!\$\('sidebar'\)\.classList\.contains\('open'\)/);
+ assert.match(js,/if\(e\.target\.closest\('#sideBackdrop'\)\)\{closeSideMenu\(\);return\}/);
+ assert.match(js,/if\(event\.key==='Escape'&&\$\('sidebar'\)\.classList\.contains\('open'\)\)closeSideMenu\(\)/);
+});
+
+test('PDV em tela cheia não mostra marca BipStart nem faixa superior da loja',()=>{
+ assert.doesNotMatch(html,/<div class="heading">/);
+ assert.doesNotMatch(html,/id="shopName"|id="shopStatus"|id="publicMenuLink"|id="switchShop"/);
+ assert.doesNotMatch(html,/id="sideShopLogo"/);
+ assert.match(js,/if\(id==='workspace'\)document\.body\.classList\.toggle\('workspace-fullscreen',on\)/);
+ assert.match(css,/body\.workspace-fullscreen \.top\{display:none\}/);
+ assert.match(css,/body\.workspace-fullscreen \.shell\{max-width:none;padding:12px 14px 24px\}/);
+ assert.match(html,/<div class="side-store">[\s\S]*id="sideShopName"/);
+});
+test('Voltar às opções e Sair aparecem lado a lado no rodapé, preservando acesso ao menu mobile',()=>{
+ assert.match(html,/<div class="side-actions-row">[\s\S]*id="backToModes"[\s\S]*id="sideLogout"[\s\S]*<\/div>/);
+ assert.match(css,/#workspace \.side \.side-actions-row\{[\s\S]*grid-template-columns:minmax\(0,1\.55fr\) minmax\(59px,\.8fr\)/);
+ assert.match(js,/\$\('backToModes'\)\.onclick=\(\)=>\{if\(!shop\|\|!hasAccess\(\)\)return;closeSideMenu\(\);history\.replaceState/);
+ assert.match(html,/<div class="pdv-mobile-menu">[\s\S]*id="sideToggle"/);
+ assert.match(css,/#workspace \.pdv-mobile-menu\{display:none\}/);
+ assert.match(css,/@media\(max-width:900px\)\{[\s\S]*#workspace \.pdv-mobile-menu\{display:flex/);
+});
+,'esc','tab','shop','proAccess','canCustomize','imageUrl','publicShopUrl','document',
   js.slice(start,end)+';return renderNav;');
  const render=create(node,x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
   'caixa',{name:'Adega <Teste>',logo_path:'loja-id/logo.png'},()=>premium,()=>premium,
