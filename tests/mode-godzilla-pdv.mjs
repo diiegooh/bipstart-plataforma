@@ -25,13 +25,13 @@ test('login mostra CARDÁPIO e PDV + CARDÁPIO antes de abrir a área administra
 });
 test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do layout existente',()=>{
  assert.match(client,/return location\.origin\+'\/cardapio\?loja='\+encodeURIComponent\(shop\.slug\)/);
- assert.match(client,/class="menu-live-preview"/);
+ assert.doesNotMatch(client,/class="menu-live-preview"|Prévia do seu cardápio|<iframe src=/);
  assert.match(client,/<iframe src="'\+esc\(publicShopUrl\(\)\)/);
  assert.match(client,/Abrir cardápio ↗/);
  assert.doesNotMatch(html,/id="sideOpenMenu"/);
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
- assert.match(html,/\/cliente\.js\?v=23/);
- assert.match(html,/\/cliente\.css\?v=14/);
+ assert.match(html,/\/cliente\.js\?v=24/);
+ assert.match(html,/\/cliente\.css\?v=15/);
 });
 function pdv(props={}){
  const source=client.slice(client.indexOf('function filteredPdvProducts(){'),client.indexOf('function renderPage(){'));
