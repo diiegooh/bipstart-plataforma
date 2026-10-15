@@ -43,7 +43,7 @@ test('link Planos centraliza o título logo abaixo do cabeçalho fixo',()=>{
  assert.equal((html.match(/id="planos"/g)||[]).length,1);
  assert.match(css,/html\{scroll-padding-top:90px\}/);
  assert.match(css,/\.pricing-title#planos\{scroll-margin-top:12px\}/);
- assert.match(html,/\/style\.css\?v=5/);
+ assert.match(html,/\/style\.css\?v=6/);
 });
 
 test('tipografia dos planos permanece legível e destacada no desktop e no celular',()=>{
@@ -104,4 +104,28 @@ test('planos ficam compactos em notebooks e empilhados com legibilidade no celul
  assert.match(css,/\.pricing-section \.plan>\.button-plan-select\{min-height:48px\}/);
  assert.equal((html.match(/class="plan-top"/g)||[]).length,2);
  assert.equal((html.match(/class="button button-primary button-plan-select"/g)||[]).length,2);
+});
+
+
+test('seção Modelos mostra duas imagens locais ilustrando PDV e cardápio digital',()=>{
+ const html=readFileSync('public/index.html','utf8');
+ const css=readFileSync('public/style.css','utf8');
+ const block=html.slice(html.indexOf('id="solucoes"'),html.indexOf('<section class="section pricing-section"'));
+ assert.match(block,/src="\/modelo-pdv\.svg"[^>]*alt="Prévia ilustrativa do PDV BipStart/);
+ assert.match(block,/src="\/modelo-cardapio\.svg"[^>]*alt="Prévia ilustrativa do cardápio digital BipStart/);
+ assert.equal((block.match(/class="solution-preview"/g)||[]).length,2);
+ assert.equal((block.match(/loading="lazy"/g)||[]).length,2);
+ assert.match(block,/Experimentar PDV ↗/);
+ assert.match(block,/Experimentar cardápio ↗/);
+ assert.match(css,/#solucoes \.solution-preview img\{/);
+ assert.match(css,/object-fit:contain/);
+ assert.match(css,/@media\(max-width:760px\)[\s\S]*#solucoes \.solution-preview\{height:/);
+ for(const filename of ['modelo-pdv.svg','modelo-cardapio.svg']){
+  const svg=readFileSync('public/'+filename,'utf8');
+  assert.match(svg,/^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="0 0 1000 560"/);
+  assert.match(svg,/<title id="title">Prévia/);
+  assert.match(svg,/<desc id="desc">/);
+  assert.match(svg,/<\/svg>$/);
+  assert.doesNotMatch(svg,/<script|<foreignObject|onload=|https?:\/\//i);
+ }
 });
