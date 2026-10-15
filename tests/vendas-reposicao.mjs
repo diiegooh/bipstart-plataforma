@@ -38,7 +38,7 @@ const items=[
 
 test('as funções compõem JavaScript válido e os arquivos usam versão nova',()=>{
  new vm.Script(source,{filename:'cliente.js'});
- assert.match(page,/cliente\.js\?v=25/);
+ assert.match(page,/cliente\.js\?v=26/);
  assert.match(page,/cliente\.css\?v=15/);
  assert.match(css,/\.sales-table-wrap/);
  assert.match(css,/\.restock-list/);
@@ -116,6 +116,7 @@ test('reposição contempla baixo estoque, esgotados e soma o custo necessário'
  assert.equal(rows.reduce((sum,x)=>sum+x.estimatedCost,0),38);
  const html=f.renderRestockList();
  assert.match(html,/Lista de reposição/);
+ assert.doesNotMatch(html,/Produtos esgotados ou no mínimo\.|Quantidade necessária para ficar acima do estoque mínimo\./);
  assert.match(html,/R\$ 38\.00/);
  assert.match(html,/Custo unitário/);
  assert.match(html,/Valor da reposição/);
