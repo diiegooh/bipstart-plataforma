@@ -9,6 +9,7 @@ const panelHtml=readFileSync('public/cliente.html','utf8');
 const vitrine=readFileSync('public/vitrine.js','utf8');
 const vitrineHtml=readFileSync('public/vitrine.html','utf8');
 const migration=readFileSync('sql/bipstart_online_orders_20261014.sql','utf8');
+const cancellationMigration=readFileSync('sql/bipstart_payment_cancellation_20261015.sql','utf8');
 
 test('frontend compila e checkout coleta nome, telefone e endereço de entrega',()=>{
  new vm.Script(panel,{filename:'public/cliente.js'});
@@ -17,8 +18,8 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrineHtml,/id="phone"[^>]*required/);
  assert.match(vitrineHtml,/id="address"/);
  assert.match(vitrineHtml,/\/vitrine\.js\?v=9/);
- assert.match(panelHtml,/\/cliente\.js\?v=26/);
- assert.match(panelHtml,/\/cliente\.css\?v=15/);
+ assert.match(panelHtml,/\/cliente\.js\?v=27/);
+ assert.match(panelHtml,/\/cliente\.css\?v=16/);
  assert.match(vitrine,/await registerOnlineOrder\(\)/);
  assert.match(vitrine,/checkoutMessage\(receipt\.id\)/);
  assert.match(vitrine,/location\.assign\(url\)/);
@@ -59,7 +60,7 @@ test('antes do WhatsApp a função pública recebe apenas itens/quantidades; nã
 });
 
 test('dashboard apresenta dados e controles de pagamento; escapa nome/endereço contra XSS',()=>{
- const begin=panel.indexOf('function onlineOrderCard(order){');
+ const begin=panel.indexOf('function nextOnlineOrderStep(status){');
  const end=panel.indexOf('function renderPage(){',begin);
  assert.ok(begin>=0&&end>begin);
  const escape=v=>String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
@@ -78,8 +79,14 @@ test('dashboard apresenta dados e controles de pagamento; escapa nome/endereço 
  assert.match(card,/11987654321/);
  assert.match(card,/Pagamento/);
  assert.match(card,/Aguardando pagamento/);
- assert.match(card,/data-order-status=/);
- assert.match(card,/data-order-payment=/);
+ assert.match(card,/data-order-advance=/);
+ assert.match(card,/data-order-cancel=/);
+ assert.match(card,/data-payment-advance=/);
+ assert.match(card,/data-payment-cancel=/);
+ assert.match(card,/Confirmar pedido/);
+ assert.match(card,/Confirmar pagamento/);
+ assert.match(card,/Cancelar pedido/);
+ assert.match(card,/Cancelar pagamento/);
  assert.match(card,/Portão azul/);
  assert.match(card,/Coca-Cola/);
  assert.match(card,/R\$ 21\.00/);
@@ -126,4 +133,58 @@ test('pagamentos não são marcados como pagos automaticamente nem baixam estoqu
  assert.match(panel,/await reloadData\(\);renderPage\(\)/);
  assert.match(panel,/O registro ocorre antes de abrir o WhatsApp/);
  assert.match(panel,/onlineOrders=await get\('shop_online_orders'\)/);
+});
+
+test('situação do pedido avança por etapas e apresenta a próxima ação',()=>{
+ const begin=panel.indexOf('function nextOnlineOrderStep(status){');
+ const end=panel.indexOf('function renderPage(){',begin);
+ const api=new Function('esc','fmt',panel.slice(begin,end)+';return {onlineOrderCard,nextOnlineOrderStep,nextOnlinePaymentStep};')(
+  v=>String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),
+  n=>'R$ '+Number(n).toFixed(2));
+ assert.deepEqual(api.nextOnlineOrderStep('awaiting_confirmation'),{next:'confirmed',label:'Confirmar pedido'});
+ assert.deepEqual(api.nextOnlineOrderStep('confirmed'),{next:'preparing',label:'Iniciar preparo'});
+ assert.deepEqual(api.nextOnlineOrderStep('preparing'),{next:'fulfilled',label:'Finalizar pedido'});
+ assert.equal(api.nextOnlineOrderStep('fulfilled'),null);
+ assert.equal(api.nextOnlineOrderStep('cancelled'),null);
+ assert.deepEqual(api.nextOnlinePaymentStep('pending'),{next:'paid',label:'Confirmar pagamento'});
+ assert.equal(api.nextOnlinePaymentStep('paid'),null);
+ assert.equal(api.nextOnlinePaymentStep('cancelled'),null);
+ const order={id:'teste',created_at:'2026-10-15T12:00:00Z',customer_name:'Teste',customer_phone:'11988776655',
+  delivery_method:'pickup',payment_method:'pix',status:'confirmed',payment_status:'pending',items:[],subtotal:10,delivery_fee:0,total:10};
+ const ongoing=api.onlineOrderCard(order);
+ assert.match(ongoing,/Iniciar preparo/);
+ assert.match(ongoing,/Cancelar pedido/);
+ assert.match(ongoing,/Confirmar pagamento/);
+ const done=api.onlineOrderCard({...order,status:'fulfilled',payment_status:'paid'});
+ assert.match(done,/Pedido finalizado/);
+ assert.match(done,/Pagamento confirmado/);
+ assert.doesNotMatch(done,/data-order-advance/);
+ assert.doesNotMatch(done,/data-payment-advance/);
+ assert.match(done,/data-order-cancel="teste" disabled/);
+ const cancelled=api.onlineOrderCard({...order,status:'cancelled',payment_status:'cancelled'});
+ assert.match(cancelled,/Pedido cancelado/);
+ assert.match(cancelled,/Pagamento cancelado/);
+ assert.match(cancelled,/data-payment-cancel="teste" disabled/);
+});
+
+test('cliques de avanço/cancelamento têm confirmação, concorrência e não mudam pagamento automaticamente',()=>{
+ assert.match(panel,/const pendingOrderUpdates=new Set\(\)/);
+ for(const attr of ['data-order-advance','data-order-cancel','data-payment-advance','data-payment-cancel'])
+  assert.ok(panel.includes("closest('["+attr+"]')"),attr);
+ assert.ok(panel.includes("const next=cancelled?'cancelled':step.next"));
+ assert.ok(panel.includes("window.confirm(detail)"));
+ assert.ok(panel.includes("Confirma que o pagamento foi realmente recebido pela loja?"));
+ assert.ok(panel.includes("pendingOrderUpdates.has(key)"));
+ assert.ok(panel.includes("[field]:'eq.'+previous"));
+ assert.ok(panel.includes("Array.isArray(result)||result.length!==1"));
+ assert.ok(panel.includes("order[field]=result[0][field]"));
+ assert.doesNotMatch(panel,/data-order-status=|data-order-payment=/);
+ assert.match(css,/#workspace \.online-status-block\{/);
+ assert.match(css,/#workspace \.online-status-controls \.online-cancel\{/);
+});
+
+test('status cancelado do pagamento é suportado sem reembolso ou alteração de RLS',()=>{
+ assert.match(cancellationMigration,/payment_status in \('pending','paid','cancelled'\)/);
+ assert.match(cancellationMigration,/drop constraint if exists shop_online_orders_payment_status_check/);
+ assert.doesNotMatch(cancellationMigration,/drop table|delete from|disable row level security|grant .* to anon/i);
 });
