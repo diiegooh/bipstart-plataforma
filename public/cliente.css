@@ -656,3 +656,5 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
  #workspace .sales-report-controls>label,
  #workspace .sales-report-controls>[data-sales-refresh]{flex:1 1 100%}
 }
+
+#workspace .online-order-notification-link{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:42px;text-decoration:none;color:#fff;font-size:12px;font-weight:800;border-color:var(--store-accent,#7c3aed)}
