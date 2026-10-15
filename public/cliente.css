@@ -140,11 +140,6 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 @media(prefers-reduced-motion:reduce){.mode-option,.pdv-product{transition:none}}
 
 /* Pré-visualização do cardápio real na área CARDÁPIO. */
-.menu-live-preview{background:linear-gradient(145deg,#1f1333,#110d1d);border:1px solid #674690;border-radius:20px;padding:15px;margin-bottom:20px}
-.menu-live-head{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:13px}
-.menu-live-head strong{font-size:18px}.menu-live-head p{margin:6px 0 0;color:var(--muted);font-size:13px}
-.menu-live-preview iframe{width:100%;height:490px;display:block;border:1px solid #4e346e;border-radius:14px;background:#070510}
-@media(max-width:600px){.menu-live-preview iframe{height:460px}.menu-live-preview{padding:10px}}
 
 /* PDV em tela direta, inspirado no painel administrativo Godzilla. */
 .shell:has(#workspace:not(.hidden)){max-width:1600px;padding:17px 16px 70px}
