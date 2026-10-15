@@ -27,14 +27,14 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  for(const id of ['storeName','quickCategories','catalog','search','category','cartDrawer','cartItems','shipping','address','pay','cartTotal','sendOrder','error']){
   assert.ok(html.includes('id="'+id+'"'),id);
  }
- assert.match(html,/<div class="header-title"><h1>CARDÁPIO<\/h1><small id="storeName">Sua loja<\/small><\/div>/);
+ assert.match(html,/<div class="header-title"><h1>CARDÁPIO <span id="storeName">Sua loja<\/span><\/h1><\/div>/);
  assert.doesNotMatch(html,/<section class="hero-green"|id="heroLogo"|id="heroOrder"|id="headerLogo"/);
  assert.doesNotMatch(html,/class="hero-copy"|CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP/);
  assert.doesNotMatch(js,/heroLogo|heroOrder|headerLogo/);
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=9/);
+ assert.match(html,/\/vitrine\.css\?v=10/);
  assert.match(html,/\/vitrine\.js\?v=9/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
@@ -91,7 +91,7 @@ test('PDV mantém painel interno e acesso ao mesmo cardápio dinâmico',()=>{
 
 
 test('título CARDÁPIO é centralizado sem perder nome da loja e recursos de pedido',()=>{
- assert.equal((html.match(/<h1>CARDÁPIO<\/h1>/g)||[]).length,1);
+ assert.equal((html.match(/<h1>CARDÁPIO <span id="storeName">Sua loja<\/span><\/h1>/g)||[]).length,1);
  assert.equal((html.match(/id="storeName"/g)||[]).length,1);
  assert.match(js,/\$\('storeName'\)\.textContent=menu\.name/);
  assert.match(js,/\$\('storeName'\)\.textContent='Cardápio indisponível'/);
@@ -100,6 +100,8 @@ test('título CARDÁPIO é centralizado sem perder nome da loja e recursos de pe
  assert.match(css,/\.store-header \.header-title\{[\s\S]*justify-self:center;text-align:center/);
  assert.match(css,/\.store-header \.header-title h1\{[\s\S]*text-transform:uppercase/);
  assert.match(css,/\.store-header \.header-title #storeName\{/);
+ assert.match(css,/\.store-header \.header-title h1\{[\s\S]*display:flex;align-items:baseline/);
+ assert.match(css,/\.store-header \.header-title #storeName\{[\s\S]*font:inherit;color:inherit/);
  assert.match(html,/id="jumpCategories"/);
  assert.match(html,/id="focusSearch"/);
  assert.match(html,/id="headerCart"/);
