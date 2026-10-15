@@ -1,7 +1,7 @@
 // Server-side notifications for status changes on the public menu.
 // Requires a Meta-approved WhatsApp utility template and customer opt-in.
-const ORDER_STEPS=Object.freeze({awaiting_confirmation:'confirmed',confirmed:'preparing',preparing:'fulfilled'});
-const ORDER_LABELS=Object.freeze({confirmed:'Confirmado',preparing:'Em preparo',fulfilled:'Finalizado',cancelled:'Cancelado'});
+const ORDER_STEPS=Object.freeze({awaiting_confirmation:'confirmed',confirmed:'preparing',out_for_delivery:'fulfilled'});
+const ORDER_LABELS=Object.freeze({confirmed:'Confirmado',preparing:'Em preparo',out_for_delivery:'Saiu para entrega',fulfilled:'Finalizado',cancelled:'Cancelado'});
 const PAYMENT_LABELS=Object.freeze({paid:'Pago',cancelled:'Pagamento cancelado'});
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -69,7 +69,7 @@ export async function updateOnlineOrderAndNotify(req,res,{env=process.env,fetche
     throw makeError(400,'Etapa ou pedido inválido.');
   const headers={apikey:apiKey,Authorization:bearer};
   const getUrl=new URL(apiUrl+'/rest/v1/shop_online_orders');
-  getUrl.searchParams.set('select','id,shop_id,customer_name,customer_phone,status,payment_status,whatsapp_updates_opt_in');
+  getUrl.searchParams.set('select','id,shop_id,customer_name,customer_phone,delivery_method,status,payment_status,whatsapp_updates_opt_in');
   getUrl.searchParams.set('id','eq.'+orderId);
   getUrl.searchParams.set('shop_id','eq.'+shopId);
   getUrl.searchParams.set('limit','1');
@@ -79,7 +79,9 @@ export async function updateOnlineOrderAndNotify(req,res,{env=process.env,fetche
   const terminal=field==='status'?['cancelled','fulfilled']:['cancelled'];
   if(terminal.includes(expected))throw makeError(409,'Este status já foi encerrado.');
   const next=action==='cancel'?'cancelled':
-    field==='status'?ORDER_STEPS[expected]:expected==='pending'?'paid':null;
+    field==='status'?(expected==='preparing'?
+      (order.delivery_method==='delivery'?'out_for_delivery':'fulfilled'):ORDER_STEPS[expected]):
+      expected==='pending'?'paid':null;
   if(!next)throw makeError(409,'Não há uma próxima etapa para este status.');
   const patchUrl=new URL(getUrl);
   patchUrl.searchParams.set('select','id,'+field);
