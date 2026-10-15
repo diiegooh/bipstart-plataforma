@@ -223,3 +223,8 @@
  .category-tile > b{font-size:10px;font-weight:550;line-height:1.2}
 }
 @media(prefers-reduced-motion:reduce){.category-tile .category-art{transition:none}}
+
+/* Autorização opcional para avisos transacionais pelo WhatsApp. */
+.whatsapp-optin{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.5;color:#cfd9d0;margin-top:7px;cursor:pointer}
+.whatsapp-optin input{width:18px;height:18px;flex:0 0 18px;margin:1px 0 0;accent-color:var(--green)}
+.whatsapp-optin span{flex:1}
