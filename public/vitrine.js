@@ -4,7 +4,7 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 const money=value=>Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const paymentLabels={pix:'Pix',credito:'Cartão de crédito',debito:'Cartão de débito',dinheiro:'Dinheiro',a_combinar:'A combinar'};
 const fold=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
-let menu=null,products=[],cart=new Map(),lastFocus=null,publicConfig=null;
+let menu=null,products=[],cart=new Map(),lastFocus=null,publicConfig=null,orderToken=null;
 function showErr(text){$('error').textContent=String(text);$('error').classList.remove('hidden');}
 function imageUrl(path){
  if(!path||!menu?.src)return '';
@@ -146,7 +146,7 @@ function filterCategory(name){
  renderProducts();
  goToCatalogue();
 }
-function checkoutMessage(){
+function checkoutMessage(orderId=''){
  for(const [id] of cart){
   const item=products.find(product=>product.id===id);
   if(!item||item.in_stock===false)throw Error('Um produto do pedido está esgotado. Revise o carrinho.');
@@ -156,8 +156,11 @@ function checkoutMessage(){
  const address=$('address').value.trim();
  if(delivery&&address.length<8)throw Error('Informe o endereço completo para entrega.');
  const lines=['Olá! Gostaria de fazer um pedido pelo cardápio '+menu.name+':',''];
+ if(orderId)lines.push('Pedido BipStart: #'+String(orderId).slice(0,8),'');
  const name=$('name').value.trim();
  if(name)lines.push('Cliente: '+name,'');
+ const phone=$('phone')?.value.trim();
+ if(phone)lines.push('Telefone: '+phone);
  for(const [id,qty] of cart){
   const item=products.find(x=>x.id===id);
   if(item)lines.push(qty+'x '+item.name+' — '+money(Number(item.price)*qty));
@@ -179,6 +182,7 @@ document.addEventListener('click',event=>{
   const id=button.dataset.add||button.dataset.inc||button.dataset.dec;
   const product=products.find(p=>p.id===id);
   if(!product||(product.in_stock===false&&!dec))return;
+  orderToken=null;
   const next=(cart.get(id)||0)+(dec?-1:1);
   if(next<=0)cart.delete(id);else if(next<=99)cart.set(id,next);
   renderCart();
@@ -205,8 +209,8 @@ $('jumpCategories').addEventListener('click',()=>document.getElementById('quickC
 $('bottomCategories').addEventListener('click',()=>document.getElementById('quickCategories').scrollIntoView({behavior:'smooth'}));
 $('bottomProducts').addEventListener('click',goToCatalogue);
 $('bottomHome').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-// Confere a disponibilidade novamente antes de gerar a mensagem. Pedidos via
-// WhatsApp não reservam estoque nem registram vendas automaticamente.
+// Confere preço/estoque no catálogo antes de registrar o pedido no banco.
+// Pagamentos e envio efetivo dentro do WhatsApp seguem pendentes de confirmação.
 async function checkAvailabilityBeforeCheckout(){
  if(!publicConfig||!menu?.slug)throw Error('Não foi possível conferir a disponibilidade.');
  const response=await fetch(publicConfig.supabaseUrl+'/rest/v1/rpc/bipstart_public_menu',{
@@ -232,6 +236,35 @@ async function checkAvailabilityBeforeCheckout(){
  if(removed)throw Error('Um produto esgotou e foi retirado do carrinho. Revise seu pedido.');
  if(priceChanged)throw Error('O preço de um produto mudou. Revise o total atualizado e envie novamente.');
 }
+async function registerOnlineOrder(){
+ const name=$('name').value.trim();
+ const phone=$('phone').value.replace(/\D/g,'');
+ const method=$('shipping').value;
+ const address=$('address').value.trim();
+ if(name.length<2||name.length>120)throw Error('Informe seu nome completo para fazer o pedido.');
+ if(phone.length<10||phone.length>13)throw Error('Informe um telefone com DDD válido.');
+ if(method==='delivery'&&address.length<8)throw Error('Informe o endereço completo de entrega.');
+ if(!orderToken)orderToken=crypto.randomUUID();
+ const items=[...cart].map(([id,qty])=>({id,qty}));
+ const r=await fetch(publicConfig.supabaseUrl+'/rest/v1/rpc/bipstart_place_online_order',{
+  method:'POST',
+  headers:{apikey:publicConfig.publishableKey,'Content-Type':'application/json'},
+  body:JSON.stringify({
+   p_slug:menu.slug,p_client_token:orderToken,p_name:name,p_phone:phone,
+   p_delivery_method:method,p_address:address,p_payment_method:$('pay').value,
+   p_notes:$('notes').value.trim(),p_items:items
+  }),
+  cache:'no-store'
+ });
+ const result=await r.json().catch(()=>null);
+ if(!r.ok||!result?.id){
+  throw Error(result?.message||result?.error||'Não foi possível registrar seu pedido. Tente novamente.');
+ }
+ // Não envie uma mensagem com valores divergentes dos que o servidor registrou.
+ if(Math.abs(Number(result.total)-(subtotal()+deliveryCost()))>0.009)
+  throw Error('O valor do pedido mudou. Atualize o cardápio e confira os preços.');
+ return result;
+}
 $('sendOrder').addEventListener('click',async()=>{
  const button=$('sendOrder');
  button.disabled=true;
@@ -239,8 +272,9 @@ $('sendOrder').addEventListener('click',async()=>{
   const digits=normalizeWhatsApp(menu?.whatsapp);
   if(!digits)throw Error('O estabelecimento ainda não configurou o WhatsApp comercial.');
   await checkAvailabilityBeforeCheckout();
-  const url='https://wa.me/'+digits+'?text='+encodeURIComponent(checkoutMessage());
-  // Navegação na própria aba evita bloqueio de pop-up após a conferência assíncrona.
+  const receipt=await registerOnlineOrder();
+  const url='https://wa.me/'+digits+'?text='+encodeURIComponent(checkoutMessage(receipt.id));
+  // O pedido foi registrado, mas apenas o cliente pode confirmar o envio pelo WhatsApp.
   location.assign(url);
  }catch(error){showErr(error.message);closeCart();window.scrollTo({top:0,behavior:'smooth'});}
  finally{renderCart();}
