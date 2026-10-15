@@ -34,8 +34,8 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=3/);
- assert.match(html,/\/vitrine\.js\?v=4/);
+ assert.match(html,/\/vitrine\.css\?v=4/);
+ assert.match(html,/\/vitrine\.js\?v=5/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -108,4 +108,25 @@ test('título CARDÁPIO é centralizado sem perder nome da loja e recursos de pe
  assert.match(html,/id="sendOrder"/);
  assert.match(js,/\$\('jumpCategories'\)\.addEventListener/);
  assert.match(js,/\$\('sendOrder'\)/);
+});
+
+
+test('topo mostra endereço para retirada e horários sem taxa de entrega',()=>{
+ assert.match(html,/aria-label="Retirada e funcionamento da loja"/);
+ assert.match(html,/<small>Endereço para retirada<\/small><b id="storeLocation">Consulte a loja<\/b>/);
+ assert.match(html,/<small>Horário de funcionamento<\/small><b id="openingHours">Consulte a loja<\/b>/);
+ assert.match(html,/id="locationLink"[^>]*target="_blank" rel="noopener noreferrer"/);
+ assert.equal((html.match(/id="openingHours"/g)||[]).length,1);
+ assert.doesNotMatch(html,/id="deliveryBadge"|class="delivery-badge"|Consulte a taxa de entrega/);
+ assert.match(js,/\$\('storeLocation'\)\.textContent=menu\.location\|\|'Localização a combinar'/);
+ assert.match(js,/\$\('openingHours'\)\.textContent=menu\.opening_hours\|\|'Consulte a loja'/);
+ assert.match(js,/new URLSearchParams\(location\.search\)\.get\('loja'\)/);
+ assert.doesNotMatch(js,/deliveryBadge/);
+ assert.match(js,/function deliveryCost\(\)\{return \$\('shipping'\)\.value==='delivery'\?Number\(menu\?\.delivery_fee\|\|0\):0;\}/);
+ assert.match(js,/lines\.push\('Taxa de entrega: '\+money\(deliveryCost\(\)\)/);
+ assert.match(css,/\.location-row\{display:grid;grid-template-columns:minmax\(0,1\.25fr\) minmax\(260px,\.75fr\)/);
+ assert.match(css,/\.location-card,\.hours-card\{/);
+ assert.match(css,/@media\(max-width:600px\)\{[\s\S]*\.hours-card\{display:flex\}/);
+ assert.doesNotMatch(css,/\.delivery-badge/);
+ assert.match(html,/id="paymentMethods"/);
 });
