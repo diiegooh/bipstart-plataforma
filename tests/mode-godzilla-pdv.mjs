@@ -30,7 +30,7 @@ test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do lay
  assert.match(client,/Abrir cardápio ↗/);
  assert.doesNotMatch(html,/id="sideOpenMenu"/);
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
- assert.match(html,/\/cliente\.js\?v=24/);
+ assert.match(html,/\/cliente\.js\?v=25/);
  assert.match(html,/\/cliente\.css\?v=15/);
 });
 function pdv(props={}){
@@ -60,7 +60,9 @@ function pdv(props={}){
 test('PDV estilo Godzilla tem busca, categoria, grade de produtos e caixa lado a lado',()=>{
  const ui=pdv();
  const markup=ui.renderGodzillaPDV();
- for(const text of ['VENDA PRESENCIAL','Produtos da loja','Venda atual','Forma de pagamento','Dinheiro','Pix','Cartão de crédito','Cartão de débito','Finalizar venda']){
+ assert.match(markup,/<div class="pdv-title"><h2>PDV<\/h2><\/div>/);
+ assert.doesNotMatch(markup,/VENDA PRESENCIAL|Produtos, estoque e vendas integrados ao seu cardápio\./);
+ for(const text of ['Produtos da loja','Venda atual','Forma de pagamento','Dinheiro','Pix','Cartão de crédito','Cartão de débito','Finalizar venda']){
   assert.ok(markup.includes(text),text);
  }
  assert.match(markup,/class="pdv-two-panels"/);
