@@ -4,6 +4,7 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[],onlineOrders=[];
 let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all';
+const pendingOrderUpdates=new Set();
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix';
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
@@ -653,11 +654,26 @@ function updatePdvEstimates(){
  }
 }
 
+// A ação principal de cada etapa só mostra o passo seguinte após a confirmação da loja.
+function nextOnlineOrderStep(status){
+ const stages={
+  awaiting_confirmation:{next:'confirmed',label:'Confirmar pedido'},
+  confirmed:{next:'preparing',label:'Iniciar preparo'},
+  preparing:{next:'fulfilled',label:'Finalizar pedido'}
+ };
+ return stages[status]||null;
+}
+function nextOnlinePaymentStep(status){
+ return status==='pending'?{next:'paid',label:'Confirmar pagamento'}:null;
+}
 function onlineOrderCard(order){
  const label={awaiting_confirmation:'Aguardando confirmação',confirmed:'Confirmado',preparing:'Em preparo',
   fulfilled:'Finalizado',cancelled:'Cancelado'};
  const payLabel={a_combinar:'A combinar',pix:'Pix',dinheiro:'Dinheiro',credito:'Crédito',debito:'Débito'};
+ const paymentLabel={pending:'Aguardando pagamento',paid:'Pago',cancelled:'Pagamento cancelado'};
  const status=Object.hasOwn(label,order.status)?order.status:'awaiting_confirmation';
+ const paymentStatus=Object.hasOwn(paymentLabel,order.payment_status)?order.payment_status:'pending';
+ const orderNext=nextOnlineOrderStep(status),paymentNext=nextOnlinePaymentStep(paymentStatus);
  const items=Array.isArray(order.items)?order.items:[];
  const phone=String(order.customer_phone||'').replace(/\D/g,'');
  const phoneUri=/^\d{10,13}$/.test(phone)?'<a class="online-order-phone" href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone);
@@ -676,12 +692,24 @@ function onlineOrderCard(order){
   ).join('')+'</div>'+
   '<p class="online-order-fees">Subtotal: '+fmt(order.subtotal)+' · Entrega: '+fmt(order.delivery_fee)+'</p>'+
   (order.notes?'<p class="online-order-notes"><strong>Observações:</strong> '+esc(order.notes)+'</p>':'')+
-  '<div class="online-order-actions"><label>Situação do pedido<select data-order-status="'+esc(order.id)+'">'+
-    Object.entries(label).map(([value,text])=>'<option value="'+value+'"'+(status===value?' selected':'')+'>'+text+'</option>').join('')+
-    '</select></label><label>Pagamento<select data-order-payment="'+esc(order.id)+'">'+
-    '<option value="pending"'+(order.payment_status==='paid'?'':' selected')+'>Aguardando pagamento</option>'+
-    '<option value="paid"'+(order.payment_status==='paid'?' selected':'')+'>Pago (confirmado pela loja)</option>'+
-    '</select></label>'+contact+'</div></article>';
+  '<div class="online-order-actions">'+
+   '<div class="online-status-block" aria-label="Situação do pedido">'+
+    '<span class="online-status-title">Situação do pedido</span>'+
+    '<strong class="online-state-pill'+(status==='cancelled'?' is-cancelled':status==='fulfilled'?' is-done':'')+'">'+esc(label[status])+'</strong>'+
+    '<div class="online-status-controls">'+
+     (orderNext?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+' →</button>':
+      '<span class="online-status-end">'+(status==='cancelled'?'Pedido cancelado':'Pedido finalizado')+'</span>')+
+     '<button type="button" class="ghost online-cancel" data-order-cancel="'+esc(order.id)+'"'+(!orderNext?' disabled':'')+'>Cancelar pedido</button>'+
+    '</div></div>'+
+   '<div class="online-status-block" aria-label="Status do pagamento">'+
+    '<span class="online-status-title">Status do pagamento</span>'+
+    '<strong class="online-state-pill'+(paymentStatus==='cancelled'?' is-cancelled':paymentStatus==='paid'?' is-done':'')+'">'+esc(paymentLabel[paymentStatus])+'</strong>'+
+    '<div class="online-status-controls">'+
+     (paymentNext?'<button type="button" class="button online-advance" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+' →</button>':
+      '<span class="online-status-end">'+(paymentStatus==='cancelled'?'Pagamento cancelado':'Pagamento confirmado')+'</span>')+
+     '<button type="button" class="ghost online-cancel" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button>'+
+    '</div></div>'+
+   contact+'</div></article>';
 }
 
 function renderPage(){
@@ -1034,29 +1062,58 @@ document.addEventListener('change',e=>{
   if(preview)preview.replaceChildren();
  }
 });
-document.addEventListener('change',async e=>{
- const status=e.target.closest('[data-order-status]');
- const payment=e.target.closest('[data-order-payment]');
- if(!status&&!payment)return;
- const control=status||payment, order=onlineOrders.find(o=>o.id===(status?.dataset.orderStatus||payment?.dataset.orderPayment));
- if(!order)return;
- const field=status?'status':'payment_status';
- const valid=field==='status'?['awaiting_confirmation','confirmed','preparing','fulfilled','cancelled']:['pending','paid'];
- if(!valid.includes(control.value))return;
- control.disabled=true;
- try{
-  await rest('shop_online_orders',{method:'PATCH',query:{id:'eq.'+order.id,shop_id:'eq.'+shop.id},body:{[field]:control.value}});
-  order[field]=control.value;
-  renderPage();
-  msg(field==='payment_status'?'Situação do pagamento atualizada.':'Situação do pedido atualizada.');
- }catch(error){control.disabled=false;control.value=order[field];msg(error.message,true);}
-});
 document.addEventListener('change',async event=>{
  if(event.target.id!=='salesReferenceDate'||tab!=='vendas')return;
  salesDay=event.target.value;
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
+  const advanceOrder=e.target.closest('[data-order-advance]');
+  const cancelOrder=e.target.closest('[data-order-cancel]');
+  const advancePayment=e.target.closest('[data-payment-advance]');
+  const cancelPayment=e.target.closest('[data-payment-cancel]');
+  const clicked=advanceOrder||cancelOrder||advancePayment||cancelPayment;
+  if(clicked){
+    const id=clicked.dataset.orderAdvance||clicked.dataset.orderCancel||clicked.dataset.paymentAdvance||clicked.dataset.paymentCancel;
+    const order=onlineOrders.find(o=>o.id===id);
+    if(!order||!shop||!hasAccess())return;
+    const payment=!!(advancePayment||cancelPayment);
+    const field=payment?'payment_status':'status';
+    const previous=order[field];
+    const cancelled=!!(cancelOrder||cancelPayment);
+    const step=payment?nextOnlinePaymentStep(previous):nextOnlineOrderStep(previous);
+    if(!cancelled&&!step)return;
+    if(cancelled&&(previous==='cancelled'||(!payment&&previous==='fulfilled')))return;
+    const next=cancelled?'cancelled':step.next;
+    if(cancelled){
+      const detail=payment?'Cancelar o registro deste pagamento? Isso não realiza estorno ou reembolso.':'Cancelar este pedido? Esta ação encerra o andamento do pedido.';
+      if(!window.confirm(detail))return;
+    }else if(payment&&next==='paid'){
+      if(!window.confirm('Confirma que o pagamento foi realmente recebido pela loja?'))return;
+    }
+    const key=field+':'+id;
+    if(pendingOrderUpdates.has(key))return;
+    pendingOrderUpdates.add(key);
+    const controls=clicked.closest('.online-status-controls');
+    for(const button of controls?.querySelectorAll('button')||[])button.disabled=true;
+    try{
+      // Filtra o valor anterior para não sobrescrever alterações feitas em outra sessão.
+      const result=await rest('shop_online_orders',{method:'PATCH',
+        query:{id:'eq.'+id,shop_id:'eq.'+shop.id,[field]:'eq.'+previous,select:'id,'+field},
+        body:{[field]:next}});
+      if(!Array.isArray(result)||result.length!==1){
+        await reloadData();renderPage();
+        throw Error('Este pedido foi atualizado em outra sessão. Confira a situação atual.');
+      }
+      order[field]=result[0][field];
+      renderPage();
+      msg(payment?'Status do pagamento atualizado.':'Situação do pedido atualizada.');
+    }catch(error){
+      for(const button of controls?.querySelectorAll('button')||[])button.disabled=false;
+      msg(error.message,true);
+    }finally{pendingOrderUpdates.delete(key);}
+    return;
+  }
   const salePeriod=e.target.closest('[data-sales-period]');
   if(salePeriod&&tab==='vendas'){
     if(!['day','week','month'].includes(salePeriod.dataset.salesPeriod))return;
