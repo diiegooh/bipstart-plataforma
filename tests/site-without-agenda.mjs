@@ -43,7 +43,7 @@ test('link Planos centraliza o título logo abaixo do cabeçalho fixo',()=>{
  assert.equal((html.match(/id="planos"/g)||[]).length,1);
  assert.match(css,/html\{scroll-padding-top:90px\}/);
  assert.match(css,/\.pricing-title#planos\{scroll-margin-top:12px\}/);
- assert.match(html,/\/style\.css\?v=8/);
+ assert.match(html,/\/style\.css\?v=9/);
 });
 
 test('tipografia dos planos permanece legível e destacada no desktop e no celular',()=>{
@@ -150,5 +150,27 @@ test('nomes dos mini cards e dos dois modelos estão mais destacados no desktop 
  assert.match(css,/#solucoes \.solution-card-copy h3\{margin:0 0 9px;font-size:25px/);
  assert.match(css,/#solucoes \.solution-card-copy h3\{font-size:23px\}/);
  assert.match(css,/#solucoes \.solution-mini-card>strong\{font-size:16px\}/);
- assert.match(html,/\/style\.css\?v=8/);
+ assert.match(html,/\/style\.css\?v=9/);
+});
+
+
+test('seção Modelos ocupa menos altura no notebook mantendo os seis exemplos',()=>{
+ const html=readFileSync('public/index.html','utf8');
+ const css=readFileSync('public/style.css','utf8');
+ const section=html.slice(html.indexOf('id="solucoes"'),html.indexOf('<section class="section pricing-section"'));
+ assert.equal((section.match(/class="solution-mini-card"/g)||[]).length,6);
+ assert.equal((section.match(/class="solution-card /g)||[]).length,2);
+ assert.match(section,/Experimentar PDV ↗/);
+ assert.match(section,/Experimentar cardápio ↗/);
+ assert.match(css,/@media\(min-width:831px\)\{[\s\S]*#solucoes\.section\{padding-top:43px;padding-bottom:40px\}/);
+ assert.match(css,/@media\(min-width:831px\) and \(max-height:950px\)\{/);
+ assert.match(css,/#solucoes\.section\{padding-top:22px;padding-bottom:23px\}/);
+ assert.match(css,/#solucoes \.section-head\{margin-bottom:14px\}/);
+ assert.match(css,/#solucoes \.solution-card\{padding:15px 18px;gap:8px\}/);
+ assert.match(css,/#solucoes \.mini-illustration\{height:66px;margin-top:6px;padding:7px\}/);
+ assert.match(css,/#solucoes \.solution-mini-grid\{\s*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(css,/@media\(max-width:830px\)\{/);
+ assert.match(css,/#solucoes \.solution-grid\{grid-template-columns:1fr;max-width:600px;margin-inline:auto;gap:19px\}/);
+ assert.match(css,/@media\(max-width:430px\)\{/);
+ assert.match(html,/\/style\.css\?v=9/);
 });
