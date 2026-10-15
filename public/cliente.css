@@ -203,6 +203,25 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 #workspace .side #nav nav button b{flex:1;white-space:normal;font-weight:800}
 #workspace .side #nav nav .side-nav-icon{font-size:20px;line-height:1;width:25px;flex:0 0 25px;text-align:center}
 #workspace .side #nav nav button:hover:not(.active){background:#17221b;border-color:#29392d}
+/* Atalho externo do cardápio: mesma apresentação dos itens de navegação do PDV. */
+#workspace .side #nav nav a.side-public-menu{
+ display:flex;align-items:center;gap:11px;box-sizing:border-box;
+ width:100%;min-width:0;min-height:48px;padding:11px 12px;
+ text-align:left;text-decoration:none;border:1px solid transparent;
+ border-radius:12px;background:transparent;color:#ccd6ce;
+ font-size:13px;transition:background .15s,border-color .15s,box-shadow .15s;
+}
+#workspace .side #nav nav a.side-public-menu b{flex:1;white-space:normal;font-weight:800}
+#workspace .side #nav nav a.side-public-menu .side-external-icon{
+ flex:0 0 auto;font-size:15px;font-weight:850;color:#bd9fe7
+}
+#workspace .side #nav nav a.side-public-menu:hover{
+ background:#17221b;border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 42%,#29392d)
+}
+#workspace .side #nav nav a.side-public-menu:focus-visible{
+ outline:3px solid var(--store-accent,#7c3aed);outline-offset:2px
+}
+
 #workspace .side #nav nav button.active{background:linear-gradient(100deg,#fc0816,#f51b20);color:#fff;border-color:#ff3440;box-shadow:0 8px 20px #fb101c24}
 #workspace .side #nav nav button.active .side-nav-icon{filter:brightness(1.1)}
 #workspace .side #nav nav button.locked{opacity:.78}
