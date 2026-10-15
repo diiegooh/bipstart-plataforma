@@ -656,11 +656,14 @@ function updatePdvEstimates(){
 }
 
 // A ação principal de cada etapa só mostra o passo seguinte após a confirmação da loja.
-function nextOnlineOrderStep(status){
+function nextOnlineOrderStep(status,deliveryMethod){
  const stages={
   awaiting_confirmation:{next:'confirmed',label:'Confirmar pedido'},
   confirmed:{next:'preparing',label:'Iniciar preparo'},
-  preparing:{next:'fulfilled',label:'Finalizar pedido'}
+  preparing:deliveryMethod==='delivery'
+   ?{next:'out_for_delivery',label:'Saiu para entrega'}
+   :{next:'fulfilled',label:'Finalizar pedido'},
+  out_for_delivery:{next:'fulfilled',label:'Finalizar pedido'}
  };
  return stages[status]||null;
 }
@@ -669,22 +672,23 @@ function nextOnlinePaymentStep(status){
 }
 function onlineOrderCard(order){
  const label={awaiting_confirmation:'Aguardando confirmação',confirmed:'Confirmado',preparing:'Em preparo',
-  fulfilled:'Finalizado',cancelled:'Cancelado'};
+  out_for_delivery:'Saiu para entrega',fulfilled:'Finalizado',cancelled:'Cancelado'};
  const payLabel={a_combinar:'A combinar',pix:'Pix',dinheiro:'Dinheiro',credito:'Crédito',debito:'Débito'};
  const paymentLabel={pending:'Aguardando pagamento',paid:'Pago',cancelled:'Pagamento cancelado'};
  const status=Object.hasOwn(label,order.status)?order.status:'awaiting_confirmation';
  const paymentStatus=Object.hasOwn(paymentLabel,order.payment_status)?order.payment_status:'pending';
- const orderNext=nextOnlineOrderStep(status),paymentNext=nextOnlinePaymentStep(paymentStatus);
+ const orderNext=nextOnlineOrderStep(status,order.delivery_method),paymentNext=nextOnlinePaymentStep(paymentStatus);
  const items=Array.isArray(order.items)?order.items:[];
  const phone=String(order.customer_phone||'').replace(/\D/g,'');
  const phoneUri=/^\d{10,13}$/.test(phone)?'<a class="online-order-phone" href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone);
  const contact=phone&&/^\d{10,13}$/.test(phone)?
-    '<a class="ghost online-order-contact" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'">WhatsApp do cliente ↗</a>':'';
+    '<a class="online-order-whatsapp" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'" aria-label="Conversar com '+esc(order.customer_name)+' no WhatsApp" title="Conversar pelo WhatsApp">'+
+    '<svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true" focusable="false" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.966-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.058-.174-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.297-.496.1-.198.05-.372-.025-.52-.075-.15-.669-1.612-.916-2.206-.242-.58-.487-.502-.669-.512-.173-.009-.372-.01-.57-.01-.198 0-.52.074-.792.372-.273.297-1.04 1.016-1.04 2.479s1.065 2.875 1.213 3.073c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.49 1.693.627.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.5h-.004a9.866 9.866 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26C2.169 6.564 6.598 2.14 12.022 2.14c2.633 0 5.109 1.027 6.97 2.89a9.798 9.798 0 0 1 2.884 6.995c-.003 5.425-4.427 9.857-9.825 9.857m8.394-18.305A11.935 11.935 0 0 0 12.018.086C5.433.086.073 5.446.07 12.03c0 2.12.554 4.188 1.606 6.012L0 24l6.094-1.598a11.976 11.976 0 0 0 5.918 1.508h.005c6.585 0 11.946-5.36 11.949-11.945a11.932 11.932 0 0 0-3.491-8.45z"/></svg></a>':'';
  return '<article class="online-order-card" data-order-id="'+esc(order.id)+'">'+
   '<div class="online-order-top"><div><small>Pedido #'+esc(String(order.id).slice(0,8))+' · '+
     esc(new Date(order.created_at).toLocaleString('pt-BR'))+'</small><h3>'+esc(order.customer_name)+'</h3></div>'+
     '<strong class="online-order-total">'+fmt(order.total)+'</strong></div>'+
-  '<div class="online-order-details"><div><span>Telefone</span><strong>'+phoneUri+'</strong></div>'+
+  '<div class="online-order-details"><div><span>Telefone</span><strong class="online-phone-line">'+phoneUri+contact+'</strong></div>'+
    '<div><span>Recebimento</span><strong>'+esc(order.delivery_method==='delivery'?'Entrega':'Retirada na loja')+'</strong></div>'+
    '<div><span>Pagamento combinado</span><strong>'+esc(payLabel[order.payment_method]||'A combinar')+'</strong></div></div>'+
   (order.delivery_method==='delivery'?'<p class="online-order-address"><strong>📍 Endereço:</strong> '+esc(order.delivery_address||'Não informado')+'</p>':'')+
@@ -710,7 +714,6 @@ function onlineOrderCard(order){
       '<span class="online-status-end">'+(paymentStatus==='cancelled'?'Pagamento cancelado':'Pagamento confirmado')+'</span>')+
      '<button type="button" class="ghost online-cancel" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button>'+
     '</div></div>'+
-   contact+
    (order.whatsapp_updates_opt_in===true?'<button type="button" class="ghost online-notification-optout" data-order-optout="'+esc(order.id)+'">Desativar avisos WhatsApp</button>':'')+
    (orderNotificationLinks.has(order.id)?'<a class="ghost online-order-notification-link" target="_blank" rel="noopener noreferrer" href="'+esc(orderNotificationLinks.get(order.id))+'">Enviar atualização ao cliente no WhatsApp ↗</a>':'')+
    '</div></article>';
@@ -741,7 +744,7 @@ function renderPage(){
     content+=productGrid(selectedCategoryFilter);
   }else if(tab==='pedidos'){
     const awaiting=onlineOrders.filter(o=>o.status==='awaiting_confirmation').length;
-    const active=onlineOrders.filter(o=>['confirmed','preparing'].includes(o.status)).length;
+    const active=onlineOrders.filter(o=>['confirmed','preparing','out_for_delivery'].includes(o.status)).length;
     const paid=onlineOrders.filter(o=>o.payment_status==='paid').length;
     content=heading('Pedidos online','Pedidos registrados pelo cardápio antes da abertura do WhatsApp.',
       '<button type="button" class="ghost" data-orders-refresh>↻ Atualizar pedidos</button>');
@@ -1100,7 +1103,7 @@ document.addEventListener('click',async e=>{
     const field=payment?'payment_status':'status';
     const previous=order[field];
     const cancelled=!!(cancelOrder||cancelPayment);
-    const step=payment?nextOnlinePaymentStep(previous):nextOnlineOrderStep(previous);
+    const step=payment?nextOnlinePaymentStep(previous):nextOnlineOrderStep(previous,order.delivery_method);
     if(!cancelled&&!step)return;
     if(cancelled&&(previous==='cancelled'||(!payment&&previous==='fulfilled')))return;
     const next=cancelled?'cancelled':step.next;
