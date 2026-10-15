@@ -5,6 +5,7 @@ const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL
 let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[],onlineOrders=[];
 let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all';
 const pendingOrderUpdates=new Set();
+const orderNotificationLinks=new Map();
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix';
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
@@ -709,7 +710,9 @@ function onlineOrderCard(order){
       '<span class="online-status-end">'+(paymentStatus==='cancelled'?'Pagamento cancelado':'Pagamento confirmado')+'</span>')+
      '<button type="button" class="ghost online-cancel" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button>'+
     '</div></div>'+
-   contact+'</div></article>';
+   contact+
+   (orderNotificationLinks.has(order.id)?'<a class="ghost online-order-notification-link" target="_blank" rel="noopener noreferrer" href="'+esc(orderNotificationLinks.get(order.id))+'">Enviar atualização ao cliente no WhatsApp ↗</a>':'')+
+   '</div></article>';
 }
 
 function renderPage(){
@@ -1098,16 +1101,26 @@ document.addEventListener('click',async e=>{
     for(const button of controls?.querySelectorAll('button')||[])button.disabled=true;
     try{
       // Filtra o valor anterior para não sobrescrever alterações feitas em outra sessão.
-      const result=await rest('shop_online_orders',{method:'PATCH',
-        query:{id:'eq.'+id,shop_id:'eq.'+shop.id,[field]:'eq.'+previous,select:'id,'+field},
-        body:{[field]:next}});
-      if(!Array.isArray(result)||result.length!==1){
-        await reloadData();renderPage();
-        throw Error('Este pedido foi atualizado em outra sessão. Confira a situação atual.');
+      if(!await ensureSession())throw Error('Sua sessão expirou. Entre novamente.');
+      const response=await fetch('/api/online-order-update',{
+        method:'POST',
+        headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},
+        body:JSON.stringify({orderId:id,shopId:shop.id,field,action:cancelled?'cancel':'advance',expected:previous})
+      });
+      const result=await response.json().catch(()=>null);
+      if(!response.ok||!result?.updated){
+        if(response.status===409){await reloadData();renderPage();}
+        throw Error(result?.error||'Não foi possível atualizar o pedido.');
       }
-      order[field]=result[0][field];
+      order[field]=result.status;
+      orderNotificationLinks.delete(id);
+      if(result.notification==='manual'&&result.manualUrl)orderNotificationLinks.set(id,result.manualUrl);
       renderPage();
-      msg(payment?'Status do pagamento atualizado.':'Situação do pedido atualizada.');
+      const info=result.notification==='accepted'?' Aviso solicitado ao WhatsApp.':
+        result.notification==='manual'?' Clique em "Enviar atualização ao cliente no WhatsApp" para concluir o envio.':
+        result.notification==='opt_out'?' Cliente não autorizou notificações automáticas.':
+        ' Aviso não enviado: verifique o número do cliente.';
+      msg((payment?'Status do pagamento atualizado.':'Situação do pedido atualizada.')+info);
     }catch(error){
       for(const button of controls?.querySelectorAll('button')||[])button.disabled=false;
       msg(error.message,true);
