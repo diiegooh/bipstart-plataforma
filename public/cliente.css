@@ -535,7 +535,11 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 #workspace .online-status-controls button:disabled{opacity:.48;cursor:not-allowed}
 #workspace .online-status-controls button:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:2px}
 #workspace .online-status-end{font-size:12px;font-weight:750;color:#d8e5dc;flex:1 1 125px}
-#workspace .online-order-contact{font-size:12px;min-height:43px;display:inline-flex;align-items:center;justify-content:center;text-align:center;grid-column:1/-1}
+#workspace .online-order-details .online-phone-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#workspace .online-order-whatsapp{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:32px;height:32px;color:#25D366;text-decoration:none;border-radius:50%;transition:background-color .15s}
+#workspace .online-order-whatsapp:hover{background:rgba(37,211,102,.13)}
+#workspace .online-order-whatsapp:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:2px}
+#workspace .online-order-whatsapp svg{display:block}
 @media(max-width:750px){
  #workspace .online-order-actions{grid-template-columns:1fr}
  #workspace .online-order-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
