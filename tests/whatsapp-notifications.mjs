@@ -158,3 +158,38 @@ test('entrega só finaliza depois da etapa saiu para entrega',async()=>{
  assert.equal(code,200);
  assert.equal(data.status,'fulfilled');
 });
+
+test('loja pode finalizar manualmente, inclusive entregas Premium ainda em andamento',async()=>{
+ for(const status of ['awaiting_confirmation','confirmed','preparing','out_for_delivery']){
+  const {code,data,requests,order}=await exercise({
+   orderOverrides:{status,payment_status:'pending'},
+   payloadOverrides:{field:'status',action:'finish',expected:status}
+  });
+  assert.equal(code,200,status);
+  assert.equal(data.status,'fulfilled',status);
+  assert.equal(order.status,'fulfilled');
+  assert.equal(order.payment_status,'pending');
+  const patch=requests.find(r=>r.method==='PATCH');
+  assert.ok(patch);
+  assert.match(patch.url,new RegExp('status=eq\\.'+status));
+  assert.equal(JSON.parse(patch.options.body).status,'fulfilled');
+ }
+});
+test('finalização manual respeita status terminal, token e status anterior',async()=>{
+ for(const status of ['cancelled','fulfilled']){
+  const {code,requests}=await exercise({
+   orderOverrides:{status},
+   payloadOverrides:{field:'status',action:'finish',expected:status}
+  });
+  assert.equal(code,409);
+  assert.equal(requests.some(r=>r.method==='PATCH'),false);
+ }
+ const invalidPayment=await exercise({payloadOverrides:{field:'payment_status',action:'finish',expected:'pending'}});
+ assert.equal(invalidPayment.code,400);
+ assert.equal(invalidPayment.requests.length,0);
+ const stale=await exercise({orderOverrides:{status:'preparing'},payloadOverrides:{action:'finish',expected:'confirmed'}});
+ assert.equal(stale.code,409);
+ assert.equal(stale.requests.some(r=>r.method==='PATCH'),false);
+ const anonymous=await exercise({bearer:null,payloadOverrides:{action:'finish'}});
+ assert.equal(anonymous.code,401);
+});
