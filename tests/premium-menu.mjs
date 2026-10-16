@@ -92,6 +92,6 @@ test('acesso do Básico mostra bloqueio e opção de upgrade sem alterar a loja'
  assert.match(panel,/data-nav="configuracoes"/);
  assert.match(panel,/rpc\('bipstart_request_plan_change'/);
  assert.match(css,/online-sale-locked/);
- assert.match(html,/\/cliente\.js\?v=32/);
+ assert.match(html,/\/cliente\.js\?v=33/);
  assert.match(html,/\/cliente\.css\?v=22/);
 });
