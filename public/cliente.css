@@ -664,3 +664,7 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 #workspace .online-order-notification-link{grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:42px;text-decoration:none;color:#fff;font-size:12px;font-weight:800;border-color:var(--store-accent,#7c3aed)}
 
 #workspace .online-notification-optout{grid-column:1/-1;width:100%;min-height:36px;font-size:12px;color:#f9d5db;border-color:#8b5060;background:transparent}
+
+/* Pedido do cardápio vinculado à logística Premium. */
+#workspace .online-order-dispatch{grid-column:1/-1;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:10px 12px;color:#d5f5e0;background:rgba(41,113,72,.14);border:1px solid #438158;border-radius:10px;font-size:12px;font-weight:800}
+#workspace .online-order-dispatch:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:2px}
