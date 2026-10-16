@@ -202,6 +202,8 @@ async function refreshActivatedPlan(){
   const previous=JSON.stringify(ent);
   if(JSON.stringify(latest)===previous)return;
   ent=latest;
+  $('modeCardapio').classList.toggle('locked',!proAccess());
+  $('modeCardapio').setAttribute('aria-disabled',String(!proAccess()));
   const rows=await rest('shops',{query:{
     select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,created_at',
     id:'eq.'+id,limit:'1'
@@ -251,6 +253,8 @@ async function openShop(){
   if(!hasAccess()){hiding('accessGate',true);renderAccessGate();return}
   await reloadData();renderNav();hiding('modeChooser',true);
   $('modeChooserTitle').textContent='Como deseja começar na '+shop.name+'?';
+  $('modeCardapio').classList.toggle('locked',!proAccess());
+  $('modeCardapio').setAttribute('aria-disabled',String(!proAccess()));
   // Link de gestão do cardápio público: entrada direta no editor após verificar acesso.
   if(new URLSearchParams(location.search).get('editar')==='cardapio'){
     tab=proAccess()?'cardapio':'configuracoes';showForm=null;pastedProductImage=null;
