@@ -17,12 +17,13 @@ function closeModal(){$('modal').classList.add('hidden');$('modalContent').inner
 function field(label,name,type='text',value='',extra=''){return `<div class="field"><label>${esc(label)}</label><input name="${esc(name)}" type="${esc(type)}" value="${esc(value)}" ${extra}></div>`}
 function textareaField(label,name,value='',extra=''){return `<div class="field"><label>${esc(label)}</label><textarea name="${esc(name)}" ${extra}>${esc(value)}</textarea></div>`}
 function selectField(label,name,options,value){return `<div class="field"><label>${esc(label)}</label><select name="${esc(name)}">${options.map(([k,v])=>`<option value="${esc(k)}" ${k===value?'selected':''}>${esc(v)}</option>`).join('')}</select></div>`}
+// Básico e Premium abrem a MESMA loja autenticada no Supabase.
+ // O painel demonstrativo local antigo não recebe novos cadastros.
 function onboarding(plan=1,model='pdv'){
-  const change=Number(plan)===3?3:1,names={1:'Básico',3:'Premium'};
-  openModal(`<span class="modal-label">EXPERIMENTE ANTES DE CONTRATAR</span><h2>Seu negócio começa aqui.</h2><p>Experimente o modelo escolhido. Nesta versão, os dados ficam somente no seu navegador e nenhuma cobrança será realizada.</p><div class="modal-notice"><b>Plano ${names[change]}:</b> ${change===3?'R$ 79,90 por mês':fmt(29.90)+' em pagamento único'}. Para contratar, faça seu cadastro de cliente e fale com a equipe BipStart pelo WhatsApp (11) 97835-3820. A liberação do plano é manual.</div>
-  <form id="startTrial"><div class="form-grid">${field('Seu nome','name','text',ws?.name||'','required maxlength="80"')}${field('E-mail de contato','email','email',ws?.email||'','required maxlength="140"')}<div class="span-all">${field('Nome da sua loja ou negócio','business','text',ws?.businessName||'','required maxlength="85"')}</div><div class="span-all"><input type="hidden" name="model" value="pdv"><p>PDV e cardápio no mesmo painel.</p></div><input type="hidden" name="plan" value="${change}"></div><button class="button button-primary" type="submit">Abrir demonstração de 7 dias ↗</button><div class="modal-notice">Sem cobrança e sem envio de dados ao servidor. A demonstração não substitui uma conta de cliente ativada por pagamento.</div></form>`);
+ const change=Number(plan)===3?3:1;
+ window.location.assign('/cliente?plano='+(change===3?'pro':'basic'));
 }
-function showWorkspace(){if(!ws)return onboarding();ws.model='pdv';ws.plan=ws.plan===3?3:1;$('marketing').classList.add('hidden');$('footer').classList.add('hidden');$('.site-header')?.classList.add('hidden');$('workspace').classList.remove('hidden');window.scrollTo(0,0);renderWorkspace()}
+function showWorkspace(){return window.location.assign('/cliente');/* O painel real substitui a demonstração antiga. */if(!ws)return onboarding();ws.model='pdv';ws.plan=ws.plan===3?3:1;$('marketing').classList.add('hidden');$('footer').classList.add('hidden');$('.site-header')?.classList.add('hidden');$('workspace').classList.remove('hidden');window.scrollTo(0,0);renderWorkspace()}
 function showMarketing(){$('marketing').classList.remove('hidden');$('footer').classList.remove('hidden');$('.site-header')?.classList.remove('hidden');$('workspace').classList.add('hidden');window.scrollTo(0,0)}
 function $(selector){if(selector.startsWith('.'))return document.querySelector(selector);return document.getElementById(selector)}
 function navEntries(){const common=[['overview','Visão geral']];const model=[['pdv','Frente de caixa'],['products','Produtos e estoque'],['sales','Histórico de vendas'],['menu','Meu cardápio'],['cardapio','Visualizar cardápio'],['orders','Pedidos do cardápio']];return [...common,...model,...(ws.plan>=3?[['couriers','Motoboys'],['deliveries','Entregas próprias'],['rider','Visão do motoboy']]:[]),...(ws.plan>=3?[['personal','Mudanças e suporte']]:[]),['settings','Configurações']];}
@@ -114,7 +115,7 @@ document.addEventListener('submit',async(e)=>{
 });
 document.addEventListener('input',e=>{if(e.target.id==='pdvSearch')$('pdvProducts').innerHTML=pdvItems(e.target.value)});
 $('closeModal').onclick=closeModal;
-$('dashboardHeader').onclick=()=>ws?showWorkspace():onboarding();
+$('dashboardHeader').onclick=()=>window.location.assign('/cliente');
 $('backHome').onclick=showMarketing;
 document.querySelector('.ws-brand').onclick=(e)=>{e.preventDefault();showMarketing()};
 $('switchModel').onclick=()=>{showMarketing();location.hash='#planos';};
