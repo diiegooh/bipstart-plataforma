@@ -35,7 +35,7 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
  assert.match(html,/\/vitrine\.css\?v=13/);
- assert.match(html,/\/vitrine\.js\?v=13/);
+ assert.match(html,/\/vitrine\.js\?v=14/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -251,4 +251,21 @@ test('pedido WhatsApp segue modelo SALGATTI, valores e acompanhamento privado',(
  assert.match(pickup,/TIPO: RETIRADA/);
  assert.doesNotMatch(pickup,/END: Rua/);
  assert.match(pickup,/TAXA ENTREGA\s+R\$0,00/);
+});
+
+test('cardápio online oferece somente formas de pagamento configuradas, sem A combinar',()=>{
+ assert.doesNotMatch(html,/<option value="a_combinar">/);
+ assert.match(html,/<select id="pay"[^>]*><option value="pix">Pix<\/option>/);
+ assert.match(html,/<option value="dinheiro">Dinheiro<\/option>/);
+ assert.match(html,/<option value="credito">Cartão de crédito<\/option>/);
+ assert.match(html,/<option value="debito">Cartão de débito<\/option>/);
+ assert.doesNotMatch(js,/['"]a_combinar['"]\s*:\s*['"]A combinar['"]/);
+ assert.doesNotMatch(js,/<option value="a_combinar">/);
+ const start=js.indexOf('const pay=(menu.payment_methods||[])');
+ const end=js.indexOf('const categories=categoryNames();',start);
+ assert.ok(start>0&&end>start);
+ // O trecho dinâmico só inclui as formas habilitadas na loja.
+ assert.match(js.slice(start,end),/Object\.entries\(paymentLabels\)\.filter/);
+ assert.match(js.slice(start,end),/menu\.payment_methods/);
+ assert.doesNotMatch(js.slice(start,end),/A combinar|a_combinar/);
 });
