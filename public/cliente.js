@@ -203,6 +203,7 @@ async function refreshActivatedPlan(){
   if(JSON.stringify(latest)===previous)return;
   ent=latest;
   $('modeCardapio').classList.toggle('locked',!proAccess());
+  $('modeCardapio').disabled=!proAccess();
   $('modeCardapio').setAttribute('aria-disabled',String(!proAccess()));
   const rows=await rest('shops',{query:{
     select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,created_at',
@@ -254,6 +255,7 @@ async function openShop(){
   await reloadData();renderNav();hiding('modeChooser',true);
   $('modeChooserTitle').textContent='Como deseja começar na '+shop.name+'?';
   $('modeCardapio').classList.toggle('locked',!proAccess());
+  $('modeCardapio').disabled=!proAccess();
   $('modeCardapio').setAttribute('aria-disabled',String(!proAccess()));
   // Link de gestão do cardápio público: entrada direta no editor após verificar acesso.
   if(new URLSearchParams(location.search).get('editar')==='cardapio'){
@@ -309,8 +311,7 @@ function pages(){
   const a=[['resumo','Visão geral']];
   a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['vendas','Histórico de vendas']);
   if(proAccess())a.push(['cardapio','Meu cardápio']);
-  a.push(['pedidos','Pedidos online']);
-  if(proAccess())a.push(['motoboys','Motoboys'],['entregas','Entregas']);
+  if(proAccess())a.push(['pedidos','Pedidos online'],['motoboys','Motoboys'],['entregas','Entregas']);
   if(canCustomize())a.push(['personalizar','Mudanças e suporte']);
   a.push(['configuracoes','Configurações']);
   return a;
@@ -338,8 +339,8 @@ function renderNav(){
   applySidebarTheme();
   const current=tab==='cardapio'||tab==='entregas'?'pedidos':tab;
   $('nav').innerHTML='<nav aria-label="Navegação operacional">'+operationalMenuItems().map(([id,name,icon])=>{
-    if(id==='cardapio_publico'&&!proAccess()){
-      return '<button type="button" class="side-public-menu locked" data-premium-menu-locked aria-label="Cardápio online: exclusivo Premium" title="Exclusivo Premium">'+
+    if((id==='cardapio_publico'||id==='pedidos')&&!proAccess()){
+      return '<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="'+esc(name)+': exclusivo Premium" title="Exclusivo Premium">'+
         '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><small class="side-lock">Premium</small></button>';
     }
     if(id==='cardapio_publico'){
@@ -380,7 +381,7 @@ function shareTitle(){return 'CARDÁPIO ('+shop.name+')'}
 function publicLinkTile(){
   if(!proAccess())return '<div class="tile public-link-tile is-locked">'+
     '<small>Cardápio online</small><strong>Exclusivo do Premium</strong>'+
-    '<button type="button" class="ghost" data-nav="configuracoes">Conhecer o Premium</button></div>';
+    '<small>Disponível somente no Plano Premium.</small></div>';
   const url=publicShopUrl();
   const title=shareTitle();
   const whatsapp='https://wa.me/?text='+encodeURIComponent(title+'\n'+url);
@@ -1315,10 +1316,6 @@ document.addEventListener('click',async e=>{
     await loadSalesReport();return;
   }
 
-  if(e.target.closest('[data-premium-menu-locked]')){
-    closeSideMenu();tab='configuracoes';renderPage();
-    return msg('Cardápio online exclusivo do Premium. Solicite o upgrade nas Configurações.',true);
-  }
   if(e.target.closest('[data-orders-refresh]')){
     try{await reloadData();renderPage();msg('Pedidos atualizados.');}catch(error){msg(error.message,true);}
     return;
@@ -1338,11 +1335,7 @@ document.addEventListener('click',async e=>{
   if(mode){
     if(!shop||!hasAccess())return;
     if(mode.dataset.openMode==='cardapio'){
-      if(!proAccess()){
-        tab='configuracoes';showForm=null;
-        hiding('modeChooser',false);hiding('workspace',true);renderPage();
-        return msg('O cardápio online é exclusivo do Premium. Solicite o upgrade nas Configurações.',true);
-      }
+      if(!proAccess())return;
       // A opção Cardápio abre a vitrine pública em tela cheia, sem o editor intermediário.
       location.assign(publicShopUrl());
       return;
@@ -1400,7 +1393,7 @@ document.addEventListener('click',async e=>{
     return;
   }
   const nav=e.target.closest('[data-nav]');if(nav){
-    if(nav.dataset.nav==='cardapio'&&!proAccess())return msg('Cardápio online exclusivo Premium.',true);
+    if(['cardapio','pedidos'].includes(nav.dataset.nav)&&!proAccess())return;
     if(nav.dataset.nav==='motoboys'&&!proAccess())return msg('Motoboys disponíveis somente no plano Premium.',true);
     if(!pages().some(([key])=>key===nav.dataset.nav))return;
     tab=nav.dataset.nav;showForm=null;pastedProductImage=null;closeSideMenu();renderPage();
