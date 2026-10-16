@@ -619,19 +619,42 @@ function categoryImageActions(name){
   '<button type="button" data-category-image-paste="'+esc(name)+'" title="Clique e pressione Ctrl+V para colar uma imagem">📋 Colar imagem</button>'+
   '<label class="category-image-file">Escolher foto<input data-category-image-file="'+esc(name)+'" type="file" accept="image/png,image/jpeg,image/webp" hidden></label></div>';
 }
+function categoryImagesSettings(){
+ if(shop?.model!=='pdv')return '';
+ if(!proAccess())return '<section class="category-image-settings"><h3>Imagens das categorias</h3><p class="muted">Personalização de imagens disponível no Plano Premium.</p></section>';
+ if(!menuSchemaReady)return '<section class="category-image-settings"><h3>Imagens das categorias</h3><p class="warn">As categorias estão aguardando a atualização do banco. Não é possível alterar as imagens agora.</p></section>';
+ const names=new Map();
+ for(const cat of categories){
+  const key=categoryKey(cat.name),name=String(cat.name||'').trim();
+  if(name&&!names.has(key))names.set(key,name);
+ }
+ for(const product of products){
+  const name=normalizedProductCategory(product),key=categoryKey(name);
+  if(name&&!names.has(key))names.set(key,name);
+ }
+ const ordered=[...names.values()].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ const rows=ordered.map(name=>
+  '<div class="category-image-setting-row">'+
+   categoryThumbnail(name)+
+   '<div class="category-image-setting-info"><strong>'+esc(name)+'</strong><small>Foto exibida no cardápio online</small></div>'+
+   categoryImageActions(name)+
+  '</div>').join('');
+ return '<section class="category-image-settings" id="categoryImagesSettings">'+
+  '<h3>Imagens das categorias</h3>'+
+  '<p class="muted">Personalize as fotos de cada categoria do cardápio. Copie uma imagem, clique em "Colar imagem" e pressione Ctrl+V, ou escolha um arquivo JPG, PNG ou WebP de até 5 MB.</p>'+
+  '<div class="category-image-settings-list">'+(rows||'<p class="muted">Cadastre uma categoria ou um produto para escolher a imagem.</p>')+'</div>'+
+  '</section>';
+}
 function productCategoryCards(selected='all'){
  if(!products.length)return '';
  const names=[...new Set(products.map(normalizedProductCategory))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
- return '<div class="inventory-category-section"><div class="inventory-category-heading"><strong>Categorias</strong><small>Selecione para filtrar os produtos. No Premium, personalize a imagem de cada categoria.</small></div>'+
+ return '<div class="inventory-category-section"><div class="inventory-category-heading"><strong>Categorias</strong><small>Selecione para filtrar os produtos</small></div>'+
   '<div class="inventory-category-grid" aria-label="Filtrar produtos por categoria">'+
   ['all',...names].map(name=>{
    const count=filteredProductList(name).length;
    const chosen=name===selected;
-   const picture=name==='all'?'<span class="category-image-thumb category-image-empty" aria-hidden="true">▦</span>':categoryThumbnail(name);
-   return '<div class="inventory-category-card'+(chosen?' active':'')+'">'+
-    '<button type="button" class="inventory-category-select" data-category-filter="'+esc(name)+'" aria-pressed="'+chosen+'">'+
-    picture+'<strong>'+esc(name==='all'?'Todos':name)+'</strong><small>'+count+' produto(s)</small></button>'+
-    (name==='all'?'':categoryImageActions(name))+'</div>';
+   return '<button type="button" class="inventory-category-card'+(chosen?' active':'')+'" data-category-filter="'+esc(name)+'" aria-pressed="'+chosen+'">'+
+    '<strong>'+esc(name==='all'?'Todos':name)+'</strong><small>'+count+' produto(s)</small></button>';
   }).join('')+'</div></div>';
 }
 function productGrid(selected='all'){
@@ -647,10 +670,8 @@ function cardapioEditor(){
  if(!proAccess())return heading('Cardápio online','Disponível exclusivamente no Plano Premium.')+
    '<div class="empty">Faça upgrade para Premium nas Configurações para publicar o cardápio. Seus produtos permanecem salvos.</div>';
  const list=categories.length?categories.map(cat=>{
-  const count=products.filter(p=>categoryKey(p.category)===categoryKey(cat.name)).length;
-  return '<div class="menu-category-line">'+categoryThumbnail(cat.name)+
-   '<div class="menu-category-description"><strong>'+esc(cat.name)+'</strong><small>'+count+' item(ns)</small></div>'+
-   categoryImageActions(cat.name)+'</div>';
+  const count=products.filter(p=>p.category.toLocaleLowerCase('pt-BR')===cat.name.toLocaleLowerCase('pt-BR')).length;
+  return '<div class="menu-category-line"><strong>'+esc(cat.name)+'</strong><small>'+count+' item(ns)</small></div>';
  }).join(''):'<p class="muted">Comece adicionando uma categoria, como Salgados ou Bebidas.</p>';
  const details=[
   ['Horário',shop.opening_hours||'Configurar'],
@@ -913,7 +934,8 @@ function renderPage(){
        +'<fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +logoSection+'</div>':'')
-      +'<button class="button">Salvar configurações</button></form></div>';
+      +'<button class="button">Salvar configurações</button></form></div>'+
+      (isMenu?categoryImagesSettings():'');
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
       +'<div class="data-form"><form id="customForm"><label>Descreva sua solicitação<textarea name="details" minlength="10" maxlength="3000" placeholder="Envie sua logo e conte as mudanças desejadas..." required></textarea></label><button class="button">Enviar solicitação</button></form></div>'

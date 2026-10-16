@@ -158,3 +158,7 @@ No Premium, cada categoria pode receber sua própria imagem. A aba **Produtos** 
 A imagem é armazenada no bucket existente `bipstart-images`, dentro do prefixo da própria loja; `shop_menu_categories.image_path` mantém a referência. O card público prioriza essa imagem e, se ela não estiver cadastrada, continua usando uma foto dos produtos da categoria ou o ícone padrão. Cada loja tem suas próprias imagens e as demais funcionalidades de estoque e preços não são alteradas. Essa opção respeita a exigência de **Premium vigente** para publicação no cardápio online.
 
 A migração idempotente `sql/bipstart_category_images_20261016.sql` já foi aplicada no projeto Supabase do BipStart e inclui a nova coluna, validação de caminho por loja e a imagem na RPC `bipstart_public_menu`. Não deve ser aplicada no projeto Godzilla Adega.
+
+## Organização da edição das imagens das categorias — 16/10/2026
+
+A personalização de imagem das categorias permanece disponível, mas seus controles foram movidos exclusivamente para **Configurações da loja**, acessíveis pela engrenagem ao lado do nome do estabelecimento na barra lateral. No Premium, a seção **Imagens das categorias** permite copiar/colar (Ctrl+V) ou escolher arquivos JPG/PNG/WebP até 5 MB. Os cards de categorias na aba **Produtos** voltaram ao formato anterior de filtros compactos apenas com nome e contagem; a lista de categorias do editor de cardápio voltou ao formato textual, sem miniaturas ou botões de imagem. As fotos já enviadas continuam armazenadas e aparecem normalmente no cardápio público.

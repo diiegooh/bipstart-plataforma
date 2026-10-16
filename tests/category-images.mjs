@@ -8,12 +8,15 @@ const panelCss=readFileSync('public/cliente.css','utf8');
 const publicMenu=readFileSync('public/vitrine.js','utf8');
 const migration=readFileSync('sql/bipstart_category_images_20261016.sql','utf8');
 
-test('colagem e escolha de arquivo estão disponíveis nas categorias, sem alterar o cadastro dos produtos',()=>{
+test('colagem e upload ficam nas Configurações, e os cards de produtos e o editor voltam ao visual anterior',()=>{
  new vm.Script(panel,{filename:'public/cliente.js'});
  assert.match(panel,/data-category-image-paste/);
  assert.match(panel,/data-category-image-file/);
+ assert.match(panel,/function categoryImagesSettings\(\)/);
  assert.match(panel,/categoryImageActions\(name\)/);
- assert.match(panel,/categoryImageActions\(cat\.name\)/);
+ assert.match(panel,/\(isMenu\?categoryImagesSettings\(\):''\)/);
+ assert.doesNotMatch(panel.slice(panel.indexOf("function productCategoryCards(selected='all'){"),panel.indexOf("function productGrid(selected='all'){")),/data-category-image|categoryThumbnail|categoryImageActions/);
+ assert.doesNotMatch(panel.slice(panel.indexOf('function cardapioEditor(){'),panel.indexOf('function filteredPdvProducts(){')),/categoryThumbnail|categoryImageActions|data-category-image/);
  assert.match(panel,/async function saveCategoryImage\(name,file\)/);
  assert.match(panel,/if\(!proAccess\(\)\|\|!menuSchemaReady\)return ''/);
  assert.match(panel,/void saveCategoryImage\(categoryTarget\.dataset\.categoryImagePaste,file\)/);
@@ -21,6 +24,22 @@ test('colagem e escolha de arquivo estão disponíveis nas categorias, sem alter
  assert.match(panel,/const file=pastedProductImage\|\|form\.querySelector\('input\[name=image\]'\)/);
  assert.match(panelCss,/\.category-image-thumb/);
  assert.match(panelCss,/\.category-image-actions/);
+ assert.match(panelCss,/\.category-image-settings/);
+ const start=panel.indexOf('function categoryKey(name){'),end=panel.indexOf("function productCategoryCards(selected='all'){",start);
+ assert.ok(start>=0&&end>start);
+ const settings=new Function('categories','products','shop','proAccess','menuSchemaReady','esc','imageUrl','normalizedProductCategory',
+   panel.slice(start,end)+';return categoryImagesSettings;')(
+   [{name:'Bebidas',image_path:'loja/bebidas.jpg'}],
+   [{category:'Salgados',image_path:'loja/salgados.png'}],
+   {model:'pdv'},()=>true,true,value=>String(value),path=>'https://img.test/'+path,
+   item=>String(item.category||'Geral'));
+ const settingsHtml=settings();
+ assert.match(settingsHtml,/id="categoryImagesSettings"/);
+ assert.match(settingsHtml,/data-category-image-paste="Bebidas"/);
+ assert.match(settingsHtml,/data-category-image-file="Salgados"/);
+ assert.match(settingsHtml,/loja\/bebidas\.jpg/);
+ assert.match(settingsHtml,/loja\/salgados\.png/);
+ assert.match(panel,/data-nav="configuracoes"/);
 });
 
 test('a foto da categoria tem prioridade; sem foto, usa a foto do produto ou o ícone',()=>{
