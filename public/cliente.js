@@ -812,7 +812,7 @@ function renderPage(){
   let content='';
   if(tab==='resumo'){
     content=heading('Bem-vindo à BipStart',proAccess()?'PDV com estoque e cardápio online integrados. Seus dados ficam separados das demais lojas.':'PDV, estoque e vendas integrados. Ative o Premium para publicar seu cardápio online.')
-      +'<div class="grid">'+tile('Modelo',models[shop.model])+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',trialValid()?'Teste gratuito':'Ativo')+'</div>';
+      +'<div class="grid">'+tile('Modelo',proAccess()?'PDV + Cardápio online':'PDV + Estoque')+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',trialValid()?'Teste gratuito':'Ativo')+'</div>';
     if(shop.model==='pdv')content+='<div class="grid">'+tile('Produtos',products.length)+tile('Vendas',sales.length)+tile('Total vendido',fmt(sales.reduce((a,s)=>a+Number(s.total),0)))+'</div>';
     if(shop.model==='pdv')content+='<div class="grid public-overview-grid">'+tile('Itens cadastrados',products.length)+publicLinkTile()+'</div>';
   }else if(tab==='cardapio'){
