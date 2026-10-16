@@ -34,7 +34,9 @@ test('diretorio traz links da plataforma e do cardapio por slug, compartilhar e 
  assert.match(js,/share:title==='Login do motoboy'/);
  assert.match(js,/cardapio,\{share:true,available:premium\}/);
  assert.match(js,/plan_code==='pro'/);
- assert.match(js,/location\.origin\+'\/cliente\?editar=cardapio'/);
+ assert.match(js,/base\+'\/cliente\?editar=cardapio'/);
+ assert.match(js,/const access=adminShopAccess\.find\(item=>item\.shop_id===shop\.shop_id\)/);
+ assert.match(js,/Date\.parse\(access\.active_until\)>now/);
 });
 test('funcao de links exige administrador e nao expõe convites individuais de motoboy',()=>{
  assert.match(sql,/create or replace function public\.bipstart_admin_list_shop_links\(\)/);
