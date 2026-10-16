@@ -60,7 +60,11 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
  assert.doesNotMatch(html,/id="sideShopLogo"/);
  assert.doesNotMatch(js,/\$\('sideShopLogo'\)/);
  const basicNav=basic.node('nav').innerHTML;
- assert.match(basicNav,/<button type="button" class="side-public-menu locked" data-premium-menu-locked/);
+ assert.match(basicNav,/<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="Cardápio online: exclusivo Premium"/);
+ assert.match(basicNav,/<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="Pedidos online: exclusivo Premium"/);
+ assert.deepEqual([...basicNav.matchAll(/<b>([^<]+)<\/b>/g)].map(m=>m[1]),
+   ['PDV','Produtos','Vendas','Cardápio online','Pedidos online','Motoboys']);
+ assert.match(css,/side-public-menu\.locked:disabled\{opacity/);
  assert.match(basicNav,/Cardápio online: exclusivo Premium/);
  assert.match(basicNav,/<b>Cardápio online<\/b>/);
  assert.doesNotMatch(basicNav,/data-public-menu-link/);
@@ -69,6 +73,8 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
  const premium=mockNav(true);
  const premiumNav=premium.node('nav').innerHTML;
  assert.match(premiumNav,/data-nav="motoboys" class=""/);
+ assert.deepEqual([...premiumNav.matchAll(/<b>([^<]+)<\/b>/g)].map(m=>m[1]),
+   ['PDV','Produtos','Cardápio online','Pedidos online','Motoboys','Vendas']);
  assert.match(premiumNav,/<a class="side-public-menu" data-public-menu-link href="https:\/\/bipstart\.example\/cardapio\?loja=adega-teste"/);
  assert.match(premiumNav,/Abrir cardápio online da loja em outra aba/);
  assert.match(premiumNav,/side-external-icon/);
@@ -89,7 +95,7 @@ test('link público preserva o slug de cada loja e não redireciona o PDV',()=>{
 });
 
 test('Produtos incorpora estoque e Pedidos online não promete pedidos automáticos',()=>{
- assert.match(js,/a\.push\(\['pedidos','Pedidos online'\]\)/);
+ /if\(proAccess\(\)\)a\.push\(\['pedidos','Pedidos online'\],\['motoboys','Motoboys'\],\['entregas','Entregas'\]\)/
  assert.doesNotMatch(js,/\['estoque','Estoque'\]/);
  assert.doesNotMatch(js,/tab==='estoque'/);
  assert.match(js,/tab==='produtos'/);
