@@ -32,7 +32,7 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
 
 test('antes do WhatsApp a função pública recebe apenas itens/quantidades; não aceita preço do cliente',async()=>{
  const begin=vitrine.indexOf('async function registerOnlineOrder(){');
- const end=vitrine.indexOf("$('sendOrder').addEventListener",begin);
+ const end=vitrine.indexOf('function trackingLinkFor(',begin);
  assert.ok(begin>=0&&end>begin);
  const sent=[];
  const fields={
