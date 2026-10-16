@@ -17,12 +17,17 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrineHtml,/id="name"[^>]*required/);
  assert.match(vitrineHtml,/id="phone"[^>]*required/);
  assert.match(vitrineHtml,/id="address"/);
- assert.match(vitrineHtml,/\/vitrine\.js\?v=10/);
+ assert.match(vitrineHtml,/\/vitrine\.js\?v=11/);
  assert.match(panelHtml,/\/cliente\.js\?v=28/);
  assert.match(panelHtml,/\/cliente\.css\?v=18/);
  assert.match(vitrine,/await registerOnlineOrder\(\)/);
  assert.match(vitrine,/checkoutMessage\(receipt\.id\)/);
- assert.match(vitrine,/location\.assign\(url\)/);
+ assert.match(vitrine,/showCheckoutNextStep\(receipt\)/);
+ assert.match(vitrineHtml,/id="trackingReady"/);
+ assert.match(vitrineHtml,/id="copyTrackingUrl"/);
+ assert.match(vitrineHtml,/id="sendPreparedWhatsapp"/);
+ assert.match(vitrine,/trackingLinkFor\(receipt\.id,orderToken\)/);
+ assert.doesNotMatch(vitrine,/location\.assign\(url\)/);
 });
 
 test('antes do WhatsApp a função pública recebe apenas itens/quantidades; não aceita preço do cliente',async()=>{
