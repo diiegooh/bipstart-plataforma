@@ -170,7 +170,7 @@ function checkoutMessage(orderId=''){
   'DATA: '+now.toLocaleDateString('pt-BR')+' '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
   '',
   'CLIENTE: '+$('name').value.trim(),
-  'TEL: '+String($('phone')?.value||'').replace(/\\D/g,''),
+  'TEL: '+String($('phone')?.value||'').replace(/\D/g,''),
   'TIPO: '+(delivery?'ENTREGA':'RETIRADA'),
   ''
  ];
@@ -191,10 +191,10 @@ function checkoutMessage(orderId=''){
  const notes=$('notes').value.trim();
  if(notes)lines.push('','Obs: '+notes);
  // O WhatsApp preserva as colunas quando o texto é enviado em fonte monoespaçada.
- const message='```'+lines.join('\\n')+'```';
+ const message='```'+lines.join('\n')+'```';
  // Mantém o acompanhamento privado implementado no cardápio.
  return orderId&&orderToken?
-  message+'\\n\\nACOMPANHE SEU PEDIDO: '+trackingLinkFor(orderId,orderToken):message;
+  message+'\n\nACOMPANHE SEU PEDIDO: '+trackingLinkFor(orderId,orderToken):message;
 }
 document.addEventListener('click',event=>{
  const cardInc=event.target.closest('[data-card-inc]'),cardDec=event.target.closest('[data-card-dec]');
