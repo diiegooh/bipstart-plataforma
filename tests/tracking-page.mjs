@@ -41,8 +41,8 @@ test('consulta por RPC exige id e token do link privado no fragmento',()=>{
 });
 test('entrega exibe saiu para entrega e retirada pula a etapa',()=>{
  const element=id=>({
-  hidden:false,textContent:'',classList:{toggle(){}},
-  setAttribute(){},append(){},replaceChildren(){},scrollIntoView(){}
+  hidden:false,textContent:'',children:[],classList:{toggle(){}},
+  setAttribute(){},append(...nodes){this.children.push(...nodes)},replaceChildren(){this.children=[]},scrollIntoView(){}
  });
  const nodes=new Map();
  const fakeDoc={createElement(tag){return {tag,children:[],setAttribute(){},append(...x){this.children.push(...x)},set className(x){this.name=x},get className(){return this.name},set textContent(v){this.text=v}}}};
