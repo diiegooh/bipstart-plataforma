@@ -53,7 +53,8 @@ test('cadastro mantém o mesmo shop_id e a mesma base em mudanças de plano',()=
  assert.match(source,/function refreshActivatedPlan\(\)|async function refreshActivatedPlan\(\)/);
  assert.match(source,/const currentShop=shop\.id/);
  assert.match(source,/await reloadData\(\)/);
- assert.match(panel,/id="modeChooser"/);
+ assert.doesNotMatch(panel,/id="modeChooser"|id="backToModes"/);
+ assert.match(source,/tab='caixa';showForm=null;pastedProductImage=null/);
  assert.match(panel,/id="workspace"/);
  assert.match(panel,/\/cliente\.js\?v=34/);
 });
