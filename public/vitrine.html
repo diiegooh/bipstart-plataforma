@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#080b09">
   <meta name="description" content="Cardápio digital: veja os produtos e envie seu pedido diretamente ao estabelecimento.">
   <title>Cardápio digital • BipStart</title>
-  <link rel="stylesheet" href="/vitrine.css?v=11">
+  <link rel="stylesheet" href="/vitrine.css?v=12">
 </head>
 <body class="delivery-page">
 <div class="delivery-app">
@@ -66,8 +66,16 @@
   </div>
   <div class="cart-fee hidden" id="deliveryLine"><span>Entrega</span><strong id="deliveryTotal">R$ 0,00</strong></div>
   <div class="total grand-total"><span>Total</span><span id="cartTotal">R$ 0,00</span></div>
-  <button id="sendOrder" type="button" class="btn checkout-btn" disabled>Enviar pelo WhatsApp ↗</button>
+  <button id="sendOrder" type="button" class="btn checkout-btn" disabled>Continuar pedido</button>
+  <section id="trackingReady" class="tracking-ready hidden" role="status" aria-live="polite">
+   <h3>Pedido registrado!</h3>
+   <p>Guarde este link para acompanhar seu pedido e pagamento.</p>
+   <a id="trackingUrl" class="tracking-link" target="_blank" rel="noopener noreferrer" href="#">Acompanhar meu pedido ↗</a>
+   <button id="copyTrackingUrl" class="btn alt" type="button">Copiar link de acompanhamento</button>
+   <a id="sendPreparedWhatsapp" class="btn checkout-btn" href="#" target="_blank" rel="noopener noreferrer">Enviar pedido à loja pelo WhatsApp ↗</a>
+   <small id="trackingCopyFeedback" role="status" aria-live="polite">O envio à loja só será concluído quando você confirmar a mensagem no WhatsApp.</small>
+  </section>
 </aside>
-<script src="/vitrine.js?v=10" defer></script>
+<script src="/vitrine.js?v=11" defer></script>
 </body>
 </html>
