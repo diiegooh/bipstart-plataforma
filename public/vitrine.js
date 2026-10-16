@@ -4,7 +4,7 @@ const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 const money=value=>Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const paymentLabels={pix:'Pix',credito:'Cartão de crédito',debito:'Cartão de débito',dinheiro:'Dinheiro',a_combinar:'A combinar'};
 const fold=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
-let menu=null,products=[],cart=new Map(),selectedQty=new Map(),lastFocus=null,publicConfig=null,orderToken=null;
+let menu=null,products=[],cart=new Map(),selectedQty=new Map(),lastFocus=null,publicConfig=null,orderToken=null,registeredOrderId=null;
 function showErr(text){$('error').textContent=String(text);$('error').classList.remove('hidden');}
 function imageUrl(path){
  if(!path||!menu?.src)return '';
@@ -226,6 +226,7 @@ document.addEventListener('click',event=>{
    return;
   }
   orderToken=null;
+  registeredOrderId=null;
   if(next<=0)cart.delete(id);else cart.set(id,next);
   renderCart();
   if(add){
@@ -306,20 +307,6 @@ async function registerOnlineOrder(){
  // Não envie uma mensagem com valores divergentes dos que o servidor registrou.
  if(Math.abs(Number(result.total)-(subtotal()+deliveryCost()))>0.009)
   throw Error('O valor do pedido mudou. Atualize o cardápio e confira os preços.');
- if($('whatsappOptIn')?.checked){
-  try{
-   const permission=await fetch(publicConfig.supabaseUrl+'/rest/v1/rpc/bipstart_set_online_order_whatsapp_optin',{
-    method:'POST',
-    headers:{apikey:publicConfig.publishableKey,'Content-Type':'application/json'},
-    body:JSON.stringify({p_order_id:result.id,p_client_token:orderToken,p_opt_in:true}),
-    cache:'no-store'
-   });
-   if(!permission.ok||await permission.json().catch(()=>false)!==true)
-    showErr('Seu pedido foi registrado, mas não foi possível habilitar os avisos por WhatsApp.');
-  }catch{
-   showErr('Seu pedido foi registrado, mas não foi possível habilitar os avisos por WhatsApp.');
-  }
- }
  return result;
 }
 function trackingLinkFor(orderId,token){
@@ -327,6 +314,7 @@ function trackingLinkFor(orderId,token){
  return location.origin+'/acompanhar#pedido='+encodeURIComponent(orderId)+'&chave='+encodeURIComponent(token);
 }
 function showCheckoutNextStep(receipt){
+ registeredOrderId=receipt.id;
  const link=trackingLinkFor(receipt.id,orderToken);
  const digits=normalizeWhatsApp(menu?.whatsapp);
  const url='https://wa.me/'+digits+'?text='+encodeURIComponent(checkoutMessage(receipt.id));
@@ -337,6 +325,25 @@ function showCheckoutNextStep(receipt){
  $('trackingCopyFeedback').textContent='O pedido só será comunicado à loja após confirmar a mensagem no WhatsApp.';
  $('trackingReady').scrollIntoView({block:'nearest',behavior:'smooth'});
 }
+// A autorização só é solicitada quando o cliente escolhe abrir o WhatsApp.
+async function saveWhatsappUpdatesConsent(orderId,token){
+ try{
+  const response=await fetch(publicConfig.supabaseUrl+'/rest/v1/rpc/bipstart_set_online_order_whatsapp_optin',{
+   method:'POST',
+   headers:{apikey:publicConfig.publishableKey,'Content-Type':'application/json'},
+   body:JSON.stringify({p_order_id:orderId,p_client_token:token,p_opt_in:true}),
+   cache:'no-store',keepalive:true
+  });
+  if(!response.ok||await response.json().catch(()=>false)!==true)
+   throw Error('Falha ao registrar autorização.');
+ }catch{
+  $('trackingCopyFeedback').textContent='O pedido ainda pode ser enviado. Não foi possível ativar os avisos automáticos deste pedido.';
+ }
+}
+$('sendPreparedWhatsapp').addEventListener('click',()=>{
+ // O clique abre o WhatsApp diretamente; o registro acontece em paralelo.
+ if(registeredOrderId&&orderToken)void saveWhatsappUpdatesConsent(registeredOrderId,orderToken);
+});
 $('copyTrackingUrl').addEventListener('click',async()=>{
  try{
   const url=$('trackingUrl').href;
