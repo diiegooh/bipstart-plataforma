@@ -668,3 +668,7 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 /* Pedido do cardápio vinculado à logística Premium. */
 #workspace .online-order-dispatch{grid-column:1/-1;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:10px 12px;color:#d5f5e0;background:rgba(41,113,72,.14);border:1px solid #438158;border-radius:10px;font-size:12px;font-weight:800}
 #workspace .online-order-dispatch:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:2px}
+
+/* Finalização manual pelo lojista, disponível nos planos Básico e Premium. */
+#workspace .online-status-controls .online-manual-finish{background:rgba(38,132,79,.16);color:#d3ffe4;border:1px solid #3b9965}
+#workspace .online-status-controls .online-manual-finish:hover{background:rgba(38,132,79,.27)}
