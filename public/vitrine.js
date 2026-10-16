@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=value=>Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-const paymentLabels={pix:'Pix',credito:'Cartão de crédito',debito:'Cartão de débito',dinheiro:'Dinheiro',a_combinar:'A combinar'};
+const paymentLabels={pix:'Pix',credito:'Cartão de crédito',debito:'Cartão de débito',dinheiro:'Dinheiro'};
 const fold=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
 let menu=null,products=[],cart=new Map(),selectedQty=new Map(),lastFocus=null,publicConfig=null,orderToken=null,registeredOrderId=null;
 function showErr(text){$('error').textContent=String(text);$('error').classList.remove('hidden');}
@@ -65,9 +65,9 @@ function drawPage(){
   link.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(menu.location);
   link.classList.remove('hidden');
  }else link.classList.add('hidden');
- const pay=(menu.payment_methods||[]).filter(x=>Object.hasOwn(paymentLabels,x)).map(x=>paymentLabels[x]);
+ const pay=(menu.payment_methods||[]).filter(x=>Object.hasOwn(paymentLabels,x));
  if(pay.length){
-  $('pay').innerHTML='<option value="a_combinar">A combinar</option>'+Object.entries(paymentLabels).filter(([key])=>key!=='a_combinar'&&(menu.payment_methods||[]).includes(key)).map(([key,label])=>'<option value="'+key+'">'+esc(label)+'</option>').join('');
+  $('pay').innerHTML=Object.entries(paymentLabels).filter(([key])=>(menu.payment_methods||[]).includes(key)).map(([key,label])=>'<option value="'+key+'">'+esc(label)+'</option>').join('');
  }
  const categories=categoryNames();
  $('category').innerHTML='<option value="">Todas as categorias</option>'+categories.map(name=>'<option value="'+esc(name)+'">'+esc(name)+'</option>').join('');
@@ -186,7 +186,7 @@ function checkoutMessage(orderId=''){
   row('SUBTOTAL',money(subtotal())),
   row('TAXA ENTREGA',money(deliveryCost())),
   row('TOTAL',money(subtotal()+deliveryCost())),
-  'PAGTO: '+String(paymentLabels[$('pay').value]||'A combinar').toLocaleUpperCase('pt-BR')
+  'PAGTO: '+String(paymentLabels[$('pay').value]||'Não informado').toLocaleUpperCase('pt-BR')
  );
  const notes=$('notes').value.trim();
  if(notes)lines.push('','Obs: '+notes);
