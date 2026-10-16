@@ -129,3 +129,16 @@ Para não depender da API do WhatsApp, novos pedidos do cardápio oferecem uma *
 **Mensagem manual:** a loja altera status no painel `Pedidos online`. Sem credenciais do WhatsApp Cloud API, se o cliente autorizou receber atualizações, surge um link **Enviar atualização ao cliente no WhatsApp** com mensagem pronta e o novo status. O lojista precisa clicar e efetivamente enviar a mensagem. Esta alternativa não tem custo próprio de integração, embora mensagens fora do serviço possam consumir dados móveis. Sem autorização, o sistema não encaminha notificações por conta própria. Se houver credenciais da API anteriormente configuradas, o envio automatizado opcional permanece disponível; as alternativas funcionam sem essas credenciais.
 
 **Banco:** a migração `sql/bipstart_track_online_order_20261015.sql` publica somente a RPC de acompanhamento por dois identificadores privados, sem alterar pedidos antigos nem permissões diretas das tabelas. A migração já foi aplicada no Supabase da BipStart. A nova página exige deploy do repositório para ficar disponível na hospedagem.
+
+
+## Básico e Premium no mesmo painel e no mesmo banco
+
+O endereço **/cliente** é o único painel operacional para ambos os planos. Os botões comerciais do site inicial ("Escolher Básico", "Escolher Premium", "Experimentar PDV", "Experimentar cardápio" e teste gratuito) abrem **/cliente** e não a antiga simulação local. O parâmetro `?plano=basic|pro` pré-seleciona o plano no primeiro cadastro. Quem já tem loja é direcionado às configurações para solicitar mudança **na loja existente**.
+
+Os mesmos registros `shops.id`, `shop_products`, `shop_menu_categories`, `shop_sales`, `shop_online_orders` e as configurações da loja permanecem intactos ao mudar de plano; não há criação de uma segunda loja nem cópia do catálogo. O painel, produtos, PDV, cardápio, histórico e pedidos são os mesmos nos dois planos. **Motoboys e fila de entregas, personalização de logo/cores e suporte** são recursos liberados pelo `shop_entitlements.plan_code='pro'` com acesso vigente.
+
+Nas **Configurações da loja → Meu plano**, o titular pode solicitar Premium a partir do Básico (ou solicitar retorno ao Básico). A RPC `bipstart_request_plan_change` valida a titularidade pelo usuário autenticado e muda somente `shops.requested_plan`. Isso **não concede acesso Premium** e não realiza cobrança. A ativação continua manual via administração `bipstart_admin_set_access`, que atualiza o `shop_entitlements` e alinha o plano solicitado da mesma loja. Ao retomar a aba, a interface verifica periodicamente o plano ativo e libera o menu de motoboys sem exigir recriar a loja.
+
+Migration aplicada no Supabase BipStart: `sql/bipstart_shared_shop_plan_upgrade_20261016.sql`. Os testes automatizados incluem `tests/shared-plans.mjs`, e uma transação de teste com rollback confirmou que a solicitação não ativa o Premium e mantém os produtos intactos.
+
+**Atenção:** o antigo painel ilustrativo da página inicial usava dados apenas no `localStorage` (não vinculados a nenhuma conta Supabase). Esses dados locais de demonstração **não** são transferidos automaticamente para a loja real. A preservação de dados entre Básico e Premium se aplica às lojas autenticadas e seus cadastros salvos no Supabase.
