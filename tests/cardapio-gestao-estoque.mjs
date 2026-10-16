@@ -79,7 +79,7 @@ test('lojista autenticado e proprietário vê atalho seguro para editar o própr
  assert.match(client,/requested\.get\('editar'\)==='cardapio'/);
  assert.match(client,/hiding\('workspace',true\);renderPage\(\)/);
  assert.doesNotMatch(client,/modeChooser|backToModes/);
- assert.match(clientHtml,/cliente\.js\?v=34/);
+ assert.match(clientHtml,/cliente\.js\?v=35/);
  const start=js.indexOf('async function revealOwnerNavigation(');
  const end=js.indexOf('async function boot(){',start);
  assert.ok(start>0&&end>start);
