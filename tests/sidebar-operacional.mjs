@@ -134,15 +134,14 @@ test('PDV em tela cheia não mostra marca BipStart nem faixa superior da loja',(
  assert.match(css,/body\.workspace-fullscreen \.shell\{max-width:none;padding:12px 14px 24px\}/);
  assert.match(html,/<div class="side-store">[\s\S]*id="sideShopName"/);
 });
-test('Voltar às opções e Sair aparecem lado a lado no rodapé, preservando acesso ao menu mobile',()=>{
- assert.match(html,/<div class="side-actions-row">[\s\S]*id="backToModes"[\s\S]*id="sideLogout"[\s\S]*<\/div>/);
- assert.match(css,/#workspace \.side \.side-actions-row\{[\s\S]*grid-template-columns:minmax\(0,1\.55fr\) minmax\(59px,\.8fr\)/);
- assert.match(js,/\$\('backToModes'\)\.onclick=\(\)=>\{if\(!shop\|\|!hasAccess\(\)\)return;closeSideMenu\(\);history\.replaceState/);
+test('Sair continua disponível, mas botão Voltar às opções foi retirado',()=>{
+ assert.doesNotMatch(html,/id="backToModes"|modeChooser|data-open-mode/);
+ assert.doesNotMatch(js,/backToModes|modeChooser|modeCardapio/);
+ assert.match(html,/id="sideLogout"/);
  assert.match(html,/<div class="pdv-mobile-menu">[\s\S]*id="sideToggle"/);
  assert.match(css,/#workspace \.pdv-mobile-menu\{display:none\}/);
  assert.match(css,/@media\(max-width:900px\)\{[\s\S]*#workspace \.pdv-mobile-menu\{display:flex/);
 });
-
 test('aba Pedidos online não exibe botões redundantes do cardápio',()=>{
  const start=js.indexOf("}else if(tab==='pedidos'){");
  const end=js.indexOf("}else if(tab==='caixa'){",start);
