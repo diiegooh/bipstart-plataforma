@@ -60,7 +60,7 @@ test('antes do WhatsApp a função pública recebe apenas itens/quantidades; nã
 });
 
 test('dashboard apresenta dados e controles de pagamento; escapa nome/endereço contra XSS',()=>{
- const begin=panel.indexOf('function nextOnlineOrderStep(status){');
+ const begin=panel.indexOf('function nextOnlineOrderStep(status,deliveryMethod){');
  const end=panel.indexOf('function renderPage(){',begin);
  assert.ok(begin>=0&&end>begin);
  const escape=v=>String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
@@ -141,7 +141,7 @@ test('pagamentos não são marcados como pagos automaticamente nem baixam estoqu
 });
 
 test('situação do pedido avança por etapas e apresenta a próxima ação',()=>{
- const begin=panel.indexOf('function nextOnlineOrderStep(status){');
+ const begin=panel.indexOf('function nextOnlineOrderStep(status,deliveryMethod){');
  const end=panel.indexOf('function renderPage(){',begin);
  const api=new Function('esc','fmt','orderNotificationLinks',panel.slice(begin,end)+';return {onlineOrderCard,nextOnlineOrderStep,nextOnlinePaymentStep};')(
   v=>String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),
