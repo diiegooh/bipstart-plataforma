@@ -15,8 +15,9 @@ test('vitrine Godzilla está no endereço direto do cardápio, sem login ou pain
  assert.match(server,/'\/vitrine\.js':\s*\['vitrine\.js'/);
  assert.match(server,/'\/vitrine\.css':\s*\['vitrine\.css'/);
  assert.doesNotMatch(client,/data-open-mode|modeChooser|backToModes/);
- assert.doesNotMatch(html,/id="ownerNav"|id="backToModesLink"|Voltar às opções/);
- assert.doesNotMatch(js,/revealOwnerNavigation|ownerNav/);
+ assert.match(html,/id="ownerEditorLink"[^>]*href="\/cliente\?editar=cardapio"/);
+ assert.doesNotMatch(html,/id="backToModesLink"|Voltar às opções/);
+ assert.match(js,/revealOwnerNavigation/);
  assert.match(client,/data-public-menu-link/);
  assert.match(client,/tab='caixa'/);
  assert.match(client,/hiding\('workspace',true\);\s*renderPage\(\);/);
@@ -162,14 +163,14 @@ test('o cardápio multiplica o total no card e não abre o carrinho ao adicionar
  assert.match(css,/\.product-quantity\{/);
 });
 
-test('o retorno à seleção PDV ou Cardápio aparece só ao proprietário',()=>{
+test('gerenciamento do cardápio só aparece ao proprietário, sem voltar às opções',()=>{
  assert.match(html,/id="ownerNav" class="owner-nav hidden"/);
- assert.match(html,/id="backToModesLink"[^>]*href="\/cliente"/);
- assert.match(html,/Voltar às opções: PDV ou Cardápio/);
- assert.doesNotMatch(html,/Gerenciar cardápio|ownerEditorLink/);
+ assert.match(html,/id="ownerEditorLink"[^>]*href="\/cliente\?editar=cardapio"/);
+ assert.match(html,/Gerenciar cardápio/);
+ assert.doesNotMatch(html,/Voltar às opções|backToModesLink/);
  assert.match(js,/\$\('ownerNav'\)\.classList\.remove\('hidden'\)/);
  assert.match(js,/Array\.isArray\(rows\)&&rows\.some\(row=>row\.slug===slug\)/);
- assert.match(css,/\.owner-modes-link\{/);
+ assert.match(css,/\.owner-editor-link\{/);
 });
 
 test('categorias têm imagens grandes e cards transparentes, mantendo a seleção',()=>{

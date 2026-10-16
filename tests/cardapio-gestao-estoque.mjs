@@ -73,8 +73,8 @@ test('antes do WhatsApp, a vitrine remove os itens esgotados mesmo se mudaram ap
 
 test('lojista autenticado e proprietário vê atalho seguro para editar o próprio cardápio',async()=>{
  assert.match(html,/id="ownerNav" class="owner-nav hidden"/);
- assert.match(html,/id="backToModesLink"[^>]*href="\/cliente"/);
- assert.doesNotMatch(html,/id="ownerEditorLink"|Gerenciar cardápio/);
+ assert.match(html,/id="ownerEditorLink"[^>]*href="\/cliente\?editar=cardapio"/);
+ assert.doesNotMatch(html,/id="backToModesLink"|Voltar às opções/);
  assert.doesNotMatch(client,/class="menu-live-preview"|Prévia do seu cardápio|<iframe src=/);
  assert.match(client,/requested\.get\('editar'\)==='cardapio'/);
  assert.match(client,/hiding\('workspace',true\);renderPage\(\)/);
