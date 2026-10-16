@@ -1003,7 +1003,10 @@ async function handleSubmit(form){
       const total=Number(v.total||0);
       if(!v.customer_name?.trim()||!v.address?.trim()||!Number.isFinite(total)||total<0)
         throw Error('Informe cliente, endereço e valor válido.');
+      if(v.online_order_id&&!eligibleOnlineDeliveryOrders(deliveries.find(d=>d.id===id)).some(o=>o.id===v.online_order_id))
+        throw Error('Pedido online indisponível para vincular. Atualize a lista.');
       const payload={
+        online_order_id:v.online_order_id||null,
         customer_name:v.customer_name.trim(),customer_phone:String(v.customer_phone||'').trim(),
         address:v.address.trim(),items_text:String(v.items_text||'').trim(),total,
         offered_courier_id:v.offered_courier_id||null,status:'pendente',courier_id:null
@@ -1079,6 +1082,16 @@ document.addEventListener('change',e=>{
  if(e.target.id==='pdvPaymentMethod'){pdvPayment=e.target.value;renderPage();}
 });
 document.addEventListener('change',e=>{
+ if(e.target.matches('#deliveryForm select[name="online_order_id"]')){
+   const order=onlineOrders.find(o=>o.id===e.target.value);
+   if(order){
+     const form=e.target.closest('form'),values=onlineOrderDeliveryDefaults(order);
+     for(const key of ['customer_name','customer_phone','address','items_text','total']){
+       const input=form?.elements.namedItem(key);
+       if(input)input.value=values[key];
+     }
+   }
+ }
  if(e.target.matches('#productForm select[name="online_enabled"]')){
   const form=e.target.closest('form'),online=e.target.value==='true';
   const group=form.querySelector('.online-sale-price'),input=form.elements.namedItem('menu_price');
@@ -1099,6 +1112,18 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
+  const dispatch=e.target.closest('[data-online-delivery]');
+  if(dispatch){
+    if(!proAccess())return msg('Entregas com motoboys são exclusivas do Premium.',true);
+    const order=onlineOrders.find(o=>o.id===dispatch.dataset.onlineDelivery);
+    if(!order||order.delivery_method!=='delivery'||['cancelled','fulfilled'].includes(order.status)||
+       deliveries.some(d=>d.online_order_id===order.id))
+      return msg('Este pedido não está disponível para criar outra entrega.',true);
+    showForm={kind:'delivery',value:onlineOrderDeliveryDefaults(order)};
+    tab='entregas';renderPage();
+    document.getElementById('deliveryForm')?.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
   const optout=e.target.closest('[data-order-optout]');
   if(optout){
     const id=optout.dataset.orderOptout,order=onlineOrders.find(item=>item.id===id);
