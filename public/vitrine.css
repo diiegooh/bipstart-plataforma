@@ -228,3 +228,13 @@
 .whatsapp-optin{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.5;color:#cfd9d0;margin-top:7px;cursor:pointer}
 .whatsapp-optin input{width:18px;height:18px;flex:0 0 18px;margin:1px 0 0;accent-color:var(--green)}
 .whatsapp-optin span{flex:1}
+
+/* Após registrar o pedido, exibir acompanhamento e envio manual por WhatsApp. */
+.onlinecart .tracking-ready{display:grid;gap:10px;margin:13px 0 20px;padding:16px;border:1px solid rgba(184,255,70,.35);border-radius:15px;background:rgba(40,66,40,.28)}
+.onlinecart .tracking-ready.hidden{display:none!important}
+.onlinecart .tracking-ready h3{margin:0;color:var(--green);font-size:18px}
+.onlinecart .tracking-ready p{margin:0;color:#e2eee1;font-size:13px;line-height:1.5}
+.onlinecart .tracking-ready .tracking-link{color:#c4ffb2;border:1px solid rgba(184,255,70,.35);border-radius:10px;padding:12px;text-align:center;font-weight:850;text-decoration:none}
+.onlinecart .tracking-ready .tracking-link:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.onlinecart .tracking-ready .btn{display:flex;justify-content:center;align-items:center;min-height:43px;font-size:13px;text-decoration:none;text-align:center}
+.onlinecart .tracking-ready small{color:#b9c8b8;line-height:1.5;font-size:11px}
