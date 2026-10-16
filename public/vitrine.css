@@ -238,3 +238,6 @@
 .onlinecart .tracking-ready .tracking-link:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 .onlinecart .tracking-ready .btn{display:flex;justify-content:center;align-items:center;min-height:43px;font-size:13px;text-decoration:none;text-align:center}
 .onlinecart .tracking-ready small{color:#b9c8b8;line-height:1.5;font-size:11px}
+
+.onlinecart label.whatsapp-optin{display:flex;flex-direction:row;align-items:flex-start;gap:10px}
+.onlinecart label.whatsapp-optin input{width:18px;height:18px;flex:0 0 18px;margin-top:2px}
