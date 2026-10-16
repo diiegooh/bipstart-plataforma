@@ -83,7 +83,7 @@ test('acesso do Básico mostra bloqueio e opção de upgrade sem alterar a loja'
  assert.match(panel,/modeCardapio'\)\.classList\.toggle\('locked',!proAccess\(\)\)/);
  assert.match(panel,/modeCardapio'\)\.disabled=!proAccess\(\)/);
  assert.match(panel,/if\(mode\.dataset\.openMode==='cardapio'\)\{\s*if\(!proAccess\(\)\)/);
- assert.match(panel,/\(id==='cardapio_publico'\|\|id==='pedidos'\)&&!proAccess\(\)/);
+ assert.match(panel,/\(id==='cardapio_publico'\|\|id==='pedidos'\|\|id==='motoboys'\)&&!proAccess\(\)/);
  assert.match(panel,/class="side-public-menu locked" disabled aria-disabled="true"/);
  assert.doesNotMatch(panel,/data-premium-menu-locked/);
  assert.match(panel,/if\(\(id==='cardapio_publico'\|\|id==='pedidos'\)&&!proAccess\(\)\)/);
