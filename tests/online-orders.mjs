@@ -17,7 +17,7 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrineHtml,/id="name"[^>]*required/);
  assert.match(vitrineHtml,/id="phone"[^>]*required/);
  assert.match(vitrineHtml,/id="address"/);
- assert.match(vitrineHtml,/\/vitrine\.js\?v=12/);
+ assert.match(vitrineHtml,/\/vitrine\.js\?v=13/);
  assert.match(panelHtml,/\/cliente\.js\?v=28/);
  assert.match(panelHtml,/\/cliente\.css\?v=18/);
  assert.match(vitrine,/await registerOnlineOrder\(\)/);
@@ -210,10 +210,20 @@ test('status cancelado do pagamento é suportado sem reembolso ou alteração de
  assert.doesNotMatch(cancellationMigration,/drop table|delete from|disable row level security|grant .* to anon/i);
 });
 
-test('cliente autoriza avisos no checkout e existe opção manual de notificação',()=>{
- assert.match(vitrineHtml,/id="whatsappOptIn" type="checkbox"/);
+test('cliente só autoriza avisos ao clicar para enviar pedido no WhatsApp; sem checkbox',()=>{
+ assert.doesNotMatch(vitrineHtml,/id="whatsappOptIn"|type="checkbox"[^>]*whatsappOptIn/);
+ assert.match(vitrineHtml,/id="whatsappConsentNotice"[^>]*>Ao clicar em/);
+ assert.match(vitrineHtml,/aria-describedby="whatsappConsentNotice"/);
+ assert.match(vitrineHtml,/preparo, pagamento e entrega/);
  assert.match(vitrine,/bipstart_set_online_order_whatsapp_optin/);
- assert.match(vitrine,/p_client_token:orderToken,p_opt_in:true/);
+ assert.match(vitrine,/p_order_id:orderId,p_client_token:token,p_opt_in:true/);
+ assert.match(vitrine,/\$\('sendPreparedWhatsapp'\)\.addEventListener\('click'/);
+ assert.match(vitrine,/saveWhatsappUpdatesConsent\(registeredOrderId,orderToken\)/);
+ assert.match(vitrine,/keepalive:true/);
+ const registerStart=vitrine.indexOf('async function registerOnlineOrder(){');
+ const registerEnd=vitrine.indexOf('function trackingLinkFor(',registerStart);
+ assert.ok(registerEnd>registerStart);
+ assert.doesNotMatch(vitrine.slice(registerStart,registerEnd),/whatsappOptIn|bipstart_set_online_order_whatsapp_optin/);
  assert.match(panel,/orderNotificationLinks\.set\(id,result\.manualUrl\)/);
  assert.match(panel,/Enviar atualização ao cliente no WhatsApp/);
 });
