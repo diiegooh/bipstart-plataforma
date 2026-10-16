@@ -35,7 +35,7 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
  assert.match(html,/\/vitrine\.css\?v=12/);
- assert.match(html,/\/vitrine\.js\?v=11/);
+ assert.match(html,/\/vitrine\.js\?v=12/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -62,7 +62,7 @@ test('o pedido calcula total e taxa de entrega antes de abrir WhatsApp',()=>{
  const fields={
   shipping:{value:'delivery'},
   address:{value:'Rua Um, 123, Centro'},
-  name:{value:'Ana'},
+  name:{value:'Ana'},phone:{value:'11966374236'},
   pay:{value:'pix'},
   notes:{value:'Sem gelo'}
  };
@@ -72,13 +72,18 @@ test('o pedido calcula total e taxa de entrega antes de abrir WhatsApp',()=>{
   [{id:'a',name:'Suco',price:10}],()=>20,()=>4,
   v=>'R$ '+Number(v).toFixed(2),{pix:'Pix'}
  );
- assert.match(msg,/Cliente: Ana/);
- assert.match(msg,/2x Suco/);
- assert.match(msg,/Subtotal: R\$ 20\.00/);
- assert.match(msg,/Taxa de entrega: R\$ 4\.00/);
- assert.match(msg,/Total: R\$ 24\.00/);
- assert.match(msg,/Forma de pagamento: Pix/);
- assert.match(msg,/Sem gelo/);
+ assert.match(msg,/=== LOJA TESTE - PEDIDO ===/);
+ assert.match(msg,/DATA: \d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/);
+ assert.match(msg,/CLIENTE: Ana/);
+ assert.match(msg,/TEL: 11966374236/);
+ assert.match(msg,/TIPO: ENTREGA/);
+ assert.match(msg,/END: Rua Um, 123, Centro/);
+ assert.match(msg,/2x SUCO\s+R\$ 20\.00/);
+ assert.match(msg,/SUBTOTAL\s+R\$ 20\.00/);
+ assert.match(msg,/TAXA ENTREGA\s+R\$ 4\.00/);
+ assert.match(msg,/TOTAL\s+R\$ 24\.00/);
+ assert.match(msg,/PAGTO: PIX/);
+ assert.match(msg,/Obs: Sem gelo/);
 });
 
 test('PDV mantém painel interno e acesso ao mesmo cardápio dinâmico',()=>{
@@ -125,7 +130,7 @@ test('topo mostra endereço para retirada e horários sem taxa de entrega',()=>{
  assert.match(js,/new URLSearchParams\(location\.search\)\.get\('loja'\)/);
  assert.doesNotMatch(js,/deliveryBadge/);
  assert.match(js,/function deliveryCost\(\)\{return \$\('shipping'\)\.value==='delivery'\?Number\(menu\?\.delivery_fee\|\|0\):0;\}/);
- assert.match(js,/lines\.push\('Taxa de entrega: '\+money\(deliveryCost\(\)\)/);
+ assert.match(js,/row\('TAXA ENTREGA',money\(deliveryCost\(\)\)\)/);
  assert.match(css,/\.location-row\{display:grid;grid-template-columns:minmax\(0,1\.25fr\) minmax\(260px,\.75fr\)/);
  assert.match(css,/\.location-card,\.hours-card\{/);
  assert.match(css,/@media\(max-width:600px\)\{[\s\S]*\.hours-card\{display:flex\}/);
@@ -197,4 +202,53 @@ test('categorias têm imagens grandes e cards transparentes, mantendo a seleçã
  assert.match(css,/flex:0 0 clamp\(60px,17\.2vw,75px\)/);
  assert.match(js,/categoryArtwork\(name\)\+'<b>'\+esc\(name\)\+'<\/b><\/button>'/);
  assert.match(css,/@media\(max-width:600px\)\{/);
+});
+
+
+test('pedido WhatsApp segue modelo SALGATTI, valores e acompanhamento privado',()=>{
+ const start=js.indexOf("function checkoutMessage(orderId=''){");
+ const end=js.indexOf("document.addEventListener('click'",start);
+ assert.ok(start>=0&&end>start);
+ const fields={
+  name:{value:'Diego Vicente Da Silva'},phone:{value:'(11) 96637-4236'},
+  shipping:{value:'delivery'},address:{value:'Rua Antonio neves 51'},
+  pay:{value:'pix'},notes:{value:'Confirmar pagamento'}
+ };
+ class FixedDate {
+  toLocaleDateString(){return '15/10/2026';}
+  toLocaleTimeString(){return '20:56';}
+ }
+ const id='6ffe6b8d-1111-4111-8111-111111111111';
+ const make=new Function('$','cart','menu','products','subtotal','deliveryCost','money','paymentLabels','Date','orderToken','trackingLinkFor',
+  js.slice(start,end)+';return checkoutMessage;');
+ const fn=make(
+  key=>fields[key],new Map([['essencia',3]]),{name:'Salgatti'},
+  [{id:'essencia',name:'Essencia',price:25}],()=>75,()=>5,
+  n=>'R$'+Number(n).toFixed(2).replace('.',','),{pix:'Pix'},FixedDate,'secure-token',
+  ()=> 'https://bipstart.example/acompanhar#pedido='+id+'&chave=secure-token'
+ );
+ const msg=fn(id);
+ assert.match(msg,/=== SALGATTI - PEDIDO #6ffe6b8d ===/);
+ assert.match(msg,/DATA: 15\/10\/2026 20:56/);
+ assert.match(msg,/CLIENTE: Diego Vicente Da Silva/);
+ assert.match(msg,/TEL: 11966374236/);
+ assert.match(msg,/TIPO: ENTREGA/);
+ assert.match(msg,/END: Rua Antonio neves 51/);
+ assert.match(msg,/3x ESSENCIA\s+R\$75,00/);
+ assert.match(msg,/SUBTOTAL\s+R\$75,00/);
+ assert.match(msg,/TAXA ENTREGA\s+R\$5,00/);
+ assert.match(msg,/TOTAL\s+R\$80,00/);
+ assert.match(msg,/PAGTO: PIX/);
+ assert.match(msg,/Obs: Confirmar pagamento/);
+ assert.match(msg,/ACOMPANHE SEU PEDIDO: https:\/\/bipstart\.example\/acompanhar#/);
+ assert.ok(msg.indexOf('Obs: Confirmar pagamento')<msg.indexOf('ACOMPANHE SEU PEDIDO'));
+ const pickupFields={...fields,shipping:{value:'pickup'},address:{value:''}};
+ const pickup=make(
+  key=>pickupFields[key],new Map([['essencia',1]]),{name:'Minha Loja'},
+  [{id:'essencia',name:'Essencia',price:25}],()=>25,()=>0,
+  n=>'R$'+Number(n).toFixed(2).replace('.',','),{pix:'Pix'},FixedDate,null,()=>null
+ )(id);
+ assert.match(pickup,/TIPO: RETIRADA/);
+ assert.doesNotMatch(pickup,/END: Rua/);
+ assert.match(pickup,/TAXA ENTREGA\s+R\$0,00/);
 });
