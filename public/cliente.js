@@ -68,7 +68,7 @@ async function rest(table,{method='GET',query={},body}={}){
 async function rpc(name,body){
   return api('/rest/v1/rpc/'+name,{method:'POST',body});
 }
-function hideAll(){['auth','setup','createShop','modeChooser','workspace','resetPass','accessGate'].forEach(id=>hiding(id,false));}
+function hideAll(){['auth','setup','createShop','workspace','resetPass','accessGate'].forEach(id=>hiding(id,false));}
 function showAuth(){hideAll();hiding('auth',true);hiding('logout',false);renderActiveCaptcha();}
 function authTab(signup){
   hiding('loginForm',!signup);hiding('signupForm',signup);
@@ -202,9 +202,6 @@ async function refreshActivatedPlan(){
   const previous=JSON.stringify(ent);
   if(JSON.stringify(latest)===previous)return;
   ent=latest;
-  $('modeCardapio').classList.toggle('locked',!proAccess());
-  $('modeCardapio').disabled=!proAccess();
-  $('modeCardapio').setAttribute('aria-disabled',String(!proAccess()));
   const rows=await rest('shops',{query:{
     select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,created_at',
     id:'eq.'+id,limit:'1'
@@ -247,25 +244,17 @@ function renderAccessGate(){
   $('gateStatus').textContent=waiting?'Aguardando confirmação':'Acesso temporariamente bloqueado';
 }
 async function openShop(){
-  salesRequestId++;salesReport=null;salesLoading=false;salesPeriod='day';salesDay=localReportDate();
-  hideAll();hiding('logout',true);
-  const [access]=await rest('shop_entitlements',{query:{select:'plan_code,status,trial_until,active_until',shop_id:'eq.'+shop.id,limit:'1'}});
-  ent=access||null;
-  if(!hasAccess()){hiding('accessGate',true);renderAccessGate();return}
-  await reloadData();renderNav();hiding('modeChooser',true);
-  $('modeChooserTitle').textContent='Como deseja começar na '+shop.name+'?';
-  $('modeCardapio').classList.toggle('locked',!proAccess());
-  $('modeCardapio').disabled=!proAccess();
-  $('modeCardapio').setAttribute('aria-disabled',String(!proAccess()));
-  // Link de gestão do cardápio público: entrada direta no editor após verificar acesso.
-  if(new URLSearchParams(location.search).get('editar')==='cardapio'){
-    tab=proAccess()?'cardapio':'configuracoes';showForm=null;pastedProductImage=null;
-    hiding('modeChooser',false);hiding('workspace',true);renderPage();
-  }else if(initialPlan&&ent?.plan_code!==initialPlan){
-    // Plano selecionado na página inicial: mostrar a atualização para a MESMA loja.
-    tab='configuracoes';showForm=null;
-    hiding('modeChooser',false);hiding('workspace',true);renderPage();
-  }
+ salesRequestId++;salesReport=null;salesLoading=false;salesPeriod='day';salesDay=localReportDate();
+ hideAll();hiding('logout',true);
+ const [access]=await rest('shop_entitlements',{query:{select:'plan_code,status,trial_until,active_until',shop_id:'eq.'+shop.id,limit:'1'}});
+ ent=access||null;
+ if(!hasAccess()){hiding('accessGate',true);renderAccessGate();return}
+ await reloadData();
+ tab='caixa';showForm=null;pastedProductImage=null;
+ const requested=new URLSearchParams(location.search);
+ if(requested.get('editar')==='cardapio')tab=proAccess()?'cardapio':'configuracoes';
+ else if(initialPlan&&ent?.plan_code!==initialPlan)tab='configuracoes';
+ hiding('workspace',true);renderPage();
 }
 function localReportDate(date=new Date()){
  return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
@@ -890,7 +879,7 @@ function renderPage(){
       (shop.logo_path?'<label><input type="checkbox" name="remove_logo"> Remover logo atual</label>':'')+
       '</div>':
       '';
-    content=heading('Configurações da loja',isMenu?'Defina horário, localização, pagamentos e entrega.':'Nome da empresa, WhatsApp e cor principal.')
+    content=heading('Configurações da loja','')
       +planManagementCard()
       +'<div class="data-form"><form id="settingsForm">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
@@ -1336,22 +1325,6 @@ document.addEventListener('click',async e=>{
     if(colorInput){colorInput.scrollIntoView({block:'center',behavior:'smooth'});colorInput.focus();}
     return;
   }
-  const mode=e.target.closest('[data-open-mode]');
-  if(mode){
-    if(!shop||!hasAccess())return;
-    if(mode.dataset.openMode==='cardapio'){
-      if(!proAccess())return;
-      // A opção Cardápio abre a vitrine pública em tela cheia, sem o editor intermediário.
-      location.assign(publicShopUrl());
-      return;
-    }
-    // O PDV entra diretamente na frente de caixa, mantendo estoque e vendas da loja.
-    tab='caixa';
-    showForm=null;pastedProductImage=null;
-    hiding('modeChooser',false);hiding('workspace',true);
-    renderPage();
-    return;
-  }
   if(e.target.closest('#pdvStockToggle')){
     pdvInStockOnly=!pdvInStockOnly;renderPage();return;
   }
@@ -1432,7 +1405,6 @@ $('signupForm').addEventListener('input',()=>{
 $('showLogin').onclick=()=>authTab(false);
 $('showSignup').onclick=()=>authTab(true);
 $('logout').onclick=()=>{closeSideMenu();session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
-$('backToModes').onclick=()=>{if(!shop||!hasAccess())return;closeSideMenu();history.replaceState(null,'','/cliente');hiding('workspace',false);hiding('modeChooser',true);showForm=null;};
 $('refreshAccess').onclick=async()=>{try{await openShop();msg(hasAccess()?'Seu acesso está liberado!':'Ainda aguardando liberação. Confira o WhatsApp.')}catch(e){msg(e.message,true)}};
 window.addEventListener('focus',()=>{
  if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();}
