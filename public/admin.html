@@ -24,19 +24,47 @@
 .customization-actions select{min-width:170px}
 .customization-actions button{min-height:42px}
 .custom-contact{display:inline-flex;align-items:center;text-decoration:none;border:1px solid #6e5493;border-radius:10px;padding:12px 14px}
+.admin-tabs{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0}
+.admin-tabs button{padding:11px 17px;border-radius:11px;border:1px solid #604b80;background:#211636;color:#e6d8f8;font-weight:750}
+.admin-tabs button[aria-selected="true"]{background:#7540d5;border-color:#af83ee;color:white}
+.admin-link-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.admin-link-card{background:#181029;border:1px solid #57416f;border-radius:14px;padding:16px;min-width:0}
+.admin-link-card h3{margin:0 0 4px}.admin-link-card p{margin:0 0 10px}
+.admin-link-card code{display:block;overflow-wrap:anywhere;word-break:break-all;padding:10px;background:#0d0917;border-radius:8px;color:#d8befa;font-size:12px}
+.admin-link-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.admin-link-actions button,.admin-link-actions a{font-size:12px;text-decoration:none;padding:9px 12px;border-radius:9px;min-height:40px}
+.admin-link-actions button:disabled{opacity:.52;cursor:not-allowed}
+.admin-links-shop{margin-top:22px}.admin-links-shop h3{font-size:19px}
+@media(max-width:700px){.admin-link-grid{grid-template-columns:1fr}}
+
 @media(max-width:640px){.customization-card{padding:14px}.customization-actions{align-items:stretch}.customization-actions button,.custom-contact{width:100%;justify-content:center}}
 </style></head><body>
 <header class="top"><a href="/" class="brand"><img src="/bipstart-logo.svg" alt="BipStart" width="220" height="60"></a>
 <nav><a href="/cliente">Voltar à minha loja</a></nav></header>
 <main class="admin-main">
- <div class="admin-header"><div><span class="kicker">ACESSO RESTRITO</span><h1>Administração dos planos</h1><p class="muted">Liberação manual depois de conferir o pagamento pelo WhatsApp.</p><p id="adminAccount" class="muted" aria-live="polite">Verificando a conta conectada...</p><p><a class="admin-shortcut" href="#customizationSection">Ver solicitações de personalização ↓</a></p></div>
+ <div class="admin-header"><div><span class="kicker">ACESSO RESTRITO</span><h1>Administração dos planos</h1><p class="muted">Liberação manual depois de conferir o pagamento pelo WhatsApp.</p><p id="adminAccount" class="muted" aria-live="polite">Verificando a conta conectada...</p></div>
  <button id="reload" class="button" type="button">Atualizar lista</button></div>
- <section class="card"><p id="adminMessage" role="status">Carregando lojas...</p>
+ <div class="admin-tabs" role="tablist" aria-label="Seções administrativas">
+   <button type="button" role="tab" id="adminTabShops" aria-controls="adminShopsSection" aria-selected="true" data-admin-tab="shops">Lojas e planos</button>
+   <button type="button" role="tab" id="adminTabLinks" aria-controls="adminLinksSection" aria-selected="false" data-admin-tab="links">Gerenciar links</button>
+   <button type="button" role="tab" id="adminTabCustom" aria-controls="customizationSection" aria-selected="false" data-admin-tab="custom">Personalizações</button>
+ </div>
+ <section id="adminShopsSection" role="tabpanel" aria-labelledby="adminTabShops">
+ <div class="card"><p id="adminMessage" role="status">Carregando lojas...</p>
  <div class="admin-wrap"><table class="admin-table"><thead><tr><th>Loja</th><th>Plano solicitado</th><th>Status</th><th>Plano para liberar</th><th>Ações</th></tr></thead>
  <tbody id="adminRows"></tbody></table></div>
- </section>
+ </div>
  <p class="muted">O Básico tem pagamento único. O Premium custa R$ 79,90 por mês e vale por 30 dias por ativação manual. O sistema não recebe nem confirma pagamentos automaticamente.</p>
- <section id="customizationSection" class="card" aria-labelledby="customizationHeading">
+ </section>
+ <section id="adminLinksSection" class="card hidden" role="tabpanel" aria-labelledby="adminTabLinks">
+   <span class="kicker">ACESSOS E COMPARTILHAMENTO</span>
+   <h2>Gerenciar links</h2>
+   <p class="muted">Endereços de acesso à plataforma e links individuais de cada loja. Links de acompanhamento precisam de um pedido específico.</p>
+   <p id="adminLinksMessage" role="status" aria-live="polite">Carregando links...</p>
+   <div id="adminGeneralLinks" class="admin-link-grid"></div>
+   <div id="adminShopLinks"></div>
+ </section>
+ <section id="customizationSection" class="card hidden" role="tabpanel" aria-labelledby="adminTabCustom">
   <div class="admin-header">
    <div><span class="kicker">ATENDIMENTO</span><h2 id="customizationHeading">Solicitações de personalização</h2>
    <p class="muted">Pedidos dos clientes, andamento do atendimento e contato comercial.</p></div>
@@ -44,4 +72,4 @@
   <p id="customMessage" role="status" aria-live="polite">Carregando solicitações...</p>
   <div id="customRequests" class="customization-grid"></div>
  </section>
-</main><script src="/admin.js?v=5" defer></script></body></html>
+</main><script src="/admin.js?v=6" defer></script></body></html>
