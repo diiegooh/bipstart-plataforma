@@ -58,7 +58,7 @@ test('filtrar categoria muda os cards visíveis sem alterar produtos cadastrados
  assert.equal(goods.length,3);
  assert.match(js,/selectedCategoryFilter=category\.dataset\.categoryFilter\|\|'all'/);
  assert.match(js,/content\+=productCategoryCards\(selectedCategoryFilter\)/);
- assert.match(js,/content\+=productGrid\(selectedCategoryFilter,selectedStockPanel\)/);
+ assert.match(js,/content\+=productGrid\(selectedCategoryFilter\)/);
 });
 test('nomes das categorias são escapados para evitar HTML injetado',()=>{
  const c=catalog([{...goods[0],category:'<script>alert("teste")</script>'}]);
@@ -116,7 +116,7 @@ test('o formulário pergunta Venda online? e exige valor apenas no Sim',()=>{
  assert.match(js,/menu_price_enabled:proAccess\(\)\?v\.online_enabled==='true'/);
  assert.match(js,/proAccess\(\)&&body\.online_enabled&&\(!String\(v\.menu_price/);
  assert.match(js,/min_stock:Number\(v\.min_stock\)/);
- assert.match(html,/cliente\.js\?v=37/);
+ assert.match(html,/cliente\.js\?v=38/);
  assert.match(html,/cliente\.css\?v=25/);
 });
 

@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[],onlineOrders=[];
-let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all',selectedStockPanel='all';
+let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all',selectedStockPanel='';
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false;
@@ -250,7 +250,7 @@ async function openShop(){
  ent=access||null;
  if(!hasAccess()){hiding('accessGate',true);renderAccessGate();return}
  await reloadData();
- tab='caixa';showForm=null;pastedProductImage=null;selectedStockPanel='all';
+ tab='caixa';showForm=null;pastedProductImage=null;selectedStockPanel='';
  const requested=new URLSearchParams(location.search);
  if(requested.get('editar')==='cardapio')tab=proAccess()?'cardapio':'configuracoes';
  else if(initialPlan&&ent?.plan_code!==initialPlan)tab='configuracoes';
@@ -883,10 +883,12 @@ function renderPage(){
       '<button type="button" class="button" data-new="product">+ Novo produto</button>');
     content+=stockSummaryCards();
     if(selectedStockPanel==='restock')content+=renderRestockList();
-    if(selectedCategoryFilter!=='all'&&!products.some(p=>normalizedProductCategory(p)===selectedCategoryFilter))selectedCategoryFilter='all';
-    content+=productCategoryCards(selectedCategoryFilter);
-    content+=showForm?.kind==='product'?productForm(showForm.value):'';
-    content+=productGrid(selectedCategoryFilter,selectedStockPanel);
+    if(selectedStockPanel==='all'){
+      if(selectedCategoryFilter!=='all'&&!products.some(p=>normalizedProductCategory(p)===selectedCategoryFilter))selectedCategoryFilter='all';
+      content+=productCategoryCards(selectedCategoryFilter);
+      content+=showForm?.kind==='product'?productForm(showForm.value):'';
+      content+=productGrid(selectedCategoryFilter);
+    }
   }else if(tab==='pedidos'){
     const awaiting=onlineOrders.filter(o=>o.status==='awaiting_confirmation').length;
     const active=onlineOrders.filter(o=>['confirmed','preparing','out_for_delivery'].includes(o.status)).length;
@@ -1485,7 +1487,7 @@ document.addEventListener('click',async e=>{
   if(stockSummary&&tab==='produtos'){
     const choice=stockSummary.dataset.stockSummary;
     if(!['all','low','out','restock'].includes(choice))return;
-    selectedStockPanel=selectedStockPanel===choice&&choice==='restock'?'all':choice;
+    selectedStockPanel=selectedStockPanel===choice?'':choice;
     renderPage();
     document.querySelector('[data-stock-summary="'+selectedStockPanel+'"]')?.focus({preventScroll:true});
     return;
@@ -1500,11 +1502,11 @@ document.addEventListener('click',async e=>{
   const nav=e.target.closest('[data-nav]');if(nav){
     if(['cardapio','pedidos','motoboys'].includes(nav.dataset.nav)&&!proAccess())return;
     if(!pages().some(([key])=>key===nav.dataset.nav))return;
-    tab=nav.dataset.nav;showForm=null;pastedProductImage=null;closeSideMenu();renderPage();
+    tab=nav.dataset.nav;if(tab==='produtos')selectedStockPanel='';showForm=null;pastedProductImage=null;closeSideMenu();renderPage();
     if(tab==='vendas')await loadSalesReport();
     return
   }
-  const add=e.target.closest('[data-new]');if(add){if(tab==='cardapio'&&!proAccess())return msg('Cardápio online exclusivo Premium.',true);showForm={kind:add.dataset.new,value:null};pastedProductImage=null;renderPage();if(add.dataset.new==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return}
+  const add=e.target.closest('[data-new]');if(add){if(tab==='cardapio'&&!proAccess())return msg('Cardápio online exclusivo Premium.',true);if(tab==='produtos'&&add.dataset.new==='product')selectedStockPanel='all';showForm={kind:add.dataset.new,value:null};pastedProductImage=null;renderPage();if(add.dataset.new==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return}
   const edit=e.target.closest('[data-edit]');if(edit){
     const lists={product:products,service:services,appointment:appointments,courier:couriers,delivery:deliveries};
     showForm={kind:edit.dataset.edit,value:(lists[edit.dataset.edit]||[]).find(v=>v.id===edit.dataset.id)||null};pastedProductImage=null;renderPage();if(edit.dataset.edit==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return

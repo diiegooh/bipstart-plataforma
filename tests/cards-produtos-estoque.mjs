@@ -88,7 +88,7 @@ test('formulário em Produtos preserva estoque mínimo; Cardápio não altera sa
 test('aba Produtos reúne cards e avisos de estoque mínimo individual',()=>{
  assert.match(client,/tab==='produtos'/);
  assert.doesNotMatch(client,/tab==='estoque'/);
- assert.match(client,/content\+=productGrid\(selectedCategoryFilter,selectedStockPanel\)/);
+ assert.match(client,/content\+=productGrid\(selectedCategoryFilter\)/);
  assert.match(client,/products\.filter\(p=>productStockState\(p\)\.state==='low'\)/);
  assert.match(client,/products\.filter\(p=>productStockState\(p\)\.state==='out'\)/);
  assert.match(client,/document\.getElementById\('productForm'\)\?\.scrollIntoView/);
@@ -154,4 +154,40 @@ test('seleções de estoque e categorias usam cor de destaque da loja, sem verme
  assert.match(css,/#workspace \.inventory-category-card:focus-visible\{outline:3px solid var\(--store-accent/);
  assert.doesNotMatch(css,/#workspace \.inventory-category-card\.active\{background:linear-gradient\(100deg,#fe101e/);
  assert.match(css,/@media\(max-width:850px\)\{#workspace \.stock-summary-grid\{grid-template-columns:repeat\(2/);
+});
+
+test('categorias e produtos aparecem somente em Produtos cadastrados',()=>{
+ const prefix="  }else if(tab==='produtos'){";
+ const start=client.indexOf(prefix),end=client.indexOf("  }else if(tab==='pedidos'){",start);
+ assert.ok(start>0&&end>start);
+ const snippet=client.slice(start+prefix.length,end);
+ const fn=new Function('selectedStockPanel','products','selectedCategoryFilter','heading',
+  'stockSummaryCards','renderRestockList','productCategoryCards','productForm',
+  'productGrid','normalizedProductCategory','showForm',
+  "let content='';"+snippet+"return content;");
+ const render=panel=>fn(panel,[],'all',()=>'<h1>Cadastro de produtos</h1>',
+  ()=>'<stats></stats>',()=>'<section>Lista de reposição</section>',
+  ()=>'<div>categorias</div>',()=>'<form>novo produto</form>',
+  ()=>'<div>produtos</div>',product=>product.category,null);
+ const initial=render('');
+ assert.match(initial,/<stats>/);
+ assert.doesNotMatch(initial,/categorias|<div>produtos<\/div>|Lista de reposição/);
+ const listed=render('all');
+ assert.match(listed,/categorias/);
+ assert.match(listed,/<div>produtos<\/div>/);
+ assert.doesNotMatch(listed,/Lista de reposição/);
+ for(const panel of ['low','out']){
+  const view=render(panel);
+  assert.match(view,/<stats>/);
+  assert.doesNotMatch(view,/categorias|<div>produtos<\/div>|Lista de reposição/);
+ }
+ const toRestock=render('restock');
+ assert.match(toRestock,/Lista de reposição/);
+ assert.doesNotMatch(toRestock,/categorias|<div>produtos<\/div>/);
+ assert.match(client,/selectedStockPanel='';/);
+});
+test('Novo produto abre cadastro mesmo com a lista recolhida',()=>{
+ assert.match(client,/if\(tab==='produtos'&&add\.dataset\.new==='product'\)selectedStockPanel='all'/);
+ assert.match(client,/if\(tab==='produtos'\)selectedStockPanel='';showForm=null/);
+ assert.match(client,/selectedStockPanel=selectedStockPanel===choice\?'':choice/);
 });
