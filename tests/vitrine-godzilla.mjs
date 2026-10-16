@@ -34,8 +34,8 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=13/);
- assert.match(html,/\/vitrine\.js\?v=14/);
+ assert.match(html,/\/vitrine\.css\?v=14/);
+ assert.match(html,/\/vitrine\.js\?v=15/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -268,4 +268,28 @@ test('cardápio online oferece somente formas de pagamento configuradas, sem A c
  assert.match(js.slice(start,end),/Object\.entries\(paymentLabels\)\.filter/);
  assert.match(js.slice(start,end),/menu\.payment_methods/);
  assert.doesNotMatch(js.slice(start,end),/A combinar|a_combinar/);
+});
+
+test('cardápio não exibe título NOSSOS PRODUTOS e clicar categoria não rola a página',()=>{
+ assert.doesNotMatch(html,/<h2>NOSSOS <strong>PRODUTOS<\/strong><\/h2>/);
+ assert.doesNotMatch(html,/<span class="flame">✦<\/span>/);
+ assert.match(html,/<button id="showAll" type="button">Ver todos ›<\/button>/);
+ assert.match(css,/\.section-title-row button\{[^}]*margin-left:auto/);
+ const from=js.indexOf('function filterCategory(name){');
+ const until=js.indexOf("function checkoutMessage(orderId=''){",from);
+ assert.ok(from>=0&&until>from);
+ const block=js.slice(from,until);
+ assert.doesNotMatch(block,/goToCatalogue|scrollIntoView|scrollTo/);
+ const selected={category:{value:''}};
+ let refreshes=0;
+ const filter=new Function('$','renderProducts',block+';return filterCategory;')(
+  key=>selected[key],()=>{refreshes++;}
+ );
+ filter('Bebidas');
+ assert.equal(selected.category.value,'Bebidas');
+ assert.equal(refreshes,1);
+ filter('');
+ assert.equal(selected.category.value,'');
+ assert.equal(refreshes,2);
+ assert.match(js,/\$\('bottomProducts'\)\.addEventListener\('click',goToCatalogue\)/);
 });
