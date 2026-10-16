@@ -198,10 +198,10 @@ test('cada loja tem um link público único, pronto para compartilhar',()=>{
  assert.ok(begin>0&&end>begin);
  const helpers=client.slice(begin,end);
  const render=(shop,origin='https://bipstart.exemplo')=>
-  new Function('shop','location','esc',helpers+';return {url:publicShopUrl(),html:publicLinkTile()};')(
+  new Function('shop','location','esc','proAccess',helpers+';return {url:publicShopUrl(),html:publicLinkTile()};')(
    shop,{origin},
    text=>String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
-  );
+  ,()=>true);
  const a=render({name:'Adega A',slug:'adega-a'});
  const b=render({name:'Pizzaria B',slug:'pizzaria-b'});
  assert.equal(a.url,'https://bipstart.exemplo/cardapio?loja=adega-a');
@@ -229,7 +229,7 @@ test('compartilhamento usa dispositivo nativo, cópia e alternativa em desktop',
  assert.match(client,/await navigator\.share\(/);
  assert.match(client,/navigator\.clipboard\.writeText\(url\)/);
  assert.match(client,/window\.prompt\('Copie o link do cardápio:',url\)/);
- assert.match(client,/if\(!shop\|\|shop\.model!=='pdv'\|\|!hasAccess\(\)\)return/);
+ assert.match(client,/if\(!shop\|\|shop\.model!=='pdv'\|\|!hasAccess\(\)\|\|!proAccess\(\)\)return/);
  assert.match(readFileSync('public/cliente.html','utf8'),/cliente\.js\?v=32/);
 });
 
@@ -238,10 +238,10 @@ test('compartilhamento usa somente CARDÁPIO (NOME DA LOJA) e o endereço',()=>{
  const begin=client.indexOf('function publicShopUrl(){');
  const end=client.indexOf('function imageUrl(',begin);
  const esc=text=>String(text??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const {url,title,html:card}=new Function('shop','location','esc',
+ const {url,title,html:card}=new Function('shop','location','esc','proAccess',
    client.slice(begin,end)+';return {url:publicShopUrl(),title:shareTitle(),html:publicLinkTile()};')(
      {name:'gamalperfumes',slug:'gamalperfumes-3392813'},
-     {origin:'https://bipstart.exemplo'},esc
+     {origin:'https://bipstart.exemplo'},esc,()=>true
    );
  assert.equal(title,'CARDÁPIO (gamalperfumes)');
  assert.match(card,/CARDÁPIO \(gamalperfumes\)/);
