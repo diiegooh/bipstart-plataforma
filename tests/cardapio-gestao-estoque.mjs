@@ -78,7 +78,7 @@ test('lojista autenticado e proprietário vê atalho seguro para editar o própr
  assert.doesNotMatch(client,/class="menu-live-preview"|Prévia do seu cardápio|<iframe src=/);
  assert.match(client,/new URLSearchParams\(location\.search\)\.get\('editar'\)==='cardapio'/);
  assert.match(client,/hiding\('modeChooser',false\);hiding\('workspace',true\);renderPage\(\)/);
- assert.match(clientHtml,/cliente\.js\?v=32/);
+ assert.match(clientHtml,/cliente\.js\?v=33/);
  const start=js.indexOf('async function revealOwnerNavigation(');
  const end=js.indexOf('async function boot(){',start);
  assert.ok(start>0&&end>start);
