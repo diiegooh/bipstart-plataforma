@@ -110,3 +110,47 @@ test('integração não depende das tabelas originais Salgatti nem de checkout M
  assert.match(client,/offered_courier_id/);
  assert.match(client,/data-new="delivery"/);
 });
+
+
+test('Premium vincula entrega ao pedido online da mesma loja e só uma vez',()=>{
+ const sync=readFileSync('sql/bipstart_courier_online_order_sync_20261015.sql','utf8');
+ assert.match(sync,/add column if not exists online_order_id uuid/);
+ assert.match(sync,/foreign key\(shop_id,online_order_id\)/);
+ assert.match(sync,/references public\.shop_online_orders\(shop_id,id\)/);
+ assert.match(sync,/create unique index if not exists bipstart_delivery_online_order_unique/);
+ assert.match(sync,/online_order_id is not null/);
+ assert.match(sync,/v_method <> 'delivery'/);
+ assert.match(sync,/v_status in \('cancelled','fulfilled'\)/);
+ assert.match(sync,/before insert or update of online_order_id,shop_id/);
+ assert.match(sync,/revoke all on function public\.bipstart_validate_delivery_online_link/);
+ assert.doesNotMatch(sync,/drop table|truncate table|disable row level security/i);
+});
+test('motoboy entregue finaliza status do pedido sem alterar pagamento nem cancelados',()=>{
+ const sync=readFileSync('sql/bipstart_courier_online_order_sync_20261015.sql','utf8');
+ assert.match(driver,/p_status:action==='start'\?'a_caminho':'entregue'/);
+ assert.match(sync,/after update of status on public\.shop_deliveries/);
+ assert.match(sync,/new\.status='entregue'/);
+ assert.match(sync,/set status='fulfilled'/);
+ assert.match(sync,/o\.id=new\.online_order_id and o\.shop_id=new\.shop_id/);
+ assert.match(sync,/o\.status not in \('cancelled','fulfilled'\)/);
+ assert.match(sync,/new\.status='a_caminho'/);
+ assert.match(sync,/set status='out_for_delivery'/);
+ assert.doesNotMatch(sync,/set payment_status|update public\.shop_sales|delete from public\.shop_online_orders/i);
+});
+test('Painel Premium permite vincular pedido pelo botão e acompanhar mudanças automaticamente',()=>{
+ assert.match(client,/data-online-delivery/);
+ assert.match(client,/onlineOrderDeliveryDefaults\(order\)/);
+ assert.match(client,/function eligibleOnlineDeliveryOrders\(currentDelivery\)/);
+ assert.match(client,/delivery_method==='delivery'/);
+ assert.match(client,/!linked\.has\(o\.id\)/);
+ assert.match(client,/name="online_order_id"/);
+ assert.match(client,/online_order_id:v\.online_order_id\|\|null/);
+ assert.match(client,/e\.target\.matches\('#deliveryForm select\[name="online_order_id"\]'\)/);
+ assert.match(client,/refreshOnlineOrdersIfVisible/);
+ assert.match(client,/setInterval\(\(\)=>\{void refreshOnlineOrdersIfVisible\(\)\},15000\)/);
+ assert.match(client,/onlineOrders=latest;renderPage\(\)/);
+ assert.match(client,/if\(!proAccess\(\)\)return msg\('Entregas com motoboys são exclusivas do Premium\.'/);
+ const tracker=readFileSync('public/acompanhar.js','utf8');
+ assert.match(tracker,/setInterval\(refreshTracking,20000\)/);
+ assert.match(tracker,/fulfilled:'Finalizado'/);
+});
