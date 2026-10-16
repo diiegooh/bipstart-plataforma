@@ -694,6 +694,8 @@ function onlineOrderCard(order){
  const status=Object.hasOwn(label,order.status)?order.status:'awaiting_confirmation';
  const paymentStatus=Object.hasOwn(paymentLabel,order.payment_status)?order.payment_status:'pending';
  const orderNext=nextOnlineOrderStep(status,order.delivery_method),paymentNext=nextOnlinePaymentStep(paymentStatus);
+ const orderOpen=status!=='cancelled'&&status!=='fulfilled';
+ const finishLabel=typeof proAccess==='function'&&proAccess()?'Finalizar pela loja':'Finalizar pedido';
  const items=Array.isArray(order.items)?order.items:[];
  const phone=String(order.customer_phone||'').replace(/\D/g,'');
  const phoneUri=/^\d{10,13}$/.test(phone)?'<a class="online-order-phone" href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone);
@@ -718,9 +720,11 @@ function onlineOrderCard(order){
     '<span class="online-status-title">Situação do pedido</span>'+
     '<strong class="online-state-pill'+(status==='cancelled'?' is-cancelled':status==='fulfilled'?' is-done':'')+'">'+esc(label[status])+'</strong>'+
     '<div class="online-status-controls">'+
-     (orderNext?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+' →</button>':
-      '<span class="online-status-end">'+(status==='cancelled'?'Pedido cancelado':'Pedido finalizado')+'</span>')+
-     '<button type="button" class="ghost online-cancel" data-order-cancel="'+esc(order.id)+'"'+(!orderNext?' disabled':'')+'>Cancelar pedido</button>'+
+     (orderOpen?(
+       (orderNext&&orderNext.next!=='fulfilled'?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+' →</button>':'')+
+       '<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>'
+      ):'<span class="online-status-end">'+(status==='cancelled'?'Pedido cancelado':'Pedido finalizado')+'</span>')+
+     '<button type="button" class="ghost online-cancel" data-order-cancel="'+esc(order.id)+'"'+(!orderOpen?' disabled':'')+'>Cancelar pedido</button>'+
     '</div></div>'+
    '<div class="online-status-block" aria-label="Status do pagamento">'+
     '<span class="online-status-title">Status do pagamento</span>'+
@@ -1156,11 +1160,12 @@ document.addEventListener('click',async e=>{
   }
   const advanceOrder=e.target.closest('[data-order-advance]');
   const cancelOrder=e.target.closest('[data-order-cancel]');
+  const finishOrder=e.target.closest('[data-order-finish]');
   const advancePayment=e.target.closest('[data-payment-advance]');
   const cancelPayment=e.target.closest('[data-payment-cancel]');
-  const clicked=advanceOrder||cancelOrder||advancePayment||cancelPayment;
+  const clicked=advanceOrder||cancelOrder||finishOrder||advancePayment||cancelPayment;
   if(clicked){
-    const id=clicked.dataset.orderAdvance||clicked.dataset.orderCancel||clicked.dataset.paymentAdvance||clicked.dataset.paymentCancel;
+    const id=clicked.dataset.orderAdvance||clicked.dataset.orderCancel||clicked.dataset.orderFinish||clicked.dataset.paymentAdvance||clicked.dataset.paymentCancel;
     const order=onlineOrders.find(o=>o.id===id);
     if(!order||!shop||!hasAccess())return;
     const payment=!!(advancePayment||cancelPayment);
@@ -1168,11 +1173,17 @@ document.addEventListener('click',async e=>{
     const previous=order[field];
     const cancelled=!!(cancelOrder||cancelPayment);
     const step=payment?nextOnlinePaymentStep(previous):nextOnlineOrderStep(previous,order.delivery_method);
-    if(!cancelled&&!step)return;
+    if(!cancelled&&!finishOrder&&!step)return;
     if(cancelled&&(previous==='cancelled'||(!payment&&previous==='fulfilled')))return;
-    const next=cancelled?'cancelled':step.next;
+    const next=cancelled?'cancelled':finishOrder?'fulfilled':step.next;
     if(cancelled){
       const detail=payment?'Cancelar o registro deste pagamento? Isso não realiza estorno ou reembolso.':'Cancelar este pedido? Esta ação encerra o andamento do pedido.';
+      if(!window.confirm(detail))return;
+    }else if(finishOrder){
+      const hasCourier=typeof proAccess==='function'&&proAccess()&&deliveries.some(d=>d.online_order_id===id&&d.status!=='entregue');
+      const detail='Confirma que o pedido foi concluído e pode ser marcado como Finalizado?'+
+        ' Isso atualizará o acompanhamento do cliente, mas não confirmará o pagamento.'+
+        (hasCourier?' A tarefa do motoboy continuará separada e não será marcada como entregue.':'');
       if(!window.confirm(detail))return;
     }else if(payment&&next==='paid'){
       if(!window.confirm('Confirma que o pagamento foi realmente recebido pela loja?'))return;
@@ -1188,7 +1199,7 @@ document.addEventListener('click',async e=>{
       const response=await fetch('/api/online-order-update',{
         method:'POST',
         headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},
-        body:JSON.stringify({orderId:id,shopId:shop.id,field,action:cancelled?'cancel':'advance',expected:previous})
+        body:JSON.stringify({orderId:id,shopId:shop.id,field,action:cancelled?'cancel':finishOrder?'finish':'advance',expected:previous})
       });
       const result=await response.json().catch(()=>null);
       if(!response.ok||!result?.updated){
