@@ -88,12 +88,12 @@ function renderForm(tab,product={}){
  const begin=js.indexOf('function productForm(p){');
  const end=js.indexOf('function courierForm(c)',begin);
  assert.ok(begin>0&&end>begin);
- return new Function('tab','field','formShell','categoryOptions','esc',
+ return new Function('tab','field','formShell','categoryOptions','esc','proAccess',
     js.slice(begin,end)+';return productForm;')(
   tab,
   (name,label,_type,val,extra='')=>'<label>'+esc(label)+'<input name="'+name+'" value="'+esc(val)+'" '+extra+'></label>',
   (_kind,_id,content)=>'<form id="productForm">'+content+'</form>',
-  ()=>'<option>Geral</option>',esc)(product);
+  ()=>'<option>Geral</option>',esc,()=>true)(product);
 }
 test('o formulário pergunta Venda online? e exige valor apenas no Sim',()=>{
  for(const tab of ['produtos','cardapio']){
@@ -112,9 +112,9 @@ test('o formulário pergunta Venda online? e exige valor apenas no Sim',()=>{
  }
  const fresh=renderForm('produtos');
  assert.match(fresh,/value="" selected disabled>Selecione Sim ou Não/);
- assert.match(js,/online_enabled:v\.online_enabled==='true'/);
- assert.match(js,/menu_price_enabled:v\.online_enabled==='true'/);
- assert.match(js,/body\.online_enabled&&\(!String\(v\.menu_price/);
+ assert.match(js,/online_enabled:proAccess\(\)\?v\.online_enabled==='true'/);
+ assert.match(js,/menu_price_enabled:proAccess\(\)\?v\.online_enabled==='true'/);
+ assert.match(js,/proAccess\(\)&&body\.online_enabled&&\(!String\(v\.menu_price/);
  assert.match(js,/min_stock:Number\(v\.min_stock\)/);
  assert.match(html,/cliente\.js\?v=32/);
  assert.match(html,/cliente\.css\?v=22/);
@@ -145,9 +145,9 @@ test('Venda online Não retira o produto da RPC pública sem afetar o PDV',()=>{
  assert.match(onlineSql,/p\.menu_price_enabled and p\.menu_price is not null then p\.menu_price else p\.price end/);
  assert.match(onlineSql,/where s\.slug=p_slug and s\.model='pdv'/);
  assert.doesNotMatch(onlineSql,/UPDATE\s+public\.shop_products|DELETE\s+FROM\s+public\.shop_products/i);
- assert.match(js,/const body=\{[\s\S]*online_enabled:v\.online_enabled==='true'/);
+ assert.match(js,/const body=\{[\s\S]*online_enabled:proAccess\(\)\?v\.online_enabled==='true'/);
  assert.match(js,/v\.online_enabled==='true'\?Number\(v\.menu_price\):p\?\.menu_price\?\?null/);
- assert.match(js,/if\(!\['true','false'\]\.includes\(v\.online_enabled\)\)/);
+ assert.match(js,/if\(proAccess\(\)&&!\['true','false'\]\.includes\(v\.online_enabled\)\)/);
  assert.match(js,/input\.required=online/);
  assert.match(js,/group\.classList\.toggle\('hidden',!online\)/);
  assert.match(js,/rpc\('bipstart_complete_sale'/);
