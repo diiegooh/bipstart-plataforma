@@ -156,7 +156,7 @@ test('seleções de estoque e categorias usam cor de destaque da loja, sem verme
  assert.match(css,/@media\(max-width:850px\)\{#workspace \.stock-summary-grid\{grid-template-columns:repeat\(2/);
 });
 
-test('categorias e produtos aparecem somente em Produtos cadastrados',()=>{
+test('Produtos cadastrados exibe categorias; baixo e esgotado exibem somente os itens do respectivo status',()=>{
  const prefix="  }else if(tab==='produtos'){";
  const start=client.indexOf(prefix),end=client.indexOf("  }else if(tab==='pedidos'){",start);
  assert.ok(start>0&&end>start);
@@ -165,29 +165,52 @@ test('categorias e produtos aparecem somente em Produtos cadastrados',()=>{
   'stockSummaryCards','renderRestockList','productCategoryCards','productForm',
   'productGrid','normalizedProductCategory','showForm',
   "let content='';"+snippet+"return content;");
- const render=panel=>fn(panel,[],'all',()=>'<h1>Cadastro de produtos</h1>',
+ const render=(panel,showForm=null)=>fn(panel,[],'all',()=>'<h1>Cadastro de produtos</h1>',
   ()=>'<stats></stats>',()=>'<section>Lista de reposição</section>',
   ()=>'<div>categorias</div>',()=>'<form>novo produto</form>',
-  ()=>'<div>produtos</div>',product=>product.category,null);
+  (_category,status='all')=>'<div>produtos-'+status+'</div>',product=>product.category,showForm);
  const initial=render('');
  assert.match(initial,/<stats>/);
- assert.doesNotMatch(initial,/categorias|<div>produtos<\/div>|Lista de reposição/);
+ assert.doesNotMatch(initial,/categorias|produtos-all|produtos-low|produtos-out|Lista de reposição/);
  const listed=render('all');
  assert.match(listed,/categorias/);
- assert.match(listed,/<div>produtos<\/div>/);
+ assert.match(listed,/<div>produtos-all<\/div>/);
  assert.doesNotMatch(listed,/Lista de reposição/);
  for(const panel of ['low','out']){
   const view=render(panel);
   assert.match(view,/<stats>/);
-  assert.doesNotMatch(view,/categorias|<div>produtos<\/div>|Lista de reposição/);
+  assert.match(view,new RegExp('<div>produtos-'+panel+'</div>'));
+  assert.doesNotMatch(view,/categorias|produtos-all|Lista de reposição/);
+  assert.doesNotMatch(view,new RegExp('produtos-'+(panel==='low'?'out':'low')));
+  assert.match(render(panel,{kind:'product',value:null}),/<form>novo produto<\/form>/);
  }
  const toRestock=render('restock');
  assert.match(toRestock,/Lista de reposição/);
- assert.doesNotMatch(toRestock,/categorias|<div>produtos<\/div>/);
+ assert.doesNotMatch(toRestock,/categorias|produtos-all|produtos-low|produtos-out/);
  assert.match(client,/selectedStockPanel='';/);
 });
 test('Novo produto abre cadastro mesmo com a lista recolhida',()=>{
  assert.match(client,/if\(tab==='produtos'&&add\.dataset\.new==='product'\)selectedStockPanel='all'/);
  assert.match(client,/if\(tab==='produtos'\)selectedStockPanel='';showForm=null/);
  assert.match(client,/selectedStockPanel=selectedStockPanel===choice\?'':choice/);
+});
+
+test('estoque baixo e esgotados filtram por situação, sem aplicar a categoria anterior',()=>{
+ const cards=cardSystem([
+  product({id:'a',name:'Refrigerante',category:'Bebidas',stock:3,min_stock:5}),
+  product({id:'b',name:'Água',category:'Bebidas',stock:0,min_stock:5}),
+  product({id:'c',name:'Coxinha',category:'Salgados',stock:15,min_stock:5}),
+ ]);
+ assert.match(cards.productGrid('all','low'),/Refrigerante/);
+ assert.doesNotMatch(cards.productGrid('all','low'),/Água|Coxinha/);
+ assert.match(cards.productGrid('all','out'),/Água/);
+ assert.doesNotMatch(cards.productGrid('all','out'),/Refrigerante|Coxinha/);
+ assert.match(cards.productGrid('all','out'),/data-stock-state="out"/);
+ assert.match(cards.productGrid('all','low'),/data-stock-state="low"/);
+ assert.doesNotMatch(cards.productGrid('Bebidas','all'),/Coxinha/);
+ assert.match(cards.productGrid('Salgados','all'),/Coxinha/);
+ assert.match(client,/else content\+=productGrid\('all',selectedStockPanel\)/);
+ assert.match(cards.productGrid('all','low').replace(/<[^>]*>/g,''),/Refrigerante/);
+ const empty=cards.productGrid('Geral','out');
+ assert.match(empty,/Nenhum produto sem estoque nesta categoria/);
 });

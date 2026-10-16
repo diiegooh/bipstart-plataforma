@@ -17,7 +17,7 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.match(html,/Alterar cor/);
  assert.doesNotMatch(html,/id="modeChooser"|id="backToModes"/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=39/);
+ assert.match(html,/cliente\.js\?v=40/);
  assert.match(html,/cliente\.css\?v=25/);
 });
 

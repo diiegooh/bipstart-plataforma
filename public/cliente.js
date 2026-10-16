@@ -886,8 +886,11 @@ function renderPage(){
     if(selectedStockPanel==='all'){
       if(selectedCategoryFilter!=='all'&&!products.some(p=>normalizedProductCategory(p)===selectedCategoryFilter))selectedCategoryFilter='all';
       content+=productCategoryCards(selectedCategoryFilter);
+    }
+    if(['all','low','out'].includes(selectedStockPanel)){
       content+=showForm?.kind==='product'?productForm(showForm.value):'';
-      content+=productGrid(selectedCategoryFilter);
+      if(selectedStockPanel==='all')content+=productGrid(selectedCategoryFilter);
+      else content+=productGrid('all',selectedStockPanel);
     }
   }else if(tab==='pedidos'){
     const awaiting=onlineOrders.filter(o=>o.status==='awaiting_confirmation').length;
