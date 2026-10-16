@@ -6,6 +6,7 @@ let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=
 let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all';
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
+let onlineOrdersPolling=false;
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix';
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
@@ -714,6 +715,9 @@ function onlineOrderCard(order){
       '<span class="online-status-end">'+(paymentStatus==='cancelled'?'Pagamento cancelado':'Pagamento confirmado')+'</span>')+
      '<button type="button" class="ghost online-cancel" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button>'+
     '</div></div>'+
+   ((typeof proAccess==='function'&&proAccess()&&order.delivery_method==='delivery'&&
+      !['cancelled','fulfilled'].includes(status)&&!deliveries.some(d=>d.online_order_id===order.id))?
+    '<button type="button" class="ghost online-order-dispatch" data-online-delivery="'+esc(order.id)+'">🛵 Criar entrega para este pedido</button>':'')+
    (order.whatsapp_updates_opt_in===true?'<button type="button" class="ghost online-notification-optout" data-order-optout="'+esc(order.id)+'">Desativar avisos WhatsApp</button>':'')+
    (orderNotificationLinks.has(order.id)?'<a class="ghost online-order-notification-link" target="_blank" rel="noopener noreferrer" href="'+esc(orderNotificationLinks.get(order.id))+'">Enviar atualização ao cliente no WhatsApp ↗</a>':'')+
    '</div></article>';
@@ -753,7 +757,7 @@ function renderPage(){
     content+='<div class="online-order-list">'+(onlineOrders.length?
       onlineOrders.map(onlineOrderCard).join(''):
       empty('Nenhum pedido online registrado. Compartilhe seu cardápio para receber pedidos.'))+'</div>';
-    if(proAccess())content+='<div class="orders-premium"><strong>Entregas com motoboys</strong><p>Após confirmar o pedido, cadastre a entrega para oferecê-la aos seus motoboys.</p>'+
+    if(proAccess())content+='<div class="orders-premium"><strong>Entregas com motoboys</strong><p>Use “Criar entrega para este pedido” para vincular o motoboy. Ao marcar “Entregue”, ele finalizará o pedido online automaticamente.</p>'+
       '<button type="button" class="ghost" data-nav="entregas">Abrir fila de entregas</button></div>';
   }else if(tab==='caixa'){
     content=renderGodzillaPDV();
@@ -773,7 +777,7 @@ function renderPage(){
     }).join('')+'</div>':empty();
   }else if(tab==='entregas'){
     content=heading('Fila de entregas • Plano Premium','Entregas pendentes são oferecidas aos motoboys disponíveis.','<button class="button" data-new="delivery">+ Nova entrega</button>');
-    content+='<p class="muted">Depois de receber o pedido pelo WhatsApp, cadastre aqui a entrega. O primeiro motoboy autorizado que aceitar assume o pedido.</p>';
+    content+='<p class="muted">Vincule a entrega ao pedido online para sincronizar o status automaticamente. Entregas manuais sem vínculo não alteram pedidos.</p>';
     content+=showForm?.kind==='delivery'?deliveryForm(showForm.value):'';
     const statusNames={pendente:'Aguardando motoboy',atribuida:'Aceita',a_caminho:'Saiu para entrega',entregue:'Entregue',cancelada:'Cancelada'};
     content+=deliveries.length?'<div class="stack">'+deliveries.map(d=>{
@@ -854,16 +858,36 @@ function courierForm(c){c=c||{};return formShell('courier',c.id,
   field('phone','Telefone ou WhatsApp','tel',c.phone||'','required minlength="10" maxlength="20"')+
   '<label>Disponibilidade<select name="active"><option value="true"'+(c.active!==false?' selected':'')+'>Ativo</option><option value="false"'+(c.active===false?' selected':'')+'>Desativado</option></select></label>'
 )}
-function deliveryForm(d){d=d||{};return formShell('delivery',d.id,
-  field('customer_name','Cliente','text',d.customer_name||'','required maxlength="120"')+
-  field('customer_phone','Telefone do cliente','tel',d.customer_phone||'','maxlength="20"')+
-  field('address','Endereço da entrega','text',d.address||'','required maxlength="500"')+
-  field('total','Valor dos produtos (R$)','number',d.total??0,'min="0" step="0.01"')+
-  '<label>Itens ou observações<textarea name="items_text" maxlength="3000" placeholder="Ex.: 2x Combo e 1x Refrigerante">'+esc(d.items_text||'')+'</textarea></label>'+
-  '<label>Oferecer para<select name="offered_courier_id"><option value="">Qualquer motoboy disponível</option>'+
-   couriers.filter(c=>c.active).map(c=>'<option value="'+esc(c.id)+'"'+(c.id===d.offered_courier_id?' selected':'')+'>'+esc(c.name)+'</option>').join('')+
-  '</select></label>'
-)}
+function eligibleOnlineDeliveryOrders(currentDelivery){
+ const linked=new Set(deliveries.filter(d=>d.online_order_id&&d.id!==currentDelivery?.id).map(d=>d.online_order_id));
+ return onlineOrders.filter(o=>o.delivery_method==='delivery'&&!['cancelled','fulfilled'].includes(o.status)&&!linked.has(o.id));
+}
+function onlineOrderDeliveryDefaults(order){
+ return {
+  online_order_id:order.id,customer_name:order.customer_name||'',
+  customer_phone:order.customer_phone||'',address:order.delivery_address||'',
+  items_text:Array.isArray(order.items)?order.items.map(i=>i.qty+'x '+i.name).join(', ').slice(0,3000):'',
+  total:Number(order.total)||0
+ };
+}
+function deliveryForm(d){
+ d=d||{};
+ return formShell('delivery',d.id,
+   '<label>Vincular ao pedido online<select name="online_order_id">'+
+     '<option value="">Entrega manual sem vínculo</option>'+
+     eligibleOnlineDeliveryOrders(d).map(o=>'<option value="'+esc(o.id)+'"'+(d.online_order_id===o.id?' selected':'')+'>'+
+       '#'+esc(o.id.slice(0,8))+' • '+esc(o.customer_name)+' • '+fmt(o.total)+'</option>').join('')+
+   '</select></label>'+
+   field('customer_name','Cliente','text',d.customer_name||'','required maxlength="120"')+
+   field('customer_phone','Telefone do cliente','tel',d.customer_phone||'','maxlength="20"')+
+   field('address','Endereço da entrega','text',d.address||'','required maxlength="500"')+
+   field('total','Valor do pedido (R$)','number',d.total??0,'min="0" step="0.01"')+
+   '<label>Itens ou observações<textarea name="items_text" maxlength="3000" placeholder="Ex.: 2x Combo e 1x Refrigerante">'+esc(d.items_text||'')+'</textarea></label>'+
+   '<label>Oferecer para<select name="offered_courier_id"><option value="">Qualquer motoboy disponível</option>'+
+    couriers.filter(c=>c.active).map(c=>'<option value="'+esc(c.id)+'"'+(c.id===d.offered_courier_id?' selected':'')+'>'+esc(c.name)+'</option>').join('')+
+   '</select></label>'
+ );
+}
 async function uploadImage(file){
   if(!file)return null;
   if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error('Selecione uma imagem JPG, PNG ou WebP de até 5 MB.');
