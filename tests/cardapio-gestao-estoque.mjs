@@ -71,34 +71,14 @@ test('antes do WhatsApp, a vitrine remove os itens esgotados mesmo se mudaram ap
  assert.doesNotMatch(js,/location\.assign\(url\)/);
 });
 
-test('lojista autenticado e proprietário vê atalho seguro para editar o próprio cardápio',async()=>{
- assert.match(html,/id="ownerNav" class="owner-nav hidden"/);
- assert.match(html,/id="ownerEditorLink"[^>]*href="\/cliente\?editar=cardapio"/);
- assert.doesNotMatch(html,/id="backToModesLink"|Voltar às opções/);
+test('vitrine pública não oferece controle administrativo ou menu de três linhas',()=>{
+ assert.doesNotMatch(html,/id="ownerNav"|id="ownerEditorLink"|Gerenciar cardápio|id="jumpCategories"|☰/);
+ assert.doesNotMatch(js,/revealOwnerNavigation|jumpCategories|ownerNav/);
  assert.doesNotMatch(client,/class="menu-live-preview"|Prévia do seu cardápio|<iframe src=/);
  assert.match(client,/requested\.get\('editar'\)==='cardapio'/);
  assert.match(client,/hiding\('workspace',true\);renderPage\(\)/);
  assert.doesNotMatch(client,/modeChooser|backToModes/);
  assert.match(clientHtml,/cliente\.js\?v=36/);
- const start=js.indexOf('async function revealOwnerNavigation(');
- const end=js.indexOf('async function boot(){',start);
- assert.ok(start>0&&end>start);
- const build=new Function('localStorage','fetch','$','URL','Date',
-  js.slice(start,end)+';return revealOwnerNavigation;');
- let visible=false;
- const link={classList:{remove(x){if(x==='hidden')visible=true;}}};
- const config={supabaseUrl:'https://example.supabase.co',publishableKey:'test'};
- const session={access_token:'jwt_test',expires_at:Math.floor(Date.now()/1000)+3600};
- const valid=build({getItem:()=>JSON.stringify(session)},async()=>({ok:true,json:async()=>[{slug:'loja-01'}]}),()=>link,URL,Date);
- await valid(config,'loja-01');
- assert.equal(visible,true);
- visible=false;
- const stranger=build({getItem:()=>JSON.stringify(session)},async()=>({ok:true,json:async()=>[]}),()=>link,URL,Date);
- await stranger(config,'loja-01');
- assert.equal(visible,false);
- const expired=build({getItem:()=>JSON.stringify({...session,expires_at:1})},async()=>{throw Error('token vencido não deve consultar');},()=>link,URL,Date);
- await expired(config,'loja-01');
- assert.equal(visible,false);
- assert.match(js,/Authorization:'Bearer '\+saved\.access_token/);
- assert.match(js,/url\.searchParams\.set\('slug','eq\.'\+slug\)/);
+ assert.match(js,/async function boot\(\)/);
+ assert.match(js,/drawPage\(\)/);
 });

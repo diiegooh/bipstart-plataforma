@@ -15,9 +15,8 @@ test('vitrine Godzilla está no endereço direto do cardápio, sem login ou pain
  assert.match(server,/'\/vitrine\.js':\s*\['vitrine\.js'/);
  assert.match(server,/'\/vitrine\.css':\s*\['vitrine\.css'/);
  assert.doesNotMatch(client,/data-open-mode|modeChooser|backToModes/);
- assert.match(html,/id="ownerEditorLink"[^>]*href="\/cliente\?editar=cardapio"/);
- assert.doesNotMatch(html,/id="backToModesLink"|Voltar às opções/);
- assert.match(js,/revealOwnerNavigation/);
+ assert.doesNotMatch(html,/id="backToModesLink"|Voltar às opções|id="ownerNav"|id="jumpCategories"/);
+ assert.doesNotMatch(js,/revealOwnerNavigation|jumpCategories/);
  assert.match(client,/data-public-menu-link/);
  assert.match(client,/tab='caixa'/);
  assert.match(client,/hiding\('workspace',true\);\s*renderPage\(\);/);
@@ -37,8 +36,8 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=14/);
- assert.match(html,/\/vitrine\.js\?v=16/);
+ assert.match(html,/\/vitrine\.css\?v=15/);
+ assert.match(html,/\/vitrine\.js\?v=17/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -110,13 +109,13 @@ test('título CARDÁPIO é centralizado sem perder nome da loja e recursos de pe
  assert.match(css,/\.store-header \.header-title #storeName\{/);
  assert.match(css,/\.store-header \.header-title h1\{[\s\S]*display:flex;align-items:baseline/);
  assert.match(css,/\.store-header \.header-title #storeName\{[\s\S]*font:inherit;color:inherit/);
- assert.match(html,/id="jumpCategories"/);
+ assert.doesNotMatch(html,/id="jumpCategories"/);
  assert.match(html,/id="focusSearch"/);
  assert.match(html,/id="headerCart"/);
  assert.match(html,/id="quickCategories"/);
  assert.match(html,/id="catalogue"/);
  assert.match(html,/id="sendOrder"/);
- assert.match(js,/\$\('jumpCategories'\)\.addEventListener/);
+ assert.match(js,/\$\('bottomCategories'\)\.addEventListener/);
  assert.match(js,/\$\('sendOrder'\)/);
 });
 
@@ -163,14 +162,13 @@ test('o cardápio multiplica o total no card e não abre o carrinho ao adicionar
  assert.match(css,/\.product-quantity\{/);
 });
 
-test('gerenciamento do cardápio só aparece ao proprietário, sem voltar às opções',()=>{
- assert.match(html,/id="ownerNav" class="owner-nav hidden"/);
- assert.match(html,/id="ownerEditorLink"[^>]*href="\/cliente\?editar=cardapio"/);
- assert.match(html,/Gerenciar cardápio/);
- assert.doesNotMatch(html,/Voltar às opções|backToModesLink/);
- assert.match(js,/\$\('ownerNav'\)\.classList\.remove\('hidden'\)/);
- assert.match(js,/Array\.isArray\(rows\)&&rows\.some\(row=>row\.slug===slug\)/);
- assert.match(css,/\.owner-editor-link\{/);
+test('vitrine pública sem botão de menu e sem botão Gerenciar cardápio',()=>{
+ assert.doesNotMatch(html,/id="ownerNav"|id="ownerEditorLink"|Gerenciar cardápio|id="jumpCategories"|☰/);
+ assert.doesNotMatch(js,/revealOwnerNavigation|ownerNav|jumpCategories/);
+ assert.doesNotMatch(css,/\.owner-nav|\.owner-editor-link|\.menu-btn/);
+ assert.match(html,/id="bottomCategories"/);
+ assert.match(js,/\$\('bottomCategories'\)\.addEventListener/);
+ assert.match(client,/function publicShopUrl\(\)/);
 });
 
 test('categorias têm imagens grandes e cards transparentes, mantendo a seleção',()=>{

@@ -17,7 +17,7 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrineHtml,/id="name"[^>]*required/);
  assert.match(vitrineHtml,/id="phone"[^>]*required/);
  assert.match(vitrineHtml,/id="address"/);
- assert.match(vitrineHtml,/\/vitrine\.js\?v=16/);
+ assert.match(vitrineHtml,/\/vitrine\.js\?v=17/);
  assert.match(panelHtml,/\/cliente\.js\?v=36/);
  assert.match(panelHtml,/\/cliente\.css\?v=24/);
  assert.match(vitrine,/await registerOnlineOrder\(\)/);

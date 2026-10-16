@@ -250,7 +250,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('cartDrawer').cla
 $('focusSearch').addEventListener('click',()=>{goToCatalogue();$('search').focus({preventScroll:true});});
 $('showAll').addEventListener('click',()=>{$('search').value='';filterCategory('');});
 $('seeCombos').addEventListener('click',()=>filterCategory($('seeCombos').dataset.category));
-$('jumpCategories').addEventListener('click',()=>document.getElementById('quickCategories').scrollIntoView({behavior:'smooth'}));
 $('bottomCategories').addEventListener('click',()=>document.getElementById('quickCategories').scrollIntoView({behavior:'smooth'}));
 $('bottomProducts').addEventListener('click',goToCatalogue);
 $('bottomHome').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
@@ -367,23 +366,6 @@ $('sendOrder').addEventListener('click',async()=>{
  }catch(error){showErr(error.message);closeCart();window.scrollTo({top:0,behavior:'smooth'});}
  finally{renderCart();}
 });
-// Exibe a área administrativa apenas se uma sessão autenticada consegue ler esta loja via RLS.
-// A verificação nunca dá acesso por si: a página /cliente revalida o plano e as permissões.
-async function revealOwnerNavigation(config,slug){
- try{
-  const raw=localStorage.getItem('bipstart_customer_session');
-  const saved=raw?JSON.parse(raw):null;
-  if(!saved?.access_token||Number(saved.expires_at||0)<=(Date.now()/1000)+5)return;
-  const url=new URL(config.supabaseUrl+'/rest/v1/shops');
-  url.searchParams.set('select','slug');
-  url.searchParams.set('slug','eq.'+slug);
-  url.searchParams.set('limit','1');
-  const response=await fetch(url,{headers:{apikey:config.publishableKey,Authorization:'Bearer '+saved.access_token},cache:'no-store'});
-  if(!response.ok)return;
-  const rows=await response.json();
-  if(Array.isArray(rows)&&rows.some(row=>row.slug===slug))$('ownerNav').classList.remove('hidden');
- }catch{ /* A vitrine é pública e continua funcionando mesmo sem sessão de lojista. */ }
-}
 async function boot(){
  try{
   const slug=new URLSearchParams(location.search).get('loja')||'';
@@ -404,7 +386,6 @@ async function boot(){
   products=Array.isArray(menu.items)?menu.items:[];
   menu.src=config.supabaseUrl+'/storage/v1/object/public/bipstart-images';
   drawPage();
-  await revealOwnerNavigation(config,slug);
  }catch(error){
   $('storeName').textContent='Cardápio indisponível';
   $('catalog').innerHTML='<p class="summary catalog-empty">Não foi possível apresentar os produtos.</p>';
