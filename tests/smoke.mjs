@@ -4,7 +4,7 @@ import { spawn, execFileSync } from 'node:child_process';
 
 // O container deve copiar todos os módulos importados pelo servidor.
 const dockerfile=readFileSync('Dockerfile','utf8');
-assert.match(dockerfile,/COPY package\\.json server\\.mjs order-notifications\\.mjs \\.\\//,
+assert.ok(dockerfile.includes('COPY package.json server.mjs order-notifications.mjs ./'),
  'Dockerfile precisa copiar order-notifications.mjs para o Node iniciar no deploy.');
 for(const file of ['server.mjs','public/app.js','public/cliente.js','public/cardapio.js','public/vitrine.js','public/acompanhar.js']){
   execFileSync(process.execPath,['--check',file],{stdio:'inherit'});
