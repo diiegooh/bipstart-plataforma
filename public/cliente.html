@@ -54,21 +54,6 @@
     <button type="button" class="ghost" id="refreshAccess">Atualizar meu acesso</button>
     <p class="muted small">Seus dados continuam guardados. O acesso é liberado somente após confirmação manual do pagamento pela BipStart.</p>
   </section>
-  <section id="modeChooser" class="mode-chooser hidden" aria-labelledby="modeChooserTitle">
-    <span class="kicker">SUA LOJA • BIPSTART</span>
-    <h1 id="modeChooserTitle">Como deseja começar?</h1>
-    <p class="muted">Escolha a área que deseja acessar. Seu cadastro e seus produtos são os mesmos nas duas opções.</p>
-    <div class="mode-options">
-      <button type="button" class="mode-option mode-menu" data-open-mode="cardapio" id="modeCardapio">
-        <span class="mode-option-icon" aria-hidden="true">▣</span>
-        <span class="mode-option-content"><strong>CARDÁPIO ONLINE <span class="mode-premium-label">PREMIUM</span></strong><small>Disponível no Premium: categorias, fotos, preços, carrinho e pedidos online.</small><span class="mode-option-cta">Abrir cardápio ↗</span></span>
-      </button>
-      <button type="button" class="mode-option mode-pdv" data-open-mode="caixa">
-        <span class="mode-option-icon" aria-hidden="true">▦</span>
-        <span class="mode-option-content"><strong>PDV + ESTOQUE</strong><small>Produtos, caixa, estoque e vendas nos dois planos. Cardápio online liberado no Premium.</small><span class="mode-option-cta">Abrir PDV ↗</span></span>
-      </button>
-    </div>
-  </section>
   <section id="workspace" class="hidden">
     <div class="pdv-mobile-menu">
       <button type="button" id="sideToggle" class="side-toggle ghost" aria-label="Abrir menu da loja" aria-controls="sidebar" aria-expanded="false">☰ <span>Menu da loja</span></button>
@@ -84,7 +69,6 @@
         <div class="side-actions">
           <button type="button" id="sideColor" class="side-action"><span aria-hidden="true">🎨</span><span>Alterar cor</span><small id="sideColorPremium" class="hidden">Premium</small></button>
           <div class="side-actions-row">
-            <button type="button" id="backToModes" class="side-action">Voltar às opções</button>
             <button type="button" id="sideLogout" class="side-action">Sair</button>
           </div>
         </div>
@@ -94,5 +78,5 @@
   </section>
 </main>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=33" defer></script>
+<script src="/cliente.js?v=34" defer></script>
 </body></html>
