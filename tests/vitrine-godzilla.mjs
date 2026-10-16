@@ -14,8 +14,8 @@ test('vitrine Godzilla está no endereço direto do cardápio, sem login ou pain
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
  assert.match(server,/'\/vitrine\.js':\s*\['vitrine\.js'/);
  assert.match(server,/'\/vitrine\.css':\s*\['vitrine\.css'/);
- assert.match(client,/if\(mode\.dataset\.openMode==='cardapio'\)/);
- assert.match(client,/location\.assign\(publicShopUrl\(\)\)/);
+ assert.doesNotMatch(client,/data-open-mode|modeChooser|backToModes/);
+ assert.match(client,/data-public-menu-link/);
  assert.match(client,/tab='caixa'/);
  assert.match(client,/hiding\('workspace',true\);\s*renderPage\(\);/);
 });
