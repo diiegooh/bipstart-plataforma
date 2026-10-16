@@ -162,29 +162,39 @@ function checkoutMessage(orderId=''){
  const delivery=$('shipping').value==='delivery';
  const address=$('address').value.trim();
  if(delivery&&address.length<8)throw Error('Informe o endereço completo para entrega.');
- const lines=['Olá! Gostaria de fazer um pedido pelo cardápio '+menu.name+':',''];
- if(orderId){
-  lines.push('Pedido BipStart: #'+String(orderId).slice(0,8));
-  if(orderToken)lines.push('Acompanhar pedido: '+trackingLinkFor(orderId,orderToken));
-  lines.push('');
- }
- const name=$('name').value.trim();
- if(name)lines.push('Cliente: '+name,'');
- const phone=$('phone')?.value.trim();
- if(phone)lines.push('Telefone: '+phone);
+ const now=new Date();
+ const orderNumber=orderId?' #'+String(orderId).slice(0,8):'';
+ const row=(label,amount)=>label.padEnd(23,' ')+amount;
+ const lines=[
+  '=== '+String(menu.name||'LOJA').trim().toLocaleUpperCase('pt-BR')+' - PEDIDO'+orderNumber+' ===',
+  'DATA: '+now.toLocaleDateString('pt-BR')+' '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+  '',
+  'CLIENTE: '+$('name').value.trim(),
+  'TEL: '+String($('phone')?.value||'').replace(/\\D/g,''),
+  'TIPO: '+(delivery?'ENTREGA':'RETIRADA'),
+  ''
+ ];
+ if(delivery)lines.push('END: '+address,'');
  for(const [id,qty] of cart){
-  const item=products.find(x=>x.id===id);
-  if(item)lines.push(qty+'x '+item.name+' — '+money(Number(item.price)*qty));
+  const item=products.find(product=>product.id===id);
+  if(item){
+   const description=qty+'x '+String(item.name).trim().toLocaleUpperCase('pt-BR');
+   lines.push(row(description,money(Number(item.price)*qty)));
+  }
  }
- lines.push('','Subtotal: '+money(subtotal()));
- lines.push('Recebimento: '+(delivery?'Entrega':'Retirada no estabelecimento'));
- if(delivery)lines.push('Taxa de entrega: '+money(deliveryCost()),'Endereço: '+address);
- lines.push('Total: '+money(subtotal()+deliveryCost()));
- lines.push('Forma de pagamento: '+(paymentLabels[$('pay').value]||'A combinar'));
+ lines.push('',
+  row('SUBTOTAL',money(subtotal())),
+  row('TAXA ENTREGA',money(deliveryCost())),
+  row('TOTAL',money(subtotal()+deliveryCost())),
+  'PAGTO: '+String(paymentLabels[$('pay').value]||'A combinar').toLocaleUpperCase('pt-BR')
+ );
  const notes=$('notes').value.trim();
- if(notes)lines.push('Observações: '+notes);
- lines.push('Por favor, confirme a disponibilidade e os detalhes do pagamento.');
- return lines.join('\n');
+ if(notes)lines.push('','Obs: '+notes);
+ // O WhatsApp preserva as colunas quando o texto é enviado em fonte monoespaçada.
+ const message='```'+lines.join('\\n')+'```';
+ // Mantém o acompanhamento privado implementado no cardápio.
+ return orderId&&orderToken?
+  message+'\\n\\nACOMPANHE SEU PEDIDO: '+trackingLinkFor(orderId,orderToken):message;
 }
 document.addEventListener('click',event=>{
  const cardInc=event.target.closest('[data-card-inc]'),cardDec=event.target.closest('[data-card-dec]');
