@@ -49,7 +49,7 @@ test('mensagem de WhatsApp nunca aceita um item conhecido como esgotado',()=>{
 
 test('antes do WhatsApp, a vitrine remove os itens esgotados mesmo se mudaram após abrir a página',async()=>{
  const start=js.indexOf('async function checkAvailabilityBeforeCheckout(){');
- const end=js.indexOf("$('sendOrder').addEventListener",start);
+ const end=js.indexOf('function trackingLinkFor(',start);
  assert.ok(start>0&&end>start);
  const cart=new Map([['1',2],['2',1]]);
  let draws=0;
@@ -67,7 +67,8 @@ test('antes do WhatsApp, a vitrine remove os itens esgotados mesmo se mudaram ap
  assert.equal(cart.has('1'),false);
  assert.equal(cart.get('2'),1);
  assert.equal(draws,2);
- assert.match(js,/location\.assign\(url\)/,'deve navegar sem popup bloqueado por await');
+ assert.match(js,/showCheckoutNextStep\(receipt\)/,'deve oferecer link privado e envio por clique explícito');
+ assert.doesNotMatch(js,/location\.assign\(url\)/);
 });
 
 test('lojista autenticado e proprietário vê atalho seguro para editar o próprio cardápio',async()=>{
