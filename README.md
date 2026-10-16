@@ -150,3 +150,11 @@ Migration aplicada no Supabase BipStart: `sql/bipstart_shared_shop_plan_upgrade_
 - **Continuidade:** alteração de planos usa o mesmo `shop_id`. Produtos, valores online anteriores, fotos, vendas e configurações são preservados. Ao editar um produto do PDV no Básico, o sistema não sobrescreve a antiga seleção de venda online nem seu preço de cardápio. Ao reativar Premium, o cardápio pode ser publicado novamente sem importar produtos.
 
 Os testes relacionados incluem `tests/premium-menu.mjs`; a integração no banco foi conferida com uma loja do Básico, que não podia ver o cardápio nem criar pedidos, e com uma transação de teste revertida verificando o acesso Premium.
+
+## Imagens personalizadas nos cards de categorias — 16/10/2026
+
+No Premium, cada categoria pode receber sua própria imagem. A aba **Produtos** apresenta os cards de categorias com os controles **Colar imagem** e **Escolher foto**; esses mesmos controles aparecem na lista de categorias em **Cardápio online**. Para colar, copie a foto (por exemplo, no navegador ou em outro programa), clique no botão **Colar imagem** do card correspondente e pressione **Ctrl+V**. Alternativamente escolha um arquivo JPG, PNG ou WebP de até 5 MB. A imagem é enviada e salva imediatamente, sem precisar salvar o formulário de produto.
+
+A imagem é armazenada no bucket existente `bipstart-images`, dentro do prefixo da própria loja; `shop_menu_categories.image_path` mantém a referência. O card público prioriza essa imagem e, se ela não estiver cadastrada, continua usando uma foto dos produtos da categoria ou o ícone padrão. Cada loja tem suas próprias imagens e as demais funcionalidades de estoque e preços não são alteradas. Essa opção respeita a exigência de **Premium vigente** para publicação no cardápio online.
+
+A migração idempotente `sql/bipstart_category_images_20261016.sql` já foi aplicada no projeto Supabase do BipStart e inclui a nova coluna, validação de caminho por loja e a imagem na RPC `bipstart_public_menu`. Não deve ser aplicada no projeto Godzilla Adega.

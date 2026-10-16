@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
-    "test": "node tests/smoke.mjs && node --test tests/manual-whatsapp.mjs tests/share-meta.mjs tests/menu-redesign.mjs tests/courier-pro.mjs tests/two-plans.mjs tests/shared-plans.mjs tests/admin-links.mjs tests/premium-menu.mjs tests/site-without-agenda.mjs tests/mode-godzilla-pdv.mjs tests/vitrine-godzilla.mjs tests/cardapio-gestao-estoque.mjs tests/sidebar-operacional.mjs tests/cards-produtos-estoque.mjs tests/categorias-preco-cardapio.mjs tests/online-orders.mjs tests/tracking-page.mjs tests/whatsapp-notifications.mjs tests/vendas-reposicao.mjs"
+    "test": "node tests/smoke.mjs && node --test tests/manual-whatsapp.mjs tests/share-meta.mjs tests/menu-redesign.mjs tests/courier-pro.mjs tests/two-plans.mjs tests/shared-plans.mjs tests/admin-links.mjs tests/premium-menu.mjs tests/site-without-agenda.mjs tests/mode-godzilla-pdv.mjs tests/vitrine-godzilla.mjs tests/cardapio-gestao-estoque.mjs tests/sidebar-operacional.mjs tests/cards-produtos-estoque.mjs tests/categorias-preco-cardapio.mjs tests/category-images.mjs tests/online-orders.mjs tests/tracking-page.mjs tests/whatsapp-notifications.mjs tests/vendas-reposicao.mjs"
   },
   "engines": {
     "node": ">=18"
