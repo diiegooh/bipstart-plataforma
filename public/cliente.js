@@ -253,7 +253,7 @@ async function openShop(){
   $('modeChooserTitle').textContent='Como deseja começar na '+shop.name+'?';
   // Link de gestão do cardápio público: entrada direta no editor após verificar acesso.
   if(new URLSearchParams(location.search).get('editar')==='cardapio'){
-    tab='cardapio';showForm=null;pastedProductImage=null;
+    tab=proAccess()?'cardapio':'configuracoes';showForm=null;pastedProductImage=null;
     hiding('modeChooser',false);hiding('workspace',true);renderPage();
   }else if(initialPlan&&ent?.plan_code!==initialPlan){
     // Plano selecionado na página inicial: mostrar a atualização para a MESMA loja.
@@ -303,7 +303,8 @@ async function refreshOnlineOrdersIfVisible(){
 }
 function pages(){
   const a=[['resumo','Visão geral']];
-  a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['cardapio','Meu cardápio'],['vendas','Histórico de vendas']);
+  a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['vendas','Histórico de vendas']);
+  if(proAccess())a.push(['cardapio','Meu cardápio']);
   a.push(['pedidos','Pedidos online']);
   if(proAccess())a.push(['motoboys','Motoboys'],['entregas','Entregas']);
   if(canCustomize())a.push(['personalizar','Mudanças e suporte']);
@@ -333,6 +334,10 @@ function renderNav(){
   applySidebarTheme();
   const current=tab==='cardapio'||tab==='entregas'?'pedidos':tab;
   $('nav').innerHTML='<nav aria-label="Navegação operacional">'+operationalMenuItems().map(([id,name,icon])=>{
+    if(id==='cardapio_publico'&&!proAccess()){
+      return '<button type="button" class="side-public-menu locked" data-premium-menu-locked aria-label="Cardápio online: exclusivo Premium" title="Exclusivo Premium">'+
+        '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><small class="side-lock">Premium</small></button>';
+    }
     if(id==='cardapio_publico'){
       return '<a class="side-public-menu" data-public-menu-link href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer" aria-label="Abrir cardápio online da loja em outra aba" title="Abrir cardápio online em outra aba">'+
         '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><span class="side-external-icon" aria-hidden="true">↗</span></a>';
@@ -369,6 +374,9 @@ function publicShopUrl(){
 }
 function shareTitle(){return 'CARDÁPIO ('+shop.name+')'}
 function publicLinkTile(){
+  if(!proAccess())return '<div class="tile public-link-tile is-locked">'+
+    '<small>Cardápio online</small><strong>Exclusivo do Premium</strong>'+
+    '<button type="button" class="ghost" data-nav="configuracoes">Conhecer o Premium</button></div>';
   const url=publicShopUrl();
   const title=shareTitle();
   const whatsapp='https://wa.me/?text='+encodeURIComponent(title+'\n'+url);
@@ -618,6 +626,8 @@ function categoryOptions(selected){
   return names.map(name=>'<option value="'+esc(name)+'"'+(name===selected?' selected':'')+'>'+esc(name)+'</option>').join('');
 }
 function cardapioEditor(){
+ if(!proAccess())return heading('Cardápio online','Disponível exclusivamente no Plano Premium.')+
+   '<div class="empty">Faça upgrade para Premium nas Configurações para publicar o cardápio. Seus produtos permanecem salvos.</div>';
  const list=categories.length?categories.map(cat=>{
   const count=products.filter(p=>p.category.toLocaleLowerCase('pt-BR')===cat.name.toLocaleLowerCase('pt-BR')).length;
   return '<div class="menu-category-line"><strong>'+esc(cat.name)+'</strong><small>'+count+' item(ns)</small></div>';
@@ -797,7 +807,7 @@ function renderPage(){
   renderNav();
   let content='';
   if(tab==='resumo'){
-    content=heading('Bem-vindo à BipStart','PDV com estoque e cardápio online integrados. Seus dados ficam separados das demais lojas.')
+    content=heading('Bem-vindo à BipStart',proAccess()?'PDV com estoque e cardápio online integrados. Seus dados ficam separados das demais lojas.':'PDV, estoque e vendas integrados. Ative o Premium para publicar seu cardápio online.')
       +'<div class="grid">'+tile('Modelo',models[shop.model])+tile('Plano solicitado',plans[shop.requested_plan])+tile('Status',trialValid()?'Teste gratuito':'Ativo')+'</div>';
     if(shop.model==='pdv')content+='<div class="grid">'+tile('Produtos',products.length)+tile('Vendas',sales.length)+tile('Total vendido',fmt(sales.reduce((a,s)=>a+Number(s.total),0)))+'</div>';
     if(shop.model==='pdv')content+='<div class="grid public-overview-grid">'+tile('Itens cadastrados',products.length)+publicLinkTile()+'</div>';
@@ -1008,6 +1018,7 @@ async function handleSubmit(form){
       await openShop();msg(v.signup_choice==='trial'?'Loja criada! Seus 7 dias gratuitos começaram.':'Loja cadastrada! Peça a contratação pelo WhatsApp e aguarde a liberação.');break;
     }
     case 'categoryForm':{
+      if(!proAccess())throw Error('Cardápio online exclusivo Premium.');
       if(!menuSchemaReady)throw Error('Categorias aguardando atualização do banco de dados.');
       if(shop.model!=='pdv')throw Error('Categorias disponíveis somente para lojas.');
       const name=String(v.name||'').trim();
@@ -1018,6 +1029,7 @@ async function handleSubmit(form){
       break;
     }
     case 'productForm':{
+      if(tab==='cardapio'&&!proAccess())throw Error('Cardápio online exclusivo Premium.');
       if(tab==='cardapio'&&!menuSchemaReady)throw Error('Aguarde a atualização do banco de dados para editar o cardápio.');
       const file=pastedProductImage||form.querySelector('input[name=image]').files[0];
       const p=products.find(p=>p.id===id);
@@ -1298,6 +1310,10 @@ document.addEventListener('click',async e=>{
     await loadSalesReport();return;
   }
 
+  if(e.target.closest('[data-premium-menu-locked]')){
+    closeSideMenu();tab='configuracoes';renderPage();
+    return msg('Cardápio online exclusivo do Premium. Solicite o upgrade nas Configurações.',true);
+  }
   if(e.target.closest('[data-orders-refresh]')){
     try{await reloadData();renderPage();msg('Pedidos atualizados.');}catch(error){msg(error.message,true);}
     return;
@@ -1317,6 +1333,11 @@ document.addEventListener('click',async e=>{
   if(mode){
     if(!shop||!hasAccess())return;
     if(mode.dataset.openMode==='cardapio'){
+      if(!proAccess()){
+        tab='configuracoes';showForm=null;
+        hiding('modeChooser',false);hiding('workspace',true);renderPage();
+        return msg('O cardápio online é exclusivo do Premium. Solicite o upgrade nas Configurações.',true);
+      }
       // A opção Cardápio abre a vitrine pública em tela cheia, sem o editor intermediário.
       location.assign(publicShopUrl());
       return;
@@ -1340,7 +1361,7 @@ document.addEventListener('click',async e=>{
   const share=e.target.closest('[data-share-shop]');
   const copy=e.target.closest('[data-copy-shop]');
   if(share||copy){
-    if(!shop||shop.model!=='pdv'||!hasAccess())return;
+    if(!shop||shop.model!=='pdv'||!hasAccess()||!proAccess())return;
     const url=publicShopUrl();
     if(share&&typeof navigator.share==='function'){
       try{
@@ -1374,13 +1395,14 @@ document.addEventListener('click',async e=>{
     return;
   }
   const nav=e.target.closest('[data-nav]');if(nav){
+    if(nav.dataset.nav==='cardapio'&&!proAccess())return msg('Cardápio online exclusivo Premium.',true);
     if(nav.dataset.nav==='motoboys'&&!proAccess())return msg('Motoboys disponíveis somente no plano Premium.',true);
     if(!pages().some(([key])=>key===nav.dataset.nav))return;
     tab=nav.dataset.nav;showForm=null;pastedProductImage=null;closeSideMenu();renderPage();
     if(tab==='vendas')await loadSalesReport();
     return
   }
-  const add=e.target.closest('[data-new]');if(add){showForm={kind:add.dataset.new,value:null};pastedProductImage=null;renderPage();if(add.dataset.new==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return}
+  const add=e.target.closest('[data-new]');if(add){if(tab==='cardapio'&&!proAccess())return msg('Cardápio online exclusivo Premium.',true);showForm={kind:add.dataset.new,value:null};pastedProductImage=null;renderPage();if(add.dataset.new==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return}
   const edit=e.target.closest('[data-edit]');if(edit){
     const lists={product:products,service:services,appointment:appointments,courier:couriers,delivery:deliveries};
     showForm={kind:edit.dataset.edit,value:(lists[edit.dataset.edit]||[]).find(v=>v.id===edit.dataset.id)||null};pastedProductImage=null;renderPage();if(edit.dataset.edit==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return
