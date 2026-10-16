@@ -12,8 +12,9 @@ test('login mostra CARDÁPIO e PDV + CARDÁPIO antes de abrir a área administra
  assert.match(html,/id="modeChooser"/);
  assert.match(html,/data-open-mode="cardapio"/);
  assert.match(html,/data-open-mode="caixa"/);
- assert.match(html,/CARDÁPIO<\/strong>/);
- assert.match(html,/PDV \+ CARDÁPIO<\/strong>/);
+ assert.match(html,/CARDÁPIO ONLINE/);
+ assert.match(html,/mode-premium-label/);
+ assert.match(html,/PDV \+ ESTOQUE<\/strong>/);
  assert.match(html,/id="backToModes"/);
  assert.match(client,/hiding\('modeChooser',true\)/);
  assert.match(client,/hiding\('modeChooser',false\);hiding\('workspace',true\)/);
