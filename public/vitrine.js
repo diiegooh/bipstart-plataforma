@@ -244,7 +244,6 @@ $('openCart').addEventListener('click',openCart);
 $('closeCart').addEventListener('click',closeCart);
 $('cartBackdrop').addEventListener('click',closeCart);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('cartDrawer').classList.contains('show'))closeCart();});
-$('focusSearch').addEventListener('click',()=>{goToCatalogue();$('search').focus({preventScroll:true});});
 $('showAll').addEventListener('click',()=>{$('search').value='';filterCategory('');});
 $('seeCombos').addEventListener('click',()=>filterCategory($('seeCombos').dataset.category));
 // Confere preço/estoque no catálogo antes de registrar o pedido no banco.

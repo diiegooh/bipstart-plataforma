@@ -36,8 +36,8 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=17/);
- assert.match(html,/\/vitrine\.js\?v=19/);
+ assert.match(html,/\/vitrine\.css\?v=18/);
+ assert.match(html,/\/vitrine\.js\?v=20/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -110,7 +110,11 @@ test('título CARDÁPIO é centralizado sem perder nome da loja e recursos de pe
  assert.match(css,/\.store-header \.header-title h1\{[\s\S]*display:flex;align-items:baseline/);
  assert.match(css,/\.store-header \.header-title #storeName\{[\s\S]*font:inherit;color:inherit/);
  assert.doesNotMatch(html,/id="jumpCategories"/);
- assert.match(html,/id="focusSearch"/);
+ assert.doesNotMatch(html,/id="focusSearch"|class="header-actions"/);
+ assert.doesNotMatch(js,/focusSearch/);
+ assert.match(html,/id="search" type="search"/);
+ assert.match(js,/\$\('search'\)\.addEventListener\('input',renderProducts\)/);
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\);\s*grid-template-rows:auto/);
  assert.doesNotMatch(html,/id="headerCart"|id="headerCartCount"/);
  assert.doesNotMatch(js,/headerCart/);
  assert.match(html,/id="openCart"/);
@@ -119,7 +123,7 @@ test('título CARDÁPIO é centralizado sem perder nome da loja e recursos de pe
  assert.doesNotMatch(js,/bottomOrders|bottomCategories|bottomProducts|bottomHome/);
  assert.match(css,/grid-column:2;grid-row:1/);
  assert.match(css,/\.store-header \.header-title\{[\s\S]*grid-column:2;grid-row:1/);
- assert.match(css,/\.store-header \.header-title\{grid-column:1\/-1;grid-row:2/);
+ assert.match(css,/\.store-header \.header-title\{grid-column:1;grid-row:1/);
  assert.match(html,/id="quickCategories"/);
  assert.match(html,/id="catalogue"/);
  assert.match(html,/id="sendOrder"/);
