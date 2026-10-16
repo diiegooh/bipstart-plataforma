@@ -25,13 +25,14 @@ test('homepage comercial divulga só dois planos e não agenda',()=>{
 });
 test('onboarding oferece PDV e cardápio para os dois planos sem agenda',()=>{
  assert.match(clientHtml,/name="model" value="pdv"/);
- assert.match(clientHtml,/PDV com estoque \+ cardápio online/);
+ assert.match(clientHtml,/PDV com estoque e vendas/);
  assert.match(clientHtml,/value="basic">Básico/);
  assert.match(clientHtml,/value="pro">Premium/);
  assert.doesNotMatch(clientHtml,/value="agenda"|value="cardapio"|value="personalizado"/);
  assert.match(client,/const models=\{pdv:'PDV com estoque \+ cardápio online'\}/);
  assert.match(client,/if\(!plans\[v\.requested_plan\]\|\|v\.model!=='pdv'\)/);
- assert.match(client,/a\.push\(\['caixa','Frente de caixa'\],\['produtos','Produtos e estoque'\],\['cardapio','Meu cardápio'\],\['vendas','Histórico de vendas'\]\)/);
+ assert.match(client,/a\.push\(\['caixa','Frente de caixa'\],\['produtos','Produtos e estoque'\],\['vendas','Histórico de vendas'\]\)/);
+ assert.match(client,/if\(proAccess\(\)\)a\.push\(\['cardapio','Meu cardápio'\]\)/);
  assert.doesNotMatch(client,/a\.push\(\['agenda'/);
 });
 test('estoque fica no PDV e descrição no cardápio com o mesmo shop_products',()=>{
