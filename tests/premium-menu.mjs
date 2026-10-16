@@ -86,7 +86,10 @@ test('acesso do Básico mostra bloqueio e opção de upgrade sem alterar a loja'
  assert.match(panel,/\(id==='cardapio_publico'\|\|id==='pedidos'\)&&!proAccess\(\)/);
  assert.match(panel,/class="side-public-menu locked" disabled aria-disabled="true"/);
  assert.doesNotMatch(panel,/data-premium-menu-locked/);
- assert.match(panel,/Cardápio online exclusivo do Premium/);
+ assert.match(panel,/Cardápio online: exclusivo Premium/);
+ assert.match(panel,/if\(\(id==='cardapio_publico'\|\|id==='pedidos'\)&&!proAccess\(\)\)/);
+ assert.match(panel,/if\(!proAccess\(\)\)return;/);
+ assert.doesNotMatch(panel,/data-premium-menu-locked/);
  assert.match(panel,/data-nav="configuracoes"/);
  assert.match(panel,/rpc\('bipstart_request_plan_change'/);
  assert.match(css,/online-sale-locked/);
