@@ -338,7 +338,13 @@ function applySidebarTheme(){
 function renderNav(){
   applySidebarTheme();
   const current=tab==='cardapio'||tab==='entregas'?'pedidos':tab;
-  $('nav').innerHTML='<nav aria-label="Navegação operacional">'+operationalMenuItems().map(([id,name,icon])=>{
+  const sidebarItems=operationalMenuItems();
+  if(!proAccess()){
+    // Itens bloqueados ficam juntos no fim, preservando a ordem original de cada grupo.
+    const blocked=new Set(['cardapio_publico','pedidos','motoboys']);
+    sidebarItems.sort((a,b)=>Number(blocked.has(a[0]))-Number(blocked.has(b[0])));
+  }
+  $('nav').innerHTML='<nav aria-label="Navegação operacional">'+sidebarItems.map(([id,name,icon])=>{
     if((id==='cardapio_publico'||id==='pedidos')&&!proAccess()){
       return '<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="'+esc(name)+': exclusivo Premium" title="Exclusivo Premium">'+
         '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><small class="side-lock">Premium</small></button>';
