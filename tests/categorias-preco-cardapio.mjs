@@ -58,7 +58,7 @@ test('filtrar categoria muda os cards visíveis sem alterar produtos cadastrados
  assert.equal(goods.length,3);
  assert.match(js,/selectedCategoryFilter=category\.dataset\.categoryFilter\|\|'all'/);
  assert.match(js,/content\+=productCategoryCards\(selectedCategoryFilter\)/);
- assert.match(js,/content\+=productGrid\(selectedCategoryFilter\)/);
+ assert.match(js,/content\+=productGrid\(selectedCategoryFilter,selectedStockPanel\)/);
 });
 test('nomes das categorias são escapados para evitar HTML injetado',()=>{
  const c=catalog([{...goods[0],category:'<script>alert("teste")</script>'}]);
