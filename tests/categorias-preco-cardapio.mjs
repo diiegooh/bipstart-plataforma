@@ -104,6 +104,8 @@ test('o formulário pergunta Venda online? e exige valor apenas no Sim',()=>{
   assert.match(form,/value="true" selected/);
   assert.match(form,/Valor no cardápio online/);
   assert.match(form,/Venda online\?/);
+  assert.doesNotMatch(form,/Este é o preço usado no cardápio público/);
+  assert.doesNotMatch(form,/Não: o produto permanece no estoque e PDV/);
   assert.match(form,/name="menu_price"[^>]*required/);
   const no=renderForm(tab,{...goods[1],online_enabled:false});
   assert.match(no,/value="false" selected/);
@@ -116,7 +118,7 @@ test('o formulário pergunta Venda online? e exige valor apenas no Sim',()=>{
  assert.match(js,/menu_price_enabled:proAccess\(\)\?v\.online_enabled==='true'/);
  assert.match(js,/proAccess\(\)&&body\.online_enabled&&\(!String\(v\.menu_price/);
  assert.match(js,/min_stock:Number\(v\.min_stock\)/);
- assert.match(html,/cliente\.js\?v=38/);
+ assert.match(html,/cliente\.js\?v=39/);
  assert.match(html,/cliente\.css\?v=25/);
 });
 

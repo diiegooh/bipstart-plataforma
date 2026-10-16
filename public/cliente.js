@@ -988,8 +988,8 @@ function productForm(p){
    '</select></label>'+
    '<div class="online-sale-price'+(p.id&&p.online_enabled!==false?'':' hidden')+'">'+
     field('menu_price','Valor no cardápio online (R$)','number',p.menu_price??(p.id?(p.price??0):''),'min="0" max="9999999999.99" step="0.01"'+(p.id&&p.online_enabled!==false?' required':' disabled'))+
-    '<small class="muted">Este é o preço usado no cardápio público, no carrinho e no pedido por WhatsApp.</small></div>'+
-   '<small class="muted">Não: o produto permanece no estoque e PDV, mas não aparece no cardápio online.</small></div>':
+    '</div>'+
+   '</div>':
    '<div class="online-sale-locked"><strong>Cardápio online exclusivo Premium</strong><small>As configurações de publicação anteriores permanecem salvas para o upgrade.</small></div>')+
   (isMenu?'<label>Descrição<textarea name="description" maxlength="1000" placeholder="Ingredientes, opções e informações do produto">'+esc(p.description||'')+'</textarea></label>':
   field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')+
