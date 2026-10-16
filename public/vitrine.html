@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#080b09">
   <meta name="description" content="Cardápio digital: veja os produtos e envie seu pedido diretamente ao estabelecimento.">
   <title>Cardápio digital • BipStart</title>
-  <link rel="stylesheet" href="/vitrine.css?v=12">
+  <link rel="stylesheet" href="/vitrine.css?v=13">
 </head>
 <body class="delivery-page">
 <div class="delivery-app">
@@ -62,7 +62,6 @@
     <label id="addressField" class="span2 hidden">Endereço completo<textarea id="address" rows="3" maxlength="300" placeholder="Rua, número, bairro e complemento"></textarea></label>
     <label class="span2">Forma de pagamento<select id="pay" class="select"><option value="a_combinar">A combinar</option><option value="pix">Pix</option><option value="dinheiro">Dinheiro</option><option value="credito">Cartão de crédito</option><option value="debito">Cartão de débito</option></select></label>
     <label class="span2">Observações (opcional)<textarea id="notes" rows="2" maxlength="500" placeholder="Ex.: sem cebola, troco para R$ 50..."></textarea></label>
-    <label class="span2 whatsapp-optin"><input id="whatsappOptIn" type="checkbox"> <span>Autorizo a loja a me enviar atualizações deste pedido pelo WhatsApp (opcional). Posso solicitar o cancelamento dos avisos.</span></label>
   </div>
   <div class="cart-fee hidden" id="deliveryLine"><span>Entrega</span><strong id="deliveryTotal">R$ 0,00</strong></div>
   <div class="total grand-total"><span>Total</span><span id="cartTotal">R$ 0,00</span></div>
@@ -72,10 +71,11 @@
    <p>Guarde este link para acompanhar seu pedido e pagamento.</p>
    <a id="trackingUrl" class="tracking-link" target="_blank" rel="noopener noreferrer" href="#">Acompanhar meu pedido ↗</a>
    <button id="copyTrackingUrl" class="btn alt" type="button">Copiar link de acompanhamento</button>
-   <a id="sendPreparedWhatsapp" class="btn checkout-btn" href="#" target="_blank" rel="noopener noreferrer">Enviar pedido à loja pelo WhatsApp ↗</a>
+   <p id="whatsappConsentNotice" class="whatsapp-consent-note">Ao clicar em “Enviar pedido à loja pelo WhatsApp”, você autoriza a loja a enviar atualizações de preparo, pagamento e entrega deste pedido. Sem promoções. Você pode solicitar a interrupção dos avisos.</p>
+   <a id="sendPreparedWhatsapp" class="btn checkout-btn" href="#" target="_blank" rel="noopener noreferrer" aria-describedby="whatsappConsentNotice">Enviar pedido à loja pelo WhatsApp ↗</a>
    <small id="trackingCopyFeedback" role="status" aria-live="polite">O envio à loja só será concluído quando você confirmar a mensagem no WhatsApp.</small>
   </section>
 </aside>
-<script src="/vitrine.js?v=12" defer></script>
+<script src="/vitrine.js?v=13" defer></script>
 </body>
 </html>
