@@ -55,5 +55,5 @@ test('login cliente entra no PDV e não mostra tela de escolha ou botão voltar'
  assert.doesNotMatch(client,/modeChooser|modeCardapio|backToModes/);
  assert.doesNotMatch(clientHtml,/id="modeChooser"|id="backToModes"|data-open-mode/);
  assert.doesNotMatch(client,/Defina horário, localização, pagamentos e entrega/);
- assert.match(clientHtml,/\/cliente\.js\?v=35/);
+ assert.match(clientHtml,/\/cliente\.js\?v=36/);
 });
