@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta name="referrer" content="no-referrer">
+ <meta name="robots" content="noindex,nofollow,noarchive">
+ <meta name="theme-color" content="#0d120f">
+ <title>Acompanhar meu pedido • BipStart</title>
+ <link rel="stylesheet" href="/acompanhar.css?v=1">
+</head>
+<body>
+ <main class="tracking-container">
+  <header class="brand-head"><span class="brand-mark">B</span><div><strong>BipStart</strong><small>Acompanhamento de pedidos</small></div></header>
+  <section class="tracking-panel">
+   <div class="tracking-title"><div><p class="eyebrow">ACOMPANHAMENTO ONLINE</p><h1 id="shopName">Seu pedido</h1><p class="muted" id="orderReference">Aguarde enquanto localizamos seu pedido.</p></div><span class="tracking-icon" aria-hidden="true">🛍️</span></div>
+   <div id="trackingError" class="notice error" role="alert" hidden></div>
+   <div id="trackingData" hidden>
+    <div class="status-heading"><h2>Situação do pedido</h2><span id="statusPill" class="pill"></span></div>
+    <ol id="orderSteps" class="progress-list" aria-label="Andamento do pedido"></ol>
+    <div class="summary-row"><span>Pagamento</span><strong id="paymentStatus"></strong></div>
+    <div class="summary-row"><span>Recebimento</span><strong id="deliveryMethod"></strong></div>
+    <div class="summary-row"><span>Valor do pedido</span><strong id="orderTotal"></strong></div>
+    <p class="muted tip">As informações são atualizadas automaticamente enquanto esta página estiver aberta. A loja confirma o pagamento e a entrega.</p>
+   </div>
+   <div class="tracking-footer">
+    <button id="refresh" type="button">↻ Atualizar agora</button>
+    <span id="lastUpdate" aria-live="polite">Consultando pedido...</span>
+   </div>
+  </section>
+  <p class="privacy">Guarde o seu link de acompanhamento. Ele é privado e permite consultar o andamento deste pedido.</p>
+ </main>
+ <script src="/acompanhar.js?v=1" defer></script>
+</body>
+</html>
