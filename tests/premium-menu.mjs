@@ -77,17 +77,12 @@ test('no Básico, produto cadastrado continua editável sem expor ou apagar flag
  assert.match(panel,/menu_price_enabled:proAccess\(\)\?v\.online_enabled==='true':\(p\?\.menu_price_enabled===true\)/);
  assert.match(panel,/menu_price:proAccess\(\)\?/);
 });
-test('acesso do Básico mostra bloqueio e opção de upgrade sem alterar a loja',()=>{
- assert.match(html,/data-open-mode="cardapio" id="modeCardapio"/);
- assert.match(html,/mode-premium-label/);
- assert.match(panel,/modeCardapio'\)\.classList\.toggle\('locked',!proAccess\(\)\)/);
- assert.match(panel,/modeCardapio'\)\.disabled=!proAccess\(\)/);
- assert.match(panel,/if\(mode\.dataset\.openMode==='cardapio'\)\{\s*if\(!proAccess\(\)\)/);
- assert.match(panel,/\(id==='cardapio_publico'\|\|id==='pedidos'\|\|id==='motoboys'\)&&!proAccess\(\)/);
+test('acesso Básico preserva bloqueios e upgrade sem tela de escolha inicial',()=>{
+ assert.doesNotMatch(html,/modeChooser|modeCardapio|backToModes/);
+ assert.doesNotMatch(panel,/modeChooser|modeCardapio|backToModes/);
+ assert.match(panel,/tab='caixa';showForm=null;pastedProductImage=null/);
+ assert.match(panel,/if\(\(id==='cardapio_publico'\|\|id==='pedidos'\|\|id==='motoboys'\)&&!proAccess\(\)\)/);
  assert.match(panel,/class="side-public-menu locked" disabled aria-disabled="true"/);
- assert.doesNotMatch(panel,/data-premium-menu-locked/);
- assert.match(panel,/if\(!proAccess\(\)\)return;/);
- assert.doesNotMatch(panel,/data-premium-menu-locked/);
  assert.match(panel,/data-nav="configuracoes"/);
  assert.match(panel,/rpc\('bipstart_request_plan_change'/);
  assert.match(css,/online-sale-locked/);
