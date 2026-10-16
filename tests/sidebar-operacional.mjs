@@ -15,7 +15,7 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.doesNotMatch(html,/Central de operação/);
  assert.match(html,/aria-label="Menu da loja"/);
  assert.match(html,/Alterar cor/);
- assert.match(html,/Abrir cardápio/);
+ assert.doesNotMatch(html,/id="modeChooser"|id="backToModes"/);
  assert.match(html,/Sair/);
  assert.match(html,/cliente\.js\?v=34/);
  assert.match(html,/cliente\.css\?v=22/);
