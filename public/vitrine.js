@@ -38,9 +38,11 @@ function categoryEmoji(value){
  return '▣';
 }
 function categoryArtwork(name){
- // Prioriza uma foto real cadastrada nesta categoria; mantém o ícone se não houver foto.
- const photo=products.find(item=>fold(item.category||'Geral')===fold(name)&&item.image_path);
- if(photo)return '<span class="category-art category-art-photo" aria-hidden="true"><img src="'+esc(imageUrl(photo.image_path))+'" alt="" loading="lazy" decoding="async"></span>';
+ // Imagem da categoria tem prioridade sobre a foto automática de produto.
+ const category=(menu?.categories||[]).find(item=>fold(item?.name)===fold(name));
+ const product=products.find(item=>fold(item.category||'Geral')===fold(name)&&item.image_path);
+ const path=category?.image_path||product?.image_path;
+ if(path)return '<span class="category-art category-art-photo" aria-hidden="true"><img src="'+esc(imageUrl(path))+'" alt="" loading="lazy" decoding="async"></span>';
  return '<span class="category-art category-art-emoji" aria-hidden="true">'+categoryEmoji(name)+'</span>';
 }
 function applyBrand(){

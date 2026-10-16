@@ -603,16 +603,35 @@ function normalizedProductCategory(product){
 function filteredProductList(selected='all'){
  return selected==='all'?products:products.filter(product=>normalizedProductCategory(product)===selected);
 }
+function categoryKey(name){
+ return String(name||'Geral').trim().toLocaleLowerCase('pt-BR');
+}
+function categoryThumbnail(name){
+ const saved=categories.find(c=>categoryKey(c.name)===categoryKey(name));
+ const product=products.find(p=>categoryKey(p.category)===categoryKey(name)&&p.image_path);
+ const path=saved?.image_path||product?.image_path;
+ return path?'<img class="category-image-thumb" src="'+esc(imageUrl(path))+'" alt="" loading="lazy">':
+  '<span class="category-image-thumb category-image-empty" aria-hidden="true">▣</span>';
+}
+function categoryImageActions(name){
+ if(!proAccess()||!menuSchemaReady)return '';
+ return '<div class="category-image-actions">'+
+  '<button type="button" data-category-image-paste="'+esc(name)+'" title="Clique e pressione Ctrl+V para colar uma imagem">📋 Colar imagem</button>'+
+  '<label class="category-image-file">Escolher foto<input data-category-image-file="'+esc(name)+'" type="file" accept="image/png,image/jpeg,image/webp" hidden></label></div>';
+}
 function productCategoryCards(selected='all'){
  if(!products.length)return '';
  const names=[...new Set(products.map(normalizedProductCategory))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
- return '<div class="inventory-category-section"><div class="inventory-category-heading"><strong>Categorias</strong><small>Selecione para filtrar os produtos</small></div>'+
+ return '<div class="inventory-category-section"><div class="inventory-category-heading"><strong>Categorias</strong><small>Selecione para filtrar os produtos. No Premium, personalize a imagem de cada categoria.</small></div>'+
   '<div class="inventory-category-grid" aria-label="Filtrar produtos por categoria">'+
   ['all',...names].map(name=>{
    const count=filteredProductList(name).length;
    const chosen=name===selected;
-   return '<button type="button" class="inventory-category-card'+(chosen?' active':'')+'" data-category-filter="'+esc(name)+'" aria-pressed="'+chosen+'">'+
-    '<strong>'+esc(name==='all'?'Todos':name)+'</strong><small>'+count+' produto(s)</small></button>';
+   const picture=name==='all'?'<span class="category-image-thumb category-image-empty" aria-hidden="true">▦</span>':categoryThumbnail(name);
+   return '<div class="inventory-category-card'+(chosen?' active':'')+'">'+
+    '<button type="button" class="inventory-category-select" data-category-filter="'+esc(name)+'" aria-pressed="'+chosen+'">'+
+    picture+'<strong>'+esc(name==='all'?'Todos':name)+'</strong><small>'+count+' produto(s)</small></button>'+
+    (name==='all'?'':categoryImageActions(name))+'</div>';
   }).join('')+'</div></div>';
 }
 function productGrid(selected='all'){
@@ -628,8 +647,10 @@ function cardapioEditor(){
  if(!proAccess())return heading('Cardápio online','Disponível exclusivamente no Plano Premium.')+
    '<div class="empty">Faça upgrade para Premium nas Configurações para publicar o cardápio. Seus produtos permanecem salvos.</div>';
  const list=categories.length?categories.map(cat=>{
-  const count=products.filter(p=>p.category.toLocaleLowerCase('pt-BR')===cat.name.toLocaleLowerCase('pt-BR')).length;
-  return '<div class="menu-category-line"><strong>'+esc(cat.name)+'</strong><small>'+count+' item(ns)</small></div>';
+  const count=products.filter(p=>categoryKey(p.category)===categoryKey(cat.name)).length;
+  return '<div class="menu-category-line">'+categoryThumbnail(cat.name)+
+   '<div class="menu-category-description"><strong>'+esc(cat.name)+'</strong><small>'+count+' item(ns)</small></div>'+
+   categoryImageActions(cat.name)+'</div>';
  }).join(''):'<p class="muted">Comece adicionando uma categoria, como Salgados ou Bebidas.</p>';
  const details=[
   ['Horário',shop.opening_hours||'Configurar'],
@@ -967,6 +988,28 @@ function deliveryForm(d){
    '</select></label>'
  );
 }
+async function saveCategoryImage(name,file){
+ if(!shop||shop.model!=='pdv'||!hasAccess()||!proAccess()||!menuSchemaReady)
+  throw Error('Imagens de categorias disponíveis apenas no Premium com o cardápio configurado.');
+ const normalized=String(name||'').trim();
+ if(!normalized||normalized.length>65||
+   !categories.some(c=>categoryKey(c.name)===categoryKey(normalized))&&
+   !products.some(p=>categoryKey(p.category)===categoryKey(normalized)))
+  throw Error('Categoria inválida. Atualize a página e tente novamente.');
+ if(!await ensureSession())throw Error('Sua sessão expirou. Entre novamente.');
+ const image_path=await uploadImage(file);
+ const found=categories.find(c=>categoryKey(c.name)===categoryKey(normalized));
+ if(found?.id){
+  await rest('shop_menu_categories',{method:'PATCH',
+   query:{id:'eq.'+found.id,shop_id:'eq.'+shop.id},body:{image_path}});
+ }else{
+  const sort_order=Math.min(10000,categories.reduce((max,c)=>Math.max(max,Number(c.sort_order)||0),0)+10);
+  await rest('shop_menu_categories',{method:'POST',body:{shop_id:shop.id,name:normalized,sort_order,image_path}});
+ }
+ await reloadData();
+ renderPage();
+ msg('Imagem da categoria "'+normalized+'" salva! Ela já pode aparecer no cardápio online.');
+}
 async function uploadImage(file){
   if(!file)return null;
   if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error('Selecione uma imagem JPG, PNG ou WebP de até 5 MB.');
@@ -1137,6 +1180,20 @@ async function handleSubmit(form){
 }
 document.addEventListener('submit',async e=>{const form=e.target;if(!form.matches('form'))return;e.preventDefault();const btn=form.querySelector('button[type=submit],button.button');if(btn)btn.disabled=true;try{await handleSubmit(form)}catch(err){msg(err.message||'Erro ao salvar',true)}finally{if(btn?.isConnected)btn.disabled=false}});
 document.addEventListener('paste',e=>{
+  const categoryTarget=e.target.closest?.('[data-category-image-paste]');
+  if(categoryTarget){
+   const item=Array.from(e.clipboardData?.items||[]).find(item=>item.kind==='file'&&item.type.startsWith('image/'));
+   if(!item)return msg('Copie uma imagem e pressione Ctrl+V neste botão.',true);
+   e.preventDefault();
+   const file=item.getAsFile();
+   if(!file)return msg('Não foi possível ler a imagem copiada.',true);
+   if(categoryTarget.disabled)return;
+   categoryTarget.disabled=true;
+   void saveCategoryImage(categoryTarget.dataset.categoryImagePaste,file)
+    .catch(error=>msg(error.message||'Não foi possível salvar a imagem.',true))
+    .finally(()=>{if(categoryTarget.isConnected)categoryTarget.disabled=false});
+   return;
+  }
   const area=document.querySelector('#productForm [data-image-paste]');
   if(!area||(!area.contains(e.target)&&e.target!==area))return;
   const item=Array.from(e.clipboardData?.items||[]).find(item=>item.kind==='file'&&item.type.startsWith('image/'));
@@ -1163,6 +1220,17 @@ document.addEventListener('change',e=>{
  if(e.target.id==='pdvPaymentMethod'){pdvPayment=e.target.value;renderPage();}
 });
 document.addEventListener('change',e=>{
+ const categoryFile=e.target.closest?.('[data-category-image-file]');
+ if(categoryFile){
+  const file=categoryFile.files?.[0];
+  if(file){
+   categoryFile.disabled=true;
+   void saveCategoryImage(categoryFile.dataset.categoryImageFile,file)
+    .catch(error=>msg(error.message||'Não foi possível salvar a imagem.',true))
+    .finally(()=>{if(categoryFile.isConnected)categoryFile.disabled=false});
+  }
+  return;
+ }
  if(e.target.matches('#deliveryForm select[name="online_order_id"]')){
    const order=onlineOrders.find(o=>o.id===e.target.value);
    if(order){
@@ -1361,6 +1429,12 @@ document.addEventListener('click',async e=>{
     try{await navigator.clipboard.writeText(invite.dataset.copyInvite);msg('Link do convite copiado.')}
     catch{window.prompt('Copie o link do motoboy:',invite.dataset.copyInvite)}
     return;
+  }
+  const categoryPaste=e.target.closest('[data-category-image-paste]');
+  if(categoryPaste){
+   categoryPaste.focus();
+   msg('Imagem copiada? Pressione Ctrl+V para salvar nesta categoria.');
+   return;
   }
   const pasteArea=e.target.closest('[data-image-paste]');if(pasteArea){pasteArea.focus();return}
   const category=e.target.closest('[data-category-filter]');

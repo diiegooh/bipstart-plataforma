@@ -18,11 +18,11 @@ function catalog(list){
  const begin=js.indexOf('function productStockState(product){');
  const end=js.indexOf('function categoryOptions(selected){',begin);
  assert.ok(begin>0&&end>begin);
- return new Function('products','esc','fmt','imageUrl','editBtn','empty',
+ return new Function('products','esc','fmt','imageUrl','editBtn','empty','categories','proAccess','menuSchemaReady',
    js.slice(begin,end)+';return {productCard,productGrid,productCategoryCards,filteredProductList};')(
    list,esc,n=>'R$ '+Number(n).toFixed(2),p=>'https://cdn.example/'+p,
    (kind,id)=>'<button data-edit="'+kind+'" data-id="'+esc(id)+'">Editar</button>',
-   t=>'<p class="empty">'+esc(t)+'</p>');
+   t=>'<p class="empty">'+esc(t)+'</p>',[],()=>false,true);
 }
 const goods=[
  {id:'1',name:'Água 1L',category:'Bebidas',price:5,cost:2,stock:9,min_stock:5},

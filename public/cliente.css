@@ -47,6 +47,15 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 .menu-category-line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px;border:1px solid #533575;border-radius:10px;background:#231337}
 .menu-category-line strong{overflow-wrap:anywhere}
 .menu-category-line small{font-size:12px;color:#d5b7f7;white-space:nowrap}
+.menu-category-description{display:flex;flex:1;min-width:75px;flex-direction:column;gap:4px}
+.menu-category-line{flex-wrap:wrap}
+.category-image-thumb{width:70px;height:64px;object-fit:cover;border-radius:11px;flex-shrink:0;display:block;background:#30273e}
+.category-image-empty{display:grid;place-items:center;font-size:29px;color:#d1c2e9;border:1px dashed #685285}
+.category-image-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.category-image-actions button,.category-image-file{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid #78609c;border-radius:9px;background:#35264d;color:#fff;padding:7px 9px;font-weight:700;font-size:11px;line-height:1.2}
+.category-image-actions button:hover,.category-image-file:hover{background:#4a3568}
+.category-image-actions button:focus-visible,.category-image-file:focus-within{outline:3px solid #b78afe;outline-offset:2px}
+.category-image-actions button:disabled{opacity:.45;cursor:progress}
 .menu-editor-items{margin-top:14px}
 .menu-editor-items .item{background:#1d1131}
 .menu-editor-items .item p{white-space:pre-wrap;overflow-wrap:anywhere;max-width:70ch}
@@ -426,13 +435,16 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 #workspace .inventory-category-card{display:flex;flex-direction:column;gap:3px;align-items:flex-start;justify-content:center;
  text-align:left;min-width:0;min-height:66px;padding:11px 13px;border:1px solid #30463a;border-radius:13px;
  background:#111d16;color:#f5fbf5;transition:background .15s,border-color .15s,transform .15s}
+#workspace .inventory-category-select{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;text-align:left;border:0;background:none;color:inherit;padding:0;cursor:pointer}
+#workspace .inventory-category-card .category-image-thumb{width:100%;height:75px;object-fit:cover}
+#workspace .inventory-category-card .category-image-actions{margin-top:7px}
 #workspace .inventory-category-card strong{font-size:14px;font-weight:850;overflow-wrap:anywhere}
 #workspace .inventory-category-card small{font-size:11px;color:#a3b9aa}
 #workspace .inventory-category-card:hover{border-color:#6d9980;transform:translateY(-1px)}
 #workspace .inventory-category-card.active{background:linear-gradient(100deg,#fe101e,#e82631);
  color:#fff;border-color:#ff6470;box-shadow:0 7px 18px #e7223630}
 #workspace .inventory-category-card.active small{color:#ffe5e5}
-#workspace .inventory-category-card:focus-visible{outline:3px solid #ff8191;outline-offset:3px}
+#workspace .inventory-category-card:focus-visible,#workspace .inventory-category-card:focus-within{outline:3px solid #ff8191;outline-offset:3px}
 
 /* Os cards eram de no mínimo 230px; 174px equivale a ~40% menos largura visual.
    Imagem, tipografia e espaçamento também reduzem proporcionalmente. */

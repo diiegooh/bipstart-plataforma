@@ -177,11 +177,11 @@ test('categorias têm imagens grandes e cards transparentes, mantendo a seleçã
  const start=js.indexOf('function categoryArtwork(name){');
  const end=js.indexOf('function applyBrand(){',start);
  assert.ok(start>=0&&end>start);
- const categoryArtwork=new Function('products','fold','esc','imageUrl','categoryEmoji',
+ const categoryArtwork=new Function('products','fold','esc','imageUrl','categoryEmoji','menu',
   js.slice(start,end)+';return categoryArtwork;')(
   [{category:'Bebidas',image_path:'categoria/bebida.png'}],
   x=>String(x||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase(),
-  x=>String(x),x=>'/imagens/'+x,()=> '🥟'
+  x=>String(x),x=>'/imagens/'+x,()=> '🥟',{categories:[]}
  );
  const photo=categoryArtwork('Bebidas');
  assert.match(photo,/category-art-photo/);
