@@ -382,7 +382,7 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 #workspace .side-store-text small{font-size:11px}
 #workspace .side .side-actions-row{
  display:grid;
- grid-template-columns:minmax(0,1.55fr) minmax(59px,.8fr);
+ grid-template-columns:minmax(0,1fr);
  align-items:stretch;
  gap:8px;
 }
