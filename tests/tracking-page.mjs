@@ -17,6 +17,7 @@ test('pagina de acompanhamento compila, tem layout responsivo e estado seguro',(
  assert.match(html,/id="statusPill"/);
  assert.match(html,/id="paymentStatus"/);
  assert.match(html,/id="trackingError"/);
+ assert.doesNotMatch(html,/As informações são atualizadas automaticamente|A loja confirma o pagamento e a entrega/);
  assert.match(html,/noindex,nofollow,noarchive/);
  assert.match(html,/name="referrer" content="no-referrer"/);
  assert.match(css,/\.progress-list/);
