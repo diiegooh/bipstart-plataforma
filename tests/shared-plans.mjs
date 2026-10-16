@@ -55,7 +55,7 @@ test('cadastro mantém o mesmo shop_id e a mesma base em mudanças de plano',()=
  assert.match(source,/await reloadData\(\)/);
  assert.match(panel,/id="modeChooser"/);
  assert.match(panel,/id="workspace"/);
- assert.match(panel,/\/cliente\.js\?v=33/);
+ assert.match(panel,/\/cliente\.js\?v=34/);
 });
 test('pedido de troca não concede Premium; ativação administra a mesma loja',()=>{
  assert.match(database,/create or replace function public\.bipstart_request_plan_change\(p_shop_id uuid,p_plan text\)/);
