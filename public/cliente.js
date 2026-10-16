@@ -11,6 +11,9 @@ let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix';
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
+const preferredPlan=new URLSearchParams(location.search).get('plano');
+const initialPlan=['basic','pro'].includes(preferredPlan)?preferredPlan:null;
+let planRefreshBusy=false;
 const plans={basic:'Básico',pro:'Premium'};
 const planPrices={basic:'R$ 29,90 (pagamento único)',pro:'R$ 79,90/mês'};
 const BIPSTART_PLAN_WHATSAPP='5511978353820';
@@ -157,7 +160,11 @@ async function requireVerifiedEmail(){
 async function loadShops(){
   await requireVerifiedEmail();
   const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,created_at',order:'created_at.desc',limit:'20'}});
-  if(!rows?.length){hideAll();hiding('createShop',true);hiding('logout',true);return}
+  if(!rows?.length){
+    hideAll();hiding('createShop',true);hiding('logout',true);
+    if(initialPlan)$('shopForm').elements.namedItem('requested_plan').value=initialPlan;
+    return;
+  }
   shop=rows[0];selectedCategoryFilter='all';await openShop();
 }
 function trialValid(){
@@ -170,6 +177,44 @@ function subscriptionValid(){
 function hasAccess(){return trialValid()||subscriptionValid()}
 function proAccess(){return ent?.plan_code==='pro'&&hasAccess()}
 function canCustomize(){return proAccess()}
+function planManagementCard(){
+ const active=ent?.plan_code==='pro'?'pro':'basic';
+ const target=active==='basic'?'pro':'basic';
+ const requested=shop?.requested_plan;
+ const pending=requested===target;
+ const info=pending?
+   '<p class="plan-management-pending">Plano '+esc(plans[target])+' solicitado. Aguarde a confirmação e a ativação manual pela BipStart.</p>':
+   '<button type="button" class="ghost plan-request-button" data-plan-request="'+target+'">Solicitar '+(target==='pro'?'upgrade para Premium':'mudança para Básico')+'</button>';
+ return '<section class="plan-management" aria-label="Meu plano e dados da loja">'+
+   '<h3>Meu plano</h3><p>Plano ativo: <strong>'+esc(plans[active])+'</strong></p>'+
+   '<p class="muted small">Seus produtos, estoque, vendas, cardápio, endereço e configurações permanecem na mesma loja ao trocar de plano.</p>'+
+   info+
+   (pending?'<a class="ghost plan-contact" href="'+esc(contactUrl('alteracao'))+'" target="_blank" rel="noopener noreferrer">Solicitar ativação pelo WhatsApp ↗</a>':'')+
+   '</section>';
+}
+async function refreshActivatedPlan(){
+ if(planRefreshBusy||!shop||!session)return;
+ planRefreshBusy=true;
+ try{
+  const id=shop.id;
+  const [latest]=await rest('shop_entitlements',{query:{select:'plan_code,status,trial_until,active_until',shop_id:'eq.'+id,limit:'1'}});
+  if(shop?.id!==id||!latest)return;
+  const previous=JSON.stringify(ent);
+  if(JSON.stringify(latest)===previous)return;
+  ent=latest;
+  const rows=await rest('shops',{query:{
+    select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,created_at',
+    id:'eq.'+id,limit:'1'
+  }});
+  if(rows[0])shop={...shop,...rows[0]};
+  if(!hasAccess()){hideAll();hiding('accessGate',true);renderAccessGate();return;}
+  await reloadData();
+  renderNav();
+  if(!$('workspace').classList.contains('hidden'))renderPage();
+  msg('Plano e permissões atualizados. Seus produtos e configurações foram preservados.');
+ }catch(error){console.warn('Atualização do plano indisponível:',error.message)}
+ finally{planRefreshBusy=false;}
+}
 function contactUrl(reason='contratacao'){
   const chosen=plans[shop?.requested_plan]||'Básico';
   const price=planPrices[shop?.requested_plan]||planPrices.basic;
@@ -209,6 +254,10 @@ async function openShop(){
   // Link de gestão do cardápio público: entrada direta no editor após verificar acesso.
   if(new URLSearchParams(location.search).get('editar')==='cardapio'){
     tab='cardapio';showForm=null;pastedProductImage=null;
+    hiding('modeChooser',false);hiding('workspace',true);renderPage();
+  }else if(initialPlan&&ent?.plan_code!==initialPlan){
+    // Plano selecionado na página inicial: mostrar a atualização para a MESMA loja.
+    tab='configuracoes';showForm=null;
     hiding('modeChooser',false);hiding('workspace',true);renderPage();
   }
 }
@@ -822,6 +871,7 @@ function renderPage(){
       '</div>':
       '';
     content=heading('Configurações da loja',isMenu?'Defina horário, localização, pagamentos e entrega.':'Nome da empresa, WhatsApp e cor principal.')
+      +planManagementCard()
       +'<div class="data-form"><form id="settingsForm">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
@@ -1131,6 +1181,23 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
+  const planButton=e.target.closest('[data-plan-request]');
+  if(planButton){
+    if(!shop||!hasAccess()||!['basic','pro'].includes(planButton.dataset.planRequest))return;
+    const target=planButton.dataset.planRequest;
+    if(target===ent?.plan_code)return;
+    if(!window.confirm('Solicitar mudança desta mesma loja para o plano '+plans[target]+
+       '? Todos os produtos e configurações serão mantidos. O plano novo só será liberado após a confirmação da BipStart.'))return;
+    planButton.disabled=true;
+    try{
+      const success=await rpc('bipstart_request_plan_change',{p_shop_id:shop.id,p_plan:target});
+      if(success!==true)throw Error('Não foi possível registrar a solicitação de plano.');
+      shop.requested_plan=target;
+      renderPage();
+      msg('Solicitação do plano '+plans[target]+' registrada. Entre em contato para concluir a ativação.');
+    }catch(error){planButton.disabled=false;msg(error.message,true);}
+    return;
+  }
   const dispatch=e.target.closest('[data-online-delivery]');
   if(dispatch){
     if(!proAccess())return msg('Entregas com motoboys são exclusivas do Premium.',true);
@@ -1343,9 +1410,13 @@ $('showSignup').onclick=()=>authTab(true);
 $('logout').onclick=()=>{closeSideMenu();session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
 $('backToModes').onclick=()=>{if(!shop||!hasAccess())return;closeSideMenu();history.replaceState(null,'','/cliente');hiding('workspace',false);hiding('modeChooser',true);showForm=null;};
 $('refreshAccess').onclick=async()=>{try{await openShop();msg(hasAccess()?'Seu acesso está liberado!':'Ainda aguardando liberação. Confira o WhatsApp.')}catch(e){msg(e.message,true)}};
-window.addEventListener('focus',()=>{if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate()}});
+window.addEventListener('focus',()=>{
+ if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();}
+ if(shop&&session)void refreshActivatedPlan();
+});
 setInterval(()=>{if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate()}},60000);
 setInterval(()=>{void refreshOnlineOrdersIfVisible()},15000);
+setInterval(()=>{if(document.visibilityState==='visible')void refreshActivatedPlan()},60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')void refreshOnlineOrdersIfVisible()});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&$('sidebar').classList.contains('open'))closeSideMenu();});
 $('forgotPassword').onclick=async()=>{
