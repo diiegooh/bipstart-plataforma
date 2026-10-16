@@ -345,7 +345,7 @@ function renderNav(){
     sidebarItems.sort((a,b)=>Number(blocked.has(a[0]))-Number(blocked.has(b[0])));
   }
   $('nav').innerHTML='<nav aria-label="Navegação operacional">'+sidebarItems.map(([id,name,icon])=>{
-    if((id==='cardapio_publico'||id==='pedidos')&&!proAccess()){
+    if((id==='cardapio_publico'||id==='pedidos'||id==='motoboys')&&!proAccess()){
       return '<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="'+esc(name)+': exclusivo Premium" title="Exclusivo Premium">'+
         '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><small class="side-lock">Premium</small></button>';
     }
@@ -353,9 +353,8 @@ function renderNav(){
       return '<a class="side-public-menu" data-public-menu-link href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer" aria-label="Abrir cardápio online da loja em outra aba" title="Abrir cardápio online em outra aba">'+
         '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><span class="side-external-icon" aria-hidden="true">↗</span></a>';
     }
-    const premium=id==='motoboys'&&!proAccess();
-    return '<button type="button" data-nav="'+esc(id)+'" class="'+(current===id?'active':premium?'locked':'')+'"'+(current===id?' aria-current="page"':'')+(premium?' aria-label="Motoboys: exclusivo Premium" title="Exclusivo do Premium"':'')+'>'+
-      '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b>'+(premium?'<small class="side-lock">Premium</small>':'')+'</button>';
+    return '<button type="button" data-nav="'+esc(id)+'" class="'+(current===id?'active':'')+'"'+(current===id?' aria-current="page"':'')+'>'+
+      '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b></button>';
   }).join('')+'</nav>';
   $('sideShopName').textContent=shop.name;
   $('sideColorPremium').classList.toggle('hidden',canCustomize());
@@ -1399,8 +1398,7 @@ document.addEventListener('click',async e=>{
     return;
   }
   const nav=e.target.closest('[data-nav]');if(nav){
-    if(['cardapio','pedidos'].includes(nav.dataset.nav)&&!proAccess())return;
-    if(nav.dataset.nav==='motoboys'&&!proAccess())return msg('Motoboys disponíveis somente no plano Premium.',true);
+    if(['cardapio','pedidos','motoboys'].includes(nav.dataset.nav)&&!proAccess())return;
     if(!pages().some(([key])=>key===nav.dataset.nav))return;
     tab=nav.dataset.nav;showForm=null;pastedProductImage=null;closeSideMenu();renderPage();
     if(tab==='vendas')await loadSalesReport();
