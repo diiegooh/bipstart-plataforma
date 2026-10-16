@@ -151,7 +151,7 @@ test('admin controla solicitações com status existentes e histórico protegido
 });
 test('cartão administrativo escapa descrição e e-mail, mostra plano, data, status e WhatsApp',()=>{
  const start=admin.indexOf('const REQUEST_STATUS=');
- const end=admin.indexOf('async function load(){',start);
+ const end=admin.indexOf('const ADMIN_TABS=',start);
  assert.ok(start>0&&end>start);
  const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const {requestCard,contactWhatsapp}=new Function('escapeHtml','PLAN',
