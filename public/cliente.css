@@ -722,3 +722,44 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 .mode-options .mode-option.locked:disabled{opacity:.64;border-style:dashed;cursor:not-allowed;pointer-events:none}
 .mode-options .mode-option.locked .mode-option-cta{color:#efdb91}
 .mode-premium-label{display:inline-block;margin-left:6px;vertical-align:middle;padding:4px 7px;font-size:10px;font-weight:900;letter-spacing:.04em;border-radius:6px;color:#ffefb6;background:#382d12}
+
+
+/* Comprovante comercial: prévia acessível; tamanhos térmicos e A4 são formatados na exportação. */
+body.receipt-open{overflow:hidden}
+.receipt-overlay{position:fixed;inset:0;display:grid;place-items:center;background:#06030bdd;z-index:220;padding:15px}
+.receipt-dialog{width:min(600px,100%);max-height:94dvh;display:flex;flex-direction:column;gap:10px;overflow:hidden;background:#191024;border:1px solid #6c5292;border-radius:18px;padding:18px;box-shadow:0 18px 65px #0009}
+.receipt-dialog-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.receipt-dialog-head h2{font-size:23px;margin:0}
+.receipt-dialog-head p{font-size:12px;color:#c0b1d5;margin:6px 0 0}
+.receipt-dialog-head [data-receipt-close]{font-size:22px;min-width:44px;min-height:44px}
+.receipt-content{min-height:0;overflow:auto;padding:15px 8px;background:#e6e4e7;border-radius:12px}
+.receipt-dialog .receipt-paper{max-width:340px;margin:0 auto;background:#fff;color:#151515;padding:18px 13px;font:12px/1.5 Arial,sans-serif;overflow-wrap:anywhere}
+.receipt-paper .receipt-shop,.receipt-paper>h3,.receipt-paper .receipt-subtitle,.receipt-paper .receipt-footer,.receipt-paper .receipt-legal{text-align:center}
+.receipt-paper .receipt-shop strong{font-size:16px}
+.receipt-paper .receipt-shop p{font-size:11px;margin:4px 0;color:#111}
+.receipt-paper>h3{font-size:13px;margin:13px 0 2px;color:#111}
+.receipt-paper .receipt-subtitle{font-size:10px;font-weight:800;margin:0 0 12px;color:#111}
+.receipt-paper .receipt-meta{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed #aaa}
+.receipt-paper .receipt-meta strong{text-align:right;min-width:0;overflow-wrap:anywhere}
+.receipt-paper .receipt-items{width:100%;table-layout:fixed;border-collapse:collapse;margin:13px 0;font-size:inherit}
+.receipt-paper .receipt-items th,.receipt-paper .receipt-items td{padding:6px 2px;border-bottom:1px dotted #aaa;text-align:right;vertical-align:top;overflow-wrap:anywhere}
+.receipt-paper .receipt-items th:nth-child(1),.receipt-paper .receipt-items td:nth-child(1){width:12%;text-align:left}
+.receipt-paper .receipt-items th:nth-child(2),.receipt-paper .receipt-items td:nth-child(2){width:40%;text-align:left}
+.receipt-paper .receipt-items th:nth-child(3),.receipt-paper .receipt-items td:nth-child(3){width:24%}
+.receipt-paper .receipt-items th:nth-child(4),.receipt-paper .receipt-items td:nth-child(4){width:24%}
+.receipt-paper .receipt-grand{font-size:15px;font-weight:900;border-block:2px solid #111}
+.receipt-paper .receipt-legal{font-size:10px;margin:14px 0 2px;color:#333}
+.receipt-paper .receipt-warning{font-weight:800;border:1px solid #555;padding:7px}
+.receipt-paper .receipt-footer{margin:20px 0 7px;font-weight:850}
+.receipt-dialog-actions{display:flex;gap:8px;flex-wrap:wrap}
+.receipt-dialog-actions>*{flex:1 1 auto}
+#workspace .receipt-settings-panel{margin:18px 0;padding:19px;border:1px solid #594579;border-radius:16px;background:#1d152e}
+#workspace .receipt-settings-panel h3{margin:0 0 8px}
+#workspace .receipt-settings-panel form{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+#workspace .receipt-settings-panel form>label{margin:0}
+#workspace .receipt-settings-panel input,#workspace .receipt-settings-panel select{width:100%;min-height:43px}
+#workspace .receipt-settings-panel .receipt-settings-check{display:flex;align-items:center;gap:8px;grid-column:1/-1}
+#workspace .receipt-settings-panel .receipt-settings-check input{width:18px;min-height:0;flex:0 0 18px;margin:0}
+#workspace .receipt-settings-panel form>.button{justify-self:start}
+#workspace .pdv-last-receipt{width:100%;margin-top:9px;text-align:center}
+@media(max-width:550px){.receipt-dialog{padding:12px}.receipt-dialog-actions{flex-direction:column}.receipt-dialog-actions>*{width:100%}#workspace .receipt-settings-panel form{grid-template-columns:1fr}}

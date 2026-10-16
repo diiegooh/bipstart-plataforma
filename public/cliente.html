@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#100721"><title>Minha loja • BipStart</title>
-<link rel="stylesheet" href="/cliente.css?v=25">
+<link rel="stylesheet" href="/cliente.css?v=26">
 </head>
 <body>
 <header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><a href="/">Conhecer os planos</a> <button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
@@ -77,6 +77,18 @@
     </div>
   </section>
 </main>
+<div id="receiptModal" class="receipt-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="receiptHeading">
+  <section class="receipt-dialog">
+    <header class="receipt-dialog-head"><div><h2 id="receiptHeading">Venda finalizada</h2><p>Comprovante não fiscal • Formato <strong data-receipt-paper-label>80 mm</strong></p></div>
+      <button type="button" class="ghost" data-receipt-close aria-label="Fechar comprovante">×</button></header>
+    <div class="receipt-content" data-receipt-content></div>
+    <div class="receipt-dialog-actions">
+      <button type="button" class="button" data-receipt-print>Imprimir / Salvar PDF</button>
+      <button type="button" class="ghost" data-receipt-download>Exportar comprovante</button>
+      <button type="button" class="ghost" data-receipt-close>Fechar</button>
+    </div>
+  </section>
+</div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=40" defer></script>
+<script src="/cliente.js?v=41" defer></script>
 </body></html>

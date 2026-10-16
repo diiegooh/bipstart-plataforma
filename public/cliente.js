@@ -250,6 +250,7 @@ async function openShop(){
  ent=access||null;
  if(!hasAccess()){hiding('accessGate',true);renderAccessGate();return}
  await reloadData();
+ lastReceipt=null;
  tab='caixa';showForm=null;pastedProductImage=null;selectedStockPanel='';
  const requested=new URLSearchParams(location.search);
  if(requested.get('editar')==='cardapio')tab=proAccess()?'cardapio':'configuracoes';
@@ -715,6 +716,159 @@ function cardapioEditor(){
  '</section></div><section class="menu-editor-panel menu-editor-items"><h3>Itens do cardápio</h3>'+productRows()+'</section>';
 }
 
+
+/* Comprovante não fiscal: preferências locais isoladas por loja e impressão sem credenciais. */
+let lastReceipt=null;
+const receiptPaperOptions=['58','80','a4'];
+function receiptSettingsKey(){
+ return 'bipstart_receipt_settings_v1:'+(shop?.id||'sem-loja');
+}
+function receiptSettings(){
+ const standard={paper:'80',preview:true,footer:'Obrigado pela preferência!'};
+ try{
+  const parsed=JSON.parse(localStorage.getItem(receiptSettingsKey())||'null');
+  if(!parsed||typeof parsed!=='object')return standard;
+  return {
+   paper:receiptPaperOptions.includes(parsed.paper)?parsed.paper:'80',
+   preview:parsed.preview!==false,
+   footer:typeof parsed.footer==='string'?parsed.footer.slice(0,120):standard.footer
+  };
+ }catch{return standard;}
+}
+function receiptSettingsPanel(){
+ const prefs=receiptSettings();
+ return '<section class="receipt-settings-panel" aria-labelledby="receiptSettingsTitle">'+
+  '<h3 id="receiptSettingsTitle">Formato do comprovante de venda</h3>'+
+  '<p class="muted">Escolha o papel para impressão ou PDF. A configuração vale para esta loja neste navegador.</p>'+
+  '<form id="receiptSettingsForm">'+
+  '<label>Tamanho da nota<select name="paper">'+
+   [['58','Bobina térmica 58 mm'],['80','Bobina térmica 80 mm'],['a4','Folha A4']].map(([value,label])=>
+    '<option value="'+value+'"'+(prefs.paper===value?' selected':'')+'>'+label+'</option>').join('')+
+   '</select></label>'+
+  '<label>Mensagem no rodapé<input type="text" name="footer" maxlength="120" value="'+esc(prefs.footer)+'" placeholder="Ex.: Obrigado pela preferência!"></label>'+
+  '<label class="receipt-settings-check"><input type="checkbox" name="preview"'+(prefs.preview?' checked':'')+'> Abrir comprovante após finalizar cada venda</label>'+
+  '<button type="submit" class="button">Salvar formato da nota</button></form>'+
+  '<p class="muted small">Documento comercial sem valor fiscal; não substitui NFC-e ou nota fiscal.</p>'+
+  '</section>';
+}
+function receiptSnapshot(sale,method,received,sold,recorded){
+ const total=Number(sale?.total);
+ const serverItems=Array.isArray(recorded)&&recorded.length===sold.length&&recorded.every(row=>
+  row&&typeof row.product_name==='string'&&Number.isFinite(Number(row.unit_price))&&Number(row.unit_price)>=0&&
+  Number.isInteger(Number(row.quantity))&&Number(row.quantity)>0);
+ const items=serverItems?recorded.map(row=>({
+   name:String(row.product_name),qty:Number(row.quantity),price:Number(row.unit_price)
+  })):sold.map(item=>({name:String(item.name),qty:Number(item.qty),price:Number(item.price)}));
+ const computed=items.reduce((acc,item)=>acc+item.qty*item.price,0);
+ const validTotal=Number.isFinite(total)&&total>=0?total:computed;
+ return {
+  shopId:shop.id,shopName:String(shop.name||''),address:String(shop.location_text||''),
+  whatsapp:String(shop.whatsapp||''),id:String(sale?.sale_id||''),
+  issuedAt:new Date().toISOString(),payment:method,items,total:validTotal,
+  received:method==='dinheiro'&&received!==''?Number(received):null,
+  priceVerified:serverItems&&Math.abs(computed-validTotal)<.011
+ };
+}
+function receiptMarkup(receipt){
+ const pay={dinheiro:'Dinheiro',pix:'Pix',credito:'Cartão de crédito',debito:'Cartão de débito'};
+ const subtotal=receipt.items.reduce((sum,item)=>sum+item.qty*item.price,0);
+ const cash=receipt.payment==='dinheiro'&&Number.isFinite(receipt.received);
+ const footer=receiptSettings().footer.trim();
+ const date=new Date(receipt.issuedAt);
+ return '<article class="receipt-paper"><header class="receipt-shop">'+
+  '<strong>'+esc(receipt.shopName)+'</strong>'+
+  (receipt.address?'<p>'+esc(receipt.address)+'</p>':'')+
+  (receipt.whatsapp?'<p>Contato: '+esc(receipt.whatsapp)+'</p>':'')+
+  '</header><h3>COMPROVANTE DE VENDA</h3><p class="receipt-subtitle">NÃO FISCAL</p>'+
+  '<div class="receipt-meta"><span>Emissão</span><strong>'+esc(Number.isNaN(date.getTime())?'—':date.toLocaleString('pt-BR'))+'</strong></div>'+
+  (receipt.id?'<div class="receipt-meta"><span>Venda</span><strong>'+esc(receipt.id)+'</strong></div>':'')+
+  '<table class="receipt-items"><thead><tr><th>Qtd.</th><th>Item</th><th>Un.</th><th>Total</th></tr></thead><tbody>'+
+  receipt.items.map(item=>'<tr><td>'+esc(item.qty)+'</td><td>'+esc(item.name)+'</td>'+
+   '<td>'+fmt(item.price)+'</td><td>'+fmt(item.price*item.qty)+'</td></tr>').join('')+
+  '</tbody></table>'+
+  '<div class="receipt-meta"><span>Itens</span><strong>'+receipt.items.reduce((sum,item)=>sum+item.qty,0)+'</strong></div>'+
+  '<div class="receipt-meta"><span>Subtotal dos itens</span><strong>'+fmt(subtotal)+'</strong></div>'+
+  '<div class="receipt-meta receipt-grand"><span>TOTAL DA VENDA</span><strong>'+fmt(receipt.total)+'</strong></div>'+
+  '<div class="receipt-meta"><span>Pagamento</span><strong>'+esc(pay[receipt.payment]||receipt.payment)+'</strong></div>'+
+  (cash?'<div class="receipt-meta"><span>Valor recebido</span><strong>'+fmt(receipt.received)+'</strong></div>'+
+   '<div class="receipt-meta"><span>Troco</span><strong>'+fmt(Math.max(0,receipt.received-receipt.total))+'</strong></div>':'')+
+  (!receipt.priceVerified?'<p class="receipt-warning">Valores unitários de referência. Confirme os itens com o registro da venda.</p>':'')+
+  (footer?'<p class="receipt-footer">'+esc(footer)+'</p>':'')+
+  '<p class="receipt-legal">Comprovante comercial sem valor fiscal.<br>Não substitui nota fiscal ou NFC-e.</p></article>';
+}
+function receiptStandaloneHtml(receipt,paper){
+ const choice=receiptPaperOptions.includes(paper)?paper:'80';
+ const narrow=choice==='58';
+ const printWidth=choice==='a4'?'185mm':choice+'mm';
+ const printHeight=choice==='a4'?'auto':Math.min(1000,Math.max(150,105+receipt.items.reduce((n,item)=>
+   n+Math.ceil(String(item.name).length/(narrow?13:20))*6+7,0)))+'mm';
+ const pageSize=choice==='a4'?'A4':printWidth+' '+printHeight;
+ const pageMargin=choice==='a4'?'12mm':'2mm';
+ return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">'+
+  '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+  '<title>Comprovante '+esc(receipt.id||'de venda')+'</title>'+
+  '<style>@page{size:'+pageSize+';margin:'+pageMargin+'}'+
+  '*,*::before,*::after{box-sizing:border-box}body{margin:0;padding:12px;background:#ececec;font:12px Arial,sans-serif;color:#111}'+
+  '.print-actions{text-align:center;margin:0 auto 15px}.print-actions button{padding:9px 16px;cursor:pointer}'+
+  '.receipt-paper{max-width:'+printWidth+';margin:auto;background:white;padding:'+(choice==='a4'?'15mm':'2mm')+';color:#111;overflow-wrap:anywhere}'+
+  '.receipt-shop,.receipt-paper>h3,.receipt-subtitle,.receipt-footer,.receipt-legal{text-align:center}'+
+  '.receipt-shop strong{font-size:1.32em}.receipt-shop p{margin:4px 0}'+
+  '.receipt-paper h3{font-size:1.1em;margin:14px 0 2px}'+
+  '.receipt-subtitle{font-size:.85em;margin:0 0 12px;font-weight:bold}'+
+  '.receipt-meta{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed #aaa}'+
+  '.receipt-meta strong{text-align:right;overflow-wrap:anywhere;min-width:0}'+
+  '.receipt-items{width:100%;border-collapse:collapse;margin:13px 0;font-size:inherit;table-layout:fixed}'+
+  '.receipt-items th,.receipt-items td{padding:6px 2px;border-bottom:1px dotted #aaa;vertical-align:top;text-align:right;overflow-wrap:anywhere}'+
+  '.receipt-items th:nth-child(1),.receipt-items td:nth-child(1){width:12%;text-align:left}'+
+  '.receipt-items th:nth-child(2),.receipt-items td:nth-child(2){width:40%;text-align:left}'+
+  '.receipt-items th:nth-child(3),.receipt-items td:nth-child(3){width:24%}'+
+  '.receipt-items th:nth-child(4),.receipt-items td:nth-child(4){width:24%}'+
+  '.receipt-grand{font-size:1.18em;font-weight:bold;border-top:2px solid #111;border-bottom:2px solid #111}'+
+  '.receipt-footer{margin:18px 0 7px;font-weight:bold}.receipt-legal{font-size:.8em;color:#333}'+
+  '.receipt-warning{font-weight:bold;border:1px solid #111;padding:5px}'+
+  '@media print{body{padding:0;background:white}.print-actions{display:none}.receipt-paper{max-width:none;margin:0;padding:0}}'+
+  '</style></head><body><div class="print-actions"><button onclick="window.print()">Imprimir / Salvar PDF</button></div>'+
+  receiptMarkup(receipt)+'</body></html>';
+}
+function showReceiptDialog(receipt){
+ if(!receipt||receipt.shopId!==shop?.id)return;
+ const modal=$('receiptModal');
+ modal.querySelector('[data-receipt-content]').innerHTML=receiptMarkup(receipt);
+ modal.querySelector('[data-receipt-paper-label]').textContent=
+  ({'58':'58 mm','80':'80 mm','a4':'A4'})[receiptSettings().paper];
+ modal.classList.remove('hidden');
+ document.body.classList.add('receipt-open');
+ modal.querySelector('[data-receipt-close]').focus();
+}
+function closeReceiptDialog(){
+ $('receiptModal').classList.add('hidden');
+ document.body.classList.remove('receipt-open');
+ document.querySelector('[data-receipt-last]')?.focus({preventScroll:true});
+}
+function printReceipt(receipt){
+ if(!receipt||receipt.shopId!==shop?.id)return;
+ const popup=window.open('','_blank');
+ if(!popup)return msg('Seu navegador bloqueou a impressão. Libere pop-ups e tente novamente.',true);
+ popup.document.open();
+ popup.document.write(receiptStandaloneHtml(receipt,receiptSettings().paper));
+ popup.document.close();
+ popup.focus();
+ popup.setTimeout(()=>{try{popup.print()}catch{}},350);
+}
+function downloadReceipt(receipt){
+ if(!receipt||receipt.shopId!==shop?.id)return;
+ const html=receiptStandaloneHtml(receipt,receiptSettings().paper);
+ const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+ const url=URL.createObjectURL(blob);
+ const link=document.createElement('a');
+ link.href=url;
+ link.download='comprovante-'+String(receipt.id||'venda').replace(/[^a-zA-Z0-9_-]/g,'')+'.html';
+ document.body.append(link);
+ link.click();
+ link.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+
 /* Frente de caixa inspirada no fluxo visual da Godzilla Adega.
    Todas as gravações continuam na API isolada da loja BipStart. */
 function filteredPdvProducts(){
@@ -780,6 +934,7 @@ function renderGodzillaPDV(){
  '<small class="muted">Estimativa informativa; não é cobrada nem registrada na venda.</small></div>'+
  '<button type="submit" class="button pdv-finish" '+(!cart.length?'disabled':'')+'>Finalizar venda ↗</button>'+
  '<p class="muted small">Registre apenas pagamentos recebidos fora da BipStart. O sistema atualiza o estoque após confirmar a venda.</p></form>'+
+ ((typeof lastReceipt!=='undefined'&&lastReceipt?.shopId===shop?.id)?'<button class="ghost pdv-last-receipt" type="button" data-receipt-last>🧾 Reimprimir último comprovante</button>':'')+
  '</aside></div></div>';
 }
 function updatePdvEstimates(){
@@ -962,7 +1117,7 @@ function renderPage(){
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +logoSection+'</div>':'')
       +'<button class="button">Salvar configurações</button></form></div>'+
-      (isMenu?categoryImagesSettings():'');
+      (isMenu?receiptSettingsPanel()+categoryImagesSettings():'');
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
       +'<div class="data-form"><form id="customForm"><label>Descreva sua solicitação<textarea name="details" minlength="10" maxlength="3000" placeholder="Envie sua logo e conte as mudanças desejadas..." required></textarea></label><button class="button">Enviar solicitação</button></form></div>'
@@ -1153,6 +1308,15 @@ async function handleSubmit(form){
       await storeForm(form,'shop_products',body,id);
       break;
     }
+    case 'receiptSettingsForm':{
+      if(!shop||shop.model!=='pdv'||!hasAccess())throw Error('A loja não está disponível.');
+      if(!receiptPaperOptions.includes(v.paper)||String(v.footer||'').length>120)
+        throw Error('Escolha um tamanho de papel válido e um rodapé com até 120 caracteres.');
+      try{localStorage.setItem(receiptSettingsKey(),JSON.stringify({
+        paper:v.paper,preview:form.elements.namedItem('preview').checked,footer:String(v.footer||'')
+      }));}catch{throw Error('Não foi possível salvar a preferência neste navegador.');}
+      renderPage();msg('Formato da nota salvo neste navegador para esta loja.');return;
+    }
     case 'saleForm':{
       if(!cart.length)throw Error('Adicione produtos ao carrinho.');
       if(v.payment_method==='dinheiro'){
@@ -1161,8 +1325,19 @@ async function handleSubmit(form){
           throw Error('Informe um valor recebido suficiente para finalizar a venda em dinheiro.');
       }
       pdvPayment=v.payment_method;
+      const sold=cart.map(c=>({id:c.id,name:c.name,qty:c.qty,price:c.price}));
       const data=await rpc('bipstart_complete_sale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),p_payment_method:v.payment_method});
-      cart=[];msg('Venda registrada: '+fmt(data.total));break;
+      let recorded=[];
+      try{
+        if(data?.sale_id)recorded=await rest('shop_sale_items',{query:{
+          select:'product_name,quantity,unit_price',shop_id:'eq.'+shop.id,sale_id:'eq.'+data.sale_id
+        }});
+      }catch(error){console.warn('Detalhes da venda não disponíveis para a nota:',error.message)}
+      lastReceipt=receiptSnapshot(data,v.payment_method,v.received||'',sold,recorded);
+      cart=[];
+      if(receiptSettings().preview)showReceiptDialog(lastReceipt);
+      msg('Venda registrada: '+fmt(data.total)+'. Comprovante disponível para impressão.');
+      break;
     }
     case 'courierForm':{
       if(!proAccess())throw Error('Motoboys disponíveis somente no Plano Premium vigente.');
@@ -1225,7 +1400,7 @@ async function handleSubmit(form){
       msg('Solicitação recebida para acompanhamento.');break;
     }
   }
-  if(!['loginForm','signupForm','shopForm','resetPassForm'].includes(form.id)){showForm=null;pastedProductImage=null;await reloadData();renderPage();msg('Dados salvos com sucesso.');}
+  if(!['loginForm','signupForm','shopForm','resetPassForm'].includes(form.id)){showForm=null;pastedProductImage=null;await reloadData();renderPage();if(form.id!=='saleForm')msg('Dados salvos com sucesso.');}
 }
 document.addEventListener('submit',async e=>{const form=e.target;if(!form.matches('form'))return;e.preventDefault();const btn=form.querySelector('button[type=submit],button.button');if(btn)btn.disabled=true;try{await handleSubmit(form)}catch(err){msg(err.message||'Erro ao salvar',true)}finally{if(btn?.isConnected)btn.disabled=false}});
 document.addEventListener('paste',e=>{
@@ -1310,6 +1485,14 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
+  if(e.target.closest('[data-receipt-close]')){closeReceiptDialog();return;}
+  if(e.target.closest('[data-receipt-print]')){printReceipt(lastReceipt);return;}
+  if(e.target.closest('[data-receipt-download]')){downloadReceipt(lastReceipt);return;}
+  if(e.target.closest('[data-receipt-last]')){
+    if(lastReceipt?.shopId===shop?.id)showReceiptDialog(lastReceipt);
+    return;
+  }
+  if(e.target.id==='receiptModal'){closeReceiptDialog();return;}
   const planButton=e.target.closest('[data-plan-request]');
   if(planButton){
     if(!shop||!hasAccess()||!['basic','pro'].includes(planButton.dataset.planRequest))return;
@@ -1536,7 +1719,7 @@ $('signupForm').addEventListener('input',()=>{
 });
 $('showLogin').onclick=()=>authTab(false);
 $('showSignup').onclick=()=>authTab(true);
-$('logout').onclick=()=>{closeSideMenu();session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
+$('logout').onclick=()=>{closeSideMenu();closeReceiptDialog();lastReceipt=null;session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
 $('refreshAccess').onclick=async()=>{try{await openShop();msg(hasAccess()?'Seu acesso está liberado!':'Ainda aguardando liberação. Confira o WhatsApp.')}catch(e){msg(e.message,true)}};
 window.addEventListener('focus',()=>{
  if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();}
@@ -1546,7 +1729,7 @@ setInterval(()=>{if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('a
 setInterval(()=>{void refreshOnlineOrdersIfVisible()},15000);
 setInterval(()=>{if(document.visibilityState==='visible')void refreshActivatedPlan()},60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')void refreshOnlineOrdersIfVisible()});
-document.addEventListener('keydown',event=>{if(event.key==='Escape'&&$('sidebar').classList.contains('open'))closeSideMenu();});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'){if(!$('receiptModal').classList.contains('hidden'))closeReceiptDialog();else if($('sidebar').classList.contains('open'))closeSideMenu();}});
 $('forgotPassword').onclick=async()=>{
   const email=$('loginForm').querySelector('input[name=email]').value.trim();
   if(!email)return msg('Informe seu e-mail para receber a recuperação.',true);
