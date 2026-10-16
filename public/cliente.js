@@ -237,6 +237,21 @@ async function reloadData(){
     deliveries=await get('shop_deliveries');
   }
 }
+async function refreshOnlineOrdersIfVisible(){
+ if(onlineOrdersPolling||pendingOrderUpdates.size||!shop||!hasAccess()||tab!=='pedidos'||
+    document.visibilityState==='hidden'||!$('workspace')||$('workspace').classList.contains('hidden'))return;
+ onlineOrdersPolling=true;
+ const currentShop=shop.id;
+ try{
+   const latest=await rest('shop_online_orders',{query:{
+     select:'*',shop_id:'eq.'+currentShop,order:'created_at.desc',limit:'200'
+   }});
+   if(shop?.id!==currentShop||tab!=='pedidos'||pendingOrderUpdates.size)return;
+   const sig=rows=>rows.map(o=>o.id+':'+o.status+':'+o.payment_status).join('|');
+   if(sig(latest)!==sig(onlineOrders)){onlineOrders=latest;renderPage();}
+ }catch(error){console.warn('Atualização de pedidos indisponível:',error.message);}
+ finally{onlineOrdersPolling=false;}
+}
 function pages(){
   const a=[['resumo','Visão geral']];
   a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['cardapio','Meu cardápio'],['vendas','Histórico de vendas']);
@@ -1319,6 +1334,8 @@ $('backToModes').onclick=()=>{if(!shop||!hasAccess())return;closeSideMenu();hist
 $('refreshAccess').onclick=async()=>{try{await openShop();msg(hasAccess()?'Seu acesso está liberado!':'Ainda aguardando liberação. Confira o WhatsApp.')}catch(e){msg(e.message,true)}};
 window.addEventListener('focus',()=>{if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate()}});
 setInterval(()=>{if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate()}},60000);
+setInterval(()=>{void refreshOnlineOrdersIfVisible()},15000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')void refreshOnlineOrdersIfVisible()});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&$('sidebar').classList.contains('open'))closeSideMenu();});
 $('forgotPassword').onclick=async()=>{
   const email=$('loginForm').querySelector('input[name=email]').value.trim();
