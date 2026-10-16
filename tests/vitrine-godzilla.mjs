@@ -23,7 +23,7 @@ test('vitrine Godzilla está no endereço direto do cardápio, sem login ou pain
 });
 
 test('o visual do cardápio tem título central sem banner, categorias, produtos e carrinho',()=>{
- for(const text of ['header-title','category-strip','combo-banner','catalog-toolbar','delivery-grid','onlinecart','cartfloat','bottom-nav']){
+ for(const text of ['header-title','category-strip','combo-banner','catalog-toolbar','delivery-grid','onlinecart','cartfloat']){
   assert.match(html,new RegExp('class="[^"]*\\b'+text+'\\b'),text);
  }
  for(const id of ['storeName','quickCategories','catalog','search','category','cartDrawer','cartItems','shipping','address','pay','cartTotal','sendOrder','error']){
@@ -36,8 +36,8 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=16/);
- assert.match(html,/\/vitrine\.js\?v=18/);
+ assert.match(html,/\/vitrine\.css\?v=17/);
+ assert.match(html,/\/vitrine\.js\?v=19/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -114,16 +114,16 @@ test('título CARDÁPIO é centralizado sem perder nome da loja e recursos de pe
  assert.doesNotMatch(html,/id="headerCart"|id="headerCartCount"/);
  assert.doesNotMatch(js,/headerCart/);
  assert.match(html,/id="openCart"/);
- assert.match(html,/id="bottomOrders"/);
+ assert.doesNotMatch(html,/id="bottomOrders"|id="bottomHome"|id="bottomCategories"|id="bottomProducts"/);
  assert.match(js,/\$\('openCart'\)\.addEventListener\('click',openCart\)/);
- assert.match(js,/\$\('bottomOrders'\)\.addEventListener\('click',openCart\)/);
+ assert.doesNotMatch(js,/bottomOrders|bottomCategories|bottomProducts|bottomHome/);
  assert.match(css,/grid-column:2;grid-row:1/);
  assert.match(css,/\.store-header \.header-title\{[\s\S]*grid-column:2;grid-row:1/);
  assert.match(css,/\.store-header \.header-title\{grid-column:1\/-1;grid-row:2/);
  assert.match(html,/id="quickCategories"/);
  assert.match(html,/id="catalogue"/);
  assert.match(html,/id="sendOrder"/);
- assert.match(js,/\$\('bottomCategories'\)\.addEventListener/);
+ assert.doesNotMatch(js,/bottomCategories/);
  assert.match(js,/\$\('sendOrder'\)/);
 });
 
@@ -174,8 +174,8 @@ test('vitrine pública sem botão de menu e sem botão Gerenciar cardápio',()=>
  assert.doesNotMatch(html,/id="ownerNav"|id="ownerEditorLink"|Gerenciar cardápio|id="jumpCategories"|☰/);
  assert.doesNotMatch(js,/revealOwnerNavigation|ownerNav|jumpCategories/);
  assert.doesNotMatch(css,/\.owner-nav|\.owner-editor-link|\.menu-btn/);
- assert.match(html,/id="bottomCategories"/);
- assert.match(js,/\$\('bottomCategories'\)\.addEventListener/);
+ assert.doesNotMatch(html,/id="bottomCategories"/);
+ assert.doesNotMatch(js,/bottomCategories/);
  assert.match(client,/function publicShopUrl\(\)/);
 });
 
@@ -307,5 +307,20 @@ test('cardápio não exibe título NOSSOS PRODUTOS e clicar categoria não rola 
  filter('');
  assert.equal(selected.category.value,'');
  assert.equal(refreshes,2);
- assert.match(js,/\$\('bottomProducts'\)\.addEventListener\('click',goToCatalogue\)/);
+ assert.doesNotMatch(js,/bottomProducts/);
+});
+
+test('menu inferior removido sem perder categorias e carrinho flutuante',()=>{
+ assert.doesNotMatch(html,/class="bottom-nav"|id="bottomHome"|id="bottomCategories"|id="bottomProducts"|id="bottomOrders"/);
+ assert.doesNotMatch(js,/bottomHome|bottomCategories|bottomProducts|bottomOrders/);
+ assert.doesNotMatch(css,/\.bottom-nav/);
+ assert.match(html,/id="openCart" class="cartfloat"/);
+ assert.match(html,/id="cartCount"/);
+ assert.match(html,/id="quickCategories"/);
+ assert.match(html,/id="category" class="select"/);
+ assert.match(js,/\$\('openCart'\)\.addEventListener\('click',openCart\)/);
+ assert.match(js,/const cat=event\.target\.closest\('\[data-cat\]'\)/);
+ assert.match(css,/\.cartfloat\{position:fixed;right:22px;bottom:20px;/);
+ assert.match(css,/\.cartfloat\{right:15px;bottom:20px;/);
+ assert.match(css,/\.delivery-page\{padding-bottom:88px\}/);
 });

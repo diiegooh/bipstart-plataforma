@@ -241,16 +241,12 @@ $('search').addEventListener('input',renderProducts);
 $('category').addEventListener('change',renderProducts);
 $('shipping').addEventListener('change',renderCart);
 $('openCart').addEventListener('click',openCart);
-$('bottomOrders').addEventListener('click',openCart);
 $('closeCart').addEventListener('click',closeCart);
 $('cartBackdrop').addEventListener('click',closeCart);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('cartDrawer').classList.contains('show'))closeCart();});
 $('focusSearch').addEventListener('click',()=>{goToCatalogue();$('search').focus({preventScroll:true});});
 $('showAll').addEventListener('click',()=>{$('search').value='';filterCategory('');});
 $('seeCombos').addEventListener('click',()=>filterCategory($('seeCombos').dataset.category));
-$('bottomCategories').addEventListener('click',()=>document.getElementById('quickCategories').scrollIntoView({behavior:'smooth'}));
-$('bottomProducts').addEventListener('click',goToCatalogue);
-$('bottomHome').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
 // Confere preço/estoque no catálogo antes de registrar o pedido no banco.
 // Pagamentos e envio efetivo dentro do WhatsApp seguem pendentes de confirmação.
 async function checkAvailabilityBeforeCheckout(){
