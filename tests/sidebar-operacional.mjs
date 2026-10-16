@@ -55,13 +55,16 @@ function mockNav(premium){
 test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do Básico',()=>{
  const basic=mockNav(false);
  assert.match(basic.node('nav').innerHTML,/data-nav="caixa" class="active" aria-current="page"/);
- assert.match(basic.node('nav').innerHTML,/data-nav="motoboys" class="locked"/);
+ assert.doesNotMatch(basic.node('nav').innerHTML,/data-nav="motoboys"/);
  assert.match(basic.node('nav').innerHTML,/Premium/);
  assert.doesNotMatch(html,/id="sideShopLogo"/);
  assert.doesNotMatch(js,/\$\('sideShopLogo'\)/);
  const basicNav=basic.node('nav').innerHTML;
  assert.match(basicNav,/<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="Cardápio online: exclusivo Premium"/);
  assert.match(basicNav,/<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="Pedidos online: exclusivo Premium"/);
+ assert.match(basicNav,/<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="Motoboys: exclusivo Premium"/);
+ assert.equal((basicNav.match(/disabled aria-disabled="true"/g)||[]).length,3);
+ assert.equal((basicNav.match(/<small class="side-lock">Premium<\/small>/g)||[]).length,3);
  assert.deepEqual([...basicNav.matchAll(/<b>([^<]+)<\/b>/g)].map(m=>m[1]),
    ['PDV','Produtos','Vendas','Cardápio online','Pedidos online','Motoboys']);
  assert.match(css,/side-public-menu\.locked:disabled\{opacity/);
@@ -107,7 +110,7 @@ test('Produtos incorpora estoque e Pedidos online não promete pedidos automáti
  assert.doesNotMatch(html,/id="sideOpenMenu"/);
  assert.doesNotMatch(js,/\$\('sideOpenMenu'\)/);
  assert.match(js,/data-nav="entregas">Abrir fila de entregas/);
- assert.match(js,/if\(nav\.dataset\.nav==='motoboys'&&!proAccess\(\)\)/);
+ assert.match(js,/if\(\['cardapio','pedidos','motoboys'\]\.includes\(nav\.dataset\.nav\)&&!proAccess\(\)\)return/);
  assert.match(js,/if\(!canCustomize\(\)\)return msg\('Alterar a cor do cardápio está disponível somente no plano Premium\.'/);
  assert.match(js,/if\(e\.target\.closest\('#sideLogout'\)\)\{closeSideMenu\(\);\$\('logout'\)\.click\(\);return\}/);
 });
