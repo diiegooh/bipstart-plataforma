@@ -502,7 +502,7 @@ function renderSalesReport(){
  const controls='<div class="sales-report-controls"><div class="sales-period-switch" aria-label="Período do relatório">'+
   [['day','Dia'],['week','Semana'],['month','Mês']].map(([key,label])=>
    '<button type="button" data-sales-period="'+key+'" class="'+(key===salesPeriod?'active':'')+'" aria-pressed="'+(key===salesPeriod)+'">'+label+'</button>').join('')+
-   '</div><label>Data de referência<input type="date" id="salesReferenceDate" value="'+esc(salesDay)+'"></label>'+
+   '</div><label><span class="sr-only">Selecionar data</span><input type="date" id="salesReferenceDate" value="'+esc(salesDay)+'"></label>'+
    '<button class="ghost" type="button" data-sales-refresh>↻ Atualizar</button></div>';
  let content=heading('Vendas','Detalhes de produtos, pagamentos e lucro bruto por dia.');
  content+=controls+'<p class="sales-period-label">Período: <strong>'+esc(range.label)+'</strong> · Horário local</p>';

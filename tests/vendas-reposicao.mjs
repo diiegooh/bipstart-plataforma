@@ -38,7 +38,7 @@ const items=[
 
 test('as funções compõem JavaScript válido e os arquivos usam versão nova',()=>{
  new vm.Script(source,{filename:'cliente.js'});
- assert.match(page,/cliente\.js\?v=41/);
+ assert.match(page,/cliente\.js\?v=42/);
  assert.match(page,/cliente\.css\?v=26/);
  assert.match(css,/\.sales-table-wrap/);
  assert.match(css,/\.restock-list/);
@@ -100,6 +100,8 @@ test('vendas do período carregam todas as páginas e somente itens da própria 
  assert.match(source,/created_at\.lt\./);
  assert.match(source,/data-sales-period/);
  assert.match(source,/salesReferenceDate/);
+ assert.doesNotMatch(source,/Data de referência/);
+ assert.match(source,/<span class="sr-only">Selecionar data<\/span><input type="date" id="salesReferenceDate"/);
  assert.match(source,/if\(tab==='vendas'\)await loadSalesReport\(\)/);
 });
 
