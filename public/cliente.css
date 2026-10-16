@@ -672,3 +672,12 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 /* Finalização manual pelo lojista, disponível nos planos Básico e Premium. */
 #workspace .online-status-controls .online-manual-finish{background:rgba(38,132,79,.16);color:#d3ffe4;border:1px solid #3b9965}
 #workspace .online-status-controls .online-manual-finish:hover{background:rgba(38,132,79,.27)}
+
+/* Os planos compartilham a mesma loja; upgrade altera apenas permissões. */
+#workspace .plan-management{display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin:0 0 18px;padding:17px 18px;border:1px solid #4b5e52;border-radius:14px;background:#17221b}
+#workspace .plan-management h3{margin:0;font-size:18px}
+#workspace .plan-management p{margin:0;line-height:1.5}
+#workspace .plan-management .plan-management-pending{color:#a7f3d0;font-size:13px;font-weight:750}
+#workspace .plan-management .plan-request-button,#workspace .plan-management .plan-contact{display:inline-flex;justify-content:center;align-items:center;min-height:42px;max-width:100%;padding:10px 14px;border:1px solid var(--store-accent,#7c3aed);border-radius:10px;color:#fff;background:#2b3540;text-decoration:none;font-weight:800;cursor:pointer}
+#workspace .plan-management .plan-request-button:focus-visible,#workspace .plan-management .plan-contact:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:3px}
+@media(max-width:500px){#workspace .plan-management{padding:14px 12px}#workspace .plan-management .plan-request-button,#workspace .plan-management .plan-contact{width:100%}}
