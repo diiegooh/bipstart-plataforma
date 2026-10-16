@@ -65,7 +65,8 @@ export async function updateOnlineOrderAndNotify(req,res,{env=process.env,fetche
   if(!/^https:\/\//.test(apiUrl)||!apiKey)throw makeError(503,'Integração do banco não configurada.');
   const {orderId,shopId,field,action,expected}=await readJson(req);
   if(!UUID.test(orderId||'')||!UUID.test(shopId||'')||!['status','payment_status'].includes(field)||
-     !['advance','cancel'].includes(action)||typeof expected!=='string')
+     !['advance','cancel','finish'].includes(action)||typeof expected!=='string'||
+     (action==='finish'&&field!=='status'))
     throw makeError(400,'Etapa ou pedido inválido.');
   const headers={apikey:apiKey,Authorization:bearer};
   const getUrl=new URL(apiUrl+'/rest/v1/shop_online_orders');
@@ -78,7 +79,7 @@ export async function updateOnlineOrderAndNotify(req,res,{env=process.env,fetche
   if(order[field]!==expected)throw makeError(409,'A situação foi alterada. Atualize os pedidos.');
   const terminal=field==='status'?['cancelled','fulfilled']:['cancelled'];
   if(terminal.includes(expected))throw makeError(409,'Este status já foi encerrado.');
-  const next=action==='cancel'?'cancelled':
+  const next=action==='cancel'?'cancelled':action==='finish'?'fulfilled':
     field==='status'?(expected==='preparing'?
       (order.delivery_method==='delivery'?'out_for_delivery':'fulfilled'):ORDER_STEPS[expected]):
       expected==='pending'?'paid':null;
