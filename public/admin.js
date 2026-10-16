@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PLAN={basic:'Básico',pro:'Premium'};
 const WHATSAPP='5511978353820';
-let config=null,busy=false;
+let config=null,busy=false,adminShopAccess=[];
 function message(t,error=false){$('adminMessage').textContent=t;$('adminMessage').style.color=error?'var(--danger)':'var(--text)'}
 const STORAGE='bipstart_customer_session';
 function session(){try{return JSON.parse(localStorage.getItem(STORAGE)||'null')}catch{return null}}
@@ -130,6 +130,7 @@ function staticLinks(){
  return [
   ['Site da BipStart','Página pública de apresentação e planos.',base+'/'],
   ['Login do lojista e PDV','Login do cliente: ao entrar, abre diretamente o painel PDV.',base+'/cliente'],
+  ['Editor do cardápio (lojista)','Abre a edição na loja associada à sessão do proprietário; exige Premium ativo.',base+'/cliente?editar=cardapio'],
   ['Painel administrativo','Gerenciamento administrativo de lojas, personalizações e links.',base+'/admin'],
   ['Login do motoboy','Acesso do entregador. Os convites individuais são gerados na aba Motoboys da loja Premium.',base+'/motoboy'],
   ['Acompanhamento de pedidos','A visualização exige o link individual emitido para cada pedido e sua chave privada.',base+'/acompanhar']
@@ -143,16 +144,19 @@ async function loadLinks(){
   linkCard(title,detail,url,{share:title==='Login do motoboy'})).join('');
  $('adminShopLinks').innerHTML=shops.map(shop=>{
   const cardapio=location.origin+'/cardapio?loja='+encodeURIComponent(shop.shop_slug);
-  const premium=shop.plan_code==='pro'&&['active','trialing'].includes(shop.access_status);
+  const access=adminShopAccess.find(item=>item.shop_id===shop.shop_id);
+  const now=Date.now();
+  const valid=access?.access_status==='trialing'
+   ? Number.isFinite(Date.parse(access.trial_until))&&Date.parse(access.trial_until)>now
+   : access?.access_status==='active'&&(access.active_until===null||
+       Number.isFinite(Date.parse(access.active_until))&&Date.parse(access.active_until)>now);
+  const premium=shop.plan_code==='pro'&&valid;
   return '<section class="admin-links-shop"><h3>'+escapeHtml(shop.shop_name)+
    ' <span class="admin-muted">('+escapeHtml(PLAN[shop.plan_code]||'Plano indisponível')+')</span></h3>'+
    '<div class="admin-link-grid">'+
    linkCard('Cardápio online • '+shop.shop_name,
-    premium?'Link público do cardápio e dos pedidos.':'Disponível somente com Premium ativo. O endereço é preservado no upgrade.',
+    premium?'Link público do cardápio e dos pedidos.':'Disponível somente com Premium ativo e vigente. O endereço é preservado no upgrade.',
     cardapio,{share:true,available:premium})+
-   linkCard('Editor do cardápio • '+shop.shop_name,
-    'Área do titular da loja; exige login e plano Premium ativo.',
-    location.origin+'/cliente?editar=cardapio')+
    '</div></section>';
  }).join('')||'<p class="muted">Nenhuma loja cadastrada ainda.</p>';
  $('adminLinksMessage').textContent=shops.length+' loja(s) listada(s). O cardápio só fica acessível quando o Premium estiver vigente.';
@@ -191,6 +195,7 @@ async function load(){
    if(!config?.enabled)throw Error('Configuração Supabase não disponível.');
    await signedInAccount();
    const items=await request('bipstart_admin_list_shops_with_emails');
+   adminShopAccess=Array.isArray(items)?items:[];
    $('adminRows').innerHTML=(Array.isArray(items)?items:[]).map(row).join('');
    message((items||[]).length+' loja(s) encontradas. Confirme o pagamento antes de liberar.');
    try{await loadCustomization()}
