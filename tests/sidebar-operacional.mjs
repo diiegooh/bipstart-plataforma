@@ -122,7 +122,8 @@ test('menu mobile abre em coluna, fecha no backdrop e Escape e tem foco',()=>{
  assert.match(css,/#workspace \.side #nav nav\{display:grid;overflow:visible/);
  assert.match(js,/const show=!\$\('sidebar'\)\.classList\.contains\('open'\)/);
  assert.match(js,/if\(e\.target\.closest\('#sideBackdrop'\)\)\{closeSideMenu\(\);return\}/);
- assert.match(js,/if\(event\.key==='Escape'&&\$\('sidebar'\)\.classList\.contains\('open'\)\)closeSideMenu\(\)/);
+ assert.match(js,/else if\(\$\('sidebar'\)\.classList\.contains\('open'\)\)closeSideMenu\(\)/);
+ assert.match(js,/if\(!\$\('receiptModal'\)\.classList\.contains\('hidden'\)\)closeReceiptDialog\(\)/);
 });
 
 test('PDV em tela cheia não mostra marca BipStart nem faixa superior da loja',()=>{
