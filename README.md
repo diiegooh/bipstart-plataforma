@@ -4,10 +4,10 @@ A BipStart é uma plataforma para pequenos negócios, com painel de loja e card�
 
 | Plano | Preço de referência | Recursos |
 | --- | --- | --- |
-| **Básico** | **R$ 29,90, pagamento único** | PDV com estoque, vendas e cardápio online com categorias, fotos, preços e carrinho via WhatsApp |
-| **Premium** | **R$ 79,90/mês** | Tudo do Básico, motoboys particulares integrados à fila de entregas, logo e cores próprias, suporte mensal e adaptações solicitadas sem custo adicional |
+| **Básico** | **R$ 29,90, pagamento único** | PDV com produtos, estoque, frente de caixa e histórico de vendas; cardápio online bloqueado |
+| **Premium** | **R$ 79,90/mês** | Tudo do Básico + cardápio online com carrinho e pedidos, motoboys particulares integrados, logo e cores próprias, suporte mensal e adaptações solicitadas sem custo adicional |
 
-**O catálogo comercial tem apenas Básico e Premium.** Cada cliente cria uma única loja com os módulos de PDV e cardápio integrados, compartilhando o mesmo cadastro de produtos.
+**O catálogo comercial tem apenas Básico e Premium.** Cada cliente cria uma única loja com PDV, produtos e estoque. O cardápio público é desbloqueado apenas com o Premium ativo, sem migrar a loja nem duplicar produtos.
 
 ## Entrada da loja: Cardápio ou PDV + Cardápio
 
@@ -48,7 +48,7 @@ Dentro do **PDV + CARDÁPIO**, o menu lateral segue a navegação visual da Godz
 
 Em **Produtos**, cada categoria (incluindo **Todos**) recebe um botão em formato de card acima da grade. Ao clicar, somente os produtos da categoria aparecem. Os cards de produto ficam aproximadamente **40% menores** no desktop, com estilos responsivos, mas conservam foto, preço de venda, custo, estoque, mínimo e edição.
 
-O formulário de Produtos e o editor do cardápio agora perguntam **Venda online?** (Sim/Não). **Sim** exige o **Valor no cardápio online** e publica o produto na vitrine. **Não** mantém o produto no cadastro, estoque e PDV, mas o exclui completamente da vitrine pública. O preço do PDV permanece separado do preço público. O Supabase armazena `shop_products.menu_price` e `menu_price_enabled` e a RPC pública `bipstart_public_menu` devolve o preço público efetivo em `items[].price`. Assim a vitrine, o carrinho e o texto enviado ao WhatsApp usam um valor consistente; **o PDV e a baixa de estoque continuam utilizando `shop_products.price`**. O preço novo passa a valer assim que salvo para novas consultas à vitrine e é conferido novamente na finalização de cada pedido. Um cardápio que já está aberto deve ser atualizado para exibir o novo preço imediatamente.
+No Premium, o formulário de Produtos e o editor do cardápio perguntam **Venda online?** (Sim/Não). No Básico essa opção fica bloqueada, mas seus valores previamente salvos não são apagados. **Sim** exige o **Valor no cardápio online** e publica o produto na vitrine. **Não** mantém o produto no cadastro, estoque e PDV, mas o exclui completamente da vitrine pública. O preço do PDV permanece separado do preço público. O Supabase armazena `shop_products.menu_price` e `menu_price_enabled` e a RPC pública `bipstart_public_menu` devolve o preço público efetivo em `items[].price`. Assim a vitrine, o carrinho e o texto enviado ao WhatsApp usam um valor consistente; **o PDV e a baixa de estoque continuam utilizando `shop_products.price`**. O preço novo passa a valer assim que salvo para novas consultas à vitrine e é conferido novamente na finalização de cada pedido. Um cardápio que já está aberto deve ser atualizado para exibir o novo preço imediatamente.
 
 Migração: `sql/bipstart_menu_price_20261014.sql` no projeto Supabase da BipStart. Não modifica valores ou registros antigos; por padrão o preço alternativo começa desativado. Executar antes do deploy da nova interface.
 
@@ -142,3 +142,12 @@ Nas **Configurações da loja → Meu plano**, o titular pode solicitar Premium 
 Migration aplicada no Supabase BipStart: `sql/bipstart_shared_shop_plan_upgrade_20261016.sql`. Os testes automatizados incluem `tests/shared-plans.mjs`, e uma transação de teste com rollback confirmou que a solicitação não ativa o Premium e mantém os produtos intactos.
 
 **Atenção:** o antigo painel ilustrativo da página inicial usava dados apenas no `localStorage` (não vinculados a nenhuma conta Supabase). Esses dados locais de demonstração **não** são transferidos automaticamente para a loja real. A preservação de dados entre Básico e Premium se aplica às lojas autenticadas e seus cadastros salvos no Supabase.
+
+## Cardápio online exclusivo do Premium
+
+- **Básico:** mantém acesso ao PDV, Produtos, estoque, histórico de vendas e pedidos anteriormente salvos. Na escolha inicial e no menu lateral, **Cardápio online** fica marcado como **Premium** e oferece acesso à solicitação de upgrade, mas não abre a vitrine nem permite editar o cardápio público.
+- **Premium vigente:** publica o cardápio, permite configuração de categorias e preços online, disponibiliza carrinho/checkout e mantém acesso à logística própria com motoboys.
+- **Segurança:** as RPCs `bipstart_public_menu(text)` e `bipstart_place_online_order(...)` exigem `shop_entitlements.plan_code='pro'` **e acesso vigente**, inclusive para quem tenta o link público ou o endpoint diretamente. A restrição foi aplicada no Supabase através de `sql/bipstart_premium_online_menu_20261015.sql`, criada das definições reais das funções vigentes para preservar verificações anteriores de estoque, valores e carrinho.
+- **Continuidade:** alteração de planos usa o mesmo `shop_id`. Produtos, valores online anteriores, fotos, vendas e configurações são preservados. Ao editar um produto do PDV no Básico, o sistema não sobrescreve a antiga seleção de venda online nem seu preço de cardápio. Ao reativar Premium, o cardápio pode ser publicado novamente sem importar produtos.
+
+Os testes relacionados incluem `tests/premium-menu.mjs`; a integração no banco foi conferida com uma loja do Básico, que não podia ver o cardápio nem criar pedidos, e com uma transação de teste revertida verificando o acesso Premium.
