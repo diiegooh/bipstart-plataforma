@@ -340,15 +340,30 @@ body.sidebar-open{overflow:hidden}
 }
 #workspace .inventory-actions button:hover{background:#2a4432;border-color:#6a9d75}
 #workspace .inventory-actions button:focus-visible{outline:3px solid #5af6a2;outline-offset:2px}
-#workspace .content:has(.inventory-grid),#workspace .content:has(.stock-stats){
+#workspace .content:has(.inventory-grid),#workspace .content:has(.stock-summary-grid){
  background:linear-gradient(145deg,#19100f 0%,#0d110f 35%,#0d120f 100%);
  border-color:#384238;
 }
 #workspace .content:has(.inventory-grid) .toolbar h2,
-#workspace .content:has(.stock-stats) .toolbar h2{font-size:clamp(24px,3.4vw,35px)}
-#workspace .stock-stats{grid-template-columns:repeat(3,minmax(0,1fr));margin:12px 0 18px}
-#workspace .stock-stats .tile{background:#0e1913;border-color:#2b3e33}
-#workspace .stock-stats .tile strong{font-size:22px}
+#workspace .content:has(.stock-summary-grid) .toolbar h2{font-size:clamp(24px,3.4vw,35px)}
+#workspace .stock-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:12px 0 18px}
+#workspace .stock-summary-card{display:flex;min-width:0;min-height:116px;flex-direction:column;align-items:flex-start;justify-content:space-between;
+ text-align:left;gap:12px;padding:17px;border:1px solid #35473b;border-radius:14px;
+ background:#0e1913;color:#f6fff8;cursor:pointer;transition:background .16s,border-color .16s,box-shadow .16s,transform .16s}
+#workspace .stock-summary-label{font-size:13px;font-weight:700;line-height:1.35;color:#b3c3b8}
+#workspace .stock-summary-number{font-size:clamp(28px,3vw,40px);font-weight:950;line-height:1;letter-spacing:-.025em;color:#fff;font-variant-numeric:tabular-nums}
+#workspace .stock-summary-card:hover{transform:translateY(-1px);border-color:var(--store-accent,#a878ff)}
+#workspace .stock-summary-card.active{border-color:var(--store-accent,#a878ff);
+ background:color-mix(in srgb,var(--store-accent,#a878ff) 17%,#0e1913);
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--store-accent,#a878ff) 28%,transparent)}
+#workspace .stock-summary-card.active .stock-summary-label{color:#f1e6ff}
+#workspace .stock-summary-card.active .stock-summary-number{color:var(--store-accent,#a878ff)}
+#workspace .stock-summary-card:focus-visible{outline:3px solid var(--store-accent,#a878ff);outline-offset:3px}
+@media(max-width:850px){#workspace .stock-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){#workspace .stock-summary-grid{gap:8px}
+ #workspace .stock-summary-card{min-height:100px;padding:13px}
+ #workspace .stock-summary-label{font-size:11px}
+ #workspace .stock-summary-number{font-size:30px}}
 #workspace .content:has(.inventory-grid) .data-form{
  background:#101911;border-color:#365444
 }
@@ -365,8 +380,6 @@ body.sidebar-open{overflow:hidden}
  #workspace .inventory-card-prices>small{font-size:10px}
  #workspace .inventory-stock-meta{font-size:10px}
  #workspace .inventory-status{font-size:12px}
- #workspace .stock-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
- #workspace .stock-stats .tile:last-child{grid-column:1/-1}
 }
 @media(max-width:380px){
  #workspace .inventory-grid{grid-template-columns:1fr}
@@ -444,11 +457,13 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
  background:#111d16;color:#f5fbf5;transition:background .15s,border-color .15s,transform .15s}
 #workspace .inventory-category-card strong{font-size:14px;font-weight:850;overflow-wrap:anywhere}
 #workspace .inventory-category-card small{font-size:11px;color:#a3b9aa}
-#workspace .inventory-category-card:hover{border-color:#6d9980;transform:translateY(-1px)}
-#workspace .inventory-category-card.active{background:linear-gradient(100deg,#fe101e,#e82631);
- color:#fff;border-color:#ff6470;box-shadow:0 7px 18px #e7223630}
-#workspace .inventory-category-card.active small{color:#ffe5e5}
-#workspace .inventory-category-card:focus-visible{outline:3px solid #ff8191;outline-offset:3px}
+#workspace .inventory-category-card:hover{border-color:var(--store-accent,#a878ff);transform:translateY(-1px)}
+#workspace .inventory-category-card.active{background:color-mix(in srgb,var(--store-accent,#a878ff) 23%,#111d16);
+ color:#fff;border-color:var(--store-accent,#a878ff);
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--store-accent,#a878ff) 27%,transparent)}
+#workspace .inventory-category-card.active small{color:#e4d6fa}
+#workspace .inventory-category-card.active strong{color:var(--store-accent,#a878ff)}
+#workspace .inventory-category-card:focus-visible{outline:3px solid var(--store-accent,#a878ff);outline-offset:3px}
 
 /* Os cards eram de no mínimo 230px; 174px equivale a ~40% menos largura visual.
    Imagem, tipografia e espaçamento também reduzem proporcionalmente. */

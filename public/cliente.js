@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[],onlineOrders=[];
-let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all';
+let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all',selectedStockPanel='all';
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false;
@@ -250,7 +250,7 @@ async function openShop(){
  ent=access||null;
  if(!hasAccess()){hiding('accessGate',true);renderAccessGate();return}
  await reloadData();
- tab='caixa';showForm=null;pastedProductImage=null;
+ tab='caixa';showForm=null;pastedProductImage=null;selectedStockPanel='all';
  const requested=new URLSearchParams(location.search);
  if(requested.get('editar')==='cardapio')tab=proAccess()?'cardapio':'configuracoes';
  else if(initialPlan&&ent?.plan_code!==initialPlan)tab='configuracoes';
@@ -558,7 +558,7 @@ function restockProducts(){
 function renderRestockList(){
  const rows=restockProducts();
  const total=rows.reduce((n,r)=>n+r.estimatedCost,0);
- let content='<section class="restock-section"><div class="restock-heading"><div><h3>Lista de reposição</h3>'+
+ let content='<section class="restock-section" id="restockDetails"><div class="restock-heading"><div><h3>Lista de reposição</h3>'+
    '</div>'+
    '<div class="restock-total"><small>Investimento estimado</small><strong>'+fmt(total)+'</strong></div></div>';
  if(!rows.length)return content+empty('Nenhum produto precisa de reposição no momento.')+'</section>';
@@ -578,6 +578,26 @@ function productStockState(product){
  if(stock<=0)return {label:'Sem estoque',state:'out'};
  if(stock<=minimum)return {label:'Estoque baixo',state:'low'};
  return {label:'Estoque normal',state:'ok'};
+}
+function stockSummaryCards(){
+ const low=products.filter(p=>productStockState(p).state==='low').length;
+ const out=products.filter(p=>productStockState(p).state==='out').length;
+ const restock=restockProducts().length;
+ const stats=[
+  ['all','Produtos cadastrados',products.length],
+  ['low','Estoque baixo',low],
+  ['out','Sem estoque',out],
+  ['restock','Reposição',restock]
+ ];
+ return '<div class="stock-summary-grid" role="group" aria-label="Resumo do estoque">'+
+  stats.map(([key,label,count])=>{
+   const active=selectedStockPanel===key;
+   const expanded=key==='restock'?' aria-expanded="'+active+'" aria-controls="restockDetails"':'';
+   return '<button type="button" class="stock-summary-card'+(active?' active':'')+'"'+
+    ' data-stock-summary="'+key+'" aria-pressed="'+active+'"'+expanded+'>'+
+    '<span class="stock-summary-label">'+label+'</span>'+
+    '<strong class="stock-summary-number">'+count+'</strong></button>';
+  }).join('')+'</div>';
 }
 function productCard(product){
  const {label,state}=productStockState(product);
@@ -657,10 +677,14 @@ function productCategoryCards(selected='all'){
     '<strong>'+esc(name==='all'?'Todos':name)+'</strong><small>'+count+' produto(s)</small></button>';
   }).join('')+'</div></div>';
 }
-function productGrid(selected='all'){
- const visible=filteredProductList(selected);
+function productGrid(selected='all',stockMode='all'){
+ const visible=filteredProductList(selected).filter(product=>
+  !['low','out'].includes(stockMode)||productStockState(product).state===stockMode);
+ const emptyMessage=stockMode==='low'?'Nenhum produto com estoque baixo nesta categoria.':
+  stockMode==='out'?'Nenhum produto sem estoque nesta categoria.':
+  products.length?'Nenhum produto encontrado nesta categoria.':'Nenhum produto cadastrado. Clique em Novo produto para começar.';
  return visible.length?'<div class="inventory-grid compact">'+visible.map(productCard).join('')+'</div>':
-  empty(products.length?'Nenhum produto encontrado nesta categoria.':'Nenhum produto cadastrado. Clique em Novo produto para começar.');
+  empty(emptyMessage);
 }
 function categoryOptions(selected){
   const names=[...new Set(['Geral',...categories.map(c=>c.name),...products.map(p=>p.category||'Geral')])];
@@ -855,16 +879,14 @@ function renderPage(){
   }else if(tab==='cardapio'){
     content=cardapioEditor();
   }else if(tab==='produtos'){
-    const lowStock=products.filter(p=>productStockState(p).state==='low').length;
-    const outOfStock=products.filter(p=>productStockState(p).state==='out').length;
     content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','',
       '<button type="button" class="button" data-new="product">+ Novo produto</button>');
-    content+='<div class="grid stock-stats">'+tile('Produtos cadastrados',products.length)+tile('Estoque baixo',lowStock)+tile('Sem estoque',outOfStock)+'</div>';
-    content+=renderRestockList();
+    content+=stockSummaryCards();
+    if(selectedStockPanel==='restock')content+=renderRestockList();
     if(selectedCategoryFilter!=='all'&&!products.some(p=>normalizedProductCategory(p)===selectedCategoryFilter))selectedCategoryFilter='all';
     content+=productCategoryCards(selectedCategoryFilter);
     content+=showForm?.kind==='product'?productForm(showForm.value):'';
-    content+=productGrid(selectedCategoryFilter);
+    content+=productGrid(selectedCategoryFilter,selectedStockPanel);
   }else if(tab==='pedidos'){
     const awaiting=onlineOrders.filter(o=>o.status==='awaiting_confirmation').length;
     const active=onlineOrders.filter(o=>['confirmed','preparing','out_for_delivery'].includes(o.status)).length;
@@ -1459,6 +1481,15 @@ document.addEventListener('click',async e=>{
    return;
   }
   const pasteArea=e.target.closest('[data-image-paste]');if(pasteArea){pasteArea.focus();return}
+  const stockSummary=e.target.closest('[data-stock-summary]');
+  if(stockSummary&&tab==='produtos'){
+    const choice=stockSummary.dataset.stockSummary;
+    if(!['all','low','out','restock'].includes(choice))return;
+    selectedStockPanel=selectedStockPanel===choice&&choice==='restock'?'all':choice;
+    renderPage();
+    document.querySelector('[data-stock-summary="'+selectedStockPanel+'"]')?.focus({preventScroll:true});
+    return;
+  }
   const category=e.target.closest('[data-category-filter]');
   if(category){
     if(tab!=='produtos')return;
