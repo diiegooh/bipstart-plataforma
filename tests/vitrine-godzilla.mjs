@@ -38,7 +38,7 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
  assert.match(html,/\/vitrine\.css\?v=14/);
- assert.match(html,/\/vitrine\.js\?v=15/);
+ assert.match(html,/\/vitrine\.js\?v=16/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
