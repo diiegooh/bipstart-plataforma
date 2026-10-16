@@ -224,11 +224,6 @@
 }
 @media(prefers-reduced-motion:reduce){.category-tile .category-art{transition:none}}
 
-/* Autorização opcional para avisos transacionais pelo WhatsApp. */
-.whatsapp-optin{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.5;color:#cfd9d0;margin-top:7px;cursor:pointer}
-.whatsapp-optin input{width:18px;height:18px;flex:0 0 18px;margin:1px 0 0;accent-color:var(--green)}
-.whatsapp-optin span{flex:1}
-
 /* Após registrar o pedido, exibir acompanhamento e envio manual por WhatsApp. */
 .onlinecart .tracking-ready{display:grid;gap:10px;margin:13px 0 20px;padding:16px;border:1px solid rgba(184,255,70,.35);border-radius:15px;background:rgba(40,66,40,.28)}
 .onlinecart .tracking-ready.hidden{display:none!important}
@@ -239,5 +234,5 @@
 .onlinecart .tracking-ready .btn{display:flex;justify-content:center;align-items:center;min-height:43px;font-size:13px;text-decoration:none;text-align:center}
 .onlinecart .tracking-ready small{color:#b9c8b8;line-height:1.5;font-size:11px}
 
-.onlinecart label.whatsapp-optin{display:flex;flex-direction:row;align-items:flex-start;gap:10px}
-.onlinecart label.whatsapp-optin input{width:18px;height:18px;flex:0 0 18px;margin-top:2px}
+/* Aviso discreto junto ao botão de envio, sem checkbox. */
+.onlinecart .tracking-ready .whatsapp-consent-note{font-size:11px;font-weight:450;line-height:1.55;color:#b5c6b8;margin:3px 0 0}
