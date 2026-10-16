@@ -192,7 +192,7 @@ test('cliques de avanço/cancelamento têm confirmação, concorrência e não m
  assert.match(panel,/const pendingOrderUpdates=new Set\(\)/);
  for(const attr of ['data-order-advance','data-order-cancel','data-payment-advance','data-payment-cancel'])
   assert.ok(panel.includes("closest('["+attr+"]')"),attr);
- assert.ok(panel.includes("const next=cancelled?'cancelled':step.next"));
+ assert.ok(panel.includes("const next=cancelled?'cancelled':finishOrder?'fulfilled':step.next"));
  assert.ok(panel.includes("window.confirm(detail)"));
  assert.ok(panel.includes("Confirma que o pagamento foi realmente recebido pela loja?"));
  assert.ok(panel.includes("pendingOrderUpdates.has(key)"));
@@ -243,4 +243,14 @@ test('banco restringe saiu para entrega a pedidos enviados por delivery',()=>{
  assert.match(css,/#workspace \.online-order-whatsapp\{/);
  assert.match(panel,/\['confirmed','preparing','out_for_delivery'\]/);
  assert.match(panel,/nextOnlineOrderStep\(previous,order\.delivery_method\)/);
+});
+
+test('Básico e Premium podem finalizar o pedido pela loja mesmo sem conclusão do motoboy',()=>{
+ assert.match(panel,/data-order-finish=/);
+ assert.match(panel,/const finishLabel=typeof proAccess==='function'&&proAccess\(\)\?'Finalizar pela loja':'Finalizar pedido'/);
+ assert.match(panel,/finishOrder=e\.target\.closest\('\[data-order-finish\]'\)/);
+ assert.match(panel,/action:cancelled\?'cancel':finishOrder\?'finish':'advance'/);
+ assert.match(panel,/if\(!window\.confirm\(detail\)\)return/);
+ assert.match(panel,/tarefa do motoboy continuará separada/);
+ assert.match(css,/#workspace \.online-status-controls \.online-manual-finish/);
 });
