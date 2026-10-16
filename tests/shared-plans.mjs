@@ -36,7 +36,7 @@ test('todas as funcionalidades do Básico continuam presentes e motoboys ativa n
   ['vendas','Vendas','💰']
  ]);
  assert.match(source,/const premium=id==='motoboys'&&!proAccess\(\)/);
- assert.match(source,/if\(proAccess\(\)\)a\.push\(\['motoboys','Motoboys'\],\['entregas','Entregas'\]\)/);
+ assert.match(source,/if\(proAccess\(\)\)a\.push\(\['pedidos','Pedidos online'\],\['motoboys','Motoboys'\],\['entregas','Entregas'\]\)/);
  assert.match(source,/function proAccess\(\)\{return ent\?\.plan_code==='pro'&&hasAccess\(\)\}/);
  assert.match(source,/function canCustomize\(\)\{return proAccess\(\)\}/);
  assert.match(source,/if\(!proAccess\(\)\)throw Error\('Motoboys disponíveis somente no Plano Premium vigente\.'\)/);
