@@ -128,6 +128,7 @@ function renderCart(){
  $('deliveryLine').classList.toggle('hidden',$('shipping').value!=='delivery');
  $('addressField').classList.toggle('hidden',$('shipping').value!=='delivery');
  $('sendOrder').disabled=!count;
+ if(!orderToken){$('trackingReady').classList.add('hidden');$('sendOrder').classList.remove('hidden');}
 }
 function openCart(){
  lastFocus=document.activeElement;
@@ -162,7 +163,11 @@ function checkoutMessage(orderId=''){
  const address=$('address').value.trim();
  if(delivery&&address.length<8)throw Error('Informe o endereço completo para entrega.');
  const lines=['Olá! Gostaria de fazer um pedido pelo cardápio '+menu.name+':',''];
- if(orderId)lines.push('Pedido BipStart: #'+String(orderId).slice(0,8),'');
+ if(orderId){
+  lines.push('Pedido BipStart: #'+String(orderId).slice(0,8));
+  if(orderToken)lines.push('Acompanhar pedido: '+trackingLinkFor(orderId,orderToken));
+  lines.push('');
+ }
  const name=$('name').value.trim();
  if(name)lines.push('Cliente: '+name,'');
  const phone=$('phone')?.value.trim();
@@ -307,6 +312,31 @@ async function registerOnlineOrder(){
  }
  return result;
 }
+function trackingLinkFor(orderId,token){
+ // A chave fica no fragmento (#), fora da requisição HTTP e dos logs de acesso.
+ return location.origin+'/acompanhar#pedido='+encodeURIComponent(orderId)+'&chave='+encodeURIComponent(token);
+}
+function showCheckoutNextStep(receipt){
+ const link=trackingLinkFor(receipt.id,orderToken);
+ const digits=normalizeWhatsApp(menu?.whatsapp);
+ const url='https://wa.me/'+digits+'?text='+encodeURIComponent(checkoutMessage(receipt.id));
+ $('trackingUrl').href=link;
+ $('sendPreparedWhatsapp').href=url;
+ $('trackingReady').classList.remove('hidden');
+ $('sendOrder').classList.add('hidden');
+ $('trackingCopyFeedback').textContent='O pedido só será comunicado à loja após confirmar a mensagem no WhatsApp.';
+ $('trackingReady').scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+$('copyTrackingUrl').addEventListener('click',async()=>{
+ try{
+  const url=$('trackingUrl').href;
+  if(!url.includes('/acompanhar#'))throw Error('Link indisponível.');
+  await navigator.clipboard.writeText(url);
+  $('trackingCopyFeedback').textContent='✓ Link copiado. Guarde para consultar seu pedido.';
+ }catch{
+  $('trackingCopyFeedback').textContent='Não foi possível copiar automaticamente. Abra o link para guardá-lo.';
+ }
+});
 $('sendOrder').addEventListener('click',async()=>{
  const button=$('sendOrder');
  button.disabled=true;
@@ -315,9 +345,7 @@ $('sendOrder').addEventListener('click',async()=>{
   if(!digits)throw Error('O estabelecimento ainda não configurou o WhatsApp comercial.');
   await checkAvailabilityBeforeCheckout();
   const receipt=await registerOnlineOrder();
-  const url='https://wa.me/'+digits+'?text='+encodeURIComponent(checkoutMessage(receipt.id));
-  // O pedido foi registrado, mas apenas o cliente pode confirmar o envio pelo WhatsApp.
-  location.assign(url);
+  showCheckoutNextStep(receipt);
  }catch(error){showErr(error.message);closeCart();window.scrollTo({top:0,behavior:'smooth'});}
  finally{renderCart();}
 });
