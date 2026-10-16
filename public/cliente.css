@@ -681,3 +681,12 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 #workspace .plan-management .plan-request-button,#workspace .plan-management .plan-contact{display:inline-flex;justify-content:center;align-items:center;min-height:42px;max-width:100%;padding:10px 14px;border:1px solid var(--store-accent,#7c3aed);border-radius:10px;color:#fff;background:#2b3540;text-decoration:none;font-weight:800;cursor:pointer}
 #workspace .plan-management .plan-request-button:focus-visible,#workspace .plan-management .plan-contact:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:3px}
 @media(max-width:500px){#workspace .plan-management{padding:14px 12px}#workspace .plan-management .plan-request-button,#workspace .plan-management .plan-contact{width:100%}}
+
+/* Acesso online restrito ao Premium; botões informativos mantêm acesso ao upgrade. */
+#workspace .side #nav nav button.side-public-menu.locked{opacity:.73;cursor:pointer;border-style:dashed}
+#workspace .online-sale-locked{display:grid;gap:4px;padding:12px;border:1px solid #58614c;border-radius:11px;color:#f3df97;background:#201f15}
+#workspace .online-sale-locked small{color:#c9c4aa;font-size:12px}
+#workspace .public-link-tile.is-locked{border-style:dashed}
+.mode-options .mode-option.locked{opacity:.68;border-style:dashed}
+.mode-options .mode-option.locked .mode-option-cta{color:#efdb91}
+.mode-premium-label{display:inline-block;margin-left:6px;vertical-align:middle;padding:4px 7px;font-size:10px;font-weight:900;letter-spacing:.04em;border-radius:6px;color:#ffefb6;background:#382d12}
