@@ -151,7 +151,6 @@ function goToCatalogue(){
 function filterCategory(name){
  $('category').value=name||'';
  renderProducts();
- goToCatalogue();
 }
 function checkoutMessage(orderId=''){
  for(const [id] of cart){
