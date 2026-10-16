@@ -28,10 +28,12 @@ test('PDV mantém páginas essenciais no Básico, e o Premium soma o editor e mo
  const getPages=new Function('proAccess','canCustomize',panel.slice(start,end)+';return pages;');
  const basic=getPages(()=>false,()=>false)().map(x=>x[0]);
  const premium=getPages(()=>true,()=>true)().map(x=>x[0]);
- for(const page of ['resumo','caixa','produtos','vendas','pedidos','configuracoes']){
+ for(const page of ['resumo','caixa','produtos','vendas','configuracoes']){
   assert.ok(basic.includes(page),page);
   assert.ok(premium.includes(page),page);
  }
+ assert.ok(!basic.includes('pedidos'));
+ assert.ok(premium.includes('pedidos'));
  assert.ok(!basic.includes('cardapio'));
  assert.ok(!basic.includes('motoboys'));
  assert.ok(!basic.includes('entregas'));
@@ -79,8 +81,11 @@ test('acesso do Básico mostra bloqueio e opção de upgrade sem alterar a loja'
  assert.match(html,/data-open-mode="cardapio" id="modeCardapio"/);
  assert.match(html,/mode-premium-label/);
  assert.match(panel,/modeCardapio'\)\.classList\.toggle\('locked',!proAccess\(\)\)/);
+ assert.match(panel,/modeCardapio'\)\.disabled=!proAccess\(\)/);
  assert.match(panel,/if\(mode\.dataset\.openMode==='cardapio'\)\{\s*if\(!proAccess\(\)\)/);
- assert.match(panel,/data-premium-menu-locked/);
+ assert.match(panel,/\(id==='cardapio_publico'\|\|id==='pedidos'\)&&!proAccess\(\)/);
+ assert.match(panel,/class="side-public-menu locked" disabled aria-disabled="true"/);
+ assert.doesNotMatch(panel,/data-premium-menu-locked/);
  assert.match(panel,/Cardápio online exclusivo do Premium/);
  assert.match(panel,/data-nav="configuracoes"/);
  assert.match(panel,/rpc\('bipstart_request_plan_change'/);
