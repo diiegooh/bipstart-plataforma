@@ -15,6 +15,8 @@ test('vitrine Godzilla está no endereço direto do cardápio, sem login ou pain
  assert.match(server,/'\/vitrine\.js':\s*\['vitrine\.js'/);
  assert.match(server,/'\/vitrine\.css':\s*\['vitrine\.css'/);
  assert.doesNotMatch(client,/data-open-mode|modeChooser|backToModes/);
+ assert.doesNotMatch(html,/id="ownerNav"|id="backToModesLink"|Voltar às opções/);
+ assert.doesNotMatch(js,/revealOwnerNavigation|ownerNav/);
  assert.match(client,/data-public-menu-link/);
  assert.match(client,/tab='caixa'/);
  assert.match(client,/hiding\('workspace',true\);\s*renderPage\(\);/);
