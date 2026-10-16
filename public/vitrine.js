@@ -122,7 +122,6 @@ function renderCart(){
    '<strong>'+qty+'</strong><button type="button" class="btn alt" data-inc="'+esc(id)+'"'+(item.in_stock===false?' disabled aria-disabled="true"':'')+' aria-label="Aumentar '+esc(item.name)+'">+</button></div></div>');
  }
  $('cartItems').innerHTML=lines.join('')||'<p class="muted">Seu carrinho está vazio.</p>';
- $('headerCartCount').textContent=String(count);
  $('cartCount').textContent=String(count);
  $('cartSubtotal').textContent=money(subtotal());
  $('deliveryTotal').textContent=money(deliveryCost());
@@ -242,7 +241,6 @@ $('search').addEventListener('input',renderProducts);
 $('category').addEventListener('change',renderProducts);
 $('shipping').addEventListener('change',renderCart);
 $('openCart').addEventListener('click',openCart);
-$('headerCart').addEventListener('click',openCart);
 $('bottomOrders').addEventListener('click',openCart);
 $('closeCart').addEventListener('click',closeCart);
 $('cartBackdrop').addEventListener('click',closeCart);
