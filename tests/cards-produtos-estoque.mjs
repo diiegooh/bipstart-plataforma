@@ -70,11 +70,11 @@ test('formulário em Produtos preserva estoque mínimo; Cardápio não altera sa
  const end=client.indexOf('function courierForm(c)',start);
  assert.ok(start>0&&end>start);
  function renderForm(tab){
-  return new Function('tab','field','formShell','categoryOptions','esc',
+  return new Function('tab','field','formShell','categoryOptions','esc','proAccess',
     client.slice(start,end)+';return productForm;')(
     tab,(name,label,type,value,extra='')=>'<input name="'+name+'" value="'+esc(value)+'" '+extra+'>',
     (_kind,_id,inside)=>'<form id="productForm">'+inside+'</form>',
-    ()=>'<option>Geral</option>',esc)(product());
+    ()=>'<option>Geral</option>',esc,()=>true)(product());
  }
  const html=renderForm('produtos');
  assert.match(html,/name="min_stock" value="10"/);
