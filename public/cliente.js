@@ -914,7 +914,7 @@ function productForm(p){
   field('name','Nome do item', 'text',p.name,'required maxlength="160"')+
   categoryField+
   field('price','Preço de venda no PDV (R$)','number',p.price??0,'required min="0" step="0.01"')+
-  '<div class="menu-price-controls"><label class="online-sale-question">Venda online?'+
+  (proAccess()?'<div class="menu-price-controls"><label class="online-sale-question">Venda online?'+
    '<select name="online_enabled" required>'+
     '<option value=""'+(!p.id?' selected':'')+' disabled>Selecione Sim ou Não</option>'+
     '<option value="true"'+(p.id&&p.online_enabled!==false?' selected':'')+'>Sim — colocar no cardápio online</option>'+
@@ -923,7 +923,8 @@ function productForm(p){
    '<div class="online-sale-price'+(p.id&&p.online_enabled!==false?'':' hidden')+'">'+
     field('menu_price','Valor no cardápio online (R$)','number',p.menu_price??(p.id?(p.price??0):''),'min="0" max="9999999999.99" step="0.01"'+(p.id&&p.online_enabled!==false?' required':' disabled'))+
     '<small class="muted">Este é o preço usado no cardápio público, no carrinho e no pedido por WhatsApp.</small></div>'+
-   '<small class="muted">Não: o produto permanece no estoque e PDV, mas não aparece no cardápio online.</small></div>'+
+   '<small class="muted">Não: o produto permanece no estoque e PDV, mas não aparece no cardápio online.</small></div>':
+   '<div class="online-sale-locked"><strong>Cardápio online exclusivo Premium</strong><small>As configurações de publicação anteriores permanecem salvas para o upgrade.</small></div>')+
   (isMenu?'<label>Descrição<textarea name="description" maxlength="1000" placeholder="Ingredientes, opções e informações do produto">'+esc(p.description||'')+'</textarea></label>':
   field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')+
   field('stock','Quantidade em estoque','number',p.stock??0,'required min="0" step="1"')+
@@ -1037,20 +1038,20 @@ async function handleSubmit(form){
       const isMenu=tab==='cardapio';
       const body={
        name:v.name.trim(),category:v.category.trim()||'Geral',price:Number(v.price),image_path,
-       online_enabled:v.online_enabled==='true',
-       menu_price_enabled:v.online_enabled==='true',
-       menu_price:v.online_enabled==='true'?Number(v.menu_price):p?.menu_price??null,
+       online_enabled:proAccess()?v.online_enabled==='true':(p?.online_enabled===true),
+       menu_price_enabled:proAccess()?v.online_enabled==='true':(p?.menu_price_enabled===true),
+       menu_price:proAccess()?(v.online_enabled==='true'?Number(v.menu_price):p?.menu_price??null):(p?.menu_price??null),
        ...(isMenu?{description:String(v.description||'').trim()}:{
         cost:Number(v.cost),stock:Number(v.stock),min_stock:Number(v.min_stock)
        })
       };
       if(!body.name||!Number.isFinite(body.price)||body.price<0)throw Error('Confira o nome e o preço.');
-      if(!['true','false'].includes(v.online_enabled))
+      if(proAccess()&&!['true','false'].includes(v.online_enabled))
         throw Error('Selecione Sim ou Não em Venda online.');
-      if(body.online_enabled&&(!String(v.menu_price??'').trim()||!Number.isFinite(body.menu_price)||
+      if(proAccess()&&body.online_enabled&&(!String(v.menu_price??'').trim()||!Number.isFinite(body.menu_price)||
         body.menu_price<0||body.menu_price>9999999999.99))
         throw Error('Para vender online, informe o valor do cardápio.');
-      if(body.menu_price!==null&&(!Number.isFinite(body.menu_price)||body.menu_price<0||body.menu_price>9999999999.99))
+      if(proAccess()&&body.menu_price!==null&&(!Number.isFinite(body.menu_price)||body.menu_price<0||body.menu_price>9999999999.99))
         throw Error('Preço do cardápio online inválido.');
       if(isMenu){
         if(![...categories.map(c=>c.name),'Geral',...products.map(p=>p.category)].includes(body.category))throw Error('Categoria inválida.');
