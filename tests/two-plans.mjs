@@ -49,7 +49,7 @@ test('estoque fica no PDV e descrição no cardápio com o mesmo shop_products',
 });
 test('Premium exibe motoboys, suporte, logo e edição de cores',()=>{
  assert.match(client,/function canCustomize\(\)\{return proAccess\(\)\}/);
- assert.match(client,/if\(proAccess\(\)\)a\.push\(\['motoboys','Motoboys'\],\['entregas','Entregas'\]\)/);
+ assert.match(client,/if\(proAccess\(\)\)a\.push\(\['pedidos','Pedidos online'\],\['motoboys','Motoboys'\],\['entregas','Entregas'\]\)/);
  assert.match(client,/if\(canCustomize\(\)\)a\.push\(\['personalizar','Mudanças e suporte'\]\)/);
  assert.match(client,/canCustomize\(\)\?field\('brand_color'/);
  assert.match(client,/if\(canCustomize\(\)\)\{/);
