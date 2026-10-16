@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#100721"><title>Minha loja • BipStart</title>
-<link rel="stylesheet" href="/cliente.css?v=21">
+<link rel="stylesheet" href="/cliente.css?v=22">
 </head>
 <body>
 <header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><a href="/">Conhecer os planos</a> <button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
@@ -34,7 +34,7 @@
   <section id="createShop" class="card central hidden"><span class="kicker">PRIMEIRO PASSO</span><h1>Configure sua empresa</h1>
     <form id="shopForm"><label>Nome do estabelecimento<input name="name" maxlength="120" required placeholder="Ex.: Adega Central"></label>
       <label>WhatsApp comercial com DDD (opcional)<input name="whatsapp" type="tel" placeholder="11999999999" inputmode="tel"></label>
-      <input type="hidden" name="model" value="pdv"><p class="muted small">Incluso em ambos os planos: <strong>PDV com estoque + cardápio online</strong>.</p>
+      <input type="hidden" name="model" value="pdv"><p class="muted small">Ambos incluem <strong>PDV com estoque e vendas</strong>. O <strong>cardápio online</strong> e os motoboys são exclusivos do Premium.</p>
       <label>Plano de interesse<select name="requested_plan"><option value="basic">Básico — R$ 29,90 (pagamento único)</option><option value="pro">Premium — R$ 79,90/mês</option></select></label>
       <fieldset class="signup-choices"><legend>Como deseja começar?</legend>
         <label class="option-line"><input type="radio" name="signup_choice" value="trial" checked required> <span><strong>Experimentar grátis por 7 dias</strong><small>Acesso imediato ao plano escolhido. Após o prazo, as funções são bloqueadas até a contratação.</small></span></label>
@@ -59,13 +59,13 @@
     <h1 id="modeChooserTitle">Como deseja começar?</h1>
     <p class="muted">Escolha a área que deseja acessar. Seu cadastro e seus produtos são os mesmos nas duas opções.</p>
     <div class="mode-options">
-      <button type="button" class="mode-option mode-menu" data-open-mode="cardapio">
+      <button type="button" class="mode-option mode-menu" data-open-mode="cardapio" id="modeCardapio">
         <span class="mode-option-icon" aria-hidden="true">▣</span>
-        <span class="mode-option-content"><strong>CARDÁPIO</strong><small>Abre diretamente o cardápio online no estilo Godzilla, com categorias, fotos, preços e carrinho.</small><span class="mode-option-cta">Abrir cardápio ↗</span></span>
+        <span class="mode-option-content"><strong>CARDÁPIO ONLINE <span class="mode-premium-label">PREMIUM</span></strong><small>Disponível no Premium: categorias, fotos, preços, carrinho e pedidos online.</small><span class="mode-option-cta">Abrir cardápio ↗</span></span>
       </button>
       <button type="button" class="mode-option mode-pdv" data-open-mode="caixa">
         <span class="mode-option-icon" aria-hidden="true">▦</span>
-        <span class="mode-option-content"><strong>PDV + CARDÁPIO</strong><small>Abre diretamente o PDV estilo Godzilla, com produtos, estoque, caixa e acesso ao cardápio online.</small><span class="mode-option-cta">Abrir PDV ↗</span></span>
+        <span class="mode-option-content"><strong>PDV + ESTOQUE</strong><small>Produtos, caixa, estoque e vendas nos dois planos. Cardápio online liberado no Premium.</small><span class="mode-option-cta">Abrir PDV ↗</span></span>
       </button>
     </div>
   </section>
@@ -94,5 +94,5 @@
   </section>
 </main>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=31" defer></script>
+<script src="/cliente.js?v=32" defer></script>
 </body></html>
