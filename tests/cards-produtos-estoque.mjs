@@ -145,7 +145,7 @@ test('os filtros dos cards baixo e esgotado funcionam junto do filtro de categor
  assert.match(render.productGrid('all','low'),/data-stock-state="low"/);
  assert.match(render.productGrid('all','out'),/data-stock-state="out"/);
  assert.match(client,/if\(selectedStockPanel==='restock'\)content\+=renderRestockList\(\)/);
- assert.match(client,/selectedStockPanel=selectedStockPanel===choice&&choice==='restock'\?'all':choice/);
+ assert.match(client,/selectedStockPanel=selectedStockPanel===choice\?'':choice/);
 });
 test('seleções de estoque e categorias usam cor de destaque da loja, sem vermelho fixo',()=>{
  assert.match(css,/#workspace \.stock-summary-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
