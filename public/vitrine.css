@@ -61,38 +61,37 @@
 .dproduct .btn:disabled{background:#252d25!important;color:#a8b3a9!important;opacity:.82;cursor:not-allowed;border:1px solid #4b594b;box-shadow:none}
 
 
-/* Cardápio público sem banner grande: título central substitui a logo da loja. */
+/* Logo por plano centralizada sobre o nome da loja, sem slogan nem rótulo. */
 .store-header{
- grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
- min-height:86px;
+ grid-template-columns:minmax(0,1fr);height:auto;min-height:128px;
 }
 .store-header .header-title{
- display:flex;align-items:center;justify-content:center;
- grid-column:2;grid-row:1;
- justify-self:center;text-align:center;min-width:0;max-width:100%;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+ grid-column:1;grid-row:1;justify-self:stretch;text-align:center;
+ min-width:0;width:100%;max-width:100%;
 }
+.store-header .store-logo{
+ display:block;flex:0 0 auto;width:80px;height:80px;max-width:30vw;
+ object-fit:contain;object-position:center;
+}
+.store-header .store-logo-custom{width:104px;height:92px;max-width:55vw}
 .store-header .header-title h1{
- display:flex;align-items:baseline;justify-content:center;gap:.35em;
  margin:0;min-width:0;max-width:100%;
  font-size:clamp(22px,3.1vw,32px);
- font-weight:950;line-height:1.1;letter-spacing:.065em;
- color:var(--green);text-transform:uppercase;white-space:nowrap;
+ font-weight:950;line-height:1.15;letter-spacing:.055em;
+ color:var(--green);text-transform:uppercase;overflow-wrap:anywhere;
  text-shadow:0 0 21px color-mix(in srgb,var(--green) 24%,transparent)
-}
-.store-header .header-title #storeName{
- display:inline-block;min-width:0;max-width:100%;
- overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
- font:inherit;color:inherit;letter-spacing:inherit;
 }
 @media(max-width:650px){
  .store-header{
   grid-template-columns:minmax(0,1fr);
   grid-template-rows:auto;
-  height:auto;min-height:74px;padding:12px 14px;
+  height:auto;min-height:110px;padding:12px 14px;
  }
  .store-header .header-title{grid-column:1;grid-row:1;width:100%}
- .store-header .header-title h1{font-size:clamp(15px,4.4vw,24px);letter-spacing:.025em;gap:.28em}
- .store-header .header-title #storeName{font:inherit;letter-spacing:inherit}
+ .store-header .store-logo{width:68px;height:68px}
+ .store-header .store-logo-custom{width:90px;height:78px}
+ .store-header .header-title h1{font-size:clamp(17px,4.4vw,24px);letter-spacing:.025em}
 }
 
 @media(min-width:601px) and (max-width:780px){
@@ -260,24 +259,15 @@ body.salgatti-theme{
  background:linear-gradient(90deg,transparent,#e4a236,transparent);
  pointer-events:none;
 }
-.salgatti-theme .salgatti-mark{
- position:absolute;left:26px;top:50%;transform:translateY(-50%);
- display:block;width:92px;height:92px;object-fit:contain;
- border-radius:50%;filter:drop-shadow(0 4px 15px rgba(202,120,14,.12));
-}
 .salgatti-theme .store-header .header-title{
- display:flex;flex-direction:column;align-items:center;gap:10px;
- min-width:0;padding:0 100px;
-}
-.salgatti-theme .salgatti-motto{
- margin:0;font-family:Georgia,serif;font-style:italic;
- color:#e2af64;font-size:12px;letter-spacing:.15em;line-height:1.2;
+ display:flex;flex-direction:column;align-items:center;gap:8px;
+ min-width:0;padding:0 16px;
 }
 .salgatti-theme .store-header .header-title h1{
  color:#f9f4ea;letter-spacing:.07em;font-size:clamp(22px,3.2vw,34px);
  text-shadow:none;gap:.26em;font-weight:900;
 }
-.salgatti-theme .store-header .header-title #storeName{color:#f0b343;letter-spacing:.055em}
+.salgatti-theme .store-header #storeName{color:#f0b343;letter-spacing:.055em}
 .salgatti-theme .location-row{
  grid-template-columns:minmax(0,1.35fr) minmax(245px,.65fr);
  gap:14px;padding:20px 20px 26px;
@@ -519,18 +509,13 @@ body.salgatti-theme{
   justify-content:center;gap:0;padding:12px 12px 17px;
   min-height:0;
  }
- .salgatti-theme .salgatti-mark{
-  position:static;transform:none;width:80px;height:80px;
-  margin:0 auto 2px;
- }
- .salgatti-theme .store-header .header-title{
-  width:100%;padding:0;gap:7px;
- }
- .salgatti-theme .salgatti-motto{font-size:10px;letter-spacing:.12em}
+ .salgatti-theme .store-header .header-title{width:100%;padding:0;gap:7px}
+ .salgatti-theme .store-logo{width:72px;height:72px}
+ .salgatti-theme .store-logo-custom{width:88px;height:80px}
  .salgatti-theme .store-header .header-title h1{
   font-size:clamp(17px,4.8vw,24px);letter-spacing:.035em;
  }
- .salgatti-theme .store-header .header-title #storeName{letter-spacing:.03em}
+ .salgatti-theme .store-header #storeName{letter-spacing:.03em}
  .salgatti-theme .location-row{grid-template-columns:1fr;padding:14px 10px 19px;gap:9px}
  .salgatti-theme .location-card,.salgatti-theme .hours-card{
   min-height:59px;padding:10px 12px;border-radius:12px;

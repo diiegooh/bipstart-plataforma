@@ -29,15 +29,16 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  for(const id of ['storeName','quickCategories','catalog','search','category','cartDrawer','cartItems','shipping','address','pay','cartTotal','sendOrder','error']){
   assert.ok(html.includes('id="'+id+'"'),id);
  }
- assert.match(html,/<div class="header-title"><h1>CARDÁPIO <span id="storeName">Sua loja<\/span><\/h1><\/div>/);
+ assert.match(html,/<div class="header-title">[\s\S]*<img id="storeLogo"[^>]+src="\/bipstart-marca-icon\.png"[^>]*>[\s\S]*<h1 id="storeName">Sua loja<\/h1>/);
+ assert.doesNotMatch(html,/>CARDÁPIO <span id="storeName"|SABOR QUE CONQUISTA/);
  assert.doesNotMatch(html,/<section class="hero-green"|id="heroLogo"|id="heroOrder"|id="headerLogo"/);
  assert.doesNotMatch(html,/class="hero-copy"|CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP/);
  assert.doesNotMatch(js,/heroLogo|heroOrder|headerLogo/);
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=18/);
- assert.match(html,/\/vitrine\.js\?v=20/);
+ assert.match(html,/\/vitrine\.css\?v=20/);
+ assert.match(html,/\/vitrine\.js\?v=22/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -48,7 +49,9 @@ test('cada vitrine consulta o cardápio da própria loja no Supabase',()=>{
  assert.match(js,/rpc\/bipstart_public_menu/);
  assert.match(js,/JSON\.stringify\(\{p_slug:slug\}\)/);
  assert.match(js,/menu\.src=config\.supabaseUrl/);
- assert.doesNotMatch(js,/menu\.logo_path/);
+ assert.match(js,/menu\.logo_path/);
+ assert.match(js,/function displayStoreLogo\(\)/);
+ assert.match(html,/id="storeLogo"/);
  assert.match(js,/menu\.brand_color/);
  assert.match(js,/categoryNames\(\)/);
  assert.match(js,/imageUrl\(item\.image_path\)/);
@@ -98,17 +101,17 @@ test('PDV mantém painel interno e acesso ao mesmo cardápio dinâmico',()=>{
 
 
 test('título CARDÁPIO é centralizado sem perder nome da loja e recursos de pedido',()=>{
- assert.equal((html.match(/<h1>CARDÁPIO <span id="storeName">Sua loja<\/span><\/h1>/g)||[]).length,1);
+ assert.equal((html.match(/<h1 id="storeName">Sua loja<\/h1>/g)||[]).length,1);
  assert.equal((html.match(/id="storeName"/g)||[]).length,1);
  assert.match(js,/\$\('storeName'\)\.textContent=menu\.name/);
  assert.match(js,/\$\('storeName'\)\.textContent='Cardápio indisponível'/);
  assert.match(html,/class="store-header"/);
- assert.match(css,/\.store-header\{[\s\S]*grid-template-columns:minmax\(0,1fr\) auto minmax\(0,1fr\)/);
- assert.match(css,/\.store-header \.header-title\{[\s\S]*justify-self:center;text-align:center/);
+ assert.match(css,/\.store-header\{[\s\S]*grid-template-columns:minmax\(0,1fr\)/);
+ assert.match(css,/\.store-header \.header-title\{[\s\S]*justify-self:stretch;text-align:center/);
  assert.match(css,/\.store-header \.header-title h1\{[\s\S]*text-transform:uppercase/);
- assert.match(css,/\.store-header \.header-title #storeName\{/);
- assert.match(css,/\.store-header \.header-title h1\{[\s\S]*display:flex;align-items:baseline/);
- assert.match(css,/\.store-header \.header-title #storeName\{[\s\S]*font:inherit;color:inherit/);
+ assert.match(css,/\.store-header \.store-logo\{/);
+ assert.match(css,/\.store-header \.header-title\{[\s\S]*flex-direction:column/);
+ assert.match(css,/\.store-header \.store-logo-custom\{/);
  assert.doesNotMatch(html,/id="jumpCategories"/);
  assert.doesNotMatch(html,/id="focusSearch"|class="header-actions"/);
  assert.doesNotMatch(js,/focusSearch/);
@@ -121,9 +124,9 @@ test('título CARDÁPIO é centralizado sem perder nome da loja e recursos de pe
  assert.doesNotMatch(html,/id="bottomOrders"|id="bottomHome"|id="bottomCategories"|id="bottomProducts"/);
  assert.match(js,/\$\('openCart'\)\.addEventListener\('click',openCart\)/);
  assert.doesNotMatch(js,/bottomOrders|bottomCategories|bottomProducts|bottomHome/);
- assert.match(css,/grid-column:2;grid-row:1/);
- assert.match(css,/\.store-header \.header-title\{[\s\S]*grid-column:2;grid-row:1/);
- assert.match(css,/\.store-header \.header-title\{grid-column:1;grid-row:1/);
+ assert.match(css,/grid-column:1;grid-row:1/);
+ assert.match(css,/\.store-header \.header-title\{[\s\S]*grid-column:1;grid-row:1/);
+ assert.match(css,/\.store-header \.header-title\{grid-column:1;grid-row:1;width:100%/);
  assert.match(html,/id="quickCategories"/);
  assert.match(html,/id="catalogue"/);
  assert.match(html,/id="sendOrder"/);
@@ -327,4 +330,32 @@ test('menu inferior removido sem perder categorias e carrinho flutuante',()=>{
  assert.match(css,/\.cartfloat\{position:fixed;right:22px;bottom:20px;/);
  assert.match(css,/\.cartfloat\{right:15px;bottom:20px;/);
  assert.match(css,/\.delivery-page\{padding-bottom:88px\}/);
+});
+
+test('Premium usa logo própria e padrão BipStart não escreve nome nem slogan',()=>{
+ const a=js.indexOf('function displayStoreLogo(){'),b=js.indexOf('function applyBrand(){',a);
+ assert.ok(a>=0&&b>a);
+ const storeLogo={src:'',alt:'',classes:new Set(),
+  classList:{toggle(name,enabled){if(enabled)storeLogo.classes.add(name);else storeLogo.classes.delete(name);}}};
+ const make=new Function('$','menu','imageUrl',js.slice(a,b)+';return displayStoreLogo;');
+ const withPro=make(id=>id==='storeLogo'?storeLogo:null,{name:'Loja Teste',logo_path:'id-loja/marca.png',src:'https://img.example'},p=>'https://img.example/'+p);
+ withPro();
+ assert.equal(storeLogo.src,'https://img.example/id-loja/marca.png');
+ assert.equal(storeLogo.alt,'Logo da loja Loja Teste');
+ assert.equal(storeLogo.classes.has('store-logo-custom'),true);
+ const fallback=make(()=>storeLogo,{name:'Loja Teste',logo_path:null,src:'https://img.example'},()=>{throw Error('não consultar imagem personalizada');});
+ fallback();
+ assert.equal(storeLogo.src,'/bipstart-marca-icon.png');
+ assert.equal(storeLogo.alt,'Símbolo BipStart');
+ assert.equal(storeLogo.classes.has('store-logo-custom'),false);
+ assert.doesNotMatch(html,/CARDÁPIO <span|salgatti-motto|SABOR QUE CONQUISTA/);
+ assert.doesNotMatch(js,/salgatti-motto|salgatti-mark|SABOR QUE CONQUISTA/);
+ assert.match(js,/\$\('storeName'\)\.textContent=menu\.name/);
+ assert.match(client,/function cardapioLogoEditor\(\)/);
+ assert.match(client,/id="cardapioLogoForm"/);
+ assert.match(client,/Logo personalizada exclusiva do plano Premium/);
+ assert.match(client,/case 'cardapioLogoForm':/);
+ assert.match(client,/body:\{logo_path\}/);
+ assert.match(client,/file\?await uploadImage\(file\):null/);
+ assert.match(server,/'\/bipstart-marca-icon\.png': \['bipstart-marca-icon\.png'/);
 });

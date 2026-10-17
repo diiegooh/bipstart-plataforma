@@ -763,3 +763,16 @@ body.receipt-open{overflow:hidden}
 #workspace .receipt-settings-panel form>.button{justify-self:start}
 #workspace .pdv-last-receipt{width:100%;margin-top:9px;text-align:center}
 @media(max-width:550px){.receipt-dialog{padding:12px}.receipt-dialog-actions{flex-direction:column}.receipt-dialog-actions>*{width:100%}#workspace .receipt-settings-panel form{grid-template-columns:1fr}}
+
+/* Editor de logo Premium diretamente na aba Meu cardápio. */
+#workspace .menu-logo-editor{margin:15px 0;border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 45%,#503865)}
+#workspace .menu-logo-editor-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}
+#workspace .menu-logo-editor-heading h3{margin:0 0 5px}
+#workspace .menu-logo-editor-heading p{margin:0;max-width:58ch;line-height:1.45}
+#workspace .menu-logo-editor-preview{display:block;width:88px;height:88px;flex:0 0 88px;object-fit:contain;border-radius:13px;background:#0f0d17;padding:6px}
+#workspace .menu-logo-editor form{display:flex;align-items:flex-end;flex-wrap:wrap;gap:12px}
+#workspace .menu-logo-editor form>label{display:flex;flex:1 1 240px;flex-direction:column;gap:7px;margin:0;font-size:13px}
+#workspace .menu-logo-editor form input[type=file]{width:100%;min-width:0;background:#181226;color:#f2eaff;padding:10px;border:1px solid #64468c;border-radius:10px}
+#workspace .menu-logo-editor form .menu-logo-remove{display:flex;flex:0 1 auto;flex-direction:row;align-items:center;gap:8px}
+#workspace .menu-logo-editor form .menu-logo-remove input{width:17px;height:17px;accent-color:var(--store-accent,#7c3aed)}
+@media(max-width:540px){#workspace .menu-logo-editor-heading{gap:9px}#workspace .menu-logo-editor-preview{width:64px;height:64px;flex-basis:64px}#workspace .menu-logo-editor form .button{width:100%}}

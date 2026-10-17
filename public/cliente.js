@@ -691,6 +691,20 @@ function categoryOptions(selected){
   const names=[...new Set(['Geral',...categories.map(c=>c.name),...products.map(p=>p.category||'Geral')])];
   return names.map(name=>'<option value="'+esc(name)+'"'+(name===selected?' selected':'')+'>'+esc(name)+'</option>').join('');
 }
+function cardapioLogoEditor(){
+ if(!proAccess())return '';
+ const own=!!shop.logo_path;
+ const photo=own?imageUrl(shop.logo_path):'/bipstart-marca-icon.png';
+ return '<section class="menu-editor-panel menu-logo-editor" aria-labelledby="menuLogoTitle">'+
+  '<div class="menu-logo-editor-heading"><div><h3 id="menuLogoTitle">Logo do cardápio</h3>'+
+   '<p class="muted">Personalize a marca exibida acima do nome da loja no cardápio online (Premium).</p></div>'+
+   '<img class="menu-logo-editor-preview" src="'+esc(photo)+'" alt="'+(own?'Logo atual da loja':'Símbolo padrão BipStart')+'" loading="lazy"></div>'+
+  '<form id="cardapioLogoForm">'+
+   '<label>Escolher logo (JPG, PNG ou WebP, até 5 MB)<input type="file" name="logo" accept="image/jpeg,image/png,image/webp"></label>'+
+   (own?'<label class="menu-logo-remove"><input type="checkbox" name="remove_logo"> Usar logo padrão BipStart</label>':'')+
+   '<button type="submit" class="button">Salvar logo do cardápio</button></form>'+
+  '</section>';
+}
 function cardapioEditor(){
  if(!proAccess())return heading('Cardápio online','Disponível exclusivamente no Plano Premium.')+
    '<div class="empty">Faça upgrade para Premium nas Configurações para publicar o cardápio. Seus produtos permanecem salvos.</div>';
@@ -706,6 +720,7 @@ function cardapioEditor(){
  ];
  return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.','<div class="menu-heading-actions"><a class="ghost" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a><button class="button" data-new="product">+ Adicionar item</button></div>')+
  (menuSchemaReady?'':'<p class="warn">A nova versão do cardápio está aguardando a atualização do banco de dados. Não salve alterações até a configuração terminar.</p>')+
+ cardapioLogoEditor()+
  '<div class="menu-editor-meta">'+details.map(([label,value])=>'<button type="button" data-nav="configuracoes" title="Editar nas configurações"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></button>').join('')+'</div>'+
  '<div class="menu-editor-grid"><section class="menu-editor-panel"><h3>Categorias</h3>'+
  '<form id="categoryForm" class="menu-category-form"><label>Nova categoria<input type="text" name="name" placeholder="Ex.: Bebidas" required maxlength="65"></label>'+
@@ -1364,6 +1379,17 @@ async function handleSubmit(form){
         if(!current||current.status!=='pendente')throw Error('Somente entregas pendentes podem ser editadas.');
         await rest('shop_deliveries',{method:'PATCH',query:{id:'eq.'+id,shop_id:'eq.'+shop.id,status:'eq.pendente'},body:payload});
       }else await storeForm(form,'shop_deliveries',payload,null);
+      break;
+    }
+    case 'cardapioLogoForm':{
+      if(tab!=='cardapio'||shop?.model!=='pdv'||!canCustomize())throw Error('Logo personalizada exclusiva do plano Premium.');
+      const file=form.querySelector('input[name=logo]')?.files?.[0];
+      const removeLogo=form.querySelector('input[name=remove_logo]')?.checked===true;
+      if(file&&removeLogo)throw Error('Escolha entre enviar uma logo ou usar a logo padrão.');
+      if(!file&&!removeLogo)throw Error('Selecione uma imagem ou escolha usar a logo padrão BipStart.');
+      const logo_path=file?await uploadImage(file):null;
+      await rest('shops',{method:'PATCH',query:{id:'eq.'+shop.id},body:{logo_path}});
+      shop={...shop,logo_path};
       break;
     }
     case 'settingsForm':{

@@ -45,6 +45,13 @@ function categoryArtwork(name){
  if(path)return '<span class="category-art category-art-photo" aria-hidden="true"><img src="'+esc(imageUrl(path))+'" alt="" loading="lazy" decoding="async"></span>';
  return '<span class="category-art category-art-emoji" aria-hidden="true">'+categoryEmoji(name)+'</span>';
 }
+function displayStoreLogo(){
+ const image=$('storeLogo');
+ const own=typeof menu?.logo_path==='string'&&menu.logo_path.trim()&&menu.src;
+ image.src=own?imageUrl(menu.logo_path):'/bipstart-marca-icon.png';
+ image.alt=own?'Logo da loja '+menu.name:'Símbolo BipStart';
+ image.classList.toggle('store-logo-custom',!!own);
+}
 function applyBrand(){
  const color=String(menu.brand_color||'').trim();
  if(/^#[0-9a-fA-F]{6}$/.test(color)){
@@ -56,15 +63,13 @@ function applyBrand(){
  }
 }
 function drawPage(){
- // Identidade da Salgatti isolada: outras lojas mantêm a personalização própria.
  const isSalgatti=/salgatti/.test(fold([menu.name,menu.slug].filter(Boolean).join(' ')));
  document.body.classList.toggle('salgatti-theme',isSalgatti);
- if(isSalgatti&&!document.querySelector('.salgatti-mark')){
-  document.querySelector('.store-header').insertAdjacentHTML('afterbegin','<img class="salgatti-mark" src="/salgatti-logo.svg" alt="Marca Salgatti" width="86" height="86">');
-  document.querySelector('.header-title').insertAdjacentHTML('afterbegin','<p class="salgatti-motto">SABOR QUE CONQUISTA</p>');
+ if(isSalgatti&&!document.querySelector('.salgatti-catalog-heading')){
   document.querySelector('.section-title-row').insertAdjacentHTML('afterbegin','<h2 class="salgatti-catalog-heading">Escolha seus produtos</h2>');
  }
  applyBrand();
+ displayStoreLogo();
  document.title=menu.name+' • Cardápio digital';
  $('storeName').textContent=menu.name;
  $('storeLocation').textContent=menu.location||'Localização a combinar';
@@ -88,6 +93,14 @@ function drawPage(){
  renderProducts();
  renderCart();
 }
+$('storeLogo').addEventListener('error',()=>{
+ const img=$('storeLogo');
+ if(!img.src.endsWith('/bipstart-marca-icon.png')){
+  img.src='/bipstart-marca-icon.png';
+  img.alt='Símbolo BipStart';
+  img.classList.remove('store-logo-custom');
+ }
+});
 function itemCard(item){
  const soldOut=item.in_stock===false;
  const qty=selectedQty.get(item.id)||1;
