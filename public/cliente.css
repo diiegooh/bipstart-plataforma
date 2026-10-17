@@ -875,3 +875,12 @@ body.receipt-open{overflow:hidden}
 /* Único botão de salvar no fim das Configurações. */
 #workspace #settingsForm .settings-save-button{display:block;width:min(100%,260px);margin:24px 0 4px;padding:12px 22px;font-weight:800}
 @media(max-width:540px){#workspace #settingsForm .settings-save-button{width:100%}}
+
+/* Acesso dos motoboys: link individual visível e compartilhamento ao lado do cadastro. */
+#workspace .courier-access-item{align-items:center;gap:14px}
+#workspace .courier-access-info{flex:1 1 240px;min-width:0}
+#workspace .courier-access-label{margin:9px 0 4px;font-size:12px;font-weight:700;color:var(--text)}
+#workspace .courier-access-url{display:block;max-width:100%;overflow-wrap:anywhere;word-break:break-word;color:var(--store-accent,#a78bfa);text-decoration:underline;text-underline-offset:3px;font-size:13px}
+#workspace .courier-access-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+#workspace .courier-access-actions .button,#workspace .courier-access-actions .ghost{min-height:38px;padding:9px 12px}
+@media(max-width:540px){#workspace .courier-access-item{align-items:stretch}#workspace .courier-access-actions{justify-content:stretch}#workspace .courier-access-actions .button,#workspace .courier-access-actions .ghost{flex:1 1 auto}}
