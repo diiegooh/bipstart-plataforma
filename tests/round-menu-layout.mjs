@@ -20,6 +20,9 @@ test('cardápio compacto é único modelo, sem prévia ou seletor clássico',()=
  assert.match(html,/<p class="menu-hero-heading" aria-hidden="true">CARDÁPIO<\/p>/);
  assert.match(html,/<h1 id="storeName">Sua loja<\/h1>/);
  assert.match(css,/\.round-menu \.menu-hero-logo-card\{display:none\}/);
+ assert.match(css,/\.round-menu \.menu-hero-logo-card\.has-store-logo\{/);
+ assert.match(css,/grid-column:3;[\s\S]*grid-row:1\/3/);
+ assert.match(vitrine,/image\.parentElement\?\.classList\.toggle\('has-store-logo',own\)/);
  assert.match(css,/\.round-menu \.store-header \.header-title h1,[\s\S]*grid-column:2;[\s\S]*text-align:right/);
  assert.doesNotMatch(html,/menuPreviewBadge|PRÉVIA DO MODELO REDONDO/);
  assert.doesNotMatch(panel,/cardapio_teste|data-round-preview-link|visual=redondo|Clássico \(atual\)|Redondo \(novo\)|Testar modelo redondo/);
