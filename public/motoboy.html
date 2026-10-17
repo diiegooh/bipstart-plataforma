@@ -18,22 +18,11 @@
   <section id="authPanel" class="courier-auth card">
    <span class="kicker">ACESSO INDIVIDUAL</span>
    <h1>Entregas BipStart</h1>
-   <p class="muted">Entre com o telefone cadastrado pela loja e a senha que o responsável definiu. Motoboys com convite antigo continuam usando e-mail.</p>
-   <div class="switch">
-    <button type="button" class="selected" id="tabLogin">Entrar</button>
-    <button type="button" id="tabSignup">Tenho convite antigo</button>
-   </div>
+   <p class="muted">Entre com seu usuário (telefone com DDD) e a senha definida pelo responsável da loja.</p>
    <form id="loginForm">
-    <label>Telefone com DDD ou e-mail antigo<input type="text" name="login" autocomplete="username" inputmode="email" placeholder="11999999999" required></label>
+    <label>Usuário (telefone com DDD)<input type="tel" name="login" autocomplete="username" inputmode="tel" placeholder="11999999999" required></label>
     <label>Senha<input type="password" name="password" autocomplete="current-password" required></label>
     <button type="submit" class="button" id="loginButton">Entrar nas entregas</button>
-   </form>
-   <form id="signupForm" class="hidden">
-    <label>E-mail<input type="email" name="email" autocomplete="email" required></label>
-    <label>Senha (mínimo 8 caracteres)<input type="password" name="password" autocomplete="new-password" minlength="8" required></label>
-    <label>Confirmar senha<input type="password" name="confirm" autocomplete="new-password" minlength="8" required></label>
-    <button type="submit" class="button">Criar acesso de motoboy</button>
-    <p class="muted small">Somente para convites antigos: crie uma conta por e-mail, confirme-a e aceite o convite. No cadastro novo por telefone, o lojista define a senha.</p>
    </form>
    <div id="captcha" aria-label="Verificação de segurança"></div>
   </section>
@@ -42,14 +31,6 @@
     <div><span class="kicker">MEUS SERVIÇOS</span><h1>Minhas entregas</h1><p class="muted" id="courierIdentity">Aguardando dados...</p></div>
     <button type="button" id="refresh" class="ghost">Atualizar ↻</button>
    </div>
-   <div id="invitePanel" class="card courier-invite">
-    <h2>Vincular com a loja</h2>
-    <p class="muted">Cole o código do convite recebido do lojista. Um código funciona apenas uma vez.</p>
-    <form id="inviteForm">
-     <label>Código de convite<input id="inviteCode" name="code" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off"></label>
-     <button type="submit" class="button">Aceitar convite</button>
-    </form>
-   </div>
    <div id="shopChips" class="courier-shop-list"></div>
    <div class="courier-columns">
     <section class="card"><h2>Novas ofertas</h2><p class="muted small">A primeira confirmação válida reserva a entrega para você.</p><div id="offers" class="stack"></div></section>
@@ -57,6 +38,6 @@
    </div>
   </section>
  </main>
- <script src="/motoboy.js?v=3" defer></script>
+ <script src="/motoboy.js?v=4" defer></script>
 </body>
 </html>
