@@ -23,8 +23,8 @@ test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do lay
  assert.match(client,/data-public-menu-link/);
  assert.doesNotMatch(html,/id="sideOpenMenu"/);
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
- assert.match(html,/\/cliente\.js\?v=49/);
- assert.match(html,/\/cliente\.css\?v=32/);
+ assert.match(html,/\/cliente\.js\?v=58/);
+ assert.match(html,/\/cliente\.css\?v=37/);
 });
 function pdv(props={}){
  const source=client.slice(client.indexOf('function filteredPdvProducts(){'),client.indexOf('function renderPage(){'));
@@ -43,7 +43,7 @@ function pdv(props={}){
  }[c]));
  return new Function(
   'products','cart','pdvQuery','pdvCategory','pdvInStockOnly','pdvPayment','esc','fmt','imageUrl','publicShopUrl',
-  source+';return {filteredPdvProducts,pdvProductCards,renderGodzillaPDV};'
+  source+';return {filteredPdvProducts,pdvBestSellerProducts,pdvBestSellers,pdvProductCards,renderGodzillaPDV};'
  )(...[
   data.products,data.cart,data.pdvQuery,data.pdvCategory,data.pdvInStockOnly,data.pdvPayment,
   escapeHtml,n=>'R$ '+Number(n).toFixed(2),path=>'https://cdn.bipstart.example/'+path,
@@ -82,6 +82,34 @@ test('busca de PDV e categorias filtram com estoque sem misturar produto',()=>{
  assert.doesNotMatch(markup,/Coxinha/);
  assert.match(markup,/Café/);
 });
+test('Mais vendidos ficam em acesso rápido no PDV e respeitam estoque, destaque e filtros',()=>{
+ const products=[
+  {id:'a',name:'Bebida A',category:'Bebidas',price:8,stock:5,active:true,is_best_seller:true},
+  {id:'b',name:'Bebida B',category:'Bebidas',price:6,stock:0,active:true,is_best_seller:true},
+  {id:'c',name:'Não destacado',category:'Lanches',price:3,stock:5,active:true,is_best_seller:false},
+  {id:'d',name:'Inativo',category:'Lanches',price:4,stock:7,active:false,is_best_seller:true},
+  {id:'e',name:'Item <script>',category:'Lanches',price:11,stock:3,active:true,is_best_seller:true}
+ ];
+ const instance=pdv({products,cart:[],pdvCategory:'Lanches',pdvQuery:'nada'});
+ const featured=instance.pdvBestSellerProducts();
+ assert.deepEqual(featured.map(p=>p.id),['a','b','e']);
+ const fast=instance.pdvBestSellers();
+ assert.match(fast,/aria-label="Acesso rápido aos mais vendidos"/);
+ assert.match(fast,/data-cart="a"/);
+ assert.match(fast,/data-cart="b" disabled/);
+ assert.match(fast,/data-cart="e"/);
+ assert.doesNotMatch(fast,/data-cart="c"|data-cart="d"/);
+ assert.match(fast,/Item &lt;script&gt;/);
+ assert.doesNotMatch(fast,/<script>/);
+ const page=instance.renderGodzillaPDV();
+ assert.ok(page.indexOf('class="pdv-best-sellers"')<page.indexOf('id="pdvProducts"'));
+ assert.equal(pdv({products:products.map(p=>({...p,is_best_seller:false})),cart:[]}).pdvBestSellers(),'');
+ const full=pdv({products,cart:[{id:'a',name:'Bebida A',qty:5,price:8}]}).pdvBestSellers();
+ assert.match(full,/data-cart="a" disabled/);
+ assert.match(client,/const c=e\.target\.closest\('\[data-cart\]'\)/);
+ assert.match(css,/#workspace \.pdv-best-sellers-list/);
+});
+
 test('checkout permanece no RPC seguro de BipStart, sem pagamentos automáticos',()=>{
  assert.match(client,/rpc\('bipstart_complete_sale',\{p_shop_id:shop\.id,p_items:cart\.map/);
  assert.match(client,/p_payment_method:v\.payment_method/);
