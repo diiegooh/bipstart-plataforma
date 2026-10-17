@@ -228,3 +228,341 @@
 
 /* Aviso discreto junto ao botão de envio, sem checkbox. */
 .onlinecart .tracking-ready .whatsapp-consent-note{font-size:11px;font-weight:450;line-height:1.55;color:#b5c6b8;margin:3px 0 0}
+
+
+/* Salgatti | identidade visual preto e dourado, apenas na vitrine desta loja.
+   Não altera o tema principal do BipStart nem os cardápios de outros lojistas. */
+body.salgatti-theme{
+ --green:#efae39;
+ --green2:#d98d20;
+ --gold:#efae39;
+ --gold2:#ffd47a;
+ --theme-ink:#1b1106;
+ --text:#f9f5ee;
+ --muted:#bbae9c;
+ --line:#453523;
+ background:
+  radial-gradient(ellipse 72% 340px at 50% -65px,rgba(228,147,33,.12),transparent 78%),
+  linear-gradient(180deg,#0c0a08 0%,#100d09 48%,#080706 100%);
+ color:var(--text);
+ color-scheme:dark;
+}
+.salgatti-theme .delivery-app{width:min(1230px,100%);overflow:visible}
+.salgatti-theme .store-header{
+ height:auto;
+ min-height:128px;
+ padding:20px 24px;
+ background:linear-gradient(180deg,rgba(24,17,10,.98),rgba(12,10,8,.75));
+ border-bottom:1px solid rgba(215,153,55,.22);
+}
+.salgatti-theme .store-header:after{
+ content:"";position:absolute;bottom:-1px;left:21%;right:21%;height:2px;
+ background:linear-gradient(90deg,transparent,#e4a236,transparent);
+ pointer-events:none;
+}
+.salgatti-theme .salgatti-mark{
+ position:absolute;left:26px;top:50%;transform:translateY(-50%);
+ display:block;width:92px;height:92px;object-fit:contain;
+ border-radius:50%;filter:drop-shadow(0 4px 15px rgba(202,120,14,.12));
+}
+.salgatti-theme .store-header .header-title{
+ display:flex;flex-direction:column;align-items:center;gap:10px;
+ min-width:0;padding:0 100px;
+}
+.salgatti-theme .salgatti-motto{
+ margin:0;font-family:Georgia,serif;font-style:italic;
+ color:#e2af64;font-size:12px;letter-spacing:.15em;line-height:1.2;
+}
+.salgatti-theme .store-header .header-title h1{
+ color:#f9f4ea;letter-spacing:.07em;font-size:clamp(22px,3.2vw,34px);
+ text-shadow:none;gap:.26em;font-weight:900;
+}
+.salgatti-theme .store-header .header-title #storeName{color:#f0b343;letter-spacing:.055em}
+.salgatti-theme .location-row{
+ grid-template-columns:minmax(0,1.35fr) minmax(245px,.65fr);
+ gap:14px;padding:20px 20px 26px;
+}
+.salgatti-theme .location-card,.salgatti-theme .hours-card{
+ min-height:72px;padding:14px 18px;border-radius:15px;
+ border:1px solid rgba(210,155,66,.27);
+ background:linear-gradient(135deg,#21190f,#17130f 70%,#12100e);
+ box-shadow:0 7px 22px rgba(0,0,0,.14);gap:13px;
+}
+.salgatti-theme .location-pin{
+ background:rgba(244,177,59,.09);color:#edb450;border:1px solid #ad7732;
+ width:32px;height:32px;flex-basis:32px;font-size:13px;
+}
+.salgatti-theme .hours-icon{
+ color:#f0b850;background:rgba(244,177,59,.08);
+ border-color:#ad7732;width:32px;height:32px;flex-basis:32px;
+}
+.salgatti-theme .location-card small,.salgatti-theme .hours-card small{
+ color:#bdaa92;font-size:11px;letter-spacing:.04em;
+}
+.salgatti-theme .location-card b,.salgatti-theme .hours-card b{
+ color:#fff5e7;font-size:13px;font-weight:750;
+}
+.salgatti-theme .location-map{color:#ecc079}
+.salgatti-theme .category-strip{
+ padding:0 20px 27px;gap:15px;align-items:flex-start;
+}
+.salgatti-theme .category-tile{
+ flex:0 0 100px;gap:9px;background:transparent;border:none;
+ padding:0;box-shadow:none;color:#f6ede0;border-radius:0;
+}
+.salgatti-theme .category-tile:hover,.salgatti-theme .category-tile.active{
+ background:transparent;border:none;box-shadow:none;
+}
+.salgatti-theme .category-tile .category-art{
+ display:grid;place-items:center;aspect-ratio:1;
+ width:96px;height:96px;max-width:100%;border-radius:20px;
+ background:#211a13;border:1px solid rgba(205,149,66,.22);
+ box-shadow:0 8px 22px rgba(0,0,0,.18);
+ transition:border-color .18s,box-shadow .18s,transform .18s;
+}
+.salgatti-theme .category-tile .category-art-photo{background:#1a1510}
+.salgatti-theme .category-tile .category-art-photo img{
+ width:100%;height:100%;object-fit:contain;
+ border-radius:19px;
+}
+.salgatti-theme .category-tile .category-art-emoji{font-size:46px;color:#e5af58}
+.salgatti-theme .category-tile:hover .category-art{
+ border-color:#b7833b;transform:translateY(-2px);
+ box-shadow:0 10px 24px rgba(182,112,29,.12);
+}
+.salgatti-theme .category-tile.active .category-art{
+ border:2px solid #f3b850;
+ box-shadow:0 0 0 3px rgba(242,181,77,.16);
+}
+.salgatti-theme .category-tile > b{
+ color:#e3d5c1;font-size:12px;font-weight:650;line-height:1.25;
+ text-transform:capitalize;
+}
+.salgatti-theme .category-tile.active > b{color:#f1b951}
+.salgatti-theme .catalog-shell{padding:0 20px 42px}
+.salgatti-theme .section-title-row{
+ display:flex;align-items:center;justify-content:space-between;
+ margin:1px 0 14px;padding-top:14px;
+ border-top:1px solid rgba(217,156,68,.17);
+}
+.salgatti-theme .salgatti-catalog-heading{
+ margin:0;font-size:clamp(17px,2.2vw,22px);font-weight:850;
+ letter-spacing:.01em;color:#f9f2e5;
+}
+.salgatti-theme .section-title-row #showAll{
+ margin:0;color:#eab75c;font-size:12px;font-weight:750;
+ padding:7px 0;border-bottom:1px solid rgba(230,166,62,.5);
+}
+.salgatti-theme .section-title-row #showAll:hover{color:#ffd689}
+.salgatti-theme .catalog-toolbar{gap:12px;margin-bottom:19px}
+.salgatti-theme .searchbox{
+ height:47px;background:#17130f;border:1px solid #493523;
+ border-radius:12px;color:#decaa8;
+}
+.salgatti-theme .searchbox span{color:#e9b85e;font-size:21px}
+.salgatti-theme .searchbox input{color:#fff5e6;font-size:13px}
+.salgatti-theme .searchbox input::placeholder{color:#9e907e}
+.salgatti-theme .searchbox:focus-within{border-color:#e9ad4b;box-shadow:0 0 0 3px rgba(230,169,65,.12)}
+.salgatti-theme .catalog-toolbar .select{
+ max-width:230px;min-height:47px;border-radius:12px;
+ background:#17130f;border-color:#493523;color:#f4e6d3;
+ font-size:13px;cursor:pointer;
+}
+.salgatti-theme .select:focus,.salgatti-theme .input:focus,.salgatti-theme textarea:focus{
+ border-color:#efb44f;box-shadow:0 0 0 3px rgba(228,163,58,.11);
+}
+.salgatti-theme .delivery-grid{
+ grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;
+ align-items:stretch;
+}
+.salgatti-theme .dproduct{
+ display:flex;flex-direction:column;min-width:0;height:100%;
+ background:linear-gradient(170deg,#211a13 0%,#17130e 65%,#110f0c 100%);
+ border:1px solid #433222;border-radius:19px;overflow:hidden;
+ box-shadow:0 9px 30px rgba(0,0,0,.25);
+ transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.salgatti-theme .dproduct:hover{
+ transform:translateY(-4px);border-color:#ad7c3b;
+ box-shadow:0 15px 32px rgba(0,0,0,.35);
+}
+.salgatti-theme .dproduct>img{
+ display:block;width:100%;aspect-ratio:6/5;
+ object-fit:contain;object-position:center;
+ background:#fff;padding:8px;border-bottom:1px solid #433323;
+}
+.salgatti-theme .dproduct .product-img-placeholder{
+ aspect-ratio:6/5;background:#281e12;color:#e6b054;
+}
+.salgatti-theme .dproduct .body{
+ display:flex;flex:1;flex-direction:column;min-height:245px;
+ padding:14px 15px 15px;
+}
+.salgatti-theme .dproduct .pill{
+ align-self:flex-start;padding:5px 10px;
+ border-radius:6px;background:#3a2917;color:#f0bd67;
+ font-size:10px;font-weight:750;text-transform:capitalize;
+}
+.salgatti-theme .dproduct h3{
+ margin:11px 0 5px;font-size:16px;font-weight:850;
+ line-height:1.35;text-transform:capitalize;color:#fcf7f0;
+}
+.salgatti-theme .dproduct .description{
+ color:#b4a594;font-size:12px;line-height:1.5;
+}
+.salgatti-theme .dproduct .price{
+ margin-top:auto;font-size:23px;font-weight:900;
+ color:#f5c068;letter-spacing:-.02em;
+}
+.salgatti-theme .dproduct .price small{
+ color:#b6a58c;font-size:10px;font-weight:600;letter-spacing:0;
+}
+.salgatti-theme .stock-notice{color:#ff9c91;font-size:12px}
+.salgatti-theme .product-quantity{
+ margin-top:15px;padding-top:12px;border-top:1px solid #3c2d1d;
+ font-size:11px;color:#e9dcc8;gap:7px;
+}
+.salgatti-theme .product-quantity-buttons{gap:7px}
+.salgatti-theme .product-quantity-buttons strong{font-size:14px;color:#fff}
+.salgatti-theme .quantity-step{
+ width:31px;height:31px;border:1px solid #58432b;
+ background:#2a2118;color:#f6c06b;border-radius:8px;
+ font-size:19px;
+}
+.salgatti-theme .quantity-step:not(:disabled):hover{
+ border-color:#edb550;background:#49321c;
+}
+.salgatti-theme .quantity-step:disabled{opacity:.32}
+.salgatti-theme .card-item-total{
+ margin-top:9px;padding-top:10px;
+ border-top:1px dashed rgba(203,152,77,.24);
+ font-size:11px;color:#bbad9a;
+}
+.salgatti-theme .card-item-total strong{color:#f5c068;font-size:15px}
+.salgatti-theme .dproduct .btn.add{
+ margin-top:13px;min-height:42px;width:100%;
+ border-radius:10px;background:linear-gradient(110deg,#ffd07a,#e5a439)!important;
+ border:1px solid #f4c46d;
+ color:#1d1307!important;font-size:12px;font-weight:900;
+ box-shadow:0 5px 13px rgba(200,124,22,.18);
+}
+.salgatti-theme .dproduct .btn.add:not(:disabled):hover{
+ filter:brightness(1.08);
+}
+.salgatti-theme .dproduct .btn.add:disabled{
+ background:#312c25!important;border-color:#474039;
+ color:#ada69c!important;box-shadow:none;
+}
+.salgatti-theme .card-feedback{color:#f0c780}
+.salgatti-theme .cartfloat{
+ background:linear-gradient(135deg,#ffd27f,#dc9426);
+ color:#211306;border:2px solid #f8d189;
+ box-shadow:0 0 0 5px #1e170e,0 7px 22px rgba(211,132,30,.33);
+}
+.salgatti-theme .cartfloat b{
+ color:#211306;background:#fff0cf;border:1px solid #dfb264;
+}
+.salgatti-theme .onlinecart{
+ background:#140f0bf7;border-left:1px solid #6f502b;
+}
+.salgatti-theme .onlinecart .modalhead small{color:#e9b158}
+.salgatti-theme .onlinecart .btn:not(.alt),.salgatti-theme .checkout-btn{
+ background:linear-gradient(110deg,#fbd080,#e4a033);color:#211407;
+}
+.salgatti-theme .onlinecart .btn.alt{background:#271d13;border-color:#644827;color:#f5e6d0}
+.salgatti-theme .onlinecart label{color:#ddcbb1}
+.salgatti-theme .onlinecart .select,.salgatti-theme .onlinecart .input,
+.salgatti-theme .onlinecart textarea{
+ background:#201810;border-color:#5b422a;color:#fff4e6;
+}
+.salgatti-theme .cartline{border-bottom-color:#493520}
+.salgatti-theme .grand-total{border-top-color:#5a4127}
+.salgatti-theme .onlinecart .tracking-ready{
+ background:#2b2014;border-color:#76522e;
+}
+.salgatti-theme .onlinecart .tracking-ready h3,
+.salgatti-theme .onlinecart .tracking-ready .tracking-link{color:#f4c170}
+.salgatti-theme .onlinecart .tracking-ready .tracking-link{border-color:#795a34}
+.salgatti-theme .onlinecart .tracking-ready p{color:#e7d6bd}
+.salgatti-theme .onlinecart .tracking-ready small{color:#bbaa92}
+.salgatti-theme .combo-banner{
+ background:radial-gradient(circle at 77% 45%,rgba(248,169,54,.18),transparent 38%),linear-gradient(110deg,#100c08,#28190b);
+ border-color:#bc8233;
+}
+.salgatti-theme .combo-banner:after{
+ background:repeating-linear-gradient(-15deg,transparent 0 20px,rgba(255,190,93,.05) 21px 22px);
+}
+.salgatti-theme .combo-banner h2 strong,.salgatti-theme .combo-note{color:#edb553}
+.salgatti-theme .combo-banner button{border-color:#cb9c54;background:#211609;color:#ffe2a6}
+.salgatti-theme .summary{background:#261c12;border-color:#5b4226}
+.salgatti-theme .category-tile:focus-visible,
+.salgatti-theme .btn:focus-visible,
+.salgatti-theme .cartfloat:focus-visible,
+.salgatti-theme .quantity-step:focus-visible{outline-color:#f0b958}
+@media(max-width:1050px){
+ .salgatti-theme .delivery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:760px){
+ .salgatti-theme .delivery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .salgatti-theme .store-header .header-title{padding:0 62px}
+ .salgatti-theme .salgatti-mark{left:15px;width:70px;height:70px}
+ .salgatti-theme .location-row{padding:14px 12px 22px;gap:9px}
+ .salgatti-theme .category-strip{padding:0 12px 22px;gap:10px}
+ .salgatti-theme .category-tile{flex-basis:88px}
+ .salgatti-theme .category-tile .category-art{width:84px;height:84px}
+ .salgatti-theme .catalog-shell{padding:0 12px 35px}
+ .salgatti-theme .delivery-grid{gap:12px}
+}
+@media(max-width:600px){
+ .salgatti-theme .store-header{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:0;padding:12px 12px 17px;
+  min-height:0;
+ }
+ .salgatti-theme .salgatti-mark{
+  position:static;transform:none;width:80px;height:80px;
+  margin:0 auto 2px;
+ }
+ .salgatti-theme .store-header .header-title{
+  width:100%;padding:0;gap:7px;
+ }
+ .salgatti-theme .salgatti-motto{font-size:10px;letter-spacing:.12em}
+ .salgatti-theme .store-header .header-title h1{
+  font-size:clamp(17px,4.8vw,24px);letter-spacing:.035em;
+ }
+ .salgatti-theme .store-header .header-title #storeName{letter-spacing:.03em}
+ .salgatti-theme .location-row{grid-template-columns:1fr;padding:14px 10px 19px;gap:9px}
+ .salgatti-theme .location-card,.salgatti-theme .hours-card{
+  min-height:59px;padding:10px 12px;border-radius:12px;
+ }
+ .salgatti-theme .category-strip{gap:9px;padding:0 10px 20px}
+ .salgatti-theme .category-tile{flex:0 0 77px;gap:7px}
+ .salgatti-theme .category-tile .category-art{
+  width:75px;height:75px;border-radius:16px;
+ }
+ .salgatti-theme .category-tile > b{font-size:11px}
+ .salgatti-theme .catalog-shell{padding:0 10px 35px}
+ .salgatti-theme .section-title-row{margin-bottom:11px}
+ .salgatti-theme .salgatti-catalog-heading{font-size:16px}
+ .salgatti-theme .catalog-toolbar{display:grid;grid-template-columns:1fr;gap:9px;margin-bottom:12px}
+ .salgatti-theme .catalog-toolbar .select{max-width:none}
+ .salgatti-theme .delivery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .salgatti-theme .dproduct{border-radius:14px}
+ .salgatti-theme .dproduct>img{padding:5px;aspect-ratio:1/1}
+ .salgatti-theme .dproduct .body{padding:10px 10px 11px;min-height:222px}
+ .salgatti-theme .dproduct h3{font-size:13px;margin:8px 0 4px}
+ .salgatti-theme .dproduct .price{font-size:20px}
+ .salgatti-theme .product-quantity{margin-top:10px;padding-top:10px;font-size:10px}
+ .salgatti-theme .product-quantity-buttons{gap:4px}
+ .salgatti-theme .quantity-step{width:27px;height:27px}
+ .salgatti-theme .card-item-total strong{font-size:13px}
+ .salgatti-theme .dproduct .btn.add{font-size:11px;padding:9px 5px;min-height:39px}
+ .salgatti-theme .dproduct:hover{transform:none}
+}
+@media(max-width:350px){
+ .salgatti-theme .delivery-grid{grid-template-columns:1fr}
+ .salgatti-theme .dproduct>img{aspect-ratio:4/3}
+}
+@media(prefers-reduced-motion:reduce){
+ .salgatti-theme .dproduct,.salgatti-theme .category-tile .category-art{transition:none}
+}
