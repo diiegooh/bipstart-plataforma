@@ -180,13 +180,11 @@ function canCustomize(){return proAccess()}
 function planManagementCard(){
  const active=ent?.plan_code==='pro'?'pro':'basic';
  const pending=active==='basic'&&shop?.requested_plan==='pro';
- const info=active==='pro'?
-   '<p class="muted small">Plano Premium ativo.</p>':pending?
+ const info=active==='pro'?'':pending?
    '<p class="plan-management-pending">Upgrade para Premium solicitado. Aguarde a confirmação e a ativação manual pela BipStart.</p>':
    '<button type="button" class="ghost plan-request-button" data-plan-request="pro">Solicitar upgrade para Premium</button>';
  return '<section class="plan-management" aria-label="Meu plano e dados da loja">'+
    '<h3>Meu plano</h3><p>Plano ativo: <strong>'+esc(plans[active])+'</strong></p>'+
-   '<p class="muted small">Seus produtos, estoque, vendas, cardápio, endereço e configurações permanecem na mesma loja ao fazer upgrade.</p>'+
    info+
    (pending?'<a class="ghost plan-contact" href="'+esc(contactUrl('alteracao'))+'" target="_blank" rel="noopener noreferrer">Solicitar ativação pelo WhatsApp ↗</a>':'')+
    '</section>';
