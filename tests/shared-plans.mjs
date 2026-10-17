@@ -82,7 +82,8 @@ test('mudança de plano exibe botão de solicitação e mantém personalização
  const css=readFileSync('public/cliente.css','utf8');
  assert.match(source,/function planManagementCard\(\)/);
  assert.match(source,/Plano ativo:/);
- assert.match(source,/Seus produtos, estoque, vendas, cardápio, endereço e configurações permanecem na mesma loja/);
+ assert.doesNotMatch(source,/Seus produtos, estoque, vendas, cardápio, endereço e configurações permanecem na mesma loja/);
+ assert.doesNotMatch(source,/Plano Premium ativo\./);
  assert.match(source,/planManagementCard\(\)/);
  assert.match(source,/renderPage\(\)/);
  assert.match(source,/setInterval\(\(\)=>\{if\(document\.visibilityState==='visible'\)void refreshActivatedPlan\(\)\},60000\)/);
