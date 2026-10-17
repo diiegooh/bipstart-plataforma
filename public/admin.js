@@ -56,13 +56,23 @@ async function request(fn,body){
  }
  return data;
 }
+function shopWhatsappUrl(value){
+ const digits=String(value||'').replace(/\D/g,'');
+ if(/^\d{10,11}$/.test(digits))return 'https://wa.me/55'+digits;
+ if(/^55\d{10,11}$/.test(digits))return 'https://wa.me/'+digits;
+ return '';
+}
 function row(item){
+ const whatsappUrl=shopWhatsappUrl(item.shop_whatsapp);
+ const whatsappLine=whatsappUrl?
+  '<div class="admin-shop-whatsapp">WhatsApp: <a href="'+escapeHtml(whatsappUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Conversar no WhatsApp com '+escapeHtml(item.shop_name)+'">'+escapeHtml(item.shop_whatsapp)+' ↗</a></div>':
+  '<div class="admin-muted admin-shop-whatsapp">WhatsApp não cadastrado</div>';
  const expiredTrial=item.access_status==='trialing'&&new Date(item.trial_until)<=new Date();
  const expiredPaid=item.access_status==='active'&&item.active_until&&new Date(item.active_until)<=new Date();
  const status=expiredTrial?'Teste expirado':expiredPaid?'Plano vencido':item.access_status;
  const plan=PLAN[item.requested_plan]?item.requested_plan:'basic';
  const option=Object.entries(PLAN).map(([value,label])=>'<option value="'+value+'"'+(value===plan?' selected':'')+'>'+label+'</option>').join('');
- return '<tr data-shop-id="'+escapeHtml(item.shop_id)+'"><td><strong>'+escapeHtml(item.shop_name)+'</strong><div class="admin-email">'+escapeHtml(item.owner_email||'E-mail não disponível')+'</div><div class="admin-muted">'+escapeHtml(item.shop_id)+'</div></td>'+
+ return '<tr data-shop-id="'+escapeHtml(item.shop_id)+'"><td><strong>'+escapeHtml(item.shop_name)+'</strong><div class="admin-email">'+escapeHtml(item.owner_email||'E-mail não disponível')+'</div>'+whatsappLine+'<div class="admin-muted">'+escapeHtml(item.shop_id)+'</div></td>'+
    '<td>'+escapeHtml(PLAN[item.requested_plan]||item.requested_plan)+'<div class="admin-muted">'+(item.signup_choice==='trial'?'Teste solicitado':'WhatsApp')+'</div></td>'+
    '<td class="admin-status">'+escapeHtml(status)+'<div class="admin-muted">'+(item.active_until?'Até '+new Date(item.active_until).toLocaleDateString('pt-BR'):(item.trial_until&&item.access_status==='trialing'?'Teste até '+new Date(item.trial_until).toLocaleString('pt-BR'):''))+'</div></td>'+
    '<td><select aria-label="Plano para ativar">'+option+'</select></td><td><div class="admin-actions">'+
@@ -127,7 +137,7 @@ async function load(){
    if(!config)config=await fetch('/api/public-config',{cache:'no-store'}).then(r=>r.json());
    if(!config?.enabled)throw Error('Configuração Supabase não disponível.');
    await signedInAccount();
-   const items=await request('bipstart_admin_list_shops_with_emails');
+   const items=await request('bipstart_admin_list_shops_with_contacts');
    $('adminRows').innerHTML=(Array.isArray(items)?items:[]).map(row).join('');
    message((items||[]).length+' loja(s) encontradas. Confirme o pagamento antes de liberar.');
    try{await loadCustomization()}
