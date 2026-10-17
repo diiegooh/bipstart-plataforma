@@ -602,8 +602,7 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
 @media(prefers-reduced-motion:reduce){.round-menu .round-card-click{transition:none}}
 
 
-/* Cabeçalho do modelo redondo: título à esquerda, nome da loja à direita.
-   A logo permanece no HTML exclusivamente para o modelo clássico. */
+/* Cabeçalho compacto: título à esquerda, nome e logo cadastrada à direita. */
 .menu-hero-heading{display:none}
 .menu-hero-logo-card{display:contents}
 .round-menu .store-header{
@@ -637,6 +636,34 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
  text-shadow:0 0 18px color-mix(in srgb,var(--green) 25%,transparent);
 }
 .round-menu .menu-hero-logo-card{display:none}
+.round-menu .store-header .header-title:has(.menu-hero-logo-card.has-store-logo){
+ grid-template-columns:minmax(0,1fr) minmax(120px,.88fr) 78px;
+}
+.round-menu .menu-hero-logo-card.has-store-logo{
+ display:grid;
+ grid-column:3;
+ grid-row:1/3;
+ align-self:start;
+ justify-self:end;
+ place-items:center;
+ width:78px;
+ height:78px;
+ padding:5px;
+ border:2px solid color-mix(in srgb,var(--green) 65%,#57535f);
+ border-radius:50%;
+ background:color-mix(in srgb,var(--green) 9%,#151119);
+ box-shadow:0 5px 18px #0008,0 0 0 3px color-mix(in srgb,var(--green) 12%,transparent);
+ overflow:hidden;
+}
+.round-menu .menu-hero-logo-card .store-logo,
+.round-menu .menu-hero-logo-card .store-logo-custom{
+ display:block;
+ width:100%;
+ height:100%;
+ margin:0;
+ object-fit:contain;
+ border-radius:50%;
+}
 .round-menu .store-header .header-title h1,
 .round-menu.salgatti-theme .store-header .header-title h1{
  grid-column:2;
@@ -675,6 +702,11 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
   row-gap:5px;
   padding:0;
  }
+ .round-menu .store-header .header-title:has(.menu-hero-logo-card.has-store-logo){
+  grid-template-columns:minmax(0,1fr) minmax(85px,.85fr) 52px;
+  column-gap:9px;
+ }
+ .round-menu .menu-hero-logo-card.has-store-logo{width:52px;height:52px;padding:3px}
  .round-menu .menu-hero-heading{
   font-size:clamp(29px,7.3vw,46px);
   letter-spacing:.01em;
@@ -691,6 +723,14 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
  .round-menu .cartfloat{right:15px;bottom:20px}
 }
 
+
+@media(max-width:380px){
+ .round-menu .store-header .header-title:has(.menu-hero-logo-card.has-store-logo){
+  grid-template-columns:minmax(0,1fr) minmax(65px,.85fr) 44px;
+  column-gap:6px;
+ }
+ .round-menu .menu-hero-logo-card.has-store-logo{width:44px;height:44px;padding:2px}
+}
 
 /* Modelo alternativo: "Todos" fica fixo à esquerda; sem controles redundantes. */
 .round-menu .section-title-row{display:none}
