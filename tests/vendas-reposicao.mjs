@@ -13,19 +13,19 @@ const products=[
  {id:'p2',name:'Água',category:'Bebidas',price:6,cost:2,stock:13,min_stock:10},
  {id:'p3',name:'Sem estoque',category:'Geral',price:8,cost:3,stock:0,min_stock:0}
 ];
-function fns(productsList=products){
+function fns(productsList=products,loadedReport=null){
  const start=source.indexOf('function salesDateRange(');
  const end=source.indexOf('function productStockState(product)',start);
  assert.ok(start>=0&&end>start);
- return new Function('products','salesReport','salesPeriod','salesDay','localReportDate','productStockState','fmt','esc','heading','tile','empty',
+ return new Function('products','salesReport','salesPeriod','salesDay','localReportDate','productStockState','fmt','esc','heading','tile','empty','salesLoading',
   source.slice(start,end)+';return {salesDateRange,saleLineFinancial,salesReportData,reportFigures,restockProducts,renderRestockList,renderSalesReport};')(
-  productsList,null,'day','2026-10-14',mkDate,product=>{
+  productsList,loadedReport,'day','2026-10-14',mkDate,product=>{
    if(Number(product.stock)<=0)return {state:'out'};
    return Number(product.stock)<=Number(product.min_stock)?{state:'low'}:{state:'ok'};
   },amount=>'R$ '+Number(amount||0).toFixed(2),v=>String(v??'').replace(/</g,'&lt;'),
   (title)=>'<h2>'+title+'</h2>',
   (title,amount)=>'<span>'+title+': '+amount+'</span>',
-  txt=>'<p>'+txt+'</p>');
+  txt=>'<p>'+txt+'</p>',false);
 }
 const sales=[
  {id:'v1',total:24,payment_method:'pix',created_at:'2026-10-14T12:30:00Z'},
@@ -38,8 +38,8 @@ const items=[
 
 test('as funções compõem JavaScript válido e os arquivos usam versão nova',()=>{
  new vm.Script(source,{filename:'cliente.js'});
- assert.match(page,/cliente\.js\?v=49/);
- assert.match(page,/cliente\.css\?v=32/);
+ assert.match(page,/cliente\.js\?v=60/);
+ assert.match(page,/cliente\.css\?v=38/);
  assert.match(css,/\.sales-table-wrap/);
  assert.match(css,/\.restock-list/);
 });
@@ -84,11 +84,29 @@ test('cada dia agrupa linhas, soma lucro bruto e sinaliza estimativas',()=>{
  assert.equal(report.figures.estimated,1);
  assert.equal(report.figures.quantity,3);
  assert.equal(report.salesCount,2);
+ assert.deepEqual(report.sales,sales);
  assert.equal(report.days.reduce((sum,d)=>sum+d.total.profit,0),18);
  assert.match(source,/Lucro bruto estimado/);
  assert.match(source,/Custo dos itens/);
  assert.match(source,/Preço vendido/);
  assert.match(source,/Pagamento/);
+});
+
+test('Vendas abre após carregar registros e mostra faturamento, custo e lucro sem travar',()=>{
+ const f=fns(products,{sales,items});
+ const markup=f.renderSalesReport();
+ assert.match(markup,/Vendas no período: 2/);
+ assert.match(markup,/Total vendido: R\$ 30\.00/);
+ assert.match(markup,/Custo dos itens: R\$ 12\.00/);
+ assert.match(markup,/Lucro bruto estimado: R\$ 18\.00/);
+ assert.match(markup,/Coxinha/);
+ assert.match(markup,/Pix/);
+ assert.match(markup,/Dinheiro/);
+ assert.match(markup,/data-sales-period="day"/);
+ assert.match(markup,/data-sales-period="week"/);
+ assert.match(markup,/data-sales-period="month"/);
+ const empty=fns(products,{sales:[],items:[]}).renderSalesReport();
+ assert.match(empty,/Nenhuma venda registrada neste período/);
 });
 
 test('vendas do período carregam todas as páginas e somente itens da própria loja',()=>{
