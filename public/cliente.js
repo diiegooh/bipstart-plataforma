@@ -750,13 +750,12 @@ function cardapioEditor(){
  cardapioLogoEditor()+
  cardapioLayoutSettings()+
  '<div class="menu-editor-meta">'+details.map(([label,value])=>'<button type="button" data-nav="configuracoes" title="Editar nas configurações"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></button>').join('')+'</div>'+
- '<div class="menu-editor-grid"><section class="menu-editor-panel"><h3>Categorias</h3>'+
+ '<div class="menu-editor-grid'+(showForm?.kind==='product'?'':' menu-editor-grid--single')+'"><section class="menu-editor-panel"><h3>Categorias</h3>'+
  '<form id="categoryForm" class="menu-category-form"><label>Nova categoria<input type="text" name="name" placeholder="Ex.: Bebidas" required maxlength="65"></label>'+
  '<button class="button" type="submit">+ Adicionar categoria</button></form>'+
  '<div class="menu-category-list">'+list+'</div></section>'+
- '<section class="menu-editor-panel"><h3>Adicionar ou editar item</h3>'+
- (showForm?.kind==='product'?productForm(showForm.value):'<p class="muted">Clique em "+ Adicionar item" para cadastrar nome, categoria, descrição, valor e imagem.</p>')+
- '</section></div><section class="menu-editor-panel menu-editor-items"><h3>Itens do cardápio</h3>'+productRows()+'</section>';
+ (showForm?.kind==='product'?'<section class="menu-editor-panel"><h3>Adicionar ou editar item</h3>'+productForm(showForm.value)+'</section>':'')+
+ '</div><section class="menu-editor-panel menu-editor-items"><h3>Itens do cardápio</h3>'+productRows()+'</section>';
 }
 
 
