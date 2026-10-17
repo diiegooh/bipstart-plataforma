@@ -17,9 +17,9 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrineHtml,/id="name"[^>]*required/);
  assert.match(vitrineHtml,/id="phone"[^>]*required/);
  assert.match(vitrineHtml,/id="address"/);
- assert.match(vitrineHtml,/\/vitrine\.js\?v=29/);
- assert.match(panelHtml,/\/cliente\.js\?v=49/);
- assert.match(panelHtml,/\/cliente\.css\?v=32/);
+ assert.match(vitrineHtml,/\/vitrine\.js\?v=33/);
+ assert.match(panelHtml,/\/cliente\.js\?v=55/);
+ assert.match(panelHtml,/\/cliente\.css\?v=36/);
  assert.match(vitrine,/await registerOnlineOrder\(\)/);
  assert.match(vitrine,/checkoutMessage\(receipt\.id\)/);
  assert.match(vitrine,/showCheckoutNextStep\(receipt\)/);
@@ -100,6 +100,42 @@ test('dashboard apresenta dados e controles de pagamento; escapa nome/endereço 
  assert.match(card,/Portão azul/);
  assert.match(card,/Coca-Cola/);
  assert.match(card,/R\$ 21\.00/);
+});
+
+test('cards de pedidos exibem número, dados, pagamento/total, cliente e ações nessa ordem',()=>{
+ const begin=panel.indexOf('function nextOnlineOrderStep(status,deliveryMethod){');
+ const end=panel.indexOf('function courierAccessUrl(',begin);
+ assert.ok(begin>=0&&end>begin);
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const draw=new Function('esc','fmt','orderNotificationLinks',panel.slice(begin,end)+';return onlineOrderCard;')(
+  esc,n=>'R$ '+Number(n).toFixed(2),new Map()
+ );
+ const order={id:'11111111-2222-4333-8444-555555555555',created_at:'2026-10-17T21:00:00Z',
+  customer_name:'Cliente Teste',customer_phone:'11999999999',delivery_method:'delivery',
+  delivery_address:'Rua Teste 123',payment_method:'pix',payment_status:'paid',
+  status:'out_for_delivery',items:[{qty:2,name:'Produto',total:50}],subtotal:50,delivery_fee:5,total:55};
+ const card=draw(order);
+ const markers=[
+  'class="online-order-top"',
+  'class="online-order-section online-order-products"',
+  'class="online-order-section online-order-payment"',
+  'class="online-order-total-row"',
+  'class="online-order-section online-order-customer"',
+  'class="online-order-actions"'
+ ];
+ const positions=markers.map(x=>card.indexOf(x));
+ assert.ok(positions.every(x=>x>=0));
+ assert.deepEqual(positions,[...positions].sort((a,b)=>a-b));
+ assert.match(card,/class="online-order-identifier"/);
+ assert.match(card,/Dados do pedido/);
+ assert.match(card,/Pagamento e total/);
+ assert.match(card,/Dados do cliente/);
+ assert.match(card,/data-order-finish=/);
+ assert.match(card,/data-payment-cancel=/);
+ assert.ok(card.indexOf('data-order-finish=')>card.indexOf('online-order-customer'));
+ assert.ok(card.indexOf('data-payment-cancel=')>card.indexOf('online-order-customer'));
+ assert.match(css,/#workspace \.online-order-actions-heading\{grid-column:1\/-1/);
+ assert.match(css,/@media\(max-width:440px\)/);
 });
 
 test('sidebar acompanha cor da loja com contraste e mantém o fundo escuro',()=>{
