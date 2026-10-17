@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PLAN={basic:'Básico',pro:'Premium'};
 const WHATSAPP='5511978353820';
-let config=null,busy=false;
+let config=null,busy=false,adminShopRecords=[];
 function message(t,error=false){$('adminMessage').textContent=t;$('adminMessage').style.color=error?'var(--danger)':'var(--text)'}
 const STORAGE='bipstart_customer_session';
 function session(){try{return JSON.parse(localStorage.getItem(STORAGE)||'null')}catch{return null}}
@@ -111,6 +111,43 @@ function requestCard(item){
   '<button type="button" class="button" data-custom-action="save">Salvar status</button>'+action+
   '</div></article>';
 }
+function pendingUpgrades(shops){
+ return (Array.isArray(shops)?shops:[]).filter(item=>
+  item.requested_plan==='pro'&&item.plan_code==='basic');
+}
+function upgradeWhatsappUrl(item){
+ const base=shopWhatsappUrl(item.shop_whatsapp);
+ if(!base)return '';
+ const text=[
+  'Olá! Aqui é do atendimento BipStart.',
+  'Recebemos a solicitação de upgrade da loja '+String(item.shop_name||'')+' para o plano Premium.',
+  'Gostaria de confirmar os dados e orientar sobre o pagamento.'
+ ].join('\n');
+ return base+'?text='+encodeURIComponent(text);
+}
+function upgradeCard(item){
+ const contact=upgradeWhatsappUrl(item);
+ const action=contact?'<a class="ghost custom-contact" target="_blank" rel="noopener noreferrer" href="'+escapeHtml(contact)+'">Conversar pelo WhatsApp ↗</a>':
+  '<span class="admin-muted">WhatsApp não cadastrado</span>';
+ return '<article class="customization-card upgrade-card" data-upgrade-shop-id="'+escapeHtml(item.shop_id)+'">'+
+  '<div class="customization-head"><div><p class="upgrade-kind">Solicitação de upgrade</p><h3>'+escapeHtml(item.shop_name)+'</h3>'+
+  '<p class="admin-email">'+escapeHtml(item.owner_email||'E-mail não disponível')+'</p>'+
+  '<p class="admin-muted">ID da loja: '+escapeHtml(item.shop_id)+'</p></div>'+
+  '<span class="customization-status">Aguardando liberação</span></div>'+
+  '<div class="customization-details"><strong>Plano Básico → Premium</strong>'+
+  '<p>Upgrade solicitado pela loja. Confirme o pagamento antes de ativar. A liberação não é automática.</p></div>'+
+  '<div class="customization-actions">'+
+  '<button type="button" class="button" data-upgrade-activate>Ativar Premium</button>'+action+
+  '</div></article>';
+}
+function renderUpgrades(shops=adminShopRecords){
+ const items=pendingUpgrades(shops);
+ $('upgradeRequests').innerHTML=items.map(upgradeCard).join('');
+ $('upgradeMessage').textContent=items.length?
+  items.length+' solicitação(ões) de upgrade pendente(s).':
+  'Nenhum upgrade pendente no momento.';
+ return items.length;
+}
 async function loadCustomization(){
  $('customMessage').textContent='Carregando solicitações...';
  const items=await request('bipstart_admin_list_customization_requests');
@@ -128,7 +165,10 @@ function setAdminTab(name){
 }
 document.querySelector('.admin-tabs').addEventListener('click',event=>{
  const tab=event.target.closest('[data-admin-tab]');
- if(tab)setAdminTab(tab.dataset.adminTab);
+ if(tab){
+  setAdminTab(tab.dataset.adminTab);
+  if(tab.dataset.adminTab==='custom'&&!busy)void load();
+ }
 });
 
 async function load(){
@@ -138,11 +178,21 @@ async function load(){
    if(!config?.enabled)throw Error('Configuração Supabase não disponível.');
    await signedInAccount();
    const items=await request('bipstart_admin_list_shops_with_contacts');
-   $('adminRows').innerHTML=(Array.isArray(items)?items:[]).map(row).join('');
-   message((items||[]).length+' loja(s) encontradas. Confirme o pagamento antes de liberar.');
+   if(!Array.isArray(items))throw Error('Resposta inesperada ao consultar as lojas.');
+   adminShopRecords=items;
+   $('adminRows').innerHTML=items.map(row).join('');
+   renderUpgrades(items);
+   message(items.length+' loja(s) encontradas. Confirme o pagamento antes de liberar.');
    try{await loadCustomization()}
    catch(e){$('customRequests').replaceChildren();$('customMessage').textContent='Não foi possível carregar as solicitações: '+e.message}
- }catch(e){$('adminRows').replaceChildren();$('customRequests').replaceChildren();$('customMessage').textContent='Faça login com uma conta administradora para visualizar as solicitações.';message(e.message,true)}
+ }catch(e){
+   adminShopRecords=[];
+   $('adminRows').replaceChildren();$('upgradeRequests').replaceChildren();
+   $('customRequests').replaceChildren();
+   $('upgradeMessage').textContent='Não foi possível consultar os upgrades: '+e.message;
+   $('customMessage').textContent='Faça login com uma conta administradora para visualizar as solicitações.';
+   message(e.message,true);
+ }
  finally{busy=false;$('reload').disabled=false}
 }
 $('reload').addEventListener('click',load);
@@ -162,6 +212,27 @@ $('adminRows').addEventListener('click',async e=>{
   message('Acesso atualizado. Nenhuma cobrança foi processada pela BipStart.');
  }catch(err){message(err.message,true)}
  finally{busy=false;btn.disabled=false;await load()}
+});
+$('upgradeRequests').addEventListener('click',async event=>{
+ const button=event.target.closest('[data-upgrade-activate]');
+ if(!button||busy)return;
+ const card=button.closest('[data-upgrade-shop-id]');
+ const shopId=card?.dataset.upgradeShopId;
+ const item=pendingUpgrades(adminShopRecords).find(shop=>shop.shop_id===shopId);
+ if(!item||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId))return;
+ if(!window.confirm('Você confirmou o pagamento da loja "'+item.shop_name+'" e deseja ativar o Premium por 30 dias? Esta ação libera o plano imediatamente.'))return;
+ busy=true;button.disabled=true;$('reload').disabled=true;
+ try{
+  const ok=await request('bipstart_admin_set_access',{p_shop_id:shopId,p_plan:'pro',p_action:'activate'});
+  if(ok!==true)throw Error('O Supabase não confirmou a liberação.');
+  $('upgradeMessage').textContent='Plano Premium ativado. Atualizando as solicitações...';
+ }catch(error){
+  $('upgradeMessage').textContent='Não foi possível liberar o upgrade: '+error.message;
+  busy=false;button.disabled=false;$('reload').disabled=false;
+  return;
+ }
+ busy=false;button.disabled=false;$('reload').disabled=false;
+ await load();
 });
 $('customRequests').addEventListener('click',async event=>{
  const button=event.target.closest('[data-custom-action="save"]');
