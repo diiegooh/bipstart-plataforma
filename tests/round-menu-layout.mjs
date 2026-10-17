@@ -122,7 +122,10 @@ test('loja Premium continua com personalização de cor e slogan sob o nome',()=
  assert.match(panel,/COR DO SITE/);
  assert.match(panel,/Exibir frase abaixo do nome da loja/);
  assert.match(panel,/Frase abaixo do nome da loja/);
- assert.match(panel,/const body=\{menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle\}/);
+ assert.match(panel,/const body=\{menu_layout_style,show_logo_subtitle,logo_subtitle\}/);
+ assert.match(panel,/function establishmentTypeField\(\)/);
+ assert.match(panel,/isMenu\?establishmentTypeField\(\):''/);
+ assert.match(panel,/body\.establishment_type=savedOption\?\.\[0\]\|\|enteredEstablishment/);
  assert.match(panel,/case 'menuLayoutForm':/);
  assert.match(vitrine,/const color=String\(menu\.brand_color\|\|''\)\.trim\(\)/);
  assert.match(html,/id="logoSubtitle"/);
