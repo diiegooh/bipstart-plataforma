@@ -85,6 +85,24 @@ test('formulário em Produtos preserva estoque mínimo; Cardápio não altera sa
  assert.match(client,/!Number\.isInteger\(body\.min_stock\)\|\|body\.min_stock<0/);
 });
 
+test('produto pode ativar ou desativar destaque Mais vendido, persistido no Supabase',()=>{
+ const start=client.indexOf('function productForm(p){');
+ const end=client.indexOf('function courierForm(c)',start);
+ assert.ok(start>0&&end>start);
+ const render=(value,tab='produtos')=>new Function('tab','field','formShell','categoryOptions','esc','proAccess',
+  client.slice(start,end)+';return productForm;')(
+  tab,(name,label,type,value,extra='')=>'<input name="'+name+'" value="'+esc(value)+'" '+extra+'>',
+  (_kind,_id,inside)=>'<form id="productForm">'+inside+'</form>',
+  ()=>'<option>Geral</option>',esc,()=>true)(product(value));
+ assert.match(render({is_best_seller:true}),/name="is_best_seller" value="true" checked/);
+ assert.doesNotMatch(render({is_best_seller:false}),/name="is_best_seller" value="true" checked/);
+ assert.match(render({is_best_seller:true},'cardapio'),/name="is_best_seller"/);
+ assert.match(client,/is_best_seller:v\.is_best_seller==='true'/);
+ const migration=readFileSync('sql/bipstart_pdv_best_sellers_20261017.sql','utf8');
+ assert.match(migration,/add column if not exists is_best_seller boolean not null default false/);
+ assert.doesNotMatch(migration,/\bdelete\b|\btruncate\b|\bdrop table\b/i);
+});
+
 test('aba Produtos reúne cards e avisos de estoque mínimo individual',()=>{
  assert.match(client,/tab==='produtos'/);
  assert.doesNotMatch(client,/tab==='estoque'/);
