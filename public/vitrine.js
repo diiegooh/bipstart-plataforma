@@ -92,9 +92,7 @@ function drawPage(){
  }
  const categories=categoryNames();
  $('category').innerHTML='<option value="">Todas as categorias</option>'+categories.map(name=>'<option value="'+esc(name)+'">'+esc(name)+'</option>').join('');
- $('quickCategories').innerHTML=isRound?
-  categories.map(name=>'<button type="button" class="category-tile round-category" data-cat="'+esc(name)+'"><span aria-hidden="true">'+categoryEmoji(name)+'</span><b>'+esc(name)+'</b></button>').join(''):
-  categories.map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'">'+categoryArtwork(name)+'<b>'+esc(name)+'</b></button>').join('');
+ $('quickCategories').innerHTML=categories.map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'">'+categoryArtwork(name)+'<b>'+esc(name)+'</b></button>').join('');
  const combos=categories.find(name=>/combo/i.test(fold(name)));
  $('comboBanner').classList.toggle('hidden',!combos);
  $('seeCombos').dataset.category=combos||'';
@@ -169,7 +167,6 @@ function renderCart(){
  }
  $('cartItems').innerHTML=lines.join('')||'<p class="muted">Seu carrinho está vazio.</p>';
  $('cartCount').textContent=String(count);
- $('roundCartCount').textContent=String(count);
  $('cartSubtotal').textContent=money(subtotal());
  $('deliveryTotal').textContent=money(deliveryCost());
  $('cartTotal').textContent=money(subtotal()+deliveryCost());
@@ -288,7 +285,6 @@ $('search').addEventListener('input',renderProducts);
 $('category').addEventListener('change',renderProducts);
 $('shipping').addEventListener('change',renderCart);
 $('openCart').addEventListener('click',openCart);
-$('roundHeaderCart').addEventListener('click',openCart);
 $('closeCart').addEventListener('click',closeCart);
 $('cartBackdrop').addEventListener('click',closeCart);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('cartDrawer').classList.contains('show'))closeCart();});

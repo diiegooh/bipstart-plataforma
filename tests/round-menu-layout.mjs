@@ -11,7 +11,7 @@ const adminCss=readFileSync('public/cliente.css','utf8');
 const migration=readFileSync('sql/bipstart_round_menu_layout_20261016.sql','utf8');
 const isolatedTheme=readFileSync('sql/bipstart_round_menu_theme_isolation_20261016.sql','utf8');
 
-test('vitrine clássica permanece padrão; novo layout só via opção ou prévia',()=>{
+test('clássico permanece padrão e modelo alternativo usa categorias antigas e carrinho flutuante',()=>{
  new vm.Script(vitrine);
  new vm.Script(admin);
  assert.match(vitrine,/function roundMenuActive\(\)/);
@@ -20,15 +20,14 @@ test('vitrine clássica permanece padrão; novo layout só via opção ou prévi
  assert.match(vitrine,/document\.body\.classList\.toggle\('round-menu',isRound\)/);
  assert.match(vitrine,/if\(typeof roundMenuActive==='function'&&roundMenuActive\(\)\)return roundItemCard\(item\)/);
  assert.match(vitrine,/categoryArtwork\(name\)\+'<b>'\+esc\(name\)/);
- assert.match(vitrine,/categories\.map\(name=>'<button type="button" class="category-tile round-category"/);
- assert.match(html,/id="roundHeaderCart"/);
- assert.match(html,/id="roundCartCount"/);
- assert.match(html,/id="openCart"/);
- assert.match(vitrine,/\$\('roundHeaderCart'\)\.addEventListener\('click',openCart\)/);
- assert.match(vitrine,/\$\('roundCartCount'\)\.textContent=String\(count\)/);
+ assert.doesNotMatch(vitrine,/round-category|roundHeaderCart|roundCartCount/);
+ assert.doesNotMatch(html,/roundHeaderCart|roundCartCount/);
+ assert.match(html,/id="openCart" class="cartfloat"/);
+ assert.match(html,/id="cartCount"/);
+ assert.match(vitrine,/\$\('openCart'\)\.addEventListener\('click',openCart\)/);
+ assert.match(vitrine,/\$\('cartCount'\)\.textContent=String\(count\)/);
  assert.match(vitrine,/querySelector\('\[data-card-feedback\]'\)/);
 });
-
 test('cards compactos com foto quadrada clicável usam produto, preço e o mesmo carrinho do site',()=>{
  const from=vitrine.indexOf('function roundItemCard(item){');
  const to=vitrine.indexOf('function itemCard(item){',from);
@@ -51,19 +50,27 @@ test('cards compactos com foto quadrada clicável usam produto, preço e o mesmo
  assert.match(vitrine,/const add=event\.target\.closest\('\[data-add\]'\)/);
  assert.match(vitrine,/renderCart\(\)/);
 });
-test('categorias e cores seguem a loja com formato adaptado a celular',()=>{
+test('categorias usam mesmas imagens, rótulos e seleção do cardápio clássico',()=>{
  assert.match(css,/body\.round-menu\{/);
  assert.match(css,/\.round-menu \.round-photo\{/);
  assert.match(css,/\.round-menu \.round-price\{/);
- assert.match(css,/\.round-menu \.round-header-cart\{/);
- assert.match(css,/\.round-menu \.cartfloat\{display:none\}/);
- assert.match(css,/\.round-menu \.round-category\.active/);
+ assert.match(css,/\.round-menu \.cartfloat\{display:grid;position:fixed;right:22px;bottom:20px/);
+ assert.doesNotMatch(css,/\.round-menu \.cartfloat\{display:none\}/);
+ assert.match(css,/\.round-menu \.category-strip\{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:9px;padding:4px 14px 18px/);
+ assert.match(css,/\.category-tile \.category-art\{/);
+ assert.match(css,/\.category-tile \.category-art-photo img\{/);
+ assert.match(css,/\.category-tile.active > b\{color:var\(--green\)/);
  assert.match(css,/\.round-menu \.delivery-grid\{display:grid;grid-template-columns:repeat\(5/);
  assert.match(css,/@media\(max-width:640px\)\{[\s\S]*\.round-menu \.delivery-grid\{grid-template-columns:repeat\(2/);
  assert.match(css,/var\(--green\)/);
  assert.match(html,/Cormorant\+Garamond/);
  assert.match(vitrine,/\$\('category'\)\.addEventListener\('change',renderProducts\)/);
- assert.doesNotMatch(css,/\.round-menu \.bottom-nav/);
+ assert.doesNotMatch(css,/\.round-menu \.round-category|\.round-menu \.bottom-nav/);
+ const begin=vitrine.indexOf(" $('quickCategories').innerHTML=");
+ const end=vitrine.indexOf(" const combos=",begin);
+ const snippet=vitrine.slice(begin,end);
+ assert.match(snippet,/categoryArtwork\(name\)/);
+ assert.doesNotMatch(snippet,/isRound\?|categoryEmoji\(name\)/);
 });
 test('cabeçalho sem texto acima da logo e frase opcional abaixo do nome da loja',()=>{
  assert.doesNotMatch(html,/id="establishmentEyebrow"|ESTABELECIMENTO/);
@@ -139,44 +146,36 @@ test('foto quadrada compacta e cards menores apenas no modelo alternativo',()=>{
  assert.doesNotMatch(vitrine,/classList\.toggle\('round-menu',true\)/);
 });
 
-test('cabeçalho do modelo alternativo segue referência, com CARDÁPIO à esquerda e logo à direita',()=>{
+test('cabeçalho apresenta CARDÁPIO à esquerda e nome da loja no alto à direita sem logo',()=>{
  assert.match(html,/<p class="menu-hero-heading" aria-hidden="true">CARDÁPIO<\/p>/);
  assert.match(html,/<div class="menu-hero-logo-card">/);
  assert.match(html,/<img id="storeLogo"/);
  assert.match(html,/<h1 id="storeName">Sua loja<\/h1>/);
  assert.match(css,/\.menu-hero-heading\{display:none\}/);
  assert.match(css,/\.menu-hero-logo-card\{display:contents\}/);
- assert.match(css,/\.round-menu \.store-header \.header-title\{[\s\S]*grid-template-columns:minmax\(0,1fr\)/);
- assert.match(css,/\.round-menu \.menu-hero-heading\{[\s\S]*grid-column:1;[\s\S]*grid-row:1/);
- assert.match(css,/\.round-menu \.store-header \.header-title h1,[\s\S]*grid-column:1;[\s\S]*grid-row:2/);
- assert.match(css,/\.round-menu \.menu-hero-logo-card\{[\s\S]*grid-column:2;[\s\S]*grid-row:1\/4/);
- assert.match(css,/\.round-menu \.round-header-cart\{[\s\S]*top:auto;[\s\S]*bottom:8px/);
- assert.match(css,/@media\(max-width:640px\)\{[\s\S]*\.round-menu \.menu-hero-heading\{[\s\S]*font-size:clamp\(28px,7\.3vw,46px\)/);
+ assert.match(css,/\.round-menu \.menu-hero-logo-card\{display:none\}/);
+ assert.match(css,/\.round-menu \.store-header \.header-title\{[\s\S]*grid-template-columns:minmax\(0,1fr\) minmax\(140px,.95fr\)/);
+ assert.match(css,/\.round-menu \.menu-hero-heading\{[\s\S]*grid-column:1;[\s\S]*grid-row:1\/3/);
+ assert.match(css,/\.round-menu \.store-header \.header-title h1,[\s\S]*grid-column:2;[\s\S]*grid-row:1;[\s\S]*text-align:right/);
+ assert.match(css,/\.round-menu \.store-header \.menu-tagline:not\(\.hidden\)\{[\s\S]*grid-column:2;[\s\S]*text-align:right/);
+ assert.match(css,/@media\(max-width:640px\)\{[\s\S]*\.round-menu \.menu-hero-heading\{[\s\S]*font-size:clamp\(29px,7\.3vw,46px\)/);
  assert.match(vitrine,/menu\?\.plan_code==='pro'&&typeof menu\.logo_path==='string'/);
- assert.match(vitrine,/\$\('roundHeaderCart'\)\.addEventListener\('click',openCart\)/);
+ assert.doesNotMatch(html,/id="roundHeaderCart"/);
+ assert.match(html,/id="openCart" class="cartfloat"/);
 });
-
-test('logo à direita sem fundo, borda, sombra ou texto superior, desktop e mobile',()=>{
- const desktopStart=css.indexOf('.round-menu .menu-hero-logo-card{');
- assert.ok(desktopStart>0);
- const desktop=css.slice(desktopStart,css.indexOf('}',desktopStart));
- assert.match(desktop,/background:transparent/);
- assert.match(desktop,/border:0/);
- assert.match(desktop,/box-shadow:none/);
- assert.match(desktop,/padding:0/);
- assert.match(desktop,/overflow:visible/);
- assert.doesNotMatch(desktop,/linear-gradient|border:1px/);
- const mobileStart=css.indexOf(' .round-menu .menu-hero-logo-card{',desktopStart);
- assert.ok(mobileStart>desktopStart);
- const mobile=css.slice(mobileStart,css.indexOf('}',mobileStart));
- assert.match(mobile,/background:transparent/);
- assert.match(mobile,/border:0/);
- assert.match(mobile,/box-shadow:none/);
- assert.match(mobile,/padding:0/);
- assert.doesNotMatch(html,/establishmentEyebrow/);
+test('logo oculta somente no modelo redondo, carrinho flutua à direita e categorias preservam fotos',()=>{
+ assert.match(css,/\.round-menu \.menu-hero-logo-card\{display:none\}/);
+ assert.match(css,/\.menu-hero-logo-card\{display:contents\}/);
+ assert.match(html,/id="storeLogo"/);
+ assert.match(vitrine,/function displayStoreLogo\(\)/);
+ assert.match(css,/\.round-menu \.cartfloat\{display:grid;position:fixed;right:22px;bottom:20px/);
+ assert.match(css,/\.round-menu \.cartfloat\{right:15px;bottom:20px\}/);
+ assert.doesNotMatch(html,/roundHeaderCart|roundCartCount|establishmentEyebrow/);
+ assert.doesNotMatch(vitrine,/roundHeaderCart|roundCartCount/);
  assert.match(html,/<p class="menu-hero-heading" aria-hidden="true">CARDÁPIO<\/p>/);
  assert.match(html,/<h1 id="storeName">Sua loja<\/h1>/);
- assert.match(html,/<img id="storeLogo"/);
- assert.match(vitrine,/menu\?\.plan_code==='pro'/);
+ assert.match(vitrine,/categoryArtwork\(name\)/);
+ assert.match(vitrine,/const category=\(menu\?\.categories\|\|\[\]\)\.find/);
+ assert.match(vitrine,/category\?\.image_path\|\|product\?\.image_path/);
  assert.match(vitrine,/\/bipstart-marca-icon\.png/);
 });
