@@ -311,6 +311,8 @@ function operationalMenuItems(){
     ['caixa','PDV','🛒'],
     ['produtos','Produtos','📦'],
     ['cardapio_publico','Cardápio online','📋'],
+    ['cardapio','Configurar cardápio','🎨'],
+    ['cardapio_teste','Testar modelo redondo','◉'],
     ['pedidos','Pedidos online','🚚'],
     ['motoboys','Motoboys','🛵'],
     ['vendas','Vendas','💰']
@@ -327,20 +329,25 @@ function applySidebarTheme(){
 }
 function renderNav(){
   applySidebarTheme();
-  const current=tab==='cardapio'||tab==='entregas'?'pedidos':tab;
+  const current=tab==='entregas'?'pedidos':tab;
   const sidebarItems=operationalMenuItems();
   if(!proAccess()){
     // Itens bloqueados ficam juntos no fim, preservando a ordem original de cada grupo.
-    const blocked=new Set(['cardapio_publico','pedidos','motoboys']);
+    const blocked=new Set(['cardapio_publico','cardapio','cardapio_teste','pedidos','motoboys']);
     sidebarItems.sort((a,b)=>Number(blocked.has(a[0]))-Number(blocked.has(b[0])));
   }
   $('nav').innerHTML='<nav aria-label="Navegação operacional">'+sidebarItems.map(([id,name,icon])=>{
-    if((id==='cardapio_publico'||id==='pedidos'||id==='motoboys')&&!proAccess()){
+    if((id==='cardapio_publico'||id==='cardapio'||id==='cardapio_teste'||id==='pedidos'||id==='motoboys')&&!proAccess()){
       return '<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="'+esc(name)+': exclusivo Premium" title="Exclusivo Premium">'+
         '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><small class="side-lock">Premium</small></button>';
     }
     if(id==='cardapio_publico'){
       return '<a class="side-public-menu" data-public-menu-link href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer" aria-label="Abrir cardápio online da loja em outra aba" title="Abrir cardápio online em outra aba">'+
+        '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><span class="side-external-icon" aria-hidden="true">↗</span></a>';
+    }
+    if(id==='cardapio_teste'){
+      const url=publicShopUrl()+'&visual=redondo';
+      return '<a class="side-public-menu side-round-preview" data-round-preview-link href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" aria-label="Testar modelo redondo em uma nova aba" title="Abre a versão de teste sem alterar o cardápio atual">'+
         '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><span class="side-external-icon" aria-hidden="true">↗</span></a>';
     }
     return '<button type="button" data-nav="'+esc(id)+'" class="'+(current===id?'active':'')+'"'+(current===id?' aria-current="page"':'')+'>'+
@@ -713,7 +720,7 @@ function cardapioLayoutSettings(){
  const establishment=shop.establishment_type||'outros';
  const isSubtitle=shop.show_logo_subtitle===true;
  const preview=publicShopUrl()+'&visual=redondo';
- return '<section class="menu-editor-panel menu-layout-settings" aria-labelledby="menuLayoutTitle">'+
+ return '<section class="menu-editor-panel menu-layout-settings" id="menuLayoutSettings" aria-labelledby="menuLayoutTitle">'+
   '<h3 id="menuLayoutTitle">Modelo e identidade do cardápio</h3>'+
   '<p class="muted">Teste o novo modelo antes de ativá-lo. O clássico permanece disponível sem perder produtos ou pedidos.</p>'+
   '<form id="menuLayoutForm">'+
@@ -1152,6 +1159,7 @@ function renderPage(){
       '';
     content=heading('Configurações da loja','')
       +planManagementCard()
+      +(proAccess()?'<div class="menu-preview-settings-link"><strong>Quer testar outro visual para o seu cardápio?</strong><p class="muted">Compare os modelos sem alterar o cardápio publicado.</p><button type="button" class="ghost" data-nav="cardapio">Configurar cardápio</button><a class="button" href="'+esc(publicShopUrl()+'&visual=redondo')+'" target="_blank" rel="noopener noreferrer">Testar modelo redondo ↗</a></div>':'')
       +'<div class="data-form"><form id="settingsForm">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
