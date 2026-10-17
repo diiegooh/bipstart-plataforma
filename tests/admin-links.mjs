@@ -19,8 +19,43 @@ test('admin mantém apenas Lojas e planos e Personalizações, sem Gerenciar lin
  assert.doesNotMatch(js,/adminLinksSection|adminShopLinks|adminGeneralLinks|loadLinks\(\)|bipstart_admin_list_shop_links/);
  assert.match(js,/const ADMIN_TABS=\{shops:'adminShopsSection',custom:'customizationSection'\}/);
  assert.match(js,/setAdminTab\(tab\.dataset\.adminTab\)/);
- assert.match(html,/\/admin\.js\?v=7/);
+ assert.match(html,/\/admin\.js\?v=8/);
 });
+test('lista administrativa mostra WhatsApp clicável das lojas com formato válido',()=>{
+ const start=js.indexOf('function shopWhatsappUrl(value){');
+ const end=js.indexOf('const REQUEST_STATUS=',start);
+ assert.ok(start>0&&end>start);
+ const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const {shopWhatsappUrl,row}=new Function('escapeHtml','PLAN',js.slice(start,end)+';return {shopWhatsappUrl,row};')(
+  escapeHtml,{basic:'Básico',pro:'Premium'});
+ assert.equal(shopWhatsappUrl('11966374236'),'https://wa.me/5511966374236');
+ assert.equal(shopWhatsappUrl('+55 (11) 96637-4236'),'https://wa.me/5511966374236');
+ assert.equal(shopWhatsappUrl('1234'),'');
+ const item={
+  shop_id:'aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb',
+  shop_name:'Loja <exemplo>',
+  owner_email:'cliente@example.com',
+  shop_whatsapp:'11966374236',
+  requested_plan:'basic',signup_choice:'whatsapp',access_status:'pending'
+ };
+ const link=row(item);
+ assert.match(link,/WhatsApp: <a href="https:\/\/wa\.me\/5511966374236"/);
+ assert.match(link,/target="_blank" rel="noopener noreferrer"/);
+ assert.match(link,/aria-label="Conversar no WhatsApp com Loja &lt;exemplo&gt;"/);
+ assert.match(link,/11966374236 ↗/);
+ assert.match(link,/cliente@example\.com/);
+ assert.doesNotMatch(link,/<exemplo>/);
+ assert.match(row({...item,shop_whatsapp:null}),/WhatsApp não cadastrado/);
+ assert.doesNotMatch(row({...item,shop_whatsapp:'abc'}),/href="https:\/\/wa\.me\//);
+ assert.match(js,/request\('bipstart_admin_list_shops_with_contacts'\)/);
+ const migration=readFileSync('sql/bipstart_admin_shop_contacts_20261017.sql','utf8');
+ assert.match(migration,/security definer/);
+ assert.match(migration,/public\.bipstart_admins/);
+ assert.match(migration,/shop_whatsapp text/);
+ assert.match(migration,/revoke all on function public\.bipstart_admin_list_shops_with_contacts/);
+ assert.match(migration,/grant execute on function public\.bipstart_admin_list_shops_with_contacts\(\) to authenticated/);
+});
+
 test('motoboys recebem convite individual no cadastro e login normal após vinculação',()=>{
  const start=client.indexOf('function courierAccessUrl(');
  const stop=client.indexOf('function renderPage(){',start);
