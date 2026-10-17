@@ -24,7 +24,7 @@ test('cardápio compacto é único modelo, sem prévia ou seletor clássico',()=
  assert.doesNotMatch(html,/menuPreviewBadge|PRÉVIA DO MODELO REDONDO/);
  assert.doesNotMatch(panel,/cardapio_teste|data-round-preview-link|visual=redondo|Clássico \(atual\)|Redondo \(novo\)|Testar modelo redondo/);
  assert.doesNotMatch(panel,/name="menu_layout_style"/);
- assert.match(panel,/const menu_layout_style='round'/);
+ assert.match(panel,/Object\.assign\(body,\{menu_layout_style:'round',show_logo_subtitle,logo_subtitle\}\)/);
  assert.doesNotMatch(panel,/Cardápio online oficial/);
  assert.match(panel,/Personalização do cardápio/);
  assert.doesNotMatch(panel,/Abrir cardápio oficial|Abrir cardápio ↗/);
