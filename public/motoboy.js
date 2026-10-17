@@ -157,6 +157,14 @@ async function refresh(){
 }
 $('tabLogin').onclick=()=>setAuthTab(false);
 $('tabSignup').onclick=()=>setAuthTab(true);
+function courierLoginEmail(input){
+ const value=String(input||'').trim().toLowerCase();
+ if(value.includes('@'))return value; // login legado por e-mail
+ let digits=value.replace(/\D/g,'');
+ if(/^55\d{10,11}$/.test(digits))digits=digits.slice(2);
+ if(!/^[1-9]\d{9,10}$/.test(digits))throw Error('Informe seu telefone com DDD ou o e-mail do convite antigo.');
+ return 'courier-55'+digits+'@login.bipstart.example';
+}
 $('loginForm').onsubmit=async event=>{
  event.preventDefault();
  const form=event.currentTarget;
@@ -164,7 +172,7 @@ $('loginForm').onsubmit=async event=>{
  submit.disabled=true;
  try{
   if(cfg.turnstileSiteKey&&!captchaToken)throw Error('Complete a verificação de segurança.');
-  const email=form.elements.namedItem('email').value.trim();
+  const email=courierLoginEmail(form.elements.namedItem('login').value);
   const password=form.elements.namedItem('password').value;
   const data=await api('/auth/v1/token?grant_type=password',{
    method:'POST',token:null,
