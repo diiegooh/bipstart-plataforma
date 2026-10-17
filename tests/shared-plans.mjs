@@ -49,6 +49,8 @@ test('cadastro mantém o mesmo shop_id e a mesma base em mudanças de plano',()=
  assert.match(source,/if\(initialPlan\)\$\('shopForm'\)\.elements\.namedItem\('requested_plan'\)\.value=initialPlan/);
  assert.match(source,/else if\(initialPlan&&ent\?\.plan_code!==initialPlan\)/);
  assert.match(source,/data-plan-request/);
+ assert.match(source,/ent\?\.plan_code!=='basic'\|\|planButton\.dataset\.planRequest!=='pro'/);
+ assert.doesNotMatch(source,/mudança para Básico/);
  assert.match(source,/rpc\('bipstart_request_plan_change',\{p_shop_id:shop\.id,p_plan:target\}\)/);
  assert.match(source,/shop\.requested_plan=target/);
  assert.match(source,/function refreshActivatedPlan\(\)|async function refreshActivatedPlan\(\)/);
@@ -57,7 +59,7 @@ test('cadastro mantém o mesmo shop_id e a mesma base em mudanças de plano',()=
  assert.doesNotMatch(panel,/id="modeChooser"|id="backToModes"/);
  assert.match(source,/tab='caixa';showForm=null;pastedProductImage=null/);
  assert.match(panel,/id="workspace"/);
- assert.match(panel,/\/cliente\.js\?v=49/);
+ assert.match(panel,/\/cliente\.js\?v=52/);
 });
 test('pedido de troca não concede Premium; ativação administra a mesma loja',()=>{
  assert.match(database,/create or replace function public\.bipstart_request_plan_change\(p_shop_id uuid,p_plan text\)/);
@@ -85,5 +87,5 @@ test('mudança de plano exibe botão de solicitação e mantém personalização
  assert.match(source,/renderPage\(\)/);
  assert.match(source,/setInterval\(\(\)=>\{if\(document\.visibilityState==='visible'\)void refreshActivatedPlan\(\)\},60000\)/);
  assert.match(css,/#workspace \.plan-management/);
- assert.match(panel,/\/cliente\.css\?v=32/);
+ assert.match(panel,/\/cliente\.css\?v=34/);
 });
