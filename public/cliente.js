@@ -734,6 +734,12 @@ function renderSalesReport(){
       '<span>Custo: <strong>'+(info.cost===null?'—':fmt(info.cost))+'</strong></span>'+
       '<span>Lucro: <strong>'+salesProfitLabel({value:info.profit,partial:info.profitPartial})+'</strong></span>'+
       '</footer>'+
+      (['credito','debito'].includes(sale.payment_method)&&!cardFeeInfo(sale).known?
+       '<div class="sales-fee-editor">'+
+       '<label>Taxa real desta venda (%)<input type="number" inputmode="decimal" min="0" max="100" step="0.01" placeholder="Ex.: 3,99" aria-label="Taxa real da venda #'+group.number+'"></label>'+
+       '<button type="button" class="ghost" data-sales-save-fee="'+esc(sale.id)+'">Salvar taxa e recalcular</button>'+
+       '<small>Esta venda antiga não tem taxa registrada. O lucro (*) é parcial até informar a porcentagem correta.</small>'+
+       '</div>':'')+
       '</section>';
     }).join('')+'</div></section>';
  }
@@ -1872,6 +1878,28 @@ document.addEventListener('click',async e=>{
       selectPdvPayment(cardKindButton.dataset.cardMethod);
       renderPage();
     }
+    return;
+  }
+  const feeSaveButton=e.target.closest('[data-sales-save-fee]');
+  if(feeSaveButton){
+    if(tab!=='vendas'||!shop||salesLoading)return;
+    const saleId=feeSaveButton.dataset.salesSaveFee;
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(saleId||''))return;
+    const sale=salesReport?.sales?.find(s=>s.id===saleId);
+    if(!sale||cardFeeInfo(sale).known||!['credito','debito'].includes(sale.payment_method))return;
+    const raw=feeSaveButton.closest('.sales-fee-editor')?.querySelector('input')?.value?.trim()||'';
+    const percent=Number(raw);
+    if(!raw||!Number.isFinite(percent)||percent<0||percent>100||
+       Math.abs(percent*100-Math.round(percent*100))>1e-7)
+      return msg('Informe a taxa real entre 0% e 100%, com até duas casas decimais.',true);
+    if(!window.confirm('Registrar '+percent.toLocaleString('pt-BR')+'% de taxa nesta venda antiga e recalcular o lucro?'))return;
+    feeSaveButton.disabled=true;
+    try{
+      await rpc('bipstart_set_missing_card_fee',{p_shop_id:shop.id,p_sale_id:saleId,p_percent:percent});
+      await loadSalesReport();
+      msg('Taxa registrada. O lucro das vendas foi recalculado.');
+    }catch(error){msg(error.message||'Não foi possível registrar a taxa.',true)}
+    finally{if(feeSaveButton.isConnected)feeSaveButton.disabled=false}
     return;
   }
   const exportButton=e.target.closest('[data-sales-export]');
