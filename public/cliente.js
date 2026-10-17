@@ -632,7 +632,7 @@ function categoryThumbnail(name){
   '<span class="category-image-thumb category-image-empty" aria-hidden="true">▣</span>';
 }
 function categoryImageActions(name){
- if(!proAccess()||!menuSchemaReady)return '';
+ if(!proAccess()||!menuSchemaReady||categoryKey(name)==='todos')return '';
  return '<div class="category-image-actions">'+
   '<button type="button" data-category-image-paste="'+esc(name)+'" title="Clique e pressione Ctrl+V para colar uma imagem">📋 Colar imagem</button>'+
   '<label class="category-image-file">Escolher foto<input data-category-image-file="'+esc(name)+'" type="file" accept="image/png,image/jpeg,image/webp" hidden></label></div>';
@@ -650,11 +650,11 @@ function categoryImagesSettings(){
   const name=normalizedProductCategory(product),key=categoryKey(name);
   if(name&&!names.has(key))names.set(key,name);
  }
- const ordered=['Todos',...names.values()].filter((name,index,list)=>list.findIndex(value=>categoryKey(value)===categoryKey(name))===index && !!name).sort((a,b)=>a==='Todos'?-1:b==='Todos'?1:a.localeCompare(b,'pt-BR'));
+ const ordered=[...names.values()].filter(name=>categoryKey(name)!=='todos').sort((a,b)=>a.localeCompare(b,'pt-BR'));
  const rows=ordered.map(name=>
   '<div class="category-image-setting-row">'+
    categoryThumbnail(name)+
-   '<div class="category-image-setting-info"><strong>'+esc(name)+'</strong><small>'+(categoryKey(name)==='todos'?'Imagem de fundo do botão Todos':'Foto exibida no cardápio online')+'</small></div>'+
+   '<div class="category-image-setting-info"><strong>'+esc(name)+'</strong><small>Foto exibida no cardápio online</small></div>'+
    categoryImageActions(name)+
   '</div>').join('');
  return '<section class="category-image-settings" id="categoryImagesSettings">'+
@@ -1231,9 +1231,8 @@ async function saveCategoryImage(name,file){
  if(!shop||shop.model!=='pdv'||!hasAccess()||!proAccess()||!menuSchemaReady)
   throw Error('Imagens de categorias disponíveis apenas no Premium com o cardápio configurado.');
  const normalized=String(name||'').trim();
- if(!normalized||normalized.length>65||
-   (categoryKey(normalized)!=='todos' &&
-    !categories.some(c=>categoryKey(c.name)===categoryKey(normalized))&&
+ if(!normalized||normalized.length>65||categoryKey(normalized)==='todos'||
+   (!categories.some(c=>categoryKey(c.name)===categoryKey(normalized))&&
     !products.some(p=>categoryKey(p.category)===categoryKey(normalized))))
   throw Error('Categoria inválida. Atualize a página e tente novamente.');
  if(!await ensureSession())throw Error('Sua sessão expirou. Entre novamente.');
