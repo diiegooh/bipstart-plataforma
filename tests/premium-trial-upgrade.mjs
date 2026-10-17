@@ -89,7 +89,7 @@ test('Admin só libera teste Premium enquanto prazo gratuito original estiver at
  assert.match(expired,/Não é possível reiniciar os 7 dias/);
  const paid=f.upgradeCard(shop({upgrade_request_type:'paid'}));
  assert.match(paid,/data-upgrade-activate/);
- assert.match(paid,/Ativar Premium pago \(30 dias\)/);
+ assert.match(paid,/Ativar Premium pago \(\+30 dias\)/);
  assert.doesNotMatch(paid,/data-upgrade-trial/);
  assert.match(admin,/request\('bipstart_admin_list_upgrade_request_modes'\)/);
  assert.match(admin,/request\('bipstart_admin_upgrade_trial',\{p_shop_id:shopId\}\)/);
