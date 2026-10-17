@@ -1018,3 +1018,35 @@ body.receipt-open{overflow:hidden}
 #workspace .sales-fee-editor button{min-height:40px;cursor:pointer}
 #workspace .sales-fee-editor small{flex:1 1 100%;color:#e5cda8;font-size:11px;line-height:1.5}
 @media(max-width:520px){#workspace .sales-fee-editor{padding:11px}#workspace .sales-fee-editor label,#workspace .sales-fee-editor button{flex:1 1 100%}}
+
+/* Lista principal de vendas: cada linha revela os produtos somente quando clicada. */
+#workspace .sales-record-row{cursor:pointer;transition:background .16s}
+#workspace .sales-record-row:hover{background:color-mix(in srgb,var(--store-accent,#9a60d2) 13%,#142017)}
+#workspace .sales-record-row:has(.sales-record-toggle[aria-expanded="true"]){background:#233b29}
+#workspace .sales-record-toggle{display:flex;align-items:center;gap:9px;width:100%;min-height:38px;text-align:left;color:#f6fff7;font-size:13px;font-weight:800;background:transparent;border:0;border-radius:8px;padding:6px 4px;cursor:pointer}
+#workspace .sales-record-toggle:hover{color:#b5edbe}
+#workspace .sales-record-toggle:focus-visible{outline:2px solid var(--store-accent,#b591ef);outline-offset:2px}
+#workspace .sales-record-arrow{display:inline-flex;justify-content:center;align-items:center;flex:0 0 19px;width:19px;height:19px;border-radius:50%;background:#2e4433;color:#cdeed5;font-size:18px;line-height:1;transition:transform .18s}
+#workspace .sales-record-toggle[aria-expanded="true"] .sales-record-arrow{transform:rotate(180deg)}
+#workspace .sales-record-details-row[hidden]{display:none!important}
+#workspace .sales-record-details-row>td{padding:0!important;border-bottom:2px solid #5e775c!important;text-align:left!important;background:#17231b}
+#workspace .sales-inline-detail{padding:16px 18px;min-width:0;background:#17251c}
+#workspace .sales-inline-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid #3a5540}
+#workspace .sales-inline-heading strong{font-size:14px;color:#fff}
+#workspace .sales-inline-heading span{color:#bfd3c4;font-size:12px}
+#workspace .sales-inline-scroll{width:100%;overflow-x:auto}
+#workspace .sales-inline-products{width:100%;min-width:380px;border-collapse:collapse;margin:10px 0;font-size:12px}
+#workspace .sales-inline-products th,#workspace .sales-inline-products td{border-bottom:1px solid #34513b;padding:10px 9px;text-align:right;white-space:nowrap}
+#workspace .sales-inline-products th:first-child,#workspace .sales-inline-products td:first-child{text-align:left;white-space:normal;min-width:115px}
+#workspace .sales-inline-products th{color:#bed9c4;font-size:11px}
+#workspace .sales-inline-products td strong{display:block;color:#fff;overflow-wrap:anywhere}
+#workspace .sales-inline-products td small{display:block;color:#afc2b2;margin-top:3px}
+#workspace .sales-inline-summary{display:flex;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;padding:12px 0;color:#bdcfc2;font-size:12px}
+#workspace .sales-inline-summary strong{color:#fff}
+#workspace .sales-inline-fee{color:#dbcca4;margin:6px 0;font-size:11px}
+#workspace .sales-inline-detail .sales-fee-editor{margin:8px -18px -16px}
+@media(max-width:540px){
+ #workspace .sales-inline-detail{padding:12px}
+ #workspace .sales-inline-detail .sales-fee-editor{margin:8px -12px -12px}
+ #workspace .sales-record-toggle{font-size:12px;gap:5px}
+}
