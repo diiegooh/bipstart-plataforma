@@ -703,37 +703,26 @@ function renderSalesReport(){
     '<span>Total vendido: <strong>'+fmt(day.salesTotal)+'</strong></span>'+
     '<span>'+profitLabel+': <strong>'+(dailyHasProfit?fmt(summary.profit-day.paymentTotals.cardFees):'—')+'</strong></span></div></div>'+
     '<div class="sales-checkouts">'+day.sales.map(group=>{
-     const sale=group.sale,figures=group.total;
-     const dateTime=new Date(sale.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-     const profitTitle='Lucro';
-     const fee=cardFeeInfo(sale);
-     const percentLabel=fee.percent===null?'':' ('+esc(fee.percent.toLocaleString('pt-BR',{maximumFractionDigits:2}))+'%)';
+     const sale=group.sale,info=salesRecordInfo(group,day.day);
      return '<section class="sales-checkout" aria-label="Venda #'+group.number+'">'+
       '<header class="sales-checkout-heading"><div class="sales-checkout-identification">'+
-      '<strong>Venda #'+group.number+'</strong><span>'+esc(dateTime)+'</span></div>'+
+      '<strong>Venda #'+group.number+'</strong><span>'+esc(info.time)+'</span></div>'+
       '<div class="sales-checkout-meta"><span>'+esc(payments[sale.payment_method]||sale.payment_method||'Não informado')+'</span>'+
-      '<strong>'+fmt(sale.total)+'</strong></div></header>'+
+      '<strong>'+fmt(info.gross)+'</strong></div></header>'+
       (group.lines.length?
         '<div class="sales-table-wrap"><table class="sales-table"><thead><tr>'+
-        '<th>Produto</th><th>Qtd.</th><th>Custo</th><th>Preço vendido</th><th>Lucro bruto</th>'+
+        '<th>Produto</th><th>Qtd.</th><th>Custo</th><th>Preço vendido</th>'+
         '</tr></thead><tbody>'+group.lines.map(({item,financial:x})=>{
          const costLabel=x.missing?'Indisponível':fmt(x.cost)+(x.estimated?' *':'');
-         const profit=x.missing?'—':fmt(x.profit)+(x.estimated?' *':'');
          return '<tr><td><strong>'+esc(item.product_name)+'</strong><small>Unit.: '+fmt(x.unitPrice)+'</small></td>'+
-          '<td>'+esc(x.quantity)+'</td><td>'+costLabel+'</td><td>'+fmt(x.revenue)+'</td>'+
-          '<td class="sales-profit">'+profit+'</td></tr>';
+          '<td>'+esc(x.quantity)+'</td><td>'+costLabel+'</td><td>'+fmt(x.revenue)+'</td></tr>';
         }).join('')+'</tbody></table></div>':
         '<p class="sales-checkout-empty">Os itens desta venda não estão disponíveis no histórico detalhado.</p>')+
       '<footer class="sales-checkout-footer">'+
-      '<span>Total da venda: <strong>'+fmt(sale.total)+'</strong></span>'+
-      (fee.known?
-       (['credito','debito'].includes(sale.payment_method)?
-        '<span>Taxa da maquininha'+percentLabel+': <strong>−'+fmt(fee.amount)+'</strong></span>':'')+
-       '<span>Recebimento líquido: <strong>'+fmt(Number(sale.total)-fee.amount)+'</strong></span>'+
-       '<span>'+profitTitle+': <strong>'+(figures.missing||!group.lines.length?'—':fmt(figures.profit-fee.amount))+'</strong></span>':
-       '<span>Taxa da maquininha: <strong>Não registrada</strong></span>'+
-       '<span>Recebimento líquido: <strong>Não informado</strong></span>'+
-       '<span>Lucro: <strong>—</strong></span>')+
+      '<span>Unidades vendidas: <strong>'+info.units+'</strong></span>'+
+      '<span>Total vendido: <strong>'+fmt(info.gross)+'</strong></span>'+
+      '<span>Custo: <strong>'+(info.cost===null?'—':fmt(info.cost))+'</strong></span>'+
+      '<span>Lucro: <strong>'+(info.profit===null?'—':fmt(info.profit))+'</strong></span>'+
       '</footer>'+
       '</section>';
     }).join('')+'</div></section>';
