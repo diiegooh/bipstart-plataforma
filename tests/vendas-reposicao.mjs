@@ -166,7 +166,8 @@ test('a lista de vendas é recolhida, clicável e só mostra produtos ao expandi
  assert.match(html,new RegExp('id="sales-details-'+saleId+'" hidden'));
  assert.match(html,new RegExp('aria-controls="sales-details-'+saleId+'"'));
  assert.match(html,/class="sales-record-toggle" aria-expanded="false"/);
- const detail=html.slice(html.indexOf('id="sales-details-'+saleId+'" hidden'),html.indexOf('</tr>',html.indexOf('id="sales-details-'+saleId+'" hidden')));
+ const detail=fns(products,{sales:multiSales,items:multiItems}).salesRecordDetails(
+  fns(products,{sales:multiSales,items:multiItems}).salesReportData().days[0].sales[0],'2026-10-14');
  assert.match(detail,/Coxinha especial/);
  assert.match(detail,/Água gelada/);
  assert.match(detail,/Preço unit.: R\$ 12\.00/);
