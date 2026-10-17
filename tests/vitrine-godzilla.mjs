@@ -305,7 +305,8 @@ test('cardápio não exibe título NOSSOS PRODUTOS e clicar categoria não rola 
  assert.doesNotMatch(block,/goToCatalogue|scrollIntoView|scrollTo/);
  const selected={category:{value:''}};
  let refreshes=0;
- const filter=new Function('
+ const makeFilter=new Function('$','renderProducts','roundMenuActive',block+';return filterCategory;');
+ const filter=makeFilter(key=>selected[key],()=>{refreshes++;},()=>false);
  filter('Bebidas');
  assert.equal(selected.category.value,'Bebidas');
  assert.equal(refreshes,1);
