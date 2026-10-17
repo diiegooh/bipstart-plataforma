@@ -41,6 +41,14 @@ Deno.serve(async (request: Request) => {
     const token = auth.replace(/^Bearer /i, "");
     const { data: account, error: accountError } = await db.auth.getUser(token);
     if (accountError || !account?.user?.id) return response(401, "Sessão inválida.");
+    // Database mutations use the authenticated shop owner so shop RLS is enforced.
+    // The service key is reserved for Auth Admin account creation and rollback.
+    const publicKey = request.headers.get("apikey") || Deno.env.get("SUPABASE_ANON_KEY") || "";
+    if (!publicKey) return response(503, "Chave pública não configurada.");
+    const ownerDb = createClient(url, publicKey, {
+      global: { headers: { Authorization: auth } },
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
     const data = await request.json();
     const shopId = String(data?.shop_id || "");
     const action = String(data?.action || "");
@@ -64,17 +72,17 @@ Deno.serve(async (request: Request) => {
     if (action === "remove") {
       const courierId = String(data?.courier_id || "");
       if (!uuid.test(courierId)) return response(400, "Motoboy inválido.");
-      const { data: courier, error: courierError } = await db.from("shop_couriers")
+      const { data: courier, error: courierError } = await ownerDb.from("shop_couriers")
         .select("id,account_id,login_managed,removed_at").eq("id",courierId)
         .eq("shop_id",shopId).maybeSingle();
       if (courierError || !courier || courier.removed_at)
         return response(404, "Motoboy não encontrado.");
-      const { data: ongoing, error: deliveryError } = await db.from("shop_deliveries")
+      const { data: ongoing, error: deliveryError } = await ownerDb.from("shop_deliveries")
         .select("id").eq("shop_id",shopId).eq("courier_id",courierId)
         .in("status",["atribuida","a_caminho"]).limit(1);
       if (deliveryError) return response(500,"Não foi possível verificar entregas em andamento.");
       if (ongoing?.length) return response(409,"Este motoboy possui entrega em andamento. Conclua ou redistribua antes de remover.");
-      const { error: removalError } = await db.from("shop_couriers")
+      const { error: removalError } = await ownerDb.from("shop_couriers")
         .update({ active:false,removed_at:new Date().toISOString(),invite_code:null })
         .eq("id",courierId).eq("shop_id",shopId).is("removed_at",null);
       if (removalError) return response(500,"Não foi possível remover o motoboy.");
@@ -100,7 +108,7 @@ Deno.serve(async (request: Request) => {
       return response(400, "Identificador do motoboy inválido.");
     let courier: { id: string; account_id: string | null; login_managed: boolean } | null = null;
     if (action !== "create") {
-      const { data: found, error } = await db.from("shop_couriers")
+      const { data: found, error } = await ownerDb.from("shop_couriers")
         .select("id,account_id,login_managed").eq("id",courierId).eq("shop_id",shopId).maybeSingle();
       if (error || !found) return response(404, "Motoboy não encontrado nesta loja.");
       courier = found;
@@ -119,7 +127,7 @@ Deno.serve(async (request: Request) => {
         courier!.account_id!, updateAuth,
       );
       if (authError) return response(409, "Não foi possível alterar o login: " + authError.message);
-      const { error } = await db.from("shop_couriers")
+      const { error } = await ownerDb.from("shop_couriers")
         .update({ name, phone: phone.local, active: data.active })
         .eq("id", courierId).eq("shop_id", shopId).eq("account_id", courier!.account_id);
       if (error) return response(500, "Login alterado; não foi possível atualizar o cadastro. Tente novamente.");
@@ -138,19 +146,19 @@ Deno.serve(async (request: Request) => {
     let storeError = "";
     try {
       if (action === "create") {
-        const { data: row, error } = await db.from("shop_couriers").insert({
+        const { data: row, error } = await ownerDb.from("shop_couriers").insert({
           shop_id: shopId, name, phone: phone.local, active: data.active,
           account_id: created.user.id, login_managed: true, invite_code: null,
         }).select("id").single();
-        if (error || !row) throw new Error("Não foi possível salvar o motoboy.");
+        if (error || !row) throw new Error("Não foi possível salvar o motoboy: " + (error?.message || "registro não retornado"));
         resultId = row.id;
       } else {
-        const { data: row, error } = await db.from("shop_couriers").update({
+        const { data: row, error } = await ownerDb.from("shop_couriers").update({
           name, phone: phone.local, active: data.active,
           account_id: created.user.id, login_managed: true, invite_code: null,
         }).eq("id", courierId).eq("shop_id", shopId).is("account_id",null)
           .select("id").single();
-        if (error || !row) throw new Error("Não foi possível vincular o login.");
+        if (error || !row) throw new Error("Não foi possível vincular o login: " + (error?.message || "registro não retornado"));
         resultId = row.id;
       }
     } catch (e) {
