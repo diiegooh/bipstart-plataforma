@@ -18,7 +18,7 @@ function fns(productsList=products,loadedReport=null){
  const end=source.indexOf('function productStockState(product)',start);
  assert.ok(start>=0&&end>start);
  return new Function('products','salesReport','salesPeriod','salesDay','localReportDate','productStockState','fmt','esc','heading','tile','empty','salesLoading',
-  source.slice(start,end)+';return {salesDateRange,saleLineFinancial,salesReportData,reportFigures,restockProducts,renderRestockList,renderSalesReport};')(
+  source.slice(start,end)+';return {salesDateRange,saleLineFinancial,cardFeeInfo,salesPaymentTotals,salesReportData,reportFigures,restockProducts,renderRestockList,renderSalesReport};')(
   productsList,loadedReport,'day','2026-10-14',mkDate,product=>{
    if(Number(product.stock)<=0)return {state:'out'};
    return Number(product.stock)<=Number(product.min_stock)?{state:'low'}:{state:'ok'};
@@ -38,7 +38,7 @@ const items=[
 
 test('as funções compõem JavaScript válido e os arquivos usam versão nova',()=>{
  new vm.Script(source,{filename:'cliente.js'});
- assert.match(page,/cliente\.js\?v=61/);
+ assert.match(page,/cliente\.js\?v=62/);
  assert.match(page,/cliente\.css\?v=39/);
  assert.match(css,/\.sales-table-wrap/);
  assert.match(css,/\.restock-list/);
@@ -145,6 +145,60 @@ test('cada carrinho tem número próprio no dia e reúne produtos na mesma venda
  assert.match(sale3,/Cartão de crédito/);
  assert.match(html,/1 venda\(s\)/);
  assert.match(css,/#workspace \.sales-checkout-heading/);
+});
+
+test('desconta a taxa por carrinho no líquido e no lucro, sem somar taxa por produto',()=>{
+ const salesWithFees=[
+  {id:'card',total:100,payment_method:'credito',card_fee_percent:3.99,card_fee_amount:3.99,created_at:'2026-10-14T12:30:00Z'},
+  {id:'debit',total:40,payment_method:'debito',card_fee_percent:1.5,card_fee_amount:0.6,created_at:'2026-10-14T11:30:00Z'},
+  {id:'pix',total:20,payment_method:'pix',card_fee_percent:0,card_fee_amount:0,created_at:'2026-10-14T10:30:00Z'}
+ ];
+ const itemsWithFees=[
+  {sale_id:'card',product_id:'p1',product_name:'Produto A',quantity:1,unit_price:60,unit_cost:20},
+  {sale_id:'card',product_id:'p2',product_name:'Produto B',quantity:1,unit_price:40,unit_cost:10},
+  {sale_id:'debit',product_id:'p1',product_name:'Produto C',quantity:1,unit_price:40,unit_cost:15},
+  {sale_id:'pix',product_id:'p1',product_name:'Produto D',quantity:1,unit_price:20,unit_cost:5}
+ ];
+ const f=fns(products,{sales:salesWithFees,items:itemsWithFees});
+ const report=f.salesReportData();
+ assert.equal(report.paymentTotals.gross,160);
+ assert.ok(Math.abs(report.paymentTotals.cardFees-4.59)<0.001);
+ assert.ok(Math.abs(report.paymentTotals.net-155.41)<0.001);
+ assert.equal(report.paymentTotals.unknownFees,0);
+ assert.equal(report.days[0].sales.length,3);
+ assert.equal(report.days[0].sales.find(x=>x.sale.id==='card').lines.length,2);
+ const html=f.renderSalesReport();
+ assert.match(html,/Taxas da maquininha: R\$ 4\.59/);
+ assert.match(html,/Recebimento líquido: R\$ 155\.41/);
+ assert.match(html,/Lucro após taxa do cartão: R\$ 105\.41/);
+ const sale=html.slice(html.indexOf('Cartão de crédito'));
+ assert.match(sale,/Taxa da maquininha \(3,99%\): <strong>−R\$ 3\.99/);
+ assert.match(sale,/Recebimento líquido: <strong>R\$ 96\.01/);
+ assert.match(sale,/Lucro após taxa: <strong>R\$ 66\.01/);
+ assert.match(html,/Taxa da maquininha \(1,5%\): <strong>−R\$ 0\.60/);
+ assert.match(html,/Lucro bruto<\/th>/);
+});
+test('venda antiga no cartão sem taxa continua sem dedução inventada',()=>{
+ const old={id:'old',total:20,payment_method:'credito',card_fee_percent:null,
+  card_fee_amount:null,created_at:'2026-10-14T14:30:00Z'};
+ const f=fns(products,{sales:[old],items:[{sale_id:'old',product_id:'p1',
+  product_name:'Antigo',quantity:1,unit_price:20,unit_cost:8}]});
+ const r=f.salesReportData();
+ assert.equal(r.paymentTotals.unknownFees,1);
+ assert.equal(f.cardFeeInfo(old).known,false);
+ const markup=f.renderSalesReport();
+ assert.match(markup,/Taxa da maquininha: <strong>Não registrada/);
+ assert.match(markup,/Recebimento líquido: <strong>Não informado/);
+ assert.match(markup,/Lucro após taxa: <strong>Não informado/);
+ assert.match(markup,/venda\(s\) antiga\(s\) no cartão sem taxa registrada/);
+ assert.equal(f.cardFeeInfo({payment_method:'pix',card_fee_amount:null}).amount,0);
+ const migration=readFileSync('sql/bipstart_card_payment_fees_20261017.sql','utf8');
+ assert.match(migration,/add column if not exists card_fee_percent numeric\(5,2\)/);
+ assert.match(migration,/add column if not exists card_fee_amount numeric\(12,2\)/);
+ assert.match(migration,/v_card_fee:=case when p_payment_method in \('credito','debito'\)/);
+ assert.match(migration,/grant execute on function public\.bipstart_complete_sale\(uuid,jsonb,text,numeric\) to authenticated/);
+ assert.match(source,/p_card_fee_percent:feePercent/);
+ assert.match(source,/select:'id,shop_id,total,payment_method,card_fee_percent,card_fee_amount,created_at'/);
 });
 
 test('vendas do período carregam todas as páginas e somente itens da própria loja',()=>{
