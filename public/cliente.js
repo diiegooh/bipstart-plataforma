@@ -350,8 +350,6 @@ function renderNav(){
       '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b></button>';
   }).join('')+'</nav>';
   $('sideShopName').textContent=shop.name;
-  $('sideColorPremium').classList.toggle('hidden',canCustomize());
-  $('sideColor').classList.toggle('locked',!canCustomize());
   $('sideSettings').classList.toggle('active',tab==='configuracoes');
 }
 function closeSideMenu(){
@@ -1687,14 +1685,6 @@ document.addEventListener('click',async e=>{
   if(e.target.closest('#sideToggle')){toggleSideMenu();return}
   if(e.target.closest('#sideBackdrop')){closeSideMenu();return}
   if(e.target.closest('#sideLogout')){closeSideMenu();$('logout').click();return}
-  if(e.target.closest('#sideColor')){
-    closeSideMenu();
-    if(!canCustomize())return msg('Alterar a COR DO SITE está disponível somente no plano Premium.',true);
-    tab='configuracoes';showForm=null;pastedProductImage=null;renderPage();
-    const colorInput=document.querySelector('#settingsForm input[name="brand_color"]');
-    if(colorInput){colorInput.scrollIntoView({block:'center',behavior:'smooth'});colorInput.focus();}
-    return;
-  }
   if(e.target.closest('#pdvStockToggle')){
     pdvInStockOnly=!pdvInStockOnly;renderPage();return;
   }
