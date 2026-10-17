@@ -36,6 +36,7 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 
 /* Meu cardápio: editor com a mesma identidade preto/roxo da vitrine. */
 .menu-editor-grid{display:grid;grid-template-columns:minmax(220px,.75fr) minmax(0,1.25fr);gap:15px;margin:20px 0}
+.menu-editor-grid--single{grid-template-columns:minmax(0,1fr)}
 .menu-editor-panel{background:linear-gradient(135deg,#191029,#0d0918);border:1px solid #71469c;border-radius:18px;padding:19px;min-width:0}
 .menu-editor-panel h3{font-size:19px;margin:0 0 15px;color:#f5e7ff}
 .menu-editor-panel .data-form{padding:0;border:0;background:transparent;margin:0}
