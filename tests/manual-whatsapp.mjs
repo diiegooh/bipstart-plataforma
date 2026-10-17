@@ -230,7 +230,7 @@ test('compartilhamento usa dispositivo nativo, cópia e alternativa em desktop',
  assert.match(client,/navigator\.clipboard\.writeText\(url\)/);
  assert.match(client,/window\.prompt\('Copie o link do cardápio:',url\)/);
  assert.match(client,/if\(!shop\|\|shop\.model!=='pdv'\|\|!hasAccess\(\)\|\|!proAccess\(\)\)return/);
- assert.match(readFileSync('public/cliente.html','utf8'),/cliente\.js\?v=43/);
+ assert.match(readFileSync('public/cliente.html','utf8'),/cliente\.js\?v=44/);
 });
 
 

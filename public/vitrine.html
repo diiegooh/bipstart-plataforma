@@ -6,15 +6,22 @@
   <meta name="theme-color" content="#080b09">
   <meta name="description" content="Cardápio digital: veja os produtos e envie seu pedido diretamente ao estabelecimento.">
   <title>Cardápio digital • BipStart</title>
-  <link rel="stylesheet" href="/vitrine.css?v=20">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/vitrine.css?v=21">
 </head>
 <body class="delivery-page">
 <div class="delivery-app">
   <header class="store-header">
+    <p id="menuPreviewBadge" class="round-preview-badge hidden">PRÉVIA DO MODELO REDONDO</p>
     <div class="header-title">
+      <p id="establishmentEyebrow" class="menu-eyebrow hidden"></p>
       <img id="storeLogo" class="store-logo" src="/bipstart-marca-icon.png" alt="Símbolo BipStart" width="88" height="88">
       <h1 id="storeName">Sua loja</h1>
+      <p id="logoSubtitle" class="menu-tagline hidden"></p>
     </div>
+    <button id="roundHeaderCart" class="round-header-cart" type="button" aria-label="Abrir carrinho"><span aria-hidden="true">🛒</span><b id="roundCartCount">0</b></button>
   </header>
   <div id="error" class="summary error-message hidden" role="alert"></div>
   <section class="location-row" aria-label="Retirada e funcionamento da loja">
@@ -64,6 +71,6 @@
    <small id="trackingCopyFeedback" role="status" aria-live="polite">O envio à loja só será concluído quando você confirmar a mensagem no WhatsApp.</small>
   </section>
 </aside>
-<script src="/vitrine.js?v=22" defer></script>
+<script src="/vitrine.js?v=23" defer></script>
 </body>
 </html>

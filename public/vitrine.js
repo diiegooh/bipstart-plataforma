@@ -15,6 +15,8 @@ function normalizeWhatsApp(value){
  if(/^\d{10,11}$/.test(digits))digits='55'+digits;
  return /^55\d{10,11}$/.test(digits)?digits:'';
 }
+const establishmentLabels={"outros":"ESTABELECIMENTO","bar_petiscaria":"BAR E PETISCARIA","adega_conveniencia":"ADEGA E CONVENIÊNCIA","hamburgueria":"HAMBURGUERIA","pizzaria":"PIZZARIA","lanchonete":"LANCHONETE","marmitaria":"MARMITARIA","restaurante":"RESTAURANTE","doceria":"DOCERIA","acaiteria":"AÇAITERIA","espetaria":"ESPETARIA","mercado":"MERCADO"};
+function roundMenuActive(){return new URLSearchParams(location.search).get('visual')==='redondo'||menu?.menu_layout_style==='round';}
 function categoryNames(){
  const names=new Map();
  for(const item of menu?.categories||[]){
@@ -53,7 +55,7 @@ function displayStoreLogo(){
  image.classList.toggle('store-logo-custom',!!own);
 }
 function applyBrand(){
- const color=String(menu.brand_color||'').trim();
+ const color=String((roundMenuActive()&&menu.menu_theme_color)||menu.brand_color||'').trim();
  if(/^#[0-9a-fA-F]{6}$/.test(color)){
   document.documentElement.style.setProperty('--green',color);
   document.documentElement.style.setProperty('--green2',color);
@@ -63,9 +65,16 @@ function applyBrand(){
  }
 }
 function drawPage(){
+ const isRound=roundMenuActive();
+ document.body.classList.toggle('round-menu',isRound);
+ $('menuPreviewBadge').classList.toggle('hidden',new URLSearchParams(location.search).get('visual')!=='redondo');
+ $('establishmentEyebrow').textContent=establishmentLabels[menu.establishment_type]||establishmentLabels.outros;
+ $('establishmentEyebrow').classList.toggle('hidden',!isRound);
+ $('logoSubtitle').textContent=String(menu.logo_subtitle||'');
+ $('logoSubtitle').classList.toggle('hidden',!isRound||menu.show_logo_subtitle!==true||!String(menu.logo_subtitle||'').trim());
  const isSalgatti=/salgatti/.test(fold([menu.name,menu.slug].filter(Boolean).join(' ')));
- document.body.classList.toggle('salgatti-theme',isSalgatti);
- if(isSalgatti&&!document.querySelector('.salgatti-catalog-heading')){
+ document.body.classList.toggle('salgatti-theme',isSalgatti&&!isRound);
+ if(isSalgatti&&!isRound&&!document.querySelector('.salgatti-catalog-heading')){
   document.querySelector('.section-title-row').insertAdjacentHTML('afterbegin','<h2 class="salgatti-catalog-heading">Escolha seus produtos</h2>');
  }
  applyBrand();
@@ -86,7 +95,9 @@ function drawPage(){
  }
  const categories=categoryNames();
  $('category').innerHTML='<option value="">Todas as categorias</option>'+categories.map(name=>'<option value="'+esc(name)+'">'+esc(name)+'</option>').join('');
- $('quickCategories').innerHTML=categories.map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'">'+categoryArtwork(name)+'<b>'+esc(name)+'</b></button>').join('');
+ $('quickCategories').innerHTML=isRound?
+  categories.map(name=>'<button type="button" class="category-tile round-category" data-cat="'+esc(name)+'"><span aria-hidden="true">'+categoryEmoji(name)+'</span><b>'+esc(name)+'</b></button>').join(''):
+  categories.map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'">'+categoryArtwork(name)+'<b>'+esc(name)+'</b></button>').join('');
  const combos=categories.find(name=>/combo/i.test(fold(name)));
  $('comboBanner').classList.toggle('hidden',!combos);
  $('seeCombos').dataset.category=combos||'';
@@ -101,7 +112,24 @@ $('storeLogo').addEventListener('error',()=>{
   img.classList.remove('store-logo-custom');
  }
 });
+function roundItemCard(item){
+ const out=item.in_stock===false;
+ const price=Number(item.price||0).toFixed(2).split('.');
+ const integer=Number(price[0]).toLocaleString('pt-BR');
+ const photo=item.image_path?'<img src="'+esc(imageUrl(item.image_path))+'" alt="" loading="lazy">':
+  '<span class="round-placeholder" aria-hidden="true">🍽️</span>';
+ return '<article class="dproduct round-card">'+
+  '<button type="button" class="round-card-click" data-add="'+esc(item.id)+'" aria-label="'+esc(out?'Produto esgotado: '+item.name:'Adicionar '+item.name+' ao pedido')+'"'+
+  (out?' disabled aria-disabled="true"':'')+'>'+
+  '<span class="round-photo">'+photo+'</span>'+
+  '<span class="round-add-symbol" aria-hidden="true">'+(out?'×':'+')+'</span>'+
+  '<span class="round-name">'+esc(item.name)+'</span>'+
+  '<span class="round-price"><small>R$</small><strong>'+esc(integer)+'</strong><sup>,'+esc(price[1])+'</sup></span>'+
+  (out?'<span class="round-out">Esgotado</span>':'')+
+  '</button><small class="card-feedback" data-card-feedback="'+esc(item.id)+'" role="status" aria-live="polite"></small></article>';
+}
 function itemCard(item){
+ if(typeof roundMenuActive==='function'&&roundMenuActive())return roundItemCard(item);
  const soldOut=item.in_stock===false;
  const qty=selectedQty.get(item.id)||1;
  const image=item.image_path?'<img src="'+esc(imageUrl(item.image_path))+'" alt="'+esc(item.name)+'" loading="lazy">':'<div class="product-img-placeholder" aria-hidden="true">🛍️</div>';
@@ -144,6 +172,7 @@ function renderCart(){
  }
  $('cartItems').innerHTML=lines.join('')||'<p class="muted">Seu carrinho está vazio.</p>';
  $('cartCount').textContent=String(count);
+ $('roundCartCount').textContent=String(count);
  $('cartSubtotal').textContent=money(subtotal());
  $('deliveryTotal').textContent=money(deliveryCost());
  $('cartTotal').textContent=money(subtotal()+deliveryCost());
@@ -262,6 +291,7 @@ $('search').addEventListener('input',renderProducts);
 $('category').addEventListener('change',renderProducts);
 $('shipping').addEventListener('change',renderCart);
 $('openCart').addEventListener('click',openCart);
+$('roundHeaderCart').addEventListener('click',openCart);
 $('closeCart').addEventListener('click',closeCart);
 $('cartBackdrop').addEventListener('click',closeCart);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('cartDrawer').classList.contains('show'))closeCart();});

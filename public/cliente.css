@@ -776,3 +776,21 @@ body.receipt-open{overflow:hidden}
 #workspace .menu-logo-editor form .menu-logo-remove{display:flex;flex:0 1 auto;flex-direction:row;align-items:center;gap:8px}
 #workspace .menu-logo-editor form .menu-logo-remove input{width:17px;height:17px;accent-color:var(--store-accent,#7c3aed)}
 @media(max-width:540px){#workspace .menu-logo-editor-heading{gap:9px}#workspace .menu-logo-editor-preview{width:64px;height:64px;flex-basis:64px}#workspace .menu-logo-editor form .button{width:100%}}
+
+/* Identidade e modelo de cardápio configuráveis no painel Premium. */
+#workspace .menu-layout-settings{margin:15px 0;border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 48%,#55406d)}
+#workspace .menu-layout-settings h3{margin:0 0 7px}
+#workspace .menu-layout-settings>.muted{margin:0 0 18px}
+#workspace .menu-layout-settings form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+#workspace .menu-layout-settings form>label{display:flex;flex-direction:column;gap:7px;font-size:13px;min-width:0}
+#workspace .menu-layout-settings form select,#workspace .menu-layout-settings form input[type=text],#workspace .menu-layout-settings form input[type=color]{min-height:46px;width:100%;background:#151020;border:1px solid #735394;border-radius:10px;color:#fff;padding:9px}
+#workspace .menu-layout-settings form input[type=color]{padding:5px 8px;cursor:pointer}
+#workspace .menu-layout-settings form small{font-size:11px;color:#c3b4d2;line-height:1.45}
+#workspace .menu-layout-subtitle{margin:0;display:flex;flex-wrap:wrap;gap:15px;align-items:center;border:1px solid #604979;border-radius:10px;padding:10px 14px}
+#workspace .menu-layout-subtitle legend{padding:0 6px;font-size:13px}
+#workspace .menu-layout-subtitle label{display:inline-flex;align-items:center;gap:6px}
+#workspace .menu-layout-subtitle input{accent-color:var(--store-accent,#7c3aed)}
+#workspace #menuLayoutForm:has(input[name=show_logo_subtitle][value=false]:checked) .menu-layout-tagline{opacity:.65}
+#workspace .menu-layout-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+#workspace .menu-layout-actions .ghost{display:inline-flex;align-items:center;padding:11px 15px;text-decoration:none}
+@media(max-width:650px){#workspace .menu-layout-settings form{grid-template-columns:1fr}#workspace .menu-layout-actions{flex-direction:column;align-items:stretch}#workspace .menu-layout-actions>*{width:100%;justify-content:center;text-align:center}}

@@ -551,3 +551,60 @@ body.salgatti-theme{
 @media(prefers-reduced-motion:reduce){
  .salgatti-theme .dproduct,.salgatti-theme .category-tile .category-art{transition:none}
 }
+
+
+/* Layout redondo: alternativa opt-in; tudo fica isolado na classe round-menu. */
+.round-header-cart{display:none}.menu-eyebrow,.menu-tagline{display:none}
+.round-preview-badge{position:absolute;top:6px;left:12px;font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--green)}
+body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,var(--green) 13%,transparent),transparent 47%),radial-gradient(ellipse at 95% 75%,color-mix(in srgb,var(--green) 9%,transparent),transparent 43%),#050407;color:#f9f5fa}
+.round-menu .delivery-app{width:min(1170px,100%);overflow:visible}
+.round-menu .store-header{min-height:206px;display:grid;grid-template-columns:1fr;place-items:center;background:#060408df;border-bottom:1px solid color-mix(in srgb,var(--green) 40%,transparent);padding:23px 76px 24px}
+.round-menu .store-header .header-title{grid-column:1;display:flex;flex-direction:column;gap:2px;text-align:center;align-items:center;width:100%}
+.round-menu .menu-eyebrow{display:block;margin:0 0 3px;color:#e9dbee;font-size:12px;font-weight:650;letter-spacing:.34em;text-transform:uppercase}
+.round-menu .store-header .header-title h1,.round-menu.salgatti-theme .store-header .header-title h1{font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:clamp(42px,6vw,78px);line-height:.98;letter-spacing:.04em;font-weight:700;color:#fff7fb;text-shadow:0 0 20px color-mix(in srgb,var(--green) 40%,transparent);white-space:normal;text-wrap:balance}
+.round-menu .store-header .store-logo{width:70px;height:70px;margin:3px auto;object-fit:contain}
+.round-menu .store-header .store-logo-custom{width:104px;height:82px}
+.round-menu .menu-tagline:not(.hidden){display:block;color:#ede1ed;font-size:11px;letter-spacing:.29em;text-transform:uppercase;line-height:1.4;margin:8px 0 0;max-width:90%;overflow-wrap:anywhere}
+.round-menu .round-header-cart{display:grid;place-items:center;position:absolute;top:22px;right:21px;border:1px solid var(--green);border-radius:17px;background:#0b0811;color:var(--green);width:60px;height:60px;cursor:pointer;font-size:25px;box-shadow:0 0 18px color-mix(in srgb,var(--green) 20%,transparent)}
+.round-menu .round-header-cart b{position:absolute;top:-9px;right:-8px;border-radius:100px;padding:3px 7px;min-width:21px;background:var(--green);color:var(--theme-ink);font-size:12px}
+.round-menu .cartfloat{display:none}
+.round-menu .location-row{padding:16px 18px 20px}
+.round-menu .location-card,.round-menu .hours-card{background:#0b0a0ebf;border-color:color-mix(in srgb,var(--green) 27%,#353139)}
+.round-menu .category-strip{display:flex;overflow-x:auto;gap:10px;padding:12px 18px 24px;scroll-snap-type:x proximity}
+.round-menu .category-tile.round-category{scroll-snap-align:start;min-height:51px;flex:0 0 auto;display:flex;align-items:center;gap:9px;border:1px solid #4a4054;border-radius:15px;background:#0c0a10;color:#ece6ee;padding:11px 16px;box-shadow:none}
+.round-menu .round-category span{display:inline-flex;grid-column:auto;color:inherit;font-size:22px}
+.round-menu .round-category b{font-size:14px;font-weight:650}
+.round-menu .round-category.active,.round-menu .round-category:hover{background:var(--green);border-color:var(--green);color:var(--theme-ink);box-shadow:0 0 18px color-mix(in srgb,var(--green) 30%,transparent)}
+.round-menu .combo-banner{display:none!important}
+.round-menu .catalog-shell{padding:0 18px 48px}
+.round-menu .section-title-row{margin:0;min-height:0}.round-menu .catalog-toolbar{margin:0 0 26px}
+.round-menu .delivery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px 21px}
+.round-menu .round-card{background:none;border:0;border-radius:0;overflow:visible;min-width:0;box-shadow:none!important;transform:none!important}
+.round-menu .round-card-click{position:relative;width:100%;display:flex;flex-direction:column;align-items:center;border:0;background:transparent;color:#fff;cursor:pointer;text-align:center;padding:0 5px 3px}
+.round-menu .round-photo{width:min(100%,250px);aspect-ratio:1;display:grid;place-items:center;border:3px solid var(--green);border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #160f1b,0 0 20px color-mix(in srgb,var(--green) 55%,transparent);background:#1b1421}
+.round-menu .round-card .round-photo img{display:block;width:100%;height:100%;aspect-ratio:1;object-fit:cover;padding:0;border-radius:50%;background:#1b1421}
+.round-menu .round-placeholder{font-size:clamp(46px,9vw,78px);color:var(--green)}
+.round-menu .round-name{position:relative;z-index:1;margin-top:-24px;width:min(100%,240px);min-height:65px;display:grid;place-items:center;background:#08070beb;border:1px solid var(--green);border-radius:18px;padding:17px 12px 24px;font-size:clamp(13px,1.4vw,17px);line-height:1.25;text-wrap:balance;overflow-wrap:anywhere}
+.round-menu .round-price{position:relative;z-index:2;display:flex;justify-content:center;align-items:baseline;gap:4px;width:max-content;min-width:135px;max-width:96%;margin-top:-17px;padding:7px 14px 5px;border-radius:12px;color:var(--theme-ink);background:var(--green);box-shadow:0 6px 20px color-mix(in srgb,var(--green) 24%,transparent)}
+.round-menu .round-price small{font-size:16px;font-weight:800}.round-menu .round-price strong{font-size:clamp(26px,3.7vw,36px);font-weight:950;line-height:1.08}.round-menu .round-price sup{font-size:15px;font-weight:800;position:static}
+.round-menu .round-add-symbol{position:absolute;z-index:3;right:1%;top:37%;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#0a0810;color:var(--green);border:2px solid var(--green);font-size:27px;box-shadow:0 0 10px #000}
+.round-menu .round-card-click:disabled{cursor:not-allowed;filter:grayscale(.65);opacity:.7}
+.round-menu .round-out{font-size:12px;margin:8px;color:#ffb6b6}
+.round-menu .round-card .card-feedback{display:block;min-height:20px;text-align:center;color:var(--green);font-size:11px}
+.round-menu .round-card-click:hover .round-photo,.round-menu .round-card-click:focus-visible .round-photo{box-shadow:0 0 0 3px #180e1d,0 0 35px color-mix(in srgb,var(--green) 80%,transparent)}
+.round-menu .round-card-click:focus-visible,.round-menu .round-header-cart:focus-visible{outline:3px solid var(--green);outline-offset:4px}
+@media(max-width:850px){.round-menu .delivery-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:27px 14px}}
+@media(max-width:640px){.round-menu .store-header{min-height:170px;padding:27px 65px 15px}.round-menu .store-header .header-title h1,.round-menu.salgatti-theme .store-header .header-title h1{font-size:clamp(39px,10vw,62px)}
+.round-menu .menu-eyebrow{font-size:10px;letter-spacing:.22em}.round-menu .menu-tagline:not(.hidden){letter-spacing:.15em}
+.round-menu .round-header-cart{width:45px;height:45px;right:12px;top:19px;font-size:20px;border-radius:12px}
+.round-menu .location-row{padding:8px 10px 14px}
+.round-menu .category-strip{padding:8px 10px 22px;gap:8px}
+.round-menu .round-category b{font-size:12px}
+.round-menu .round-category span{font-size:18px}
+.round-menu .catalog-shell{padding:0 9px 34px}
+.round-menu .delivery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:25px 10px}
+.round-menu .round-name{min-height:61px;margin-top:-20px;padding:12px 7px 22px;font-size:12px;border-radius:13px}
+.round-menu .round-price{min-width:104px;padding:6px 9px 4px;margin-top:-17px}
+.round-menu .round-price strong{font-size:27px}.round-menu .round-price small{font-size:12px}.round-menu .round-price sup{font-size:12px}
+.round-menu .round-add-symbol{width:34px;height:34px;font-size:22px;right:-2%;top:36%}}
+@media(prefers-reduced-motion:reduce){.round-menu .round-card-click{transition:none}}

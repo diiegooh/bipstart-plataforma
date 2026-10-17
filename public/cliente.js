@@ -159,7 +159,7 @@ async function requireVerifiedEmail(){
 }
 async function loadShops(){
   await requireVerifiedEmail();
-  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,created_at',order:'created_at.desc',limit:'20'}});
+  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,created_at',order:'created_at.desc',limit:'20'}});
   if(!rows?.length){
     hideAll();hiding('createShop',true);hiding('logout',true);
     if(initialPlan)$('shopForm').elements.namedItem('requested_plan').value=initialPlan;
@@ -203,7 +203,7 @@ async function refreshActivatedPlan(){
   if(JSON.stringify(latest)===previous)return;
   ent=latest;
   const rows=await rest('shops',{query:{
-    select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,created_at',
+    select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,created_at',
     id:'eq.'+id,limit:'1'
   }});
   if(rows[0])shop={...shop,...rows[0]};
@@ -705,6 +705,37 @@ function cardapioLogoEditor(){
    '<button type="submit" class="button">Salvar logo do cardápio</button></form>'+
   '</section>';
 }
+
+const menuEstablishmentTypes=[["outros","Outro estabelecimento"],["bar_petiscaria","Bar e petiscaria"],["adega_conveniencia","Adega e conveniência"],["hamburgueria","Hamburgueria"],["pizzaria","Pizzaria"],["lanchonete","Lanchonete"],["marmitaria","Marmitaria"],["restaurante","Restaurante"],["doceria","Doceria"],["acaiteria","Açaíteria"],["espetaria","Espetaria"],["mercado","Mercado"]];
+function cardapioLayoutSettings(){
+ if(!proAccess())return '';
+ const selected=shop.menu_layout_style==='round'?'round':'classic';
+ const establishment=shop.establishment_type||'outros';
+ const isSubtitle=shop.show_logo_subtitle===true;
+ const preview=publicShopUrl()+'&visual=redondo';
+ return '<section class="menu-editor-panel menu-layout-settings" aria-labelledby="menuLayoutTitle">'+
+  '<h3 id="menuLayoutTitle">Modelo e identidade do cardápio</h3>'+
+  '<p class="muted">Teste o novo modelo antes de ativá-lo. O clássico permanece disponível sem perder produtos ou pedidos.</p>'+
+  '<form id="menuLayoutForm">'+
+   '<label>Modelo do cardápio<select name="menu_layout_style">'+
+    [['classic','Clássico (atual)'],['round','Redondo (novo)']].map(([key,label])=>
+     '<option value="'+key+'"'+(selected===key?' selected':'')+'>'+label+'</option>').join('')+
+    '</select></label>'+
+   '<label>Tipo de estabelecimento<select name="establishment_type">'+
+    menuEstablishmentTypes.map(([key,label])=>
+     '<option value="'+esc(key)+'"'+(establishment===key?' selected':'')+'>'+esc(label)+'</option>').join('')+
+   '</select><small>Esse tipo aparece automaticamente acima da logo no modelo redondo.</small></label>'+
+   '<fieldset class="menu-layout-subtitle"><legend>Exibir frase abaixo da logo?</legend>'+
+    '<label><input type="radio" name="show_logo_subtitle" value="true"'+(isSubtitle?' checked':'')+'> Sim</label>'+
+    '<label><input type="radio" name="show_logo_subtitle" value="false"'+(!isSubtitle?' checked':'')+'> Não</label>'+
+   '</fieldset>'+
+   '<label class="menu-layout-tagline">Frase abaixo da logo<input type="text" name="logo_subtitle" maxlength="100" value="'+esc(shop.logo_subtitle||'')+'" placeholder="Ex.: Sabor que conquista"></label>'+
+   '<label>Cor do novo cardápio (Premium)<input type="color" name="menu_theme_color" value="'+esc(shop.menu_theme_color||shop.brand_color||'#7c3aed')+'"><small>Esta escolha não altera a cor do painel da loja.</small></label>'+
+   '<div class="menu-layout-actions"><button type="submit" class="button">Salvar modelo e identidade</button>'+
+     '<a class="ghost" href="'+esc(preview)+'" target="_blank" rel="noopener noreferrer">Testar modelo redondo ↗</a></div>'+
+   '</form></section>';
+}
+
 function cardapioEditor(){
  if(!proAccess())return heading('Cardápio online','Disponível exclusivamente no Plano Premium.')+
    '<div class="empty">Faça upgrade para Premium nas Configurações para publicar o cardápio. Seus produtos permanecem salvos.</div>';
@@ -721,6 +752,7 @@ function cardapioEditor(){
  return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.','<div class="menu-heading-actions"><a class="ghost" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a><button class="button" data-new="product">+ Adicionar item</button></div>')+
  (menuSchemaReady?'':'<p class="warn">A nova versão do cardápio está aguardando a atualização do banco de dados. Não salve alterações até a configuração terminar.</p>')+
  cardapioLogoEditor()+
+ cardapioLayoutSettings()+
  '<div class="menu-editor-meta">'+details.map(([label,value])=>'<button type="button" data-nav="configuracoes" title="Editar nas configurações"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></button>').join('')+'</div>'+
  '<div class="menu-editor-grid"><section class="menu-editor-panel"><h3>Categorias</h3>'+
  '<form id="categoryForm" class="menu-category-form"><label>Nova categoria<input type="text" name="name" placeholder="Ex.: Bebidas" required maxlength="65"></label>'+
@@ -1379,6 +1411,24 @@ async function handleSubmit(form){
         if(!current||current.status!=='pendente')throw Error('Somente entregas pendentes podem ser editadas.');
         await rest('shop_deliveries',{method:'PATCH',query:{id:'eq.'+id,shop_id:'eq.'+shop.id,status:'eq.pendente'},body:payload});
       }else await storeForm(form,'shop_deliveries',payload,null);
+      break;
+    }
+    case 'menuLayoutForm':{
+      if(tab!=='cardapio'||shop?.model!=='pdv'||!proAccess())throw Error('Configuração do cardápio exclusiva do Premium.');
+      const menu_layout_style=String(v.menu_layout_style||'');
+      const establishment_type=String(v.establishment_type||'');
+      const show_logo_subtitle=v.show_logo_subtitle==='true';
+      const logo_subtitle=String(v.logo_subtitle||'').trim();
+      const menu_theme_color=String(v.menu_theme_color||'');
+      if(!['classic','round'].includes(menu_layout_style))throw Error('Selecione um modelo válido.');
+      if(!menuEstablishmentTypes.some(([key])=>key===establishment_type))throw Error('Selecione um tipo de estabelecimento válido.');
+      if(!['true','false'].includes(v.show_logo_subtitle)||logo_subtitle.length>100||
+         (show_logo_subtitle&&!logo_subtitle))throw Error('Confira a frase abaixo da logo.');
+      if(!/^#[0-9a-f]{6}$/i.test(menu_theme_color))throw Error('Escolha uma cor válida para o cardápio.');
+      const body={menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color};
+      await rest('shops',{method:'PATCH',query:{id:'eq.'+shop.id},body});
+      shop={...shop,...body};
+      msg('Modelo e identidade do cardápio atualizados.');
       break;
     }
     case 'cardapioLogoForm':{

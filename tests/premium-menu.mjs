@@ -86,6 +86,6 @@ test('acesso Básico preserva bloqueios e upgrade sem tela de escolha inicial',(
  assert.match(panel,/data-nav="configuracoes"/);
  assert.match(panel,/rpc\('bipstart_request_plan_change'/);
  assert.match(css,/online-sale-locked/);
- assert.match(html,/\/cliente\.js\?v=43/);
- assert.match(html,/\/cliente\.css\?v=28/);
+ assert.match(html,/\/cliente\.js\?v=44/);
+ assert.match(html,/\/cliente\.css\?v=29/);
 });
