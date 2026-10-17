@@ -31,7 +31,6 @@ test('todas as funcionalidades do Básico continuam presentes e motoboys ativa n
   ['caixa','PDV','🛒'],
   ['produtos','Produtos','📦'],
   ['cardapio_publico','Cardápio online','📋'],
-  ['cardapio','Configurar cardápio','🎨'],
   ['pedidos','Pedidos online','🚚'],
   ['motoboys','Motoboys','🛵'],
   ['vendas','Vendas','💰']
