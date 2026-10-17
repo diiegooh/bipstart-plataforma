@@ -312,7 +312,6 @@ function operationalMenuItems(){
     ['produtos','Produtos','📦'],
     ['cardapio_publico','Cardápio online','📋'],
     ['cardapio','Configurar cardápio','🎨'],
-    ['cardapio_teste','Testar modelo redondo','◉'],
     ['pedidos','Pedidos online','🚚'],
     ['motoboys','Motoboys','🛵'],
     ['vendas','Vendas','💰']
@@ -333,21 +332,16 @@ function renderNav(){
   const sidebarItems=operationalMenuItems();
   if(!proAccess()){
     // Itens bloqueados ficam juntos no fim, preservando a ordem original de cada grupo.
-    const blocked=new Set(['cardapio_publico','cardapio','cardapio_teste','pedidos','motoboys']);
+    const blocked=new Set(['cardapio_publico','cardapio','pedidos','motoboys']);
     sidebarItems.sort((a,b)=>Number(blocked.has(a[0]))-Number(blocked.has(b[0])));
   }
   $('nav').innerHTML='<nav aria-label="Navegação operacional">'+sidebarItems.map(([id,name,icon])=>{
-    if((id==='cardapio_publico'||id==='cardapio'||id==='cardapio_teste'||id==='pedidos'||id==='motoboys')&&!proAccess()){
+    if((id==='cardapio_publico'||id==='cardapio'||id==='pedidos'||id==='motoboys')&&!proAccess()){
       return '<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="'+esc(name)+': exclusivo Premium" title="Exclusivo Premium">'+
         '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><small class="side-lock">Premium</small></button>';
     }
     if(id==='cardapio_publico'){
       return '<a class="side-public-menu" data-public-menu-link href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer" aria-label="Abrir cardápio online da loja em outra aba" title="Abrir cardápio online em outra aba">'+
-        '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><span class="side-external-icon" aria-hidden="true">↗</span></a>';
-    }
-    if(id==='cardapio_teste'){
-      const url=publicShopUrl()+'&visual=redondo';
-      return '<a class="side-public-menu side-round-preview" data-round-preview-link href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" aria-label="Testar modelo redondo em uma nova aba" title="Abre a versão de teste sem alterar o cardápio atual">'+
         '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><span class="side-external-icon" aria-hidden="true">↗</span></a>';
     }
     return '<button type="button" data-nav="'+esc(id)+'" class="'+(current===id?'active':'')+'"'+(current===id?' aria-current="page"':'')+'>'+
@@ -703,8 +697,8 @@ function cardapioLogoEditor(){
  const own=!!shop.logo_path;
  const photo=own?imageUrl(shop.logo_path):'/bipstart-marca-icon.png';
  return '<section class="menu-editor-panel menu-logo-editor" aria-labelledby="menuLogoTitle">'+
-  '<div class="menu-logo-editor-heading"><div><h3 id="menuLogoTitle">Logo do cardápio</h3>'+
-   '<p class="muted">Personalize a marca exibida acima do nome da loja no cardápio online (Premium).</p></div>'+
+  '<div class="menu-logo-editor-heading"><div><h3 id="menuLogoTitle">Logo cadastrada da loja</h3>'+
+   '<p class="muted">Esta marca permanece salva para sua loja, mas não aparece no cabeçalho do cardápio oficial.</p></div>'+
    '<img class="menu-logo-editor-preview" src="'+esc(photo)+'" alt="'+(own?'Logo atual da loja':'Símbolo padrão BipStart')+'" loading="lazy"></div>'+
   '<form id="cardapioLogoForm">'+
    '<label>Escolher logo (JPG, PNG ou WebP, até 5 MB)<input type="file" name="logo" accept="image/jpeg,image/png,image/webp"></label>'+
@@ -716,30 +710,24 @@ function cardapioLogoEditor(){
 const menuEstablishmentTypes=[["outros","Outro estabelecimento"],["bar_petiscaria","Bar e petiscaria"],["adega_conveniencia","Adega e conveniência"],["hamburgueria","Hamburgueria"],["pizzaria","Pizzaria"],["lanchonete","Lanchonete"],["marmitaria","Marmitaria"],["restaurante","Restaurante"],["doceria","Doceria"],["acaiteria","Açaíteria"],["espetaria","Espetaria"],["mercado","Mercado"]];
 function cardapioLayoutSettings(){
  if(!proAccess())return '';
- const selected=shop.menu_layout_style==='round'?'round':'classic';
  const establishment=shop.establishment_type||'outros';
  const isSubtitle=shop.show_logo_subtitle===true;
- const preview=publicShopUrl()+'&visual=redondo';
  return '<section class="menu-editor-panel menu-layout-settings" id="menuLayoutSettings" aria-labelledby="menuLayoutTitle">'+
-  '<h3 id="menuLayoutTitle">Modelo e identidade do cardápio</h3>'+
-  '<p class="muted">Teste o novo modelo antes de ativá-lo. O clássico permanece disponível sem perder produtos ou pedidos.</p>'+
+  '<h3 id="menuLayoutTitle">Personalização do cardápio</h3>'+
+  '<p class="muted">Este é o modelo oficial do cardápio online. Altere a identidade da loja sem afetar produtos, pedidos ou entregas.</p>'+
   '<form id="menuLayoutForm">'+
-   '<label>Modelo do cardápio<select name="menu_layout_style">'+
-    [['classic','Clássico (atual)'],['round','Redondo (novo)']].map(([key,label])=>
-     '<option value="'+key+'"'+(selected===key?' selected':'')+'>'+label+'</option>').join('')+
-    '</select></label>'+
    '<label>Tipo de estabelecimento<select name="establishment_type">'+
     menuEstablishmentTypes.map(([key,label])=>
      '<option value="'+esc(key)+'"'+(establishment===key?' selected':'')+'>'+esc(label)+'</option>').join('')+
    '</select><small>Tipo cadastrado para identificar o segmento da loja.</small></label>'+
-   '<fieldset class="menu-layout-subtitle"><legend>Exibir frase abaixo da logo?</legend>'+
+   '<fieldset class="menu-layout-subtitle"><legend>Exibir frase abaixo do nome da loja?</legend>'+
     '<label><input type="radio" name="show_logo_subtitle" value="true"'+(isSubtitle?' checked':'')+'> Sim</label>'+
     '<label><input type="radio" name="show_logo_subtitle" value="false"'+(!isSubtitle?' checked':'')+'> Não</label>'+
    '</fieldset>'+
-   '<label class="menu-layout-tagline">Frase abaixo da logo<input type="text" name="logo_subtitle" maxlength="100" value="'+esc(shop.logo_subtitle||'')+'" placeholder="Ex.: Sabor que conquista"></label>'+
-   '<label>Cor do novo cardápio (Premium)<input type="color" name="menu_theme_color" value="'+esc(shop.menu_theme_color||shop.brand_color||'#7c3aed')+'"><small>Esta escolha não altera a cor do painel da loja.</small></label>'+
-   '<div class="menu-layout-actions"><button type="submit" class="button">Salvar modelo e identidade</button>'+
-     '<a class="ghost" href="'+esc(preview)+'" target="_blank" rel="noopener noreferrer">Testar modelo redondo ↗</a></div>'+
+   '<label class="menu-layout-tagline">Frase abaixo do nome da loja<input type="text" name="logo_subtitle" maxlength="100" value="'+esc(shop.logo_subtitle||'')+'" placeholder="Ex.: Sabor que conquista"></label>'+
+   '<label>Cor do cardápio (Premium)<input type="color" name="menu_theme_color" value="'+esc(shop.menu_theme_color||shop.brand_color||'#7c3aed')+'"><small>Essa cor não altera o painel da loja.</small></label>'+
+   '<div class="menu-layout-actions"><button type="submit" class="button">Salvar personalização</button>'+
+    '<a class="ghost" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio oficial ↗</a></div>'+
    '</form></section>';
 }
 
@@ -1159,7 +1147,7 @@ function renderPage(){
       '';
     content=heading('Configurações da loja','')
       +planManagementCard()
-      +(proAccess()?'<div class="menu-preview-settings-link"><strong>Quer testar outro visual para o seu cardápio?</strong><p class="muted">Compare os modelos sem alterar o cardápio publicado.</p><button type="button" class="ghost" data-nav="cardapio">Configurar cardápio</button><a class="button" href="'+esc(publicShopUrl()+'&visual=redondo')+'" target="_blank" rel="noopener noreferrer">Testar modelo redondo ↗</a></div>':'')
+      +(proAccess()?'<div class="menu-preview-settings-link"><strong>Cardápio online oficial</strong><p class="muted">O modelo compacto está publicado para sua loja.</p><button type="button" class="ghost" data-nav="cardapio">Personalizar cardápio</button><a class="button" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a></div>':'')
       +'<div class="data-form"><form id="settingsForm">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
@@ -1423,12 +1411,11 @@ async function handleSubmit(form){
     }
     case 'menuLayoutForm':{
       if(tab!=='cardapio'||shop?.model!=='pdv'||!proAccess())throw Error('Configuração do cardápio exclusiva do Premium.');
-      const menu_layout_style=String(v.menu_layout_style||'');
+      const menu_layout_style='round';
       const establishment_type=String(v.establishment_type||'');
       const show_logo_subtitle=v.show_logo_subtitle==='true';
       const logo_subtitle=String(v.logo_subtitle||'').trim();
       const menu_theme_color=String(v.menu_theme_color||'');
-      if(!['classic','round'].includes(menu_layout_style))throw Error('Selecione um modelo válido.');
       if(!menuEstablishmentTypes.some(([key])=>key===establishment_type))throw Error('Selecione um tipo de estabelecimento válido.');
       if(!['true','false'].includes(v.show_logo_subtitle)||logo_subtitle.length>100||
          (show_logo_subtitle&&!logo_subtitle))throw Error('Confira a frase abaixo da logo.');
@@ -1436,7 +1423,7 @@ async function handleSubmit(form){
       const body={menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color};
       await rest('shops',{method:'PATCH',query:{id:'eq.'+shop.id},body});
       shop={...shop,...body};
-      msg('Modelo e identidade do cardápio atualizados.');
+      msg('Identidade do cardápio oficial atualizada.');
       break;
     }
     case 'cardapioLogoForm':{

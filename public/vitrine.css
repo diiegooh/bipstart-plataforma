@@ -555,7 +555,6 @@ body.salgatti-theme{
 
 /* Layout redondo: alternativa opt-in; tudo fica isolado na classe round-menu. */
 .menu-tagline{display:none}
-.round-preview-badge{position:absolute;top:6px;left:12px;font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--green)}
 body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,var(--green) 13%,transparent),transparent 47%),radial-gradient(ellipse at 95% 75%,color-mix(in srgb,var(--green) 9%,transparent),transparent 43%),#050407;color:#f9f5fa}
 .round-menu .delivery-app{width:min(1170px,100%);overflow:visible}
 .round-menu .store-header{min-height:206px;display:grid;grid-template-columns:1fr;place-items:center;background:#060408df;border-bottom:1px solid color-mix(in srgb,var(--green) 40%,transparent);padding:23px 76px 24px}

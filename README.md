@@ -178,3 +178,13 @@ O botão **Testar modelo redondo** abre `/cardapio?loja=SLUG&visual=redondo` com
 ## Onde encontrar a prévia redonda (2026-10-16)
 
 No painel `/cliente` do Premium, o menu lateral agora apresenta **Cardápio online** (abre a loja pública), **Configurar cardápio** (abre a seção com escolha do modelo, cores, frases e logo) e o atalho destacado **Testar modelo redondo** (abre o mesmo cardápio com `&visual=redondo`, sem alterar o modelo publicado). A engrenagem de Configurações também apresenta links visíveis para configurar ou testar o novo visual. No Básico, esses controles aparecem bloqueados e não habilitam acesso ao RPC Premium.
+
+## Cardápio compacto oficial — 17/10/2026
+
+O **cardápio compacto** passou a ser o único modelo de vitrine online do BipStart. O link normal `/cardapio?loja=SLUG` abre diretamente o novo cabeçalho (CARDÁPIO à esquerda, nome da loja à direita, sem logo), imagens quadradas e menores, categorias com imagens do cardápio antigo e **Todos** fixo à esquerda, além do carrinho flutuante inferior direito. Não existe mais escolha de modelo nem link de prévia no painel; `?visual=redondo` em links antigos não ativa fluxo alternativo e usa a mesma vitrine oficial.
+
+Em **Configurar cardápio**, a identidade e a cor Premium continuam editáveis (incluindo frase opcional abaixo do nome da loja). A logo anteriormente enviada fica armazenada na loja, mas não aparece no cabeçalho do novo cardápio. Horário, endereço, meios de pagamento, taxa de entrega e WhatsApp comercial permanecem nas configurações da loja.
+
+**Integração de pedidos preservada:** o checkout usa `bipstart_place_online_order` e grava o pedido antes do WhatsApp. O cliente ainda precisa confirmar a mensagem no aplicativo do WhatsApp. O fluxo de motoboys Premium permanece integrado aos pedidos por meio do botão **Criar entrega para este pedido** na aba Pedidos online, com atualização de status pela entrega vinculada. **Não há atribuição automática de motoboy** nem confirmação automática do envio do WhatsApp.
+
+O banco define `shops.menu_layout_style` como `round` para lojas existentes e novas, pela migração `sql/bipstart_official_menu_compact_20261017.sql`. O código da vitrine ignora essa configuração de layout para impedir o retorno do visual antigo. Não altera produtos, estoque, pedidos, pagamentos, motoboys, planos nem as proteções Premium existentes.

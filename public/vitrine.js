@@ -15,7 +15,8 @@ function normalizeWhatsApp(value){
  if(/^\d{10,11}$/.test(digits))digits='55'+digits;
  return /^55\d{10,11}$/.test(digits)?digits:'';
 }
-function roundMenuActive(){return new URLSearchParams(location.search).get('visual')==='redondo'||menu?.menu_layout_style==='round';}
+// O modelo compacto é o cardápio oficial: URLs antigas e novos cadastros usam o mesmo visual.
+function roundMenuActive(){return true;}
 function categoryNames(){
  const names=new Map();
  for(const item of menu?.categories||[]){
@@ -66,7 +67,6 @@ function applyBrand(){
 function drawPage(){
  const isRound=roundMenuActive();
  document.body.classList.toggle('round-menu',isRound);
- $('menuPreviewBadge').classList.toggle('hidden',new URLSearchParams(location.search).get('visual')!=='redondo');
  $('logoSubtitle').textContent=String(menu.logo_subtitle||'');
  $('logoSubtitle').classList.toggle('hidden',!isRound||menu.show_logo_subtitle!==true||!String(menu.logo_subtitle||'').trim());
  const isSalgatti=/salgatti/.test(fold([menu.name,menu.slug].filter(Boolean).join(' ')));
@@ -92,8 +92,8 @@ function drawPage(){
  }
  const categories=categoryNames();
  $('category').innerHTML='<option value="">Todas as categorias</option>'+categories.map(name=>'<option value="'+esc(name)+'">'+esc(name)+'</option>').join('');
- const allCategory=isRound?'<button type="button" class="category-tile category-tile-all" data-cat="" aria-pressed="true" aria-label="Exibir todos os produtos"><span class="category-art category-art-emoji" aria-hidden="true">▦</span><b>Todos</b></button>':'';
- $('quickCategories').innerHTML=allCategory+categories.filter(name=>!isRound||fold(name)!=='todos').map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'">'+categoryArtwork(name)+'<b>'+esc(name)+'</b></button>').join('');
+ const allCategory='<button type="button" class="category-tile category-tile-all" data-cat="" aria-pressed="true" aria-label="Exibir todos os produtos"><span class="category-art category-art-emoji" aria-hidden="true">▦</span><b>Todos</b></button>';
+ $('quickCategories').innerHTML=allCategory+categories.filter(name=>fold(name)!=='todos').map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'">'+categoryArtwork(name)+'<b>'+esc(name)+'</b></button>').join('');
  const combos=categories.find(name=>/combo/i.test(fold(name)));
  $('comboBanner').classList.toggle('hidden',!combos);
  $('seeCombos').dataset.category=combos||'';
@@ -199,7 +199,7 @@ function goToCatalogue(){
  document.getElementById('catalogue').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function filterCategory(name){
- if(roundMenuActive()&&!name)$('search').value='';
+ if(!name)$('search').value='';
  $('category').value=name||'';
  renderProducts();
 }

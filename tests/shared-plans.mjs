@@ -32,12 +32,11 @@ test('todas as funcionalidades do Básico continuam presentes e motoboys ativa n
   ['produtos','Produtos','📦'],
   ['cardapio_publico','Cardápio online','📋'],
   ['cardapio','Configurar cardápio','🎨'],
-  ['cardapio_teste','Testar modelo redondo','◉'],
   ['pedidos','Pedidos online','🚚'],
   ['motoboys','Motoboys','🛵'],
   ['vendas','Vendas','💰']
  ]);
- assert.match(source,/if\(\(id==='cardapio_publico'\|\|id==='cardapio'\|\|id==='cardapio_teste'\|\|id==='pedidos'\|\|id==='motoboys'\)&&!proAccess\(\)\)/);
+ assert.match(source,/if\(\(id==='cardapio_publico'\|\|id==='cardapio'\|\|id==='pedidos'\|\|id==='motoboys'\)&&!proAccess\(\)\)/);
  assert.match(source,/if\(proAccess\(\)\)a\.push\(\['pedidos','Pedidos online'\],\['motoboys','Motoboys'\],\['entregas','Entregas'\]\)/);
  assert.match(source,/function proAccess\(\)\{return ent\?\.plan_code==='pro'&&hasAccess\(\)\}/);
  assert.match(source,/function canCustomize\(\)\{return proAccess\(\)\}/);
@@ -58,7 +57,7 @@ test('cadastro mantém o mesmo shop_id e a mesma base em mudanças de plano',()=
  assert.doesNotMatch(panel,/id="modeChooser"|id="backToModes"/);
  assert.match(source,/tab='caixa';showForm=null;pastedProductImage=null/);
  assert.match(panel,/id="workspace"/);
- assert.match(panel,/\/cliente\.js\?v=46/);
+ assert.match(panel,/\/cliente\.js\?v=47/);
 });
 test('pedido de troca não concede Premium; ativação administra a mesma loja',()=>{
  assert.match(database,/create or replace function public\.bipstart_request_plan_change\(p_shop_id uuid,p_plan text\)/);

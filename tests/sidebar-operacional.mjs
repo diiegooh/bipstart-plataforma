@@ -17,17 +17,17 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.match(html,/Alterar cor/);
  assert.doesNotMatch(html,/id="modeChooser"|id="backToModes"/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=46/);
+ assert.match(html,/cliente\.js\?v=47/);
  assert.match(html,/cliente\.css\?v=30/);
 });
 
-test('coluna torna visíveis o editor e a prévia redonda, preservando o cardápio público',()=>{
+test('coluna torna visíveis o editor e cardápio oficial, sem opção de prévia',()=>{
  const start=js.indexOf('function operationalMenuItems(){');
  const end=js.indexOf('function renderNav(){',start);
  assert.ok(start>=0&&end>start);
  const items=new Function(js.slice(start,end)+';return operationalMenuItems();')();
- assert.deepEqual(items.map(x=>x[1]),['PDV','Produtos','Cardápio online','Configurar cardápio','Testar modelo redondo','Pedidos online','Motoboys','Vendas']);
- assert.deepEqual(items.map(x=>x[0]),['caixa','produtos','cardapio_publico','cardapio','cardapio_teste','pedidos','motoboys','vendas']);
+ assert.deepEqual(items.map(x=>x[1]),['PDV','Produtos','Cardápio online','Configurar cardápio','Pedidos online','Motoboys','Vendas']);
+ assert.deepEqual(items.map(x=>x[0]),['caixa','produtos','cardapio_publico','cardapio','pedidos','motoboys','vendas']);
  assert.match(css,/#workspace \.side #nav nav button\.active\{background:linear-gradient\(100deg,#fc0816,#f51b20\)/);
 });
 
@@ -63,10 +63,10 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
  assert.match(basicNav,/<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="Cardápio online: exclusivo Premium"/);
  assert.match(basicNav,/<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="Pedidos online: exclusivo Premium"/);
  assert.match(basicNav,/<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="Motoboys: exclusivo Premium"/);
- assert.equal((basicNav.match(/disabled aria-disabled="true"/g)||[]).length,5);
- assert.equal((basicNav.match(/<small class="side-lock">Premium<\/small>/g)||[]).length,5);
+ assert.equal((basicNav.match(/disabled aria-disabled="true"/g)||[]).length,4);
+ assert.equal((basicNav.match(/<small class="side-lock">Premium<\/small>/g)||[]).length,4);
  assert.deepEqual([...basicNav.matchAll(/<b>([^<]+)<\/b>/g)].map(m=>m[1]),
-   ['PDV','Produtos','Vendas','Cardápio online','Configurar cardápio','Testar modelo redondo','Pedidos online','Motoboys']);
+   ['PDV','Produtos','Vendas','Cardápio online','Configurar cardápio','Pedidos online','Motoboys']);
  assert.match(css,/side-public-menu\.locked:disabled\{opacity/);
  assert.match(basicNav,/Cardápio online: exclusivo Premium/);
  assert.match(basicNav,/<b>Cardápio online<\/b>/);
@@ -77,16 +77,15 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
  const premiumNav=premium.node('nav').innerHTML;
  assert.match(premiumNav,/data-nav="motoboys" class=""/);
  assert.deepEqual([...premiumNav.matchAll(/<b>([^<]+)<\/b>/g)].map(m=>m[1]),
-   ['PDV','Produtos','Cardápio online','Configurar cardápio','Testar modelo redondo','Pedidos online','Motoboys','Vendas']);
+   ['PDV','Produtos','Cardápio online','Configurar cardápio','Pedidos online','Motoboys','Vendas']);
  assert.match(premiumNav,/<a class="side-public-menu" data-public-menu-link href="https:\/\/bipstart\.example\/cardapio\?loja=adega-teste"/);
  assert.match(premiumNav,/Abrir cardápio online da loja em outra aba/);
  assert.match(premiumNav,/side-external-icon/);
  assert.match(premiumNav,/data-nav="cardapio"[^>]*><span class="side-nav-icon"/);
- assert.match(premiumNav,/data-round-preview-link href="https:\/\/bipstart\.example\/cardapio\?loja=adega-teste&amp;visual=redondo"/);
- assert.match(premiumNav,/Testar modelo redondo/);
+ assert.doesNotMatch(premiumNav,/data-round-preview-link|Testar modelo redondo/);
  assert.doesNotMatch(basicNav,/data-round-preview-link|data-nav="cardapio"/);
  assert.match(js,/const current=tab==='entregas'\?'pedidos':tab/);
- assert.match(css,/a\.side-round-preview/);
+ assert.doesNotMatch(css,/a\.side-round-preview/);
  assert.equal((premiumNav.match(/data-public-menu-link/g)||[]).length,1);
  assert.match(css,/#workspace \.side #nav nav a\.side-public-menu\{/);
  assert.equal(premium.node('sideShopName').textContent,'Adega <Teste>');
@@ -160,16 +159,17 @@ test('aba Pedidos online não exibe botões redundantes do cardápio',()=>{
  assert.doesNotMatch(js,/\$\('sideOpenMenu'\)/);
 });
 
-test('atalhos da prévia aparecem também nas configurações Premium',()=>{
+test('atalhos do cardápio oficial aparecem nas configurações Premium',()=>{
  const start=js.indexOf("}else if(tab==='configuracoes'){");
  const end=js.indexOf("}else if(tab==='personalizar'){",start);
  assert.ok(start>0&&end>start);
  const snippet=js.slice(start,end);
  assert.match(snippet,/menu-preview-settings-link/);
  assert.match(snippet,/data-nav="cardapio"/);
- assert.match(snippet,/visual=redondo/);
+ assert.match(snippet,/Cardápio online oficial/);
+ assert.match(snippet,/Abrir cardápio/);
  assert.match(snippet,/proAccess\(\)/);
  assert.match(js,/id="menuLayoutSettings"/);
  assert.match(js,/cardapioLayoutSettings\(\)/);
- assert.match(js,/data-round-preview-link/);
+ assert.doesNotMatch(js,/data-round-preview-link|visual=redondo/);
 });

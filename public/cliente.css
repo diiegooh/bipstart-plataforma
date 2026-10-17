@@ -795,17 +795,7 @@ body.receipt-open{overflow:hidden}
 #workspace .menu-layout-actions .ghost{display:inline-flex;align-items:center;padding:11px 15px;text-decoration:none}
 @media(max-width:650px){#workspace .menu-layout-settings form{grid-template-columns:1fr}#workspace .menu-layout-actions{flex-direction:column;align-items:stretch}#workspace .menu-layout-actions>*{width:100%;justify-content:center;text-align:center}}
 
-/* Acesso explícito à prévia do cardápio redondo na navegação e configurações. */
-#workspace .side #nav nav a.side-round-preview{
- border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 68%,#4f376c);
- background:color-mix(in srgb,var(--store-accent,#7c3aed) 16%,#11121a);
- color:#f7efff;
-}
-#workspace .side #nav nav a.side-round-preview:hover,
-#workspace .side #nav nav a.side-round-preview:focus-visible{
- border-color:var(--store-accent,#7c3aed);
- background:color-mix(in srgb,var(--store-accent,#7c3aed) 25%,#15111d);
-}
+/* Acesso direto ao cardápio oficial nas configurações. */
 #workspace .menu-preview-settings-link{margin:18px 0;padding:17px;border-radius:15px;border:1px solid color-mix(in srgb,var(--store-accent,#7c3aed) 42%,#41364a);background:#171122}
 #workspace .menu-preview-settings-link strong{display:block;margin-bottom:6px;font-size:16px}
 #workspace .menu-preview-settings-link p{margin:0 0 14px}
