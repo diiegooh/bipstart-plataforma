@@ -639,7 +639,7 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
 /* Nome preservado no cadastro e no carrinho, mas oculto no cabeçalho público. */
 .round-menu .store-header #storeName{display:none}
 .round-menu .store-header .header-title:has(.menu-hero-logo-card.has-store-logo){
- grid-template-columns:minmax(0,1fr) 78px;
+ grid-template-columns:minmax(0,1fr) 110px;
 }
 .round-menu .menu-hero-logo-card.has-store-logo{
  display:grid;
@@ -648,13 +648,13 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
  align-self:start;
  justify-self:end;
  place-items:center;
- width:78px;
- height:78px;
- padding:5px;
- border:2px solid color-mix(in srgb,var(--green) 65%,#57535f);
+ width:110px;
+ height:110px;
+ padding:0;
+ border:0;
  border-radius:50%;
- background:color-mix(in srgb,var(--green) 9%,#151119);
- box-shadow:0 5px 18px #0008,0 0 0 3px color-mix(in srgb,var(--green) 12%,transparent);
+ background:transparent;
+ box-shadow:none;
  overflow:hidden;
 }
 .round-menu .menu-hero-logo-card .store-logo,
@@ -705,10 +705,10 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
   padding:0;
  }
  .round-menu .store-header .header-title:has(.menu-hero-logo-card.has-store-logo){
-  grid-template-columns:minmax(0,1fr) 52px;
+  grid-template-columns:minmax(0,1fr) 76px;
   column-gap:9px;
  }
- .round-menu .menu-hero-logo-card.has-store-logo{width:52px;height:52px;padding:3px}
+ .round-menu .menu-hero-logo-card.has-store-logo{width:76px;height:76px}
  .round-menu .menu-hero-heading{
   font-size:clamp(29px,7.3vw,46px);
   letter-spacing:.01em;
@@ -728,10 +728,10 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
 
 @media(max-width:380px){
  .round-menu .store-header .header-title:has(.menu-hero-logo-card.has-store-logo){
-  grid-template-columns:minmax(0,1fr) 44px;
+  grid-template-columns:minmax(0,1fr) 64px;
   column-gap:6px;
  }
- .round-menu .menu-hero-logo-card.has-store-logo{width:44px;height:44px;padding:2px}
+ .round-menu .menu-hero-logo-card.has-store-logo{width:64px;height:64px}
 }
 
 /* Modelo alternativo: "Todos" fica fixo à esquerda; sem controles redundantes. */
