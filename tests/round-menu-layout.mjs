@@ -65,6 +65,10 @@ test('categorias com imagens originais e Todos fixo acessam todos os produtos',(
  assert.match(vitrine,/<b>Todos<\/b>/);
  assert.match(vitrine,/allCategory\+categories\.filter/);
  assert.match(vitrine,/categoryArtwork\(name\)/);
+ assert.match(vitrine,/const allImage=\(menu\?\.categories\|\|\[\]\)\.find\(item=>fold\(item\?\.name\)==='todos'\)\?\.image_path/);
+ assert.match(vitrine,/category-art category-art-all-photo/);
+ assert.match(css,/\.round-menu \.category-tile-all \.category-art-all-photo img\{[\s\S]*object-fit:cover/);
+ assert.match(panel,/Imagem de fundo do botão Todos/);
  assert.match(css,/\.round-menu \.category-tile-all\{[\s\S]*position:sticky;[\s\S]*left:0/);
  assert.match(css,/\.round-menu \.section-title-row\{display:none\}/);
  assert.match(css,/\.round-menu \.catalog-toolbar \.select\{display:none\}/);
