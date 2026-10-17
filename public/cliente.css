@@ -756,14 +756,13 @@ body.receipt-open{overflow:hidden}
 .receipt-dialog-actions>*{flex:1 1 auto}
 #workspace .receipt-settings-panel{margin:18px 0;padding:19px;border:1px solid #594579;border-radius:16px;background:#1d152e}
 #workspace .receipt-settings-panel h3{margin:0 0 8px}
-#workspace .receipt-settings-panel form{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
-#workspace .receipt-settings-panel form>label{margin:0}
+#workspace .receipt-settings-panel .receipt-settings-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+#workspace .receipt-settings-panel .receipt-settings-fields>label{margin:0}
 #workspace .receipt-settings-panel input,#workspace .receipt-settings-panel select{width:100%;min-height:43px}
 #workspace .receipt-settings-panel .receipt-settings-check{display:flex;align-items:center;gap:8px;grid-column:1/-1}
 #workspace .receipt-settings-panel .receipt-settings-check input{width:18px;min-height:0;flex:0 0 18px;margin:0}
-#workspace .receipt-settings-panel form>.button{justify-self:start}
 #workspace .pdv-last-receipt{width:100%;margin-top:9px;text-align:center}
-@media(max-width:550px){.receipt-dialog{padding:12px}.receipt-dialog-actions{flex-direction:column}.receipt-dialog-actions>*{width:100%}#workspace .receipt-settings-panel form{grid-template-columns:1fr}}
+@media(max-width:550px){.receipt-dialog{padding:12px}.receipt-dialog-actions{flex-direction:column}.receipt-dialog-actions>*{width:100%}#workspace .receipt-settings-panel .receipt-settings-fields{grid-template-columns:1fr}}
 
 /* Editor de logo Premium diretamente na aba Meu cardápio. */
 #workspace .menu-logo-editor{margin:15px 0;border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 45%,#503865)}
@@ -782,19 +781,19 @@ body.receipt-open{overflow:hidden}
 #workspace .menu-layout-settings{margin:15px 0;border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 48%,#55406d)}
 #workspace .menu-layout-settings h3{margin:0 0 7px}
 #workspace .menu-layout-settings>.muted{margin:0 0 18px}
-#workspace .menu-layout-settings form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
-#workspace .menu-layout-settings form>label{display:flex;flex-direction:column;gap:7px;font-size:13px;min-width:0}
-#workspace .menu-layout-settings form select,#workspace .menu-layout-settings form input[type=text],#workspace .menu-layout-settings form input[type=color]{min-height:46px;width:100%;background:#151020;border:1px solid #735394;border-radius:10px;color:#fff;padding:9px}
-#workspace .menu-layout-settings form input[type=color]{padding:5px 8px;cursor:pointer}
-#workspace .menu-layout-settings form small{font-size:11px;color:#c3b4d2;line-height:1.45}
+#workspace .menu-layout-settings .menu-layout-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+#workspace .menu-layout-settings .menu-layout-fields>label{display:flex;flex-direction:column;gap:7px;font-size:13px;min-width:0}
+#workspace .menu-layout-settings .menu-layout-fields select,#workspace .menu-layout-settings .menu-layout-fields input[type=text],#workspace .menu-layout-settings .menu-layout-fields input[type=color]{min-height:46px;width:100%;background:#151020;border:1px solid #735394;border-radius:10px;color:#fff;padding:9px}
+#workspace .menu-layout-settings .menu-layout-fields input[type=color]{padding:5px 8px;cursor:pointer}
+#workspace .menu-layout-settings .menu-layout-fields small{font-size:11px;color:#c3b4d2;line-height:1.45}
 #workspace .menu-layout-subtitle{margin:0;display:flex;flex-wrap:wrap;gap:15px;align-items:center;border:1px solid #604979;border-radius:10px;padding:10px 14px}
 #workspace .menu-layout-subtitle legend{padding:0 6px;font-size:13px}
 #workspace .menu-layout-subtitle label{display:inline-flex;align-items:center;gap:6px}
 #workspace .menu-layout-subtitle input{accent-color:var(--store-accent,#7c3aed)}
-#workspace #menuLayoutForm:has(input[name=show_logo_subtitle][value=false]:checked) .menu-layout-tagline{opacity:.65}
+#workspace #settingsForm:has(input[name=show_logo_subtitle][value=false]:checked) .menu-layout-tagline{opacity:.65}
 #workspace .menu-layout-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
 #workspace .menu-layout-actions .ghost{display:inline-flex;align-items:center;padding:11px 15px;text-decoration:none}
-@media(max-width:650px){#workspace .menu-layout-settings form{grid-template-columns:1fr}#workspace .menu-layout-actions{flex-direction:column;align-items:stretch}#workspace .menu-layout-actions>*{width:100%;justify-content:center;text-align:center}}
+@media(max-width:650px){#workspace .menu-layout-settings .menu-layout-fields{grid-template-columns:1fr}#workspace .menu-layout-actions{flex-direction:column;align-items:stretch}#workspace .menu-layout-actions>*{width:100%;justify-content:center;text-align:center}}
 
 /* COR DO SITE: identidade da loja vinculada a --store-accent em toda a área operacional.
    Cores semânticas de erro/sucesso/estoque não são substituídas. */
@@ -856,7 +855,7 @@ body.receipt-open{overflow:hidden}
  color:#f8f8fa;
 }
 #workspace .menu-layout-settings form input[type=color],
-#workspace .menu-layout-settings form select,
+#workspace .menu-layout-settings .menu-layout-fields select,
 #workspace .data-form input:focus,#workspace .data-form select:focus{
  border-color:var(--store-accent,#7c3aed);
 }
@@ -872,3 +871,7 @@ body.receipt-open{overflow:hidden}
  border-radius:10px;
  cursor:pointer;
 }
+
+/* Único botão de salvar no fim das Configurações. */
+#workspace #settingsForm .settings-save-button{display:block;width:min(100%,260px);margin:24px 0 4px;padding:12px 22px;font-weight:800}
+@media(max-width:540px){#workspace #settingsForm .settings-save-button{width:100%}}
