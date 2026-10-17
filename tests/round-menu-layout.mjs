@@ -109,7 +109,8 @@ test('card Todos exibe o PNG dentro da moldura e acompanha a cor do site',()=>{
  assert.match(tile,/aria-label="Exibir todos os produtos"/);
  assert.match(tile,/<b>Todos<\/b>/);
  assert.doesNotMatch(tile,/<svg|<circle /);
- assert.match(css,/\.round-menu \.category-tile-all \.category-art-all-fixed\{[\s\S]*background:color-mix/);
+ assert.match(css,/\.round-menu \.category-tile-all \.category-art-all-fixed\{[\s\S]*background:transparent;[\s\S]*border:0/);
+ assert.match(css,/\.round-menu \.category-tile-all\{[\s\S]*background:transparent/);
  assert.match(css,/\.round-menu \.category-tile-all \.category-all-png\{/);
  assert.match(css,/mask-image:url\('\/todos-nove-circulos\.png'\)/);
  assert.match(css,/background-color:var\(--green\)/);
