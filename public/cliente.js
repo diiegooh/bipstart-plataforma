@@ -728,7 +728,7 @@ function cardapioLayoutSettings(){
    '</fieldset>'+
    '<label class="menu-layout-tagline">Frase abaixo do nome da loja<input type="text" name="logo_subtitle" maxlength="100" value="'+esc(shop.logo_subtitle||'')+'" placeholder="Ex.: Sabor que conquista"></label>'+
    '<div class="menu-layout-actions"><button type="submit" class="button">Salvar personalização</button>'+
-    '<a class="ghost" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio oficial ↗</a></div>'+
+    '</div>'+
    '</form></section>';
 }
 
@@ -745,7 +745,7 @@ function cardapioEditor(){
   ['Pagamento',(shop.payment_methods||[]).join(', ')||'Configurar'],
   ['Entrega',fmt(shop.delivery_fee||0)]
  ];
- return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.','<div class="menu-heading-actions"><a class="ghost" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a><button class="button" data-new="product">+ Adicionar item</button></div>')+
+ return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.','<div class="menu-heading-actions"><button class="button" data-new="product">+ Adicionar item</button></div>')+
  (menuSchemaReady?'':'<p class="warn">A nova versão do cardápio está aguardando a atualização do banco de dados. Não salve alterações até a configuração terminar.</p>')+
  cardapioLogoEditor()+
  cardapioLayoutSettings()+
@@ -1148,7 +1148,6 @@ function renderPage(){
       '';
     content=heading('Configurações da loja','')
       +planManagementCard()
-      +(proAccess()?'<div class="menu-preview-settings-link"><strong>Cardápio online oficial</strong><p class="muted">O modelo compacto está publicado para sua loja.</p><button type="button" class="ghost" data-nav="cardapio">Personalizar cardápio</button><a class="button" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio ↗</a></div>':'')
       +'<div class="data-form"><form id="settingsForm">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')

@@ -17,8 +17,8 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.match(html,/Alterar cor/);
  assert.doesNotMatch(html,/id="modeChooser"|id="backToModes"/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=48/);
- assert.match(html,/cliente\.css\?v=31/);
+ assert.match(html,/cliente\.js\?v=49/);
+ assert.match(html,/cliente\.css\?v=32/);
 });
 
 test('coluna torna visíveis o editor e cardápio oficial, sem opção de prévia',()=>{
@@ -159,17 +159,17 @@ test('aba Pedidos online não exibe botões redundantes do cardápio',()=>{
  assert.doesNotMatch(js,/\$\('sideOpenMenu'\)/);
 });
 
-test('atalhos do cardápio oficial aparecem nas configurações Premium',()=>{
+test('configurações não mostram quadro redundante nem botões de abrir cardápio',()=>{
  const start=js.indexOf("}else if(tab==='configuracoes'){");
  const end=js.indexOf("}else if(tab==='personalizar'){",start);
  assert.ok(start>0&&end>start);
  const snippet=js.slice(start,end);
- assert.match(snippet,/menu-preview-settings-link/);
- assert.match(snippet,/data-nav="cardapio"/);
- assert.match(snippet,/Cardápio online oficial/);
- assert.match(snippet,/Abrir cardápio/);
- assert.match(snippet,/proAccess\(\)/);
+ assert.doesNotMatch(snippet,/menu-preview-settings-link|Cardápio online oficial|Abrir cardápio ↗/);
+ assert.match(snippet,/field\('brand_color','COR DO SITE'/);
  assert.match(js,/id="menuLayoutSettings"/);
  assert.match(js,/cardapioLayoutSettings\(\)/);
- assert.doesNotMatch(js,/data-round-preview-link|visual=redondo/);
+ assert.doesNotMatch(js,/Abrir cardápio oficial|Abrir cardápio ↗/);
+ assert.match(js,/data-public-menu-link/);
+ assert.match(js,/data-share-shop/);
+
 });

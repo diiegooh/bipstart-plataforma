@@ -795,14 +795,6 @@ body.receipt-open{overflow:hidden}
 #workspace .menu-layout-actions .ghost{display:inline-flex;align-items:center;padding:11px 15px;text-decoration:none}
 @media(max-width:650px){#workspace .menu-layout-settings form{grid-template-columns:1fr}#workspace .menu-layout-actions{flex-direction:column;align-items:stretch}#workspace .menu-layout-actions>*{width:100%;justify-content:center;text-align:center}}
 
-/* Acesso direto ao cardápio oficial nas configurações. */
-#workspace .menu-preview-settings-link{margin:18px 0;padding:17px;border-radius:15px;border:1px solid color-mix(in srgb,var(--store-accent,#7c3aed) 42%,#41364a);background:#171122}
-#workspace .menu-preview-settings-link strong{display:block;margin-bottom:6px;font-size:16px}
-#workspace .menu-preview-settings-link p{margin:0 0 14px}
-#workspace .menu-preview-settings-link>.ghost,#workspace .menu-preview-settings-link>.button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;margin:4px 8px 4px 0;text-decoration:none;padding:10px 14px}
-@media(max-width:560px){#workspace .menu-preview-settings-link>.ghost,#workspace .menu-preview-settings-link>.button{width:100%;margin:5px 0}}
-
-
 /* COR DO SITE: identidade da loja vinculada a --store-accent em toda a área operacional.
    Cores semânticas de erro/sucesso/estoque não são substituídas. */
 #workspace{
