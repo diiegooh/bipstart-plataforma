@@ -1571,6 +1571,9 @@ function courierForm(c){
    '<label>Senha do motoboy '+(c.account_id?'(opcional para alterar)':'(obrigatória)')+
    '<input type="password" name="login_password" autocomplete="new-password" minlength="8" maxlength="72"'+
    (!c.account_id?' required':'')+' placeholder="'+(c.account_id?'Deixe vazio para manter a senha':'Mínimo de 8 caracteres')+'"></label>'+
+   '<label>Confirmar senha'+(c.account_id?' (se for alterar)':'')+
+   '<input type="password" name="login_password_confirm" autocomplete="new-password" minlength="8" maxlength="72"'+
+   (!c.account_id?' required':'')+' placeholder="Repita a senha"></label>'+
    '<small class="courier-credential-help">O telefone será o login. A senha fica protegida no Supabase Auth e não é exibida depois de salva.</small>':
    '<p class="muted small">Este motoboy já usa uma conta por convite e continua entrando com e-mail e senha próprios.</p>')+
   '<label>Disponibilidade<select name="active"><option value="true"'+(c.active!==false?' selected':'')+'>Ativo</option><option value="false"'+(c.active===false?' selected':'')+'>Desativado</option></select></label>'
@@ -1783,6 +1786,7 @@ async function handleSubmit(form,contractWindow=null){
         throw Error('Informe nome e telefone brasileiro com DDD.');
       const password=String(v.login_password||'');
       if(!old||!old.account_id||old.login_managed){
+        if(password!==String(v.login_password_confirm||''))throw Error('A confirmação da senha do motoboy não confere.');
         if((!old||!old.account_id)&&password.length<8)throw Error('Crie uma senha de pelo menos 8 caracteres para o motoboy.');
         if(password&&password.length<8)throw Error('A senha precisa ter pelo menos 8 caracteres.');
         await provisionCourierAccess({
@@ -1888,7 +1892,7 @@ async function handleSubmit(form,contractWindow=null){
       msg('Solicitação recebida para acompanhamento.');break;
     }
   }
-  if(!['loginForm','signupForm','shopForm','resetPassForm'].includes(form.id)){showForm=null;pastedProductImage=null;await reloadData();renderPage();if(form.id!=='saleForm')msg('Dados salvos com sucesso.');}
+  if(!['loginForm','signupForm','shopForm','resetPassForm'].includes(form.id)){showForm=null;pastedProductImage=null;await reloadData();renderPage();if(form.id!=='saleForm'&&form.id!=='courierForm')msg('Dados salvos com sucesso.');}
 }
 document.addEventListener('submit',async e=>{
  const form=e.target;if(!form.matches('form'))return;
