@@ -23,8 +23,8 @@ test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do lay
  assert.match(client,/data-public-menu-link/);
  assert.doesNotMatch(html,/id="sideOpenMenu"/);
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
- assert.match(html,/\/cliente\.js\?v=58/);
- assert.match(html,/\/cliente\.css\?v=37/);
+ assert.match(html,/\/cliente\.js\?v=59/);
+ assert.match(html,/\/cliente\.css\?v=38/);
 });
 function pdv(props={}){
  const source=client.slice(client.indexOf('function filteredPdvProducts(){'),client.indexOf('function renderPage(){'));
@@ -43,7 +43,7 @@ function pdv(props={}){
  }[c]));
  return new Function(
   'products','cart','pdvQuery','pdvCategory','pdvInStockOnly','pdvPayment','esc','fmt','imageUrl','publicShopUrl',
-  source+';return {filteredPdvProducts,pdvBestSellerProducts,pdvBestSellers,pdvProductCards,renderGodzillaPDV};'
+  source+';return {filteredPdvProducts,pdvBestSellerProducts,pdvBestSellers,pdvProductCards,renderGodzillaPDV,selectPdvPayment,currentPayment:()=>pdvPayment};'
  )(...[
   data.products,data.cart,data.pdvQuery,data.pdvCategory,data.pdvInStockOnly,data.pdvPayment,
   escapeHtml,n=>'R$ '+Number(n).toFixed(2),path=>'https://cdn.bipstart.example/'+path,
@@ -55,7 +55,7 @@ test('PDV estilo Godzilla tem busca, categoria, grade de produtos e caixa lado a
  const markup=ui.renderGodzillaPDV();
  assert.match(markup,/<div class="pdv-title"><h2>PDV<\/h2><\/div>/);
  assert.doesNotMatch(markup,/VENDA PRESENCIAL|Produtos, estoque e vendas integrados ao seu cardápio\./);
- for(const text of ['Produtos da loja','Venda atual','Forma de pagamento','Dinheiro','Pix','Cartão de crédito','Cartão de débito','Finalizar venda']){
+ for(const text of ['Produtos da loja','Venda atual','Forma de pagamento','Dinheiro','Cartão','Pix','Crédito','Débito','Finalizar venda']){
   assert.ok(markup.includes(text),text);
  }
  assert.match(markup,/class="pdv-two-panels"/);
@@ -108,6 +108,48 @@ test('Mais vendidos ficam em acesso rápido no PDV e respeitam estoque, destaque
  assert.match(full,/data-cart="a" disabled/);
  assert.match(client,/const c=e\.target\.closest\('\[data-cart\]'\)/);
  assert.match(css,/#workspace \.pdv-best-sellers-list/);
+});
+
+test('caixa oferece Dinheiro, Cartão e Pix com botoes lado a lado e mantém crédito/débito no banco',()=>{
+ const examples=[
+  {code:'pix',active:'pix',cash:'hidden',card:'hidden'},
+  {code:'dinheiro',active:'dinheiro',cash:'visible',card:'hidden'},
+  {code:'credito',active:'cartao',cash:'hidden',card:'visible'},
+  {code:'debito',active:'cartao',cash:'hidden',card:'visible'}
+ ];
+ for(const item of examples){
+  const sample=pdv({pdvPayment:item.code});
+  const markup=sample.renderGodzillaPDV();
+  const selectors=markup.slice(markup.indexOf('<form id="saleForm"'),markup.indexOf('id="pdvCashFields"'));
+  for(const key of ['dinheiro','cartao','pix'])assert.match(selectors,new RegExp('data-payment-option="'+key+'"'));
+  assert.doesNotMatch(selectors,/<select name="payment_method"/);
+  assert.match(selectors,new RegExp('data-payment-option="'+item.active+'" aria-pressed="true"'));
+  assert.match(markup,new RegExp('name="payment_method" id="pdvPaymentMethod" value="'+item.code+'"'));
+  assert.match(markup,new RegExp('id="pdvCashFields" class="'+(item.cash==='hidden'?'hidden':'')+'"'));
+  assert.match(markup,new RegExp('id="pdvCardFields" class="'+(item.card==='hidden'?'hidden':'')+'"'));
+  assert.match(markup,/data-card-method="credito"/);
+  assert.match(markup,/data-card-method="debito"/);
+  assert.match(markup,/Taxa da maquininha/);
+ }
+ assert.equal(pdv({pdvPayment:'pix'}).selectPdvPayment('cartao'),true);
+ const select=pdv({pdvPayment:'pix'});
+ select.selectPdvPayment('cartao');
+ assert.equal(select.currentPayment(),'credito');
+ select.selectPdvPayment('debito');
+ assert.equal(select.currentPayment(),'debito');
+ select.selectPdvPayment('cartao');
+ assert.equal(select.currentPayment(),'debito');
+ select.selectPdvPayment('dinheiro');
+ assert.equal(select.currentPayment(),'dinheiro');
+ select.selectPdvPayment('pix');
+ assert.equal(select.currentPayment(),'pix');
+ assert.equal(select.selectPdvPayment('invalido'),false);
+ assert.equal(select.currentPayment(),'pix');
+ assert.match(css,/#workspace \.pdv-payment-options\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(client,/if\(tab==='caixa'&&selectPdvPayment\(paymentButton\.dataset\.paymentOption\)\)renderPage\(\)/);
+ assert.match(client,/selectPdvPayment\(cardKindButton\.dataset\.cardMethod\)/);
+ assert.match(client,/p_payment_method:v\.payment_method/);
+ assert.doesNotMatch(client,/if\(e\.target\.id==='pdvPaymentMethod'\)/);
 });
 
 test('checkout permanece no RPC seguro de BipStart, sem pagamentos automáticos',()=>{
