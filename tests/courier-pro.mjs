@@ -57,6 +57,26 @@ test('fila mostra rotas Maps e Waze com escape de dados de clientes',()=>{
  const outbound=deliveryCard({...row,status:'a_caminho'},false);
  assert.match(outbound,/Marcar como entregue/);
 });
+test('painel motoboy oferece convite seguro e link de login com botões de compartilhar',()=>{
+ const a=client.indexOf('function courierAccessUrl('),b=client.indexOf('function renderPage(){',a);
+ assert.ok(a>=0&&b>a);
+ const url=new Function(client.slice(a,b)+';return courierAccessUrl;')();
+ assert.equal(url({invite_code:'convite-teste',account_id:null},'https://bipstart.example'),
+  'https://bipstart.example/motoboy?convite=convite-teste');
+ assert.equal(url({invite_code:null,account_id:'conta-vinculada'},'https://bipstart.example'),
+  'https://bipstart.example/motoboy');
+ assert.match(client,/data-share-courier/);
+ assert.match(client,/data-copy-invite/);
+ assert.match(client,/Compartilhar link/);
+ assert.match(client,/Copiar link/);
+ assert.match(client,/Link de login do motoboy/);
+ assert.match(client,/if\(tab!=='motoboys'\|\|!proAccess\(\)\)return/);
+ assert.match(client,/navigator\.share/);
+ assert.match(client,/navigator\.clipboard\.writeText\(link\)/);
+ assert.match(client,/case 'courierForm'/);
+ assert.match(driver,/new URLSearchParams\(location\.search\)\.get\('convite'\)/);
+});
+
 test('os motoboys aparecem somente em Pro com acesso vigente',()=>{
  const start=client.indexOf('function trialValid(){');
  const stop=client.indexOf('function contactUrl(',start);
