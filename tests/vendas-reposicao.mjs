@@ -18,7 +18,7 @@ function fns(productsList=products,loadedReport=null){
  const end=source.indexOf('function productStockState(product)',start);
  assert.ok(start>=0&&end>start);
  return new Function('products','salesReport','salesPeriod','salesDay','localReportDate','productStockState','fmt','esc','heading','tile','empty','salesLoading',
-  source.slice(start,end)+';return {salesDateRange,saleLineFinancial,cardFeeInfo,salesPaymentTotals,salesReportData,reportFigures,restockProducts,renderRestockList,renderSalesReport,salesRecordInfo,salesRecordRow,salesPrintableHtml};')(
+  source.slice(start,end)+';return {salesDateRange,saleLineFinancial,cardFeeInfo,salesPaymentTotals,salesProfitInfo,salesProfitLabel,salesReportData,reportFigures,restockProducts,renderRestockList,renderSalesReport,salesRecordInfo,salesRecordRow,salesPrintableHtml};')(
   productsList,loadedReport,'day','2026-10-14',mkDate,product=>{
    if(Number(product.stock)<=0)return {state:'out'};
    return Number(product.stock)<=Number(product.min_stock)?{state:'low'}:{state:'ok'};
@@ -38,8 +38,8 @@ const items=[
 
 test('as funções compõem JavaScript válido e os arquivos usam versão nova',()=>{
  new vm.Script(source,{filename:'cliente.js'});
- assert.match(page,/cliente\.js\?v=63/);
- assert.match(page,/cliente\.css\?v=40/);
+ assert.match(page,/cliente\.js\?v=64/);
+ assert.match(page,/cliente\.css\?v=41/);
  assert.match(css,/\.sales-table-wrap/);
  assert.match(css,/\.restock-list/);
 });
@@ -187,7 +187,12 @@ test('venda antiga no cartão sem taxa continua sem dedução inventada',()=>{
  assert.equal(r.paymentTotals.unknownFees,1);
  assert.equal(f.cardFeeInfo(old).known,false);
  const markup=f.renderSalesReport();
- assert.match(markup,/Lucro: <strong>—/);
+ assert.match(markup,/Lucro: <strong>R\$ 12\.00 \*/);
+ assert.match(markup,/Lucro: R\$ 12\.00 \*/);
+ assert.match(markup,/data-sales-save-fee="old"/);
+ assert.match(markup,/Salvar taxa e recalcular/);
+ assert.equal(f.salesProfitInfo({profit:12,missing:0,estimated:0},{cardFees:0,unknownFees:1}).value,12);
+ assert.equal(f.salesProfitInfo({profit:12,missing:0,estimated:0},{cardFees:0,unknownFees:1}).partial,true);
  assert.doesNotMatch(markup,/<span>Taxa da maquininha/);
  assert.match(markup,/venda\(s\) antiga\(s\) com taxa de cartão não registrada/);
  assert.equal(f.cardFeeInfo({payment_method:'pix',card_fee_amount:null}).amount,0);
@@ -198,6 +203,53 @@ test('venda antiga no cartão sem taxa continua sem dedução inventada',()=>{
  assert.match(migration,/grant execute on function public\.bipstart_complete_sale\(uuid,jsonb,text,numeric\) to authenticated/);
  assert.match(source,/p_card_fee_percent:feePercent/);
  assert.match(source,/select:'id,shop_id,total,payment_method,card_fee_percent,card_fee_amount,created_at'/);
+});
+
+test('lucro parcial aparece em lista, cupom e A4 sem inventar taxa antiga',()=>{
+ const id='aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb';
+ const old={id,total:50,payment_method:'credito',card_fee_percent:null,card_fee_amount:null,created_at:'2026-10-14T11:30:00Z'};
+ const oldItem={sale_id:id,product_id:'p1',product_name:'Produto antigo',quantity:2,unit_price:25,unit_cost:10};
+ const f=fns(products,{sales:[old],items:[oldItem]});
+ const result=f.salesReportData();
+ assert.equal(result.figures.profit,30);
+ assert.equal(f.salesProfitLabel(f.salesProfitInfo(result.figures,result.paymentTotals)),'R$ 30.00 *');
+ const page=f.renderSalesReport();
+ assert.match(page,/Lucro: R\$ 30\.00 \*/);
+ assert.match(page,/data-sales-save-fee="aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb"/);
+ assert.match(page,/Taxa real desta venda \(%\)/);
+ assert.match(page,/class="sales-fee-editor"/);
+ assert.match(page,/R\$ 30\.00 \*/);
+ const coupon=f.salesPrintableHtml(result,'receipt','Loja Teste','14/10/2026');
+ const a4=f.salesPrintableHtml(result,'a4','Loja Teste','14/10/2026');
+ for(const html of [coupon,a4]){
+  assert.match(html,/R\$ 30\.00 \*/);
+  assert.match(html,/Lucro parcial ou estimado/);
+  assert.match(html,/NÃO FISCAL/);
+ }
+ const actual={...old,card_fee_percent:3.99,card_fee_amount:2};
+ const fixed=fns(products,{sales:[actual],items:[oldItem]});
+ const exact=fixed.salesReportData();
+ assert.equal(exact.paymentTotals.unknownFees,0);
+ assert.equal(fixed.salesProfitLabel(fixed.salesProfitInfo(exact.figures,exact.paymentTotals)),'R$ 28.00');
+ const markup=fixed.renderSalesReport();
+ assert.match(markup,/Lucro: R\$ 28\.00/);
+ assert.doesNotMatch(markup,/data-sales-save-fee/);
+});
+test('taxa antiga pode ser registrada só uma vez, pela própria loja, com validação',()=>{
+ const sql=readFileSync('sql/bipstart_legacy_card_fee_20261017.sql','utf8');
+ assert.match(sql,/create or replace function public\.bipstart_set_missing_card_fee/);
+ assert.match(sql,/public\.can_write_shop\(p_shop_id\)/);
+ assert.match(sql,/s\.shop_id=p_shop_id/);
+ assert.match(sql,/s\.card_fee_amount is null/);
+ assert.match(sql,/s\.payment_method in \('credito','debito'\)/);
+ assert.match(sql,/p_percent<0 or p_percent>100/);
+ assert.match(sql,/v_percent:=p_percent/);
+ assert.match(sql,/to authenticated/);
+ assert.match(sql,/from public,anon,authenticated/);
+ assert.match(source,/rpc\('bipstart_set_missing_card_fee',\{p_shop_id:shop\.id,p_sale_id:saleId,p_percent:percent\}\)/);
+ assert.match(source,/await loadSalesReport\(\)/);
+ assert.match(source,/if\(!window\.confirm\('Registrar '/);
+ assert.match(css,/#workspace \.sales-fee-editor/);
 });
 
 test('relatório visível apresenta só cinco indicadores e lista com todas as vendas',()=>{
