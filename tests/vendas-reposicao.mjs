@@ -360,6 +360,52 @@ test('exportação cupom não fiscal e A4/PDF contém registros do período sem 
  assert.throws(()=>f.salesPrintableHtml(report,'invalid','Loja','14/10/2026'),/Formato de exportação inválido/);
  assert.match(source,/if\(tab==='vendas'\)printSalesReport\(exportButton\.dataset\.salesExport\)/);
 });
+test('exportação A4 acompanha lista de vendas com escolha de produtos e paginação',()=>{
+ const sale1={id:'first',total:100,payment_method:'credito',card_fee_percent:3.99,
+  card_fee_amount:3.99,created_at:'2026-10-14T12:30:00Z'};
+ const sale2={id:'second',total:15,payment_method:'pix',created_at:'2026-10-15T14:30:00Z'};
+ const items=[
+  {sale_id:'first',product_id:'p1',product_name:'Produto <Promo>',quantity:2,unit_price:25,unit_cost:10},
+  {sale_id:'first',product_id:'p2',product_name:'Produto B',quantity:1,unit_price:50,unit_cost:20},
+  {sale_id:'second',product_id:'p3',product_name:'Produto C',quantity:1,unit_price:15,unit_cost:5}
+ ];
+ const f=fns(products,{sales:[sale1,sale2],items});
+ const report=f.salesReportData();
+ const a4=f.salesPrintableHtml(report,'a4','Loja <Teste>','14/10/2026 a 15/10/2026');
+ const receipt=f.salesPrintableHtml(report,'receipt','Loja <Teste>','14/10/2026 a 15/10/2026');
+ assert.match(a4,/@page\{size:A4;margin:12mm\}/);
+ assert.match(a4,/RELATÓRIO GERENCIAL · NÃO FISCAL/);
+ assert.match(a4,/Loja &lt;Teste&gt;/);
+ assert.doesNotMatch(a4,/<Teste>|<Promo>/);
+ assert.match(a4,/id="includeProducts"/);
+ assert.match(a4,/Incluir produtos das vendas no A4/);
+ assert.match(a4,/onchange="document\.body\.classList\.toggle\(&quot;include-products&quot;,this\.checked\)"/);
+ assert.match(a4,/\.a4-details\{display:none/);
+ assert.match(a4,/\.include-products \.a4-details\{display:block\}/);
+ assert.match(a4,/<table class="print-records">/);
+ assert.equal((a4.match(/class="a4-sale"/g)||[]).length,2);
+ assert.equal((a4.match(/class="a4-products"/g)||[]).length,2);
+ assert.match(a4,/Produto &lt;Promo&gt;/);
+ assert.match(a4,/Produto B/);
+ assert.match(a4,/Produto C/);
+ assert.match(a4,/Cartão de crédito/);
+ assert.match(a4,/Taxa da maquininha: R\$ 3\.99/);
+ assert.match(a4,/R\$ 56\.01/);
+ assert.match(a4,/Venda #1/);
+ assert.match(a4,/Período: /i);
+ const summary=a4.match(/<section class="print-summary">([\s\S]*?)<\/section>/)?.[1]||'';
+ assert.equal((summary.match(/<div>/g)||[]).length,5);
+ for(const field of ['Vendas','Unidades vendidas','Total vendido','Custo','Lucro'])
+  assert.match(summary,new RegExp(field));
+ assert.match(a4,/thead\{display:table-header-group\}/);
+ assert.match(a4,/break-inside:avoid/);
+ assert.match(a4,/@media print\{/);
+ assert.match(a4,/Imprimir \/ Salvar como PDF/);
+ assert.doesNotMatch(receipt,/id="includeProducts"|class="a4-sale"/);
+ assert.match(receipt,/@page\{size:80mm 297mm;margin:2mm\}/);
+ assert.match(source,/if\(format==='receipt'\)popup\.setTimeout/);
+});
+
 test('vendas do período carregam todas as páginas e somente itens da própria loja',()=>{
  assert.match(source,/async function salesPaginated\(/);
  assert.match(source,/offset:String\(offset\)/);
