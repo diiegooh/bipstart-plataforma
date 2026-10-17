@@ -86,7 +86,7 @@ test('Admin só libera teste Premium enquanto prazo gratuito original estiver at
  assert.equal(f.trialUpgradeEligible(shop({upgrade_request_type:'paid'})),false);
  const expired=f.upgradeCard(shop({trial_until:past()}));
  assert.doesNotMatch(expired,/data-upgrade-trial/);
- assert.match(expired,/não é possível reiniciar os 7 dias/);
+ assert.match(expired,/Não é possível reiniciar os 7 dias/);
  const paid=f.upgradeCard(shop({upgrade_request_type:'paid'}));
  assert.match(paid,/data-upgrade-activate/);
  assert.match(paid,/Ativar Premium pago \(30 dias\)/);
@@ -110,9 +110,11 @@ test('Supabase mantém trial_until, active_until e status intactos na liberaçã
  assert.match(fn,/set plan_code='pro', updated_at=now\(\)/);
  assert.match(fn,/e\.plan_code='basic' and e\.status='trialing'/);
  assert.match(fn,/e\.trial_until is not null and e\.trial_until>now\(\)/);
- assert.doesNotMatch(fn,/set[\s\S]*?trial_until\s*=/);
- assert.doesNotMatch(fn,/set[\s\S]*?active_until\s*=/);
- assert.doesNotMatch(fn,/set[\s\S]*?status\s*=/);
+ const updates=fn.match(/update public\.shop_entitlements e\s+set ([\s\S]*?)\s+where e\.shop_id=/)?.[1]||'';
+ assert.match(updates,/plan_code='pro', updated_at=now\(\)/);
+ assert.doesNotMatch(updates,/trial_until\s*=/);
+ assert.doesNotMatch(updates,/active_until\s*=/);
+ assert.doesNotMatch(updates,/status\s*=/);
  assert.match(fn,/values\(p_shop_id,auth\.uid\(\),'trial_upgrade','pro'\)/);
  assert.match(sql,/grant execute on function public\.bipstart_admin_upgrade_trial\(uuid\) to authenticated/);
  assert.match(sql,/grant execute on function public\.bipstart_request_premium_trial\(uuid\) to authenticated/);
