@@ -29,7 +29,7 @@ test('vitrine clássica permanece padrão; novo layout só via opção ou prévi
  assert.match(vitrine,/querySelector\('\[data-card-feedback\]'\)/);
 });
 
-test('cards circulares clicáveis usam produto, preço e o mesmo carrinho do site',()=>{
+test('cards compactos com foto quadrada clicável usam produto, preço e o mesmo carrinho do site',()=>{
  const from=vitrine.indexOf('function roundItemCard(item){');
  const to=vitrine.indexOf('function itemCard(item){',from);
  assert.ok(from>=0&&to>from);
@@ -58,7 +58,7 @@ test('categorias e cores seguem a loja com formato adaptado a celular',()=>{
  assert.match(css,/\.round-menu \.round-header-cart\{/);
  assert.match(css,/\.round-menu \.cartfloat\{display:none\}/);
  assert.match(css,/\.round-menu \.round-category\.active/);
- assert.match(css,/\.round-menu \.delivery-grid\{display:grid;grid-template-columns:repeat\(4/);
+ assert.match(css,/\.round-menu \.delivery-grid\{display:grid;grid-template-columns:repeat\(5/);
  assert.match(css,/@media\(max-width:640px\)\{[\s\S]*\.round-menu \.delivery-grid\{grid-template-columns:repeat\(2/);
  assert.match(css,/var\(--green\)/);
  assert.match(html,/Cormorant\+Garamond/);
@@ -113,4 +113,30 @@ test('RPC preserva bloqueio de publicação do Básico, limita imagem própria a
  assert.match(migration,/p\.online_enabled=true/);
  assert.match(migration,/grant execute on function public\.bipstart_public_menu\(text\) to anon,authenticated/);
  assert.doesNotMatch(migration,/drop table|truncate|delete from public\.shops/i);
+});
+
+test('foto quadrada compacta e cards menores apenas no modelo alternativo',()=>{
+ const square=css.match(/\.round-menu \.round-photo\{([^}]+)\}/)?.[1]||'';
+ const image=css.match(/\.round-menu \.round-card \.round-photo img\{([^}]+)\}/)?.[1]||'';
+ const card=css.match(/\.round-menu \.round-card\{([^}]+)\}/)?.[1]||'';
+ const title=css.match(/\.round-menu \.round-name\{([^}]+)\}/)?.[1]||'';
+ const price=css.match(/\.round-menu \.round-price\{([^}]+)\}/)?.[1]||'';
+ assert.match(square,/width:min\(100%,156px\)/);
+ assert.match(square,/aspect-ratio:1\/1/);
+ assert.match(square,/border-radius:16px/);
+ assert.doesNotMatch(square,/border-radius:50%/);
+ assert.match(image,/aspect-ratio:1\/1/);
+ assert.match(image,/border-radius:14px/);
+ assert.match(image,/object-fit:cover/);
+ assert.match(card,/max-width:180px/);
+ assert.match(title,/min-height:50px/);
+ assert.match(price,/min-width:108px/);
+ assert.match(css,/@media\(max-width:900px\)\{\.round-menu \.delivery-grid\{grid-template-columns:repeat\(4/);
+ assert.match(css,/@media\(max-width:700px\)\{\.round-menu \.delivery-grid\{grid-template-columns:repeat\(3/);
+ assert.match(css,/\.round-menu \.round-photo\{width:min\(100%,138px\);border-radius:14px\}/);
+ assert.match(css,/@media\(max-width:640px\)\{[\s\S]*\.round-menu \.delivery-grid\{grid-template-columns:repeat\(2/);
+ assert.match(css,/\.round-menu \.round-price strong\{font-size:23px\}/);
+ assert.match(css,/\.dproduct img\{width:100%;aspect-ratio:1\/1/);
+ assert.match(css,/\.round-menu \.round-card-click\{/);
+ assert.doesNotMatch(vitrine,/classList\.toggle\('round-menu',true\)/);
 });
