@@ -1219,7 +1219,7 @@ function productForm(p){
     field('menu_price','Valor no cardápio online (R$)','number',p.menu_price??(p.id?(p.price??0):''),'min="0" max="9999999999.99" step="0.01"'+(p.id&&p.online_enabled!==false?' required':' disabled'))+
     '</div>'+
    '</div>':
-   '<div class="online-sale-locked"><strong>Cardápio online exclusivo Premium</strong><small>As configurações de publicação anteriores permanecem salvas para o upgrade.</small></div>')+
+   '<div class="online-sale-locked"><strong>Cardápio online exclusivo Premium</strong></div>')+
   (isMenu?'<label>Descrição<textarea name="description" maxlength="1000" placeholder="Ingredientes, opções e informações do produto">'+esc(p.description||'')+'</textarea></label>':
   field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')+
   field('stock','Quantidade em estoque','number',p.stock??0,'required min="0" step="1"')+
