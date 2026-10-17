@@ -691,3 +691,24 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
  }
  .round-menu .cartfloat{right:15px;bottom:20px}
 }
+
+
+/* Modelo alternativo: "Todos" fica fixo à esquerda; sem controles redundantes. */
+.round-menu .section-title-row{display:none}
+.round-menu .catalog-toolbar .select{display:none}
+.round-menu .category-tile-all{
+ position:sticky;
+ left:0;
+ z-index:2;
+ flex-shrink:0;
+ background:#050407;
+ padding-right:5px;
+}
+.round-menu .category-tile-all .category-art-emoji{
+ background:color-mix(in srgb,var(--green) 9%,#0b0a10);
+ color:var(--green);
+}
+.round-menu .category-tile-all:focus-visible{
+ outline:3px solid var(--green);
+ outline-offset:2px;
+}

@@ -70,7 +70,9 @@ test('categorias usam mesmas imagens, rótulos e seleção do cardápio clássic
  const end=vitrine.indexOf(" const combos=",begin);
  const snippet=vitrine.slice(begin,end);
  assert.match(snippet,/categoryArtwork\(name\)/);
- assert.doesNotMatch(snippet,/isRound\?|categoryEmoji\(name\)/);
+ assert.match(snippet,/const allCategory=isRound\?/);
+ assert.match(snippet,/allCategory\+categories\.filter/);
+ assert.doesNotMatch(snippet,/round-category|categoryEmoji\(name\)/);
 });
 test('cabeçalho sem texto acima da logo e frase opcional abaixo do nome da loja',()=>{
  assert.doesNotMatch(html,/id="establishmentEyebrow"|ESTABELECIMENTO/);
@@ -178,4 +180,71 @@ test('logo oculta somente no modelo redondo, carrinho flutua à direita e catego
  assert.match(vitrine,/const category=\(menu\?\.categories\|\|\[\]\)\.find/);
  assert.match(vitrine,/category\?\.image_path\|\|product\?\.image_path/);
  assert.match(vitrine,/\/bipstart-marca-icon\.png/);
+});
+
+
+test('no novo visual, Todos ocupa a primeira categoria e substitui controles redundantes',()=>{
+ assert.match(html,/id="showAll" type="button">Ver todos/); // clássico preservado
+ assert.match(html,/id="category" class="select"/); // filtro interno mantido
+ assert.match(css,/\.round-menu \.section-title-row\{display:none\}/);
+ assert.match(css,/\.round-menu \.catalog-toolbar \.select\{display:none\}/);
+ assert.match(css,/\.round-menu \.category-tile-all\{[\s\S]*position:sticky;[\s\S]*left:0/);
+ assert.match(vitrine,/const allCategory=isRound\?/);
+ assert.match(vitrine,/class="category-tile category-tile-all"/);
+ assert.match(vitrine,/data-cat="" aria-pressed="true"/);
+ assert.match(vitrine,/<b>Todos<\/b>/);
+ assert.match(vitrine,/allCategory\+categories\.filter/);
+ assert.match(vitrine,/btn\.dataset\.cat===''[\s]*\?!category/);
+ assert.match(vitrine,/btn\.setAttribute\('aria-pressed',String\(active\)\)/);
+ assert.match(vitrine,/if\(roundMenuActive\(\)&&!name\)\$\('search'\)\.value=''/);
+ assert.doesNotMatch(vitrine,/roundHeaderCart|roundCartCount/);
+});
+
+test('Todos limpa busca e categoria, preserva filtros específicos e atualiza seleção',()=>{
+ const from=vitrine.indexOf('function filterCategory(name){');
+ const end=vitrine.indexOf('function checkoutMessage(',from);
+ assert.ok(from>=0&&end>from);
+ const fields={search:{value:'batata'},category:{value:'Fritos'}};
+ let calls=0;
+ const makeFilter=new Function('$','roundMenuActive','renderProducts',vitrine.slice(from,end)+';return filterCategory;');
+ const filter=makeFilter(id=>fields[id],()=>true,()=>{calls++;});
+ filter('');
+ assert.equal(fields.search.value,'');
+ assert.equal(fields.category.value,'');
+ assert.equal(calls,1);
+ fields.search.value='bolo';
+ filter('Doces');
+ assert.equal(fields.search.value,'bolo','outras categorias não limpam a busca');
+ assert.equal(fields.category.value,'Doces');
+ assert.equal(calls,2);
+ const classicFilter=makeFilter(id=>fields[id],()=>false,()=>{calls++;});
+ fields.search.value='coxinha';
+ classicFilter('');
+ assert.equal(fields.search.value,'coxinha','clássico mantém busca anterior');
+
+ const fromRender=vitrine.indexOf('function renderProducts(){');
+ const toRender=vitrine.indexOf('function subtotal(){',fromRender);
+ assert.ok(fromRender>=0&&toRender>fromRender);
+ const selected=[];
+ const buttons=[
+  {dataset:{cat:''},classList:{toggle(_c,v){selected[0]=v;}},setAttribute(){}},
+  {dataset:{cat:'Doces'},classList:{toggle(_c,v){selected[1]=v;}},setAttribute(){}}
+ ];
+ const catalog={innerHTML:''};
+ const ui={search:{value:''},category:{value:''},catalog};
+ const makeRender=new Function('$','document','menu','products','fold','itemCard',vitrine.slice(fromRender,toRender)+';return renderProducts;');
+ const render=makeRender(id=>ui[id],{querySelectorAll:()=>buttons},{},[
+   {name:'Bolo',category:'Doces'},{name:'Coxinha',category:'Salgados'}
+ ],s=>String(s||'').toLowerCase(),item=>'<div>'+item.name+'</div>');
+ render();
+ assert.equal(selected[0],true);
+ assert.equal(selected[1],false);
+ assert.match(catalog.innerHTML,/Bolo/);
+ assert.match(catalog.innerHTML,/Coxinha/);
+ ui.category.value='Doces';
+ render();
+ assert.equal(selected[0],false);
+ assert.equal(selected[1],true);
+ assert.match(catalog.innerHTML,/Bolo/);
+ assert.doesNotMatch(catalog.innerHTML,/Coxinha/);
 });

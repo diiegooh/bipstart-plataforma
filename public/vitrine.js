@@ -92,7 +92,8 @@ function drawPage(){
  }
  const categories=categoryNames();
  $('category').innerHTML='<option value="">Todas as categorias</option>'+categories.map(name=>'<option value="'+esc(name)+'">'+esc(name)+'</option>').join('');
- $('quickCategories').innerHTML=categories.map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'">'+categoryArtwork(name)+'<b>'+esc(name)+'</b></button>').join('');
+ const allCategory=isRound?'<button type="button" class="category-tile category-tile-all" data-cat="" aria-pressed="true" aria-label="Exibir todos os produtos"><span class="category-art category-art-emoji" aria-hidden="true">▦</span><b>Todos</b></button>':'';
+ $('quickCategories').innerHTML=allCategory+categories.filter(name=>!isRound||fold(name)!=='todos').map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'">'+categoryArtwork(name)+'<b>'+esc(name)+'</b></button>').join('');
  const combos=categories.find(name=>/combo/i.test(fold(name)));
  $('comboBanner').classList.toggle('hidden',!combos);
  $('seeCombos').dataset.category=combos||'';
@@ -145,7 +146,11 @@ function renderProducts(){
  const query=fold($('search').value.trim()),category=fold($('category').value);
  const visible=products.filter(item=>(!query||fold(item.name).includes(query)||fold(item.category).includes(query))&&(!category||fold(item.category||'Geral')===category));
  $('catalog').innerHTML=visible.length?visible.map(itemCard).join(''):'<p class="summary catalog-empty">Nenhum produto encontrado nesta categoria.</p>';
- for(const btn of document.querySelectorAll('[data-cat]'))btn.classList.toggle('active',fold(btn.dataset.cat)===category&&!!category);
+ for(const btn of document.querySelectorAll('[data-cat]')){
+  const active=btn.dataset.cat===''?!category:fold(btn.dataset.cat)===category&&!!category;
+  btn.classList.toggle('active',active);
+  btn.setAttribute('aria-pressed',String(active));
+ }
 }
 function subtotal(){
  return [...cart.entries()].reduce((total,[id,qty])=>{
@@ -194,6 +199,7 @@ function goToCatalogue(){
  document.getElementById('catalogue').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function filterCategory(name){
+ if(roundMenuActive()&&!name)$('search').value='';
  $('category').value=name||'';
  renderProducts();
 }
