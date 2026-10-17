@@ -742,16 +742,16 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
  left:0;
  z-index:2;
  flex-shrink:0;
- background:#050407;
+ background:transparent;
  padding-right:5px;
 }
 /* Card de Todos: máscara PNG real da imagem enviada, pintada com a cor da loja. */
 .round-menu .category-tile-all .category-art-all-fixed{
  display:grid;
  place-items:center;
- padding:10px;
- background:color-mix(in srgb,var(--green) 11%,#0b0a10);
- border:1px solid color-mix(in srgb,var(--green) 25%,#303039);
+ padding:0;
+ background:transparent;
+ border:0;
  border-radius:23px;
 }
 .round-menu .category-tile-all .category-all-png{
@@ -770,7 +770,7 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
 }
 @media(max-width:600px){
  .round-menu .category-tile-all .category-art-all-fixed{
-  padding:7px;
+  padding:0;
   border-radius:18px;
  }
 }
