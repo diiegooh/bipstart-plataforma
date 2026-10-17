@@ -35,7 +35,7 @@ test('todas as funcionalidades do Básico continuam presentes e motoboys ativa n
   ['motoboys','Motoboys','🛵'],
   ['vendas','Vendas','💰']
  ]);
- assert.match(source,/if\(\(id==='cardapio_publico'\|\|id==='cardapio'\|\|id==='pedidos'\|\|id==='motoboys'\)&&!proAccess\(\)\)/);
+ assert.match(source,/if\(\(id==='cardapio_publico'\|\|id==='pedidos'\|\|id==='motoboys'\)&&!proAccess\(\)\)/);
  assert.match(source,/if\(proAccess\(\)\)a\.push\(\['pedidos','Pedidos online'\],\['motoboys','Motoboys'\],\['entregas','Entregas'\]\)/);
  assert.match(source,/function proAccess\(\)\{return ent\?\.plan_code==='pro'&&hasAccess\(\)\}/);
  assert.match(source,/function canCustomize\(\)\{return proAccess\(\)\}/);
