@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PLAN={basic:'Básico',pro:'Premium'};
 const WHATSAPP='5511978353820';
-let config=null,busy=false,adminShopAccess=[];
+let config=null,busy=false;
 function message(t,error=false){$('adminMessage').textContent=t;$('adminMessage').style.color=error?'var(--danger)':'var(--text)'}
 const STORAGE='bipstart_customer_session';
 function session(){try{return JSON.parse(localStorage.getItem(STORAGE)||'null')}catch{return null}}
@@ -108,81 +108,14 @@ async function loadCustomization(){
  $('customRequests').innerHTML=items.map(requestCard).join('');
  $('customMessage').textContent=items.length?items.length+' solicitação(ões) encontrada(s).':'Nenhuma solicitação de personalização até agora.';
 }
-const ADMIN_TABS={shops:'adminShopsSection',links:'adminLinksSection',custom:'customizationSection'};
+const ADMIN_TABS={shops:'adminShopsSection',custom:'customizationSection'};
 function setAdminTab(name){
  if(!Object.hasOwn(ADMIN_TABS,name))return;
  for(const [tab,id] of Object.entries(ADMIN_TABS)){
   $(id).classList.toggle('hidden',tab!==name);
-  $('adminTab'+(tab==='shops'?'Shops':tab==='links'?'Links':'Custom')).setAttribute('aria-selected',String(tab===name));
+  $('adminTab'+(tab==='shops'?'Shops':'Custom')).setAttribute('aria-selected',String(tab===name));
  }
 }
-function linkCard(title,detail,url,{share=false,available=true}={}){
- const safeUrl=escapeHtml(url);
- const actions=available?'<a class="ghost" href="'+safeUrl+'" target="_blank" rel="noopener noreferrer">Abrir ↗</a>'+
-  '<button type="button" class="ghost" data-link-action="copy" data-link-url="'+safeUrl+'">Copiar link</button>'+
-  (share?'<button type="button" class="button" data-link-action="share" data-link-url="'+safeUrl+'" data-link-title="'+escapeHtml(title)+'">Compartilhar ↗</button>':''):
-  '<span class="admin-muted">Link indisponível no Plano Básico</span>';
- return '<article class="admin-link-card"><h3>'+escapeHtml(title)+'</h3><p class="admin-muted">'+escapeHtml(detail)+'</p>'+
-  '<code>'+safeUrl+'</code><div class="admin-link-actions">'+actions+'</div></article>';
-}
-function staticLinks(){
- const base=location.origin;
- return [
-  ['Site da BipStart','Página pública de apresentação e planos.',base+'/'],
-  ['Login do lojista e PDV','Login do cliente: ao entrar, abre diretamente o painel PDV.',base+'/cliente'],
-  ['Editor do cardápio (lojista)','Abre a edição na loja associada à sessão do proprietário; exige Premium ativo.',base+'/cliente?editar=cardapio'],
-  ['Painel administrativo','Gerenciamento administrativo de lojas, personalizações e links.',base+'/admin'],
-  ['Login do motoboy','Acesso do entregador. Os convites individuais são gerados na aba Motoboys da loja Premium.',base+'/motoboy'],
-  ['Acompanhamento de pedidos','A visualização exige o link individual emitido para cada pedido e sua chave privada.',base+'/acompanhar']
- ];
-}
-async function loadLinks(){
- $('adminLinksMessage').textContent='Carregando links das lojas...';
- const shops=await request('bipstart_admin_list_shop_links');
- if(!Array.isArray(shops))throw Error('Diretório de lojas inválido.');
- $('adminGeneralLinks').innerHTML=staticLinks().map(([title,detail,url])=>
-  linkCard(title,detail,url,{share:title==='Login do motoboy'})).join('');
- $('adminShopLinks').innerHTML=shops.map(shop=>{
-  const cardapio=location.origin+'/cardapio?loja='+encodeURIComponent(shop.shop_slug);
-  const access=adminShopAccess.find(item=>item.shop_id===shop.shop_id);
-  const now=Date.now();
-  const valid=access?.access_status==='trialing'
-   ? Number.isFinite(Date.parse(access.trial_until))&&Date.parse(access.trial_until)>now
-   : access?.access_status==='active'&&(access.active_until===null||
-       Number.isFinite(Date.parse(access.active_until))&&Date.parse(access.active_until)>now);
-  const premium=shop.plan_code==='pro'&&valid;
-  return '<section class="admin-links-shop"><h3>'+escapeHtml(shop.shop_name)+
-   ' <span class="admin-muted">('+escapeHtml(PLAN[shop.plan_code]||'Plano indisponível')+')</span></h3>'+
-   '<div class="admin-link-grid">'+
-   linkCard('Cardápio online • '+shop.shop_name,
-    premium?'Link público do cardápio e dos pedidos.':'Disponível somente com Premium ativo e vigente. O endereço é preservado no upgrade.',
-    cardapio,{share:true,available:premium})+
-   '</div></section>';
- }).join('')||'<p class="muted">Nenhuma loja cadastrada ainda.</p>';
- $('adminLinksMessage').textContent=shops.length+' loja(s) listada(s). O cardápio só fica acessível quando o Premium estiver vigente.';
-}
-async function copyLink(url){
- try{
-  if(!navigator.clipboard?.writeText)throw Error('Área de transferência indisponível.');
-  await navigator.clipboard.writeText(url);
-  $('adminLinksMessage').textContent='Link copiado para compartilhar.';
- }catch{
-  window.prompt('Copie o link:',url);
- }
-}
-$('adminLinksSection').addEventListener('click',async e=>{
- const btn=e.target.closest('[data-link-action]');
- if(!btn)return;
- const url=btn.dataset.linkUrl;
- if(!url||!url.startsWith(location.origin+'/'))return;
- if(btn.dataset.linkAction==='share'&&typeof navigator.share==='function'){
-  try{
-   await navigator.share({title:btn.dataset.linkTitle||'Link BipStart',url});
-   return;
-  }catch(error){if(error?.name==='AbortError')return;}
- }
- await copyLink(url);
-});
 document.querySelector('.admin-tabs').addEventListener('click',event=>{
  const tab=event.target.closest('[data-admin-tab]');
  if(tab)setAdminTab(tab.dataset.adminTab);
@@ -195,14 +128,11 @@ async function load(){
    if(!config?.enabled)throw Error('Configuração Supabase não disponível.');
    await signedInAccount();
    const items=await request('bipstart_admin_list_shops_with_emails');
-   adminShopAccess=Array.isArray(items)?items:[];
    $('adminRows').innerHTML=(Array.isArray(items)?items:[]).map(row).join('');
    message((items||[]).length+' loja(s) encontradas. Confirme o pagamento antes de liberar.');
    try{await loadCustomization()}
    catch(e){$('customRequests').replaceChildren();$('customMessage').textContent='Não foi possível carregar as solicitações: '+e.message}
-   try{await loadLinks()}
-   catch(e){$('adminShopLinks').replaceChildren();$('adminGeneralLinks').replaceChildren();$('adminLinksMessage').textContent='Não foi possível carregar os links: '+e.message}
- }catch(e){$('adminRows').replaceChildren();$('customRequests').replaceChildren();$('adminShopLinks').replaceChildren();$('adminGeneralLinks').replaceChildren();$('adminLinksMessage').textContent='Entre com uma conta administradora para consultar os links.';$('customMessage').textContent='Faça login com uma conta administradora para visualizar as solicitações.';message(e.message,true)}
+ }catch(e){$('adminRows').replaceChildren();$('customRequests').replaceChildren();$('customMessage').textContent='Faça login com uma conta administradora para visualizar as solicitações.';message(e.message,true)}
  finally{busy=false;$('reload').disabled=false}
 }
 $('reload').addEventListener('click',load);
