@@ -560,14 +560,57 @@ function salesRecordInfo(group,day){
   }))
  };
 }
+function salesRecordDetails(group,day){
+ const sale=group.sale,info=salesRecordInfo(group,day);
+ const pay={dinheiro:'Dinheiro',pix:'Pix',credito:'Cartão de crédito',debito:'Cartão de débito'};
+ const payment=pay[sale.payment_method]||sale.payment_method||'Não informado';
+ const fee=cardFeeInfo(sale);
+ const feeLine=['credito','debito'].includes(sale.payment_method)?
+  (fee.known?
+    '<p class="sales-inline-fee">Taxa do cartão registrada: '+fmt(fee.amount)+
+      (fee.percent===null?'':' ('+esc(fee.percent.toLocaleString('pt-BR',{maximumFractionDigits:2}))+'%)')+'</p>':
+    '<p class="sales-inline-fee">Taxa do cartão ainda não registrada. O lucro (*) é parcial.</p>'):'';
+ const rows=group.lines.map(({item,financial:x})=>{
+  const cost=x.missing?'Indisponível':fmt(x.cost)+(x.estimated?' *':'');
+  return '<tr><td><strong>'+esc(item.product_name)+'</strong><small>Preço unit.: '+fmt(x.unitPrice)+'</small></td>'+
+   '<td>'+esc(x.quantity)+'</td><td>'+cost+'</td><td>'+fmt(x.revenue)+'</td></tr>';
+ }).join('');
+ return '<div class="sales-inline-detail" aria-label="Detalhes da venda #'+group.number+'">'+
+  '<div class="sales-inline-heading"><strong>Produtos da venda #'+group.number+'</strong>'+
+  '<span>'+esc(payment)+' · '+esc(info.time)+'</span></div>'+
+  (group.lines.length?'<div class="sales-inline-scroll"><table class="sales-inline-products">'+
+   '<thead><tr><th>Produto</th><th>Qtd.</th><th>Custo</th><th>Preço vendido</th></tr></thead>'+
+   '<tbody>'+rows+'</tbody></table></div>':
+   '<p class="sales-checkout-empty">Os itens desta venda não estão disponíveis no histórico detalhado.</p>')+
+  feeLine+
+  '<div class="sales-inline-summary">'+
+  '<span>Unidades vendidas: <strong>'+info.units+'</strong></span>'+
+  '<span>Total vendido: <strong>'+fmt(info.gross)+'</strong></span>'+
+  '<span>Custo: <strong>'+(info.cost===null?'—':fmt(info.cost))+'</strong></span>'+
+  '<span>Lucro: <strong>'+salesProfitLabel({value:info.profit,partial:info.profitPartial})+'</strong></span>'+
+  '</div>'+
+  (['credito','debito'].includes(sale.payment_method)&&!fee.known?
+   '<div class="sales-fee-editor">'+
+    '<label>Taxa real desta venda (%)<input type="number" inputmode="decimal" min="0" max="100" step="0.01" placeholder="Ex.: 3,99" aria-label="Taxa real da venda #'+group.number+'"></label>'+
+    '<button type="button" class="ghost" data-sales-save-fee="'+esc(sale.id)+'">Salvar taxa e recalcular</button>'+
+    '<small>Informe apenas a taxa real para apurar o lucro completo desta venda antiga.</small>'+
+   '</div>':'')+
+  '</div>';
+}
 function salesRecordRow(group,day){
  const item=salesRecordInfo(group,day);
  const date=new Date(day+'T12:00:00').toLocaleDateString('pt-BR');
- return '<tr><td><strong>#'+item.number+'</strong></td>'+
+ const detailsId='sales-details-'+String(group.sale.id);
+ return '<tr class="sales-record-row" data-sales-open="'+esc(group.sale.id)+'">'+
+  '<td><button type="button" class="sales-record-toggle" aria-expanded="false" aria-controls="'+esc(detailsId)+'"'+
+  ' aria-label="Ver detalhes da venda #'+item.number+' de '+esc(date)+'">'+
+  '<strong>Venda #'+item.number+'</strong><span class="sales-record-arrow" aria-hidden="true">⌄</span></button></td>'+
   '<td>'+esc(date+' '+item.time)+'</td>'+
   '<td>'+item.units+'</td><td>'+fmt(item.gross)+'</td>'+
   '<td>'+(item.cost===null?'—':fmt(item.cost))+'</td>'+
-  '<td class="sales-record-profit">'+salesProfitLabel({value:item.profit,partial:item.profitPartial})+'</td></tr>';
+  '<td class="sales-record-profit">'+salesProfitLabel({value:item.profit,partial:item.profitPartial})+'</td></tr>'+
+  '<tr class="sales-record-details-row" id="'+esc(detailsId)+'" hidden>'+
+   '<td colspan="6">'+salesRecordDetails(group,day)+'</td></tr>';
 }
 function salesPrintableHtml(report,format,storeName,rangeLabel){
  if(!['receipt','a4'].includes(format))throw Error('Formato de exportação inválido.');
@@ -695,54 +738,12 @@ function renderSalesReport(){
   '<button type="button" class="ghost" data-sales-export="a4">Exportar folha A4 / PDF</button></div>'+
   '<section class="sales-records-section" aria-label="Lista de todas as vendas">'+
   '<h3>Lista de vendas</h3>'+
-  '<p class="muted small">Todos os carrinhos do período selecionado, com lucro após taxas.</p>'+
+  '<p class="muted small">Clique em uma venda para conferir os produtos e os detalhes do carrinho.</p>'+
   '<div class="sales-records-scroll"><table class="sales-records-table"><thead><tr>'+
   '<th>Venda</th><th>Data e hora</th><th>Unidades vendidas</th><th>Total vendido</th><th>Custo</th><th>Lucro</th>'+
   '</tr></thead><tbody>'+
   report.days.flatMap(day=>day.sales.map(group=>salesRecordRow(group,day.day))).join('')+
   '</tbody></table></div></section>';
- const payments={pix:'Pix',dinheiro:'Dinheiro',credito:'Cartão de crédito',debito:'Cartão de débito'};
- for(const day of report.days){
-   const summary=day.total;
-   const profitLabel='Lucro';
-   const dailyProfit=salesProfitInfo(summary,day.paymentTotals,day.sales.filter(group=>!group.lines.length).length);
-   const date=new Date(day.day+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-   content+='<section class="sales-day"><div class="sales-day-heading"><div><h3>'+esc(date)+'</h3><small>'+
-    day.sales.length+' venda(s) · '+day.lines.length+' produto(s) na lista</small></div>'+
-    '<div class="sales-day-summary"><span>Vendas: <strong>'+day.sales.length+'</strong></span>'+
-    '<span>Total vendido: <strong>'+fmt(day.salesTotal)+'</strong></span>'+
-    '<span>'+profitLabel+': <strong>'+salesProfitLabel(dailyProfit)+'</strong></span></div></div>'+
-    '<div class="sales-checkouts">'+day.sales.map(group=>{
-     const sale=group.sale,info=salesRecordInfo(group,day.day);
-     return '<section class="sales-checkout" aria-label="Venda #'+group.number+'">'+
-      '<header class="sales-checkout-heading"><div class="sales-checkout-identification">'+
-      '<strong>Venda #'+group.number+'</strong><span>'+esc(info.time)+'</span></div>'+
-      '<div class="sales-checkout-meta"><span>'+esc(payments[sale.payment_method]||sale.payment_method||'Não informado')+'</span>'+
-      '<strong>'+fmt(info.gross)+'</strong></div></header>'+
-      (group.lines.length?
-        '<div class="sales-table-wrap"><table class="sales-table"><thead><tr>'+
-        '<th>Produto</th><th>Qtd.</th><th>Custo</th><th>Preço vendido</th>'+
-        '</tr></thead><tbody>'+group.lines.map(({item,financial:x})=>{
-         const costLabel=x.missing?'Indisponível':fmt(x.cost)+(x.estimated?' *':'');
-         return '<tr><td><strong>'+esc(item.product_name)+'</strong><small>Unit.: '+fmt(x.unitPrice)+'</small></td>'+
-          '<td>'+esc(x.quantity)+'</td><td>'+costLabel+'</td><td>'+fmt(x.revenue)+'</td></tr>';
-        }).join('')+'</tbody></table></div>':
-        '<p class="sales-checkout-empty">Os itens desta venda não estão disponíveis no histórico detalhado.</p>')+
-      '<footer class="sales-checkout-footer">'+
-      '<span>Unidades vendidas: <strong>'+info.units+'</strong></span>'+
-      '<span>Total vendido: <strong>'+fmt(info.gross)+'</strong></span>'+
-      '<span>Custo: <strong>'+(info.cost===null?'—':fmt(info.cost))+'</strong></span>'+
-      '<span>Lucro: <strong>'+salesProfitLabel({value:info.profit,partial:info.profitPartial})+'</strong></span>'+
-      '</footer>'+
-      (['credito','debito'].includes(sale.payment_method)&&!cardFeeInfo(sale).known?
-       '<div class="sales-fee-editor">'+
-       '<label>Taxa real desta venda (%)<input type="number" inputmode="decimal" min="0" max="100" step="0.01" placeholder="Ex.: 3,99" aria-label="Taxa real da venda #'+group.number+'"></label>'+
-       '<button type="button" class="ghost" data-sales-save-fee="'+esc(sale.id)+'">Salvar taxa e recalcular</button>'+
-       '<small>Esta venda antiga não tem taxa registrada. O lucro (*) é parcial até informar a porcentagem correta.</small>'+
-       '</div>':'')+
-      '</section>';
-    }).join('')+'</div></section>';
- }
  return content;
 }
 function restockProducts(){
@@ -1878,6 +1879,20 @@ document.addEventListener('click',async e=>{
       selectPdvPayment(cardKindButton.dataset.cardMethod);
       renderPage();
     }
+    return;
+  }
+  const salesRow=e.target.closest('tr[data-sales-open]');
+  if(salesRow&&tab==='vendas'){
+    const button=salesRow.querySelector('.sales-record-toggle');
+    const detail=button&&document.getElementById(button.getAttribute('aria-controls'));
+    if(!button||!detail)return;
+    const expanded=button.getAttribute('aria-expanded')==='true';
+    document.querySelectorAll('#workspace .sales-record-toggle[aria-expanded="true"]').forEach(other=>{
+      other.setAttribute('aria-expanded','false');
+      const opened=document.getElementById(other.getAttribute('aria-controls'));
+      if(opened)opened.hidden=true;
+    });
+    if(!expanded){detail.hidden=false;button.setAttribute('aria-expanded','true');}
     return;
   }
   const feeSaveButton=e.target.closest('[data-sales-save-fee]');
