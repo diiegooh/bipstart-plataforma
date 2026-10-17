@@ -18,12 +18,12 @@ const start=client.indexOf('function trialValid(){');
 const stop=client.indexOf('function renderAccessGate(){',start);
 assert.ok(start>0&&stop>start);
 function access(ent){
- const init=new Function('ent','shop','plans','planPrices','BIPSTART_PLAN_WHATSAPP',
+ const init=new Function('ent','shop','plans','planPrices','BIPSTART_PLAN_WHATSAPP','session',
   client.slice(start,stop)+';return {trialValid,subscriptionValid,hasAccess,proAccess,canCustomize,contactUrl};');
  return init(ent,{name:'Minha loja',id:'c49e0b8f-6f84-4d60-8abd-bc98c76449d6',requested_plan:'basic'},
   {basic:'Básico',pro:'Premium'},
   {basic:'R$ 29,90 (pagamento único)',pro:'R$ 79,90/mês'},
-  '5511978353820');
+  '5511978353820',{user:{email:'cadastro@example.com'}});
 }
 const future=()=>new Date(Date.now()+86400000).toISOString();
 const past=()=>new Date(Date.now()-86400000).toISOString();
@@ -53,6 +53,13 @@ test('WhatsApp correto, com identificação e preço do plano sem cobrança',()=
  assert.match(body,/Minha loja/);
  assert.match(body,/R\$ 29,90/);
  assert.match(body,/Identificador da loja/);
+ assert.match(body,/Olá, equipe BipStart/);
+ assert.match(body,/Nome da loja: Minha loja/);
+ assert.match(body,/E-mail cadastrado: cadastro@example.com/);
+ assert.match(body,/Plano de interesse: Básico/);
+ assert.match(body,/Por favor, envie as instruções de pagamento pelo WhatsApp\./);
+ const other=new URL(access({status:'pending',plan_code:'basic'}).contactUrl('contratacao','novo@example.com'));
+ assert.match(other.searchParams.get('text'),/E-mail cadastrado: novo@example.com/);
 });
 test('cadastro exige escolha explícita de caminho e oferece tela de bloqueio',()=>{
  assert.match(html,/name="signup_choice" value="trial"/);
@@ -184,11 +191,24 @@ test('cartão administrativo escapa descrição e e-mail, mostra plano, data, st
 });
 
 
-test('visão geral sem botão de WhatsApp, mas contratação permanece no bloqueio',()=>{
+test('tela aguardando contratação esconde WhatsApp e mantém renovação para acessos vencidos',()=>{
  assert.doesNotMatch(client,/Solicitar plano pelo WhatsApp/);
  assert.match(client,/function contactUrl\(/);
  assert.match(client,/\$\('gateWhatsapp'\)\.href=contactUrl\(/);
- assert.match(html,/id="gateWhatsapp"/);
+ assert.match(client,/\$\('gateWhatsapp'\)\.classList\.toggle\('hidden',waiting\)/);
+ assert.match(client,/Aguardando contratação/);
+ assert.match(html,/id="gateWhatsapp" class="button hidden"/);
+ assert.match(html,/id="refreshAccess"/);
+});
+test('cadastro pelo WhatsApp abre conversa com e-mail e identificação após salvar a loja',()=>{
+ assert.match(client,/form\.id==='shopForm'&&form\.elements\.namedItem\('signup_choice'\)\?\.value==='whatsapp'/);
+ assert.match(client,/window\.open\('about:blank','_blank'\)/);
+ assert.match(client,/await handleSubmit\(form,contractWindow\)/);
+ assert.match(client,/const url=contactUrl\('contratacao',user\.email\)/);
+ assert.match(client,/contractWindow\.location\.replace\(url\)/);
+ assert.match(client,/window\.location\.assign\(url\)/);
+ assert.match(client,/contractWindow\.close\(\)/);
+ assert.match(client,/await openShop\(\);[\s\S]*?if\(v\.signup_choice==='whatsapp'\)/);
 });
 
 
