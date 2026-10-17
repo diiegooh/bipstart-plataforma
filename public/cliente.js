@@ -311,7 +311,6 @@ function operationalMenuItems(){
     ['caixa','PDV','🛒'],
     ['produtos','Produtos','📦'],
     ['cardapio_publico','Cardápio online','📋'],
-    ['cardapio','Configurar cardápio','🎨'],
     ['pedidos','Pedidos online','🚚'],
     ['motoboys','Motoboys','🛵'],
     ['vendas','Vendas','💰']
@@ -334,11 +333,11 @@ function renderNav(){
   const sidebarItems=operationalMenuItems();
   if(!proAccess()){
     // Itens bloqueados ficam juntos no fim, preservando a ordem original de cada grupo.
-    const blocked=new Set(['cardapio_publico','cardapio','pedidos','motoboys']);
+    const blocked=new Set(['cardapio_publico','pedidos','motoboys']);
     sidebarItems.sort((a,b)=>Number(blocked.has(a[0]))-Number(blocked.has(b[0])));
   }
   $('nav').innerHTML='<nav aria-label="Navegação operacional">'+sidebarItems.map(([id,name,icon])=>{
-    if((id==='cardapio_publico'||id==='cardapio'||id==='pedidos'||id==='motoboys')&&!proAccess()){
+    if((id==='cardapio_publico'||id==='pedidos'||id==='motoboys')&&!proAccess()){
       return '<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="'+esc(name)+': exclusivo Premium" title="Exclusivo Premium">'+
         '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><small class="side-lock">Premium</small></button>';
     }
@@ -708,16 +707,18 @@ function cardapioLogoEditor(){
 }
 
 const menuEstablishmentTypes=[["outros","Outro estabelecimento"],["bar_petiscaria","Bar e petiscaria"],["adega_conveniencia","Adega e conveniência"],["hamburgueria","Hamburgueria"],["pizzaria","Pizzaria"],["lanchonete","Lanchonete"],["marmitaria","Marmitaria"],["restaurante","Restaurante"],["doceria","Doceria"],["acaiteria","Açaíteria"],["espetaria","Espetaria"],["mercado","Mercado"]];
-function cardapioLayoutSettings(){
- if(!proAccess())return '';
+function establishmentTypeField(){
  const savedEstablishment=shop.establishment_type||'outros';
  const establishment=menuEstablishmentTypes.find(([key])=>key===savedEstablishment)?.[1]||savedEstablishment;
+ return '<label>Tipo de estabelecimento<input type="text" name="establishment_type" list="menuEstablishmentSuggestions" value="'+esc(establishment)+'" maxlength="65" required placeholder="Ex.: Adega, cafeteria ou petiscaria">'+
+  '<datalist id="menuEstablishmentSuggestions">'+menuEstablishmentTypes.map(([,label])=>'<option value="'+esc(label)+'"></option>').join('')+'</datalist></label>';
+}
+function cardapioLayoutSettings(){
+ if(!proAccess())return '';
  const isSubtitle=shop.show_logo_subtitle===true;
  return '<section class="menu-editor-panel menu-layout-settings" id="menuLayoutSettings" aria-labelledby="menuLayoutTitle">'+
   '<h3 id="menuLayoutTitle">Personalização do cardápio</h3>'+
   '<form id="menuLayoutForm">'+
-   '<label>Tipo de estabelecimento<input type="text" name="establishment_type" list="menuEstablishmentSuggestions" value="'+esc(establishment)+'" maxlength="65" required placeholder="Ex.: Adega, cafeteria ou petiscaria">'+
-   '<datalist id="menuEstablishmentSuggestions">'+menuEstablishmentTypes.map(([,label])=>'<option value="'+esc(label)+'"></option>').join('')+'</datalist></label>'+
    '<fieldset class="menu-layout-subtitle"><legend>Exibir frase abaixo do nome da loja?</legend>'+
     '<label><input type="radio" name="show_logo_subtitle" value="true"'+(isSubtitle?' checked':'')+'> Sim</label>'+
     '<label><input type="radio" name="show_logo_subtitle" value="false"'+(!isSubtitle?' checked':'')+'> Não</label>'+
@@ -744,7 +745,6 @@ function cardapioEditor(){
  return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.')+
  (menuSchemaReady?'':'<p class="warn">A nova versão do cardápio está aguardando a atualização do banco de dados. Não salve alterações até a configuração terminar.</p>')+
  cardapioLogoEditor()+
- cardapioLayoutSettings()+
  '<div class="menu-editor-meta">'+details.map(([label,value])=>'<button type="button" data-nav="configuracoes" title="Editar nas configurações"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></button>').join('')+'</div>'+
  '<div class="menu-editor-grid'+(showForm?.kind==='product'?'':' menu-editor-grid--single')+'"><section class="menu-editor-panel"><h3>Categorias</h3>'+
  '<form id="categoryForm" class="menu-category-form"><label>Nova categoria<input type="text" name="name" placeholder="Ex.: Bebidas" required maxlength="65"></label>'+
@@ -1146,6 +1146,7 @@ function renderPage(){
       +'<div class="data-form"><form id="settingsForm">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
+      +(isMenu?establishmentTypeField():'')
       +(canCustomize()?field('brand_color','COR DO SITE','color',shop.brand_color||'#7c3aed')+'<p class="muted small">Uma cor para todo o ambiente da loja: PDV, pedidos, cardápio e entregas dos motoboys vinculados.</p>':'')
       +(isMenu?'<div class="menu-settings">'
        +field('opening_hours','Horário de atendimento','text',shop.opening_hours||'','maxlength="160" placeholder="Ex.: Segunda a sábado, 18h às 23h"')
@@ -1155,7 +1156,7 @@ function renderPage(){
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +logoSection+'</div>':'')
       +'<button class="button">Salvar configurações</button></form></div>'+
-      (isMenu?receiptSettingsPanel()+categoryImagesSettings():'');
+      (isMenu?cardapioLayoutSettings()+receiptSettingsPanel()+categoryImagesSettings():'');
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
       +'<div class="data-form"><form id="customForm"><label>Descreva sua solicitação<textarea name="details" minlength="10" maxlength="3000" placeholder="Envie sua logo e conte as mudanças desejadas..." required></textarea></label><button class="button">Enviar solicitação</button></form></div>'
@@ -1405,17 +1406,13 @@ async function handleSubmit(form){
       break;
     }
     case 'menuLayoutForm':{
-      if(tab!=='cardapio'||shop?.model!=='pdv'||!proAccess())throw Error('Configuração do cardápio exclusiva do Premium.');
+      if(tab!=='configuracoes'||shop?.model!=='pdv'||!proAccess())throw Error('Personalização do cardápio exclusiva do Premium.');
       const menu_layout_style='round';
-      const enteredEstablishment=String(v.establishment_type||'').trim();
-      const savedOption=menuEstablishmentTypes.find(([key,label])=>key===enteredEstablishment||label.toLocaleLowerCase('pt-BR')===enteredEstablishment.toLocaleLowerCase('pt-BR'));
-      const establishment_type=savedOption?.[0]||enteredEstablishment;
       const show_logo_subtitle=v.show_logo_subtitle==='true';
       const logo_subtitle=String(v.logo_subtitle||'').trim();
-      if(!enteredEstablishment||enteredEstablishment.length>65)throw Error('Informe um tipo de estabelecimento com até 65 caracteres.');
       if(!['true','false'].includes(v.show_logo_subtitle)||logo_subtitle.length>100||
          (show_logo_subtitle&&!logo_subtitle))throw Error('Confira a frase abaixo da logo.');
-      const body={menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle};
+      const body={menu_layout_style,show_logo_subtitle,logo_subtitle};
       await rest('shops',{method:'PATCH',query:{id:'eq.'+shop.id},body});
       shop={...shop,...body};
       msg('Identidade do cardápio oficial atualizada.');
@@ -1444,6 +1441,10 @@ async function handleSubmit(form){
         body.menu_theme_color=v.brand_color;
       }
       if(shop.model==='pdv'){
+        const enteredEstablishment=String(v.establishment_type||'').trim();
+        if(!enteredEstablishment||enteredEstablishment.length>65)throw Error('Informe um tipo de estabelecimento com até 65 caracteres.');
+        const savedOption=menuEstablishmentTypes.find(([key,label])=>key===enteredEstablishment||label.toLocaleLowerCase('pt-BR')===enteredEstablishment.toLocaleLowerCase('pt-BR'));
+        body.establishment_type=savedOption?.[0]||enteredEstablishment;
         const methods=[...form.querySelectorAll('input[name=payment_methods]:checked')].map(input=>input.value);
         const fee=Number(v.delivery_fee||0);
         if(!Number.isFinite(fee)||fee<0||fee>9999.99)throw Error('Informe uma taxa de entrega válida.');
