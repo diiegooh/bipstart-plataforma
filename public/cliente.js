@@ -753,7 +753,7 @@ function cardapioEditor(){
  '<button class="button" type="submit">+ Adicionar categoria</button></form>'+
  '<div class="menu-category-list">'+list+'</div></section>'+
  (showForm?.kind==='product'?'<section class="menu-editor-panel"><h3>Adicionar ou editar item</h3>'+productForm(showForm.value)+'</section>':'')+
- '</div><section class="menu-editor-panel menu-editor-items"><h3>Itens do cardápio</h3>'+productRows()+'</section>';
+ '</div>';
 }
 
 
