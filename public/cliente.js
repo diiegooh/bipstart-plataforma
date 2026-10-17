@@ -535,7 +535,7 @@ async function loadSalesReport(){
 
 function salesRecordInfo(group,day){
  const sale=group.sale,fee=cardFeeInfo(sale),summary=group.total;
- const unknownCost=summary.missing>0;
+ const unknownCost=summary.missing>0||!group.lines.length;
  return {
   number:group.number,
   date:day,
@@ -571,7 +571,7 @@ function salesPrintableHtml(report,format,storeName,rangeLabel){
   return {...info,displayDate:date};
  }));
  const totals=report.paymentTotals,figures=report.figures;
- const profit=figures.missing||totals.unknownFees?null:figures.profit-totals.cardFees;
+ const profit=figures.missing||totals.unknownFees||report.unmatchedSales.length?null:figures.profit-totals.cardFees;
  const dataRows=rows.map(item=>
   '<tr><td>#'+item.number+'</td><td>'+esc(item.displayDate+' '+item.time)+'</td>'+
   '<td>'+item.units+'</td><td>'+money(item.gross)+'</td>'+
@@ -580,7 +580,7 @@ function salesPrintableHtml(report,format,storeName,rangeLabel){
   ['Vendas',String(report.salesCount)],
   ['Unidades vendidas',String(figures.quantity)],
   ['Total vendido',money(totals.gross)],
-  ['Custo',money(figures.missing?null:figures.cost)],
+  ['Custo',money(figures.missing||report.unmatchedSales.length?null:figures.cost)],
   ['Lucro',money(profit)]
  ];
  const title='RELATÓRIO DE VENDAS';
@@ -593,7 +593,7 @@ function salesPrintableHtml(report,format,storeName,rangeLabel){
   '<div class="print-line"><b>Custo</b><b>'+money(item.cost)+'</b></div>'+
   '<div class="print-line"><b>Lucro</b><b>'+money(item.profit)+'</b></div>'+
   '</section>').join('');
- const warning=(totals.unknownFees||figures.missing)?
+ const warning=(totals.unknownFees||figures.missing||report.unmatchedSales.length)?
   '<p class="warning">— indica custos não informados ou taxas de cartão antigas sem registro. Não foram estimados descontos inexistentes.</p>':'';
  const body='<main class="sheet"><header class="print-header"><strong>'+esc(storeName)+'</strong>'+
   '<h1>'+title+'</h1><p>PERÍODO: '+esc(rangeLabel)+'</p>'+
@@ -661,18 +661,18 @@ function renderSalesReport(){
  const report=salesReportData();
  const figures=report.figures;
  const paymentTotals=report.paymentTotals;
- const profitAvailable=!paymentTotals.unknownFees&&!figures.missing;
+ const profitAvailable=!paymentTotals.unknownFees&&!figures.missing&&!report.unmatchedSales.length;
  content+='<div class="grid sales-period-totals">'+
   tile('Vendas',report.salesCount)+
   tile('Unidades vendidas',figures.quantity)+
   tile('Total vendido',fmt(paymentTotals.gross))+
-  tile('Custo',figures.missing?'—':fmt(figures.cost))+
+  tile('Custo',figures.missing||report.unmatchedSales.length?'—':fmt(figures.cost))+
   tile('Lucro',profitAvailable?fmt(figures.profit-paymentTotals.cardFees):'—')+'</div>';
  content+='<p class="sales-disclaimer">Lucro = total vendido − custo dos produtos − taxas da maquininha registradas. Não inclui impostos e outras despesas.</p>';
  if(figures.estimated)
   content+='<p class="sales-disclaimer">Em '+figures.estimated+
    ' item(ns) antigos, o custo foi estimado com o cadastro atual.</p>';
- if(figures.missing||paymentTotals.unknownFees)
+ if(figures.missing||paymentTotals.unknownFees||report.unmatchedSales.length)
   content+='<p class="sales-disclaimer">'+
    (figures.missing?figures.missing+' item(ns) sem custo conhecido. ':'')+
    (paymentTotals.unknownFees?paymentTotals.unknownFees+' venda(s) antiga(s) com taxa de cartão não registrada. ':'')+
@@ -695,7 +695,7 @@ function renderSalesReport(){
  for(const day of report.days){
    const summary=day.total;
    const profitLabel='Lucro';
-   const dailyHasProfit=!summary.missing&&!day.paymentTotals.unknownFees;
+   const dailyHasProfit=!summary.missing&&!day.paymentTotals.unknownFees&&day.sales.every(group=>group.lines.length);
    const date=new Date(day.day+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
    content+='<section class="sales-day"><div class="sales-day-heading"><div><h3>'+esc(date)+'</h3><small>'+
     day.sales.length+' venda(s) · '+day.lines.length+' produto(s) na lista</small></div>'+
@@ -730,7 +730,7 @@ function renderSalesReport(){
        (['credito','debito'].includes(sale.payment_method)?
         '<span>Taxa da maquininha'+percentLabel+': <strong>−'+fmt(fee.amount)+'</strong></span>':'')+
        '<span>Recebimento líquido: <strong>'+fmt(Number(sale.total)-fee.amount)+'</strong></span>'+
-       '<span>'+profitTitle+': <strong>'+(figures.missing?'—':fmt(figures.profit-fee.amount))+'</strong></span>':
+       '<span>'+profitTitle+': <strong>'+(figures.missing||!group.lines.length?'—':fmt(figures.profit-fee.amount))+'</strong></span>':
        '<span>Taxa da maquininha: <strong>Não registrada</strong></span>'+
        '<span>Recebimento líquido: <strong>Não informado</strong></span>'+
        '<span>Lucro: <strong>—</strong></span>')+
