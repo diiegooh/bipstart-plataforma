@@ -22,12 +22,6 @@ function authView(isAuthed){
  $('dashboard').classList.toggle('hidden',!isAuthed);
  $('logout').classList.toggle('hidden',!isAuthed);
 }
-function setAuthTab(register){
- $('signupForm').classList.toggle('hidden',!register);
- $('loginForm').classList.toggle('hidden',register);
- $('tabSignup').classList.toggle('selected',register);
- $('tabLogin').classList.toggle('selected',!register);
-}
 function resetCaptcha(){
  captchaToken='';
  if(captchaWidget!==null&&window.turnstile)window.turnstile.reset(captchaWidget);
@@ -142,7 +136,7 @@ async function refresh(){
   applyCourierTheme(shops.length===1?colors.get(shops[0].shop_id):'#7c3aed');
   const coloredRows=rows.map(d=>({...d,shop_color:colors.get(d.shop_id)||'#7c3aed'}));
   $('courierIdentity').textContent=shops.length?
-   'Seus serviços em '+shops.length+' loja(s).':'Nenhuma loja Pro ativa vinculada. Use um convite para começar.';
+   'Seus serviços em '+shops.length+' loja(s).':'Nenhuma loja Premium ativa vinculada. Entre em contato com a loja.';
   $('shopChips').innerHTML=shops.map(m=>'<span class="pill" style="'+themeVars(colors.get(m.shop_id))+'">'+esc(m.shop_name)+' • '+esc(m.courier_name)+'</span>').join('');
   const offers=coloredRows.filter(r=>r.is_offer===true);
   const active=coloredRows.filter(r=>r.is_offer!==true);
@@ -155,14 +149,11 @@ async function refresh(){
   if(!await validSession())authView(false);
  }finally{loading=false}
 }
-$('tabLogin').onclick=()=>setAuthTab(false);
-$('tabSignup').onclick=()=>setAuthTab(true);
 function courierLoginEmail(input){
  const value=String(input||'').trim().toLowerCase();
- if(value.includes('@'))return value; // login legado por e-mail
  let digits=value.replace(/\D/g,'');
  if(/^55\d{10,11}$/.test(digits))digits=digits.slice(2);
- if(!/^[1-9]\d{9,10}$/.test(digits))throw Error('Informe seu telefone com DDD ou o e-mail do convite antigo.');
+ if(!/^[1-9]\d{9,10}$/.test(digits))throw Error('Informe seu usuário (telefone com DDD).');
  return 'courier-55'+digits+'@login.bipstart.example';
 }
 $('loginForm').onsubmit=async event=>{
@@ -184,42 +175,6 @@ $('loginForm').onsubmit=async event=>{
   await refresh();
  }catch(e){message(e.message,true)}
  finally{resetCaptcha();submit.disabled=false}
-};
-$('signupForm').onsubmit=async event=>{
- event.preventDefault();
- const form=event.currentTarget;
- const submit=form.querySelector('button[type=submit]');
- submit.disabled=true;
- try{
-  if(cfg.turnstileSiteKey&&!captchaToken)throw Error('Complete a verificação de segurança.');
-  const email=form.elements.namedItem('email').value.trim();
-  const password=form.elements.namedItem('password').value;
-  const confirm=form.elements.namedItem('confirm').value;
-  if(password!==confirm)throw Error('As senhas digitadas não coincidem.');
-  const redirect=encodeURIComponent(location.origin+'/motoboy');
-  await api('/auth/v1/signup?redirect_to='+redirect,{
-   method:'POST',token:null,
-   body:{email,password,...(captchaToken?{gotrue_meta_security:{captcha_token:captchaToken}}:{})}
-  });
-  message('Conta criada! Confirme o link recebido por e-mail, depois volte para entrar e aceitar o convite.');
-  setAuthTab(false);
- }catch(e){message(e.message,true)}
- finally{resetCaptcha();submit.disabled=false}
-};
-$('inviteForm').onsubmit=async event=>{
- event.preventDefault();
- const input=$('inviteCode');
- const code=input.value.trim();
- if(!UUID.test(code))return message('Informe um código de convite válido.',true);
- const submit=event.currentTarget.querySelector('button');
- submit.disabled=true;
- try{
-  const courier=await rpc('bipstart_courier_claim_invite',{p_invite:code});
-  message('Convite confirmado para '+courier+'. Você já pode receber entregas.');
-  input.value='';
-  await refresh();
- }catch(e){message(e.message,true)}
- finally{submit.disabled=false}
 };
 $('logout').onclick=()=>{
  session=null;storeSession();authView(false);resetCaptcha();
@@ -255,8 +210,6 @@ async function boot(){
   cfg=await fetch('/api/public-config',{cache:'no-store'}).then(r=>r.json());
   if(!cfg?.enabled)throw Error('Serviço de login temporariamente indisponível.');
   setupCaptcha();
-  const invite=new URLSearchParams(location.search).get('convite');
-  if(invite&&UUID.test(invite))$('inviteCode').value=invite;
   try{session=JSON.parse(localStorage.getItem(STORAGE)||'null')}catch{session=null}
   if(await validSession()){authView(true);await refresh()}
   else authView(false);
