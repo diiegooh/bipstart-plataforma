@@ -1056,3 +1056,9 @@ body.receipt-open{overflow:hidden}
 #workspace .plan-trial-upgrade small{display:block;max-width:490px;font-size:12px;line-height:1.5;color:#c1d9c6}
 #workspace .plan-trial-upgrade .plan-request-button{border-color:#68b78d;background:#213d2e}
 @media(max-width:500px){#workspace .plan-trial-upgrade{width:100%}}
+
+/* Login de motoboy definido pelo lojista, sem exibir senha após salvar. */
+#workspace .courier-credential-help{display:block;max-width:500px;font-size:12px;line-height:1.5;color:#bfdecb;margin:3px 0 10px}
+.admin-premium-payment{display:grid;gap:4px;margin:9px 0 0;padding:9px;border:1px solid #41644d;border-radius:9px;background:#162c1d}
+.admin-premium-payment strong{font-size:12px;color:#b9f1ce}
+.admin-premium-payment small{font-size:11px;color:#d3dfd5}
