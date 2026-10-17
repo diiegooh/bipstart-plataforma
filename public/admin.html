@@ -46,7 +46,6 @@
  <button id="reload" class="button" type="button">Atualizar lista</button></div>
  <div class="admin-tabs" role="tablist" aria-label="Seções administrativas">
    <button type="button" role="tab" id="adminTabShops" aria-controls="adminShopsSection" aria-selected="true" data-admin-tab="shops">Lojas e planos</button>
-   <button type="button" role="tab" id="adminTabLinks" aria-controls="adminLinksSection" aria-selected="false" data-admin-tab="links">Gerenciar links</button>
    <button type="button" role="tab" id="adminTabCustom" aria-controls="customizationSection" aria-selected="false" data-admin-tab="custom">Personalizações</button>
  </div>
  <section id="adminShopsSection" role="tabpanel" aria-labelledby="adminTabShops">
@@ -56,14 +55,6 @@
  </div>
  <p class="muted">O Básico tem pagamento único. O Premium custa R$ 79,90 por mês e vale por 30 dias por ativação manual. O sistema não recebe nem confirma pagamentos automaticamente.</p>
  </section>
- <section id="adminLinksSection" class="card hidden" role="tabpanel" aria-labelledby="adminTabLinks">
-   <span class="kicker">ACESSOS E COMPARTILHAMENTO</span>
-   <h2>Gerenciar links</h2>
-   <p class="muted">Endereços de acesso à plataforma e links individuais de cada loja. Links de acompanhamento precisam de um pedido específico.</p>
-   <p id="adminLinksMessage" role="status" aria-live="polite">Carregando links...</p>
-   <div id="adminGeneralLinks" class="admin-link-grid"></div>
-   <div id="adminShopLinks"></div>
- </section>
  <section id="customizationSection" class="card hidden" role="tabpanel" aria-labelledby="adminTabCustom">
   <div class="admin-header">
    <div><span class="kicker">ATENDIMENTO</span><h2 id="customizationHeading">Solicitações de personalização</h2>
@@ -72,4 +63,4 @@
   <p id="customMessage" role="status" aria-live="polite">Carregando solicitações...</p>
   <div id="customRequests" class="customization-grid"></div>
  </section>
-</main><script src="/admin.js?v=6" defer></script></body></html>
+</main><script src="/admin.js?v=7" defer></script></body></html>
