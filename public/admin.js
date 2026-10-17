@@ -76,7 +76,7 @@ function row(item){
    '<td>'+escapeHtml(PLAN[item.requested_plan]||item.requested_plan)+'<div class="admin-muted">'+(item.signup_choice==='trial'?'Teste solicitado':'WhatsApp')+'</div></td>'+
    '<td class="admin-status">'+escapeHtml(status)+'<div class="admin-muted">'+(item.active_until?'Até '+new Date(item.active_until).toLocaleDateString('pt-BR'):(item.trial_until&&item.access_status==='trialing'?'Teste até '+new Date(item.trial_until).toLocaleString('pt-BR'):''))+'</div></td>'+
    '<td><select aria-label="Plano para ativar">'+option+'</select></td><td><div class="admin-actions">'+
-   '<button type="button" class="button" data-action="activate">Ativar</button>'+
+   '<button type="button" class="button" data-action="activate">Ativar (pago)</button>'+
    '<button type="button" class="ghost" data-action="suspend">Suspender</button></div></td></tr>';
 }
 const REQUEST_STATUS={novo:'Pendente',em_analise:'Em andamento',concluido:'Concluído'};
@@ -115,13 +115,21 @@ function pendingUpgrades(shops){
  return (Array.isArray(shops)?shops:[]).filter(item=>
   item.requested_plan==='pro'&&item.plan_code==='basic');
 }
+function trialUpgradeEligible(item){
+ return item?.requested_plan==='pro'&&item.plan_code==='basic'&&
+  item.upgrade_request_type==='trial'&&item.access_status==='trialing'&&
+  Number.isFinite(Date.parse(item.trial_until))&&Date.parse(item.trial_until)>Date.now();
+}
 function upgradeWhatsappUrl(item){
  const base=shopWhatsappUrl(item.shop_whatsapp);
  if(!base)return '';
+ const trial=item.upgrade_request_type==='trial';
  const text=[
   'Olá! Aqui é do atendimento BipStart.',
-  'Recebemos a solicitação de upgrade da loja '+String(item.shop_name||'')+' para o plano Premium.',
-  'Gostaria de confirmar os dados e orientar sobre o pagamento.'
+  'Recebemos a solicitação de '+(trial?'teste Premium':'upgrade pago para Premium')+
+    ' da loja '+String(item.shop_name||'')+'.',
+  trial?'O teste Premium usa apenas os dias restantes dos 7 dias gratuitos, sem reiniciar a data de suspensão.':
+    'Gostaria de confirmar os dados e orientar sobre o pagamento.'
  ].join('\n');
  return base+'?text='+encodeURIComponent(text);
 }
@@ -129,15 +137,28 @@ function upgradeCard(item){
  const contact=upgradeWhatsappUrl(item);
  const action=contact?'<a class="ghost custom-contact" target="_blank" rel="noopener noreferrer" href="'+escapeHtml(contact)+'">Conversar pelo WhatsApp ↗</a>':
   '<span class="admin-muted">WhatsApp não cadastrado</span>';
+ const trialRequested=item.upgrade_request_type==='trial';
+ const eligible=trialUpgradeEligible(item);
+ const until=item.trial_until&&Number.isFinite(Date.parse(item.trial_until))?
+   new Date(item.trial_until).toLocaleString('pt-BR'):'Data indisponível';
+ const trialAction=eligible?
+  '<button type="button" class="button" data-upgrade-trial>Liberar teste Premium</button>':
+  '<p class="admin-muted">O teste Básico expirou ou foi encerrado. Não é possível reiniciar os 7 dias.</p>';
+ const paidAction='<button type="button" class="button" data-upgrade-activate>Ativar Premium pago (30 dias)</button>';
  return '<article class="customization-card upgrade-card" data-upgrade-shop-id="'+escapeHtml(item.shop_id)+'">'+
-  '<div class="customization-head"><div><p class="upgrade-kind">Solicitação de upgrade</p><h3>'+escapeHtml(item.shop_name)+'</h3>'+
+  '<div class="customization-head"><div><p class="upgrade-kind">'+
+  (trialRequested?'Solicitação de teste Premium':'Solicitação de upgrade')+'</p>'+
+  '<h3>'+escapeHtml(item.shop_name)+'</h3>'+
   '<p class="admin-email">'+escapeHtml(item.owner_email||'E-mail não disponível')+'</p>'+
   '<p class="admin-muted">ID da loja: '+escapeHtml(item.shop_id)+'</p></div>'+
-  '<span class="customization-status">Aguardando liberação</span></div>'+
+  '<span class="customization-status">'+(trialRequested?'Teste grátis':'Aguardando liberação')+'</span></div>'+
   '<div class="customization-details"><strong>Plano Básico → Premium</strong>'+
-  '<p>Upgrade solicitado pela loja. Confirme o pagamento antes de ativar. A liberação não é automática.</p></div>'+
-  '<div class="customization-actions">'+
-  '<button type="button" class="button" data-upgrade-activate>Ativar Premium</button>'+action+
+  (trialRequested?
+   '<p>Teste Premium gratuito somente pelos dias restantes do Básico. Suspensão original em <strong>'+escapeHtml(until)+
+   '</strong>. Não reiniciar o prazo e não cobrar.</p>':
+   '<p>Upgrade solicitado pela loja. Confirme o pagamento antes de ativar. A liberação não é automática.</p>')+
+  '</div><div class="customization-actions">'+
+  (trialRequested?trialAction:paidAction)+action+
   '</div></article>';
 }
 function renderUpgrades(shops=adminShopRecords){
@@ -179,6 +200,10 @@ async function load(){
    await signedInAccount();
    const items=await request('bipstart_admin_list_shops_with_contacts');
    if(!Array.isArray(items))throw Error('Resposta inesperada ao consultar as lojas.');
+   const requestModes=await request('bipstart_admin_list_upgrade_request_modes');
+   if(!Array.isArray(requestModes))throw Error('Não foi possível identificar os pedidos de teste.');
+   const requestByShop=new Map(requestModes.map(item=>[item.shop_id,item.upgrade_request_type]));
+   for(const item of items)item.upgrade_request_type=requestByShop.get(item.shop_id)||'paid';
    adminShopRecords=items;
    $('adminRows').innerHTML=items.map(row).join('');
    renderUpgrades(items);
@@ -214,18 +239,31 @@ $('adminRows').addEventListener('click',async e=>{
  finally{busy=false;btn.disabled=false;await load()}
 });
 $('upgradeRequests').addEventListener('click',async event=>{
- const button=event.target.closest('[data-upgrade-activate]');
+ const button=event.target.closest('[data-upgrade-activate], [data-upgrade-trial]');
  if(!button||busy)return;
  const card=button.closest('[data-upgrade-shop-id]');
  const shopId=card?.dataset.upgradeShopId;
  const item=pendingUpgrades(adminShopRecords).find(shop=>shop.shop_id===shopId);
  if(!item||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(shopId))return;
- if(!window.confirm('Você confirmou o pagamento da loja "'+item.shop_name+'" e deseja ativar o Premium por 30 dias? Esta ação libera o plano imediatamente.'))return;
+ const isTrial=!!button.closest('[data-upgrade-trial]');
+ if(isTrial&&!trialUpgradeEligible(item))return;
+ if(!isTrial&&item.upgrade_request_type==='trial')return;
+ const prompt=isTrial?
+  'Liberar o teste Premium da loja "'+item.shop_name+'" apenas até '+
+   new Date(item.trial_until).toLocaleString('pt-BR')+
+   '? Os dias já utilizados no Básico continuam contando e o prazo original não muda.':
+  'Você confirmou o pagamento da loja "'+item.shop_name+
+   '" e deseja ativar o Premium por 30 dias? Esta ação libera o plano imediatamente.';
+ if(!window.confirm(prompt))return;
  busy=true;button.disabled=true;$('reload').disabled=true;
  try{
-  const ok=await request('bipstart_admin_set_access',{p_shop_id:shopId,p_plan:'pro',p_action:'activate'});
+  const ok=isTrial?
+   await request('bipstart_admin_upgrade_trial',{p_shop_id:shopId}):
+   await request('bipstart_admin_set_access',{p_shop_id:shopId,p_plan:'pro',p_action:'activate'});
   if(ok!==true)throw Error('O Supabase não confirmou a liberação.');
-  $('upgradeMessage').textContent='Plano Premium ativado. Atualizando as solicitações...';
+  $('upgradeMessage').textContent=isTrial?
+   'Teste Premium liberado sem alterar a data de suspensão. Atualizando...':
+   'Plano Premium pago ativado por 30 dias. Atualizando...';
  }catch(error){
   $('upgradeMessage').textContent='Não foi possível liberar o upgrade: '+error.message;
   busy=false;button.disabled=false;$('reload').disabled=false;
