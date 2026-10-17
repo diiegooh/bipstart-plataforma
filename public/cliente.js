@@ -186,7 +186,9 @@ function planManagementCard(){
  const trialRequested=pending&&shop?.upgrade_request_type==='trial';
  const info=active==='pro'?
    (trial?'<p class="plan-management-pending">Premium em teste até '+esc(trialEnd)+
-    '. A data original de suspensão dos 7 dias foi mantida.</p>':''):
+    '. A data original de suspensão dos 7 dias foi mantida.</p>':
+    ent?.status==='active'&&ent.active_until?
+     '<p class="plan-management-pending">Próximo vencimento Premium: <strong>'+esc(new Date(ent.active_until).toLocaleString('pt-BR'))+'</strong></p>':''):
    pending?
      (trialRequested?
        '<p class="plan-management-pending">Teste Premium solicitado. Aguardando aprovação da BipStart. Os dias já usados no teste Básico continuam contando; término: '+esc(trialEnd)+'.</p>':
