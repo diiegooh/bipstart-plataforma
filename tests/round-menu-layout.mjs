@@ -79,7 +79,7 @@ test('categorias com imagens originais e Todos fixo acessam todos os produtos',(
  change('Bebidas');
  assert.equal(fields.category.value,'Bebidas');
  assert.equal(calls,2);
- assert.match(vitrine,/btn\.dataset\.cat==='' \?!category/);
+ assert.match(vitrine,/btn\.dataset\.cat===''[\s]*\?!category/);
  assert.match(vitrine,/btn\.setAttribute\('aria-pressed',String\(active\)\)/);
 });
 

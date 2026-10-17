@@ -303,7 +303,7 @@ test('cardápio não exibe título NOSSOS PRODUTOS e clicar categoria não rola 
  assert.ok(from>=0&&until>from);
  const block=js.slice(from,until);
  assert.doesNotMatch(block,/goToCatalogue|scrollIntoView|scrollTo/);
- const selected={category:{value:''}};
+ const selected={category:{value:''},search:{value:'batata'}};
  let refreshes=0;
  const filter=new Function('$','renderProducts','roundMenuActive',block+';return filterCategory;')(
   key=>selected[key],()=>{refreshes++;},()=>false
