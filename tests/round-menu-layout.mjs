@@ -70,10 +70,11 @@ test('categorias com imagens originais e Todos fixo acessam todos os produtos',(
  assert.match(vitrine,/<b>Todos<\/b>/);
  assert.match(vitrine,/allCategory\+categories\.filter/);
  assert.match(vitrine,/categoryArtwork\(name\)/);
- assert.match(vitrine,/const allImage=\(menu\?\.categories\|\|\[\]\)\.find\(item=>fold\(item\?\.name\)==='todos'\)\?\.image_path/);
- assert.match(vitrine,/category-art category-art-all-photo/);
- assert.match(css,/\.round-menu \.category-tile-all \.category-art-all-photo img\{[\s\S]*object-fit:cover/);
- assert.match(panel,/Imagem de fundo do botão Todos/);
+ assert.match(vitrine,/category-art category-art-all-fixed/);
+ assert.match(vitrine,/class="all-categories-icon"/);
+ assert.match(css,/\.round-menu \.category-tile-all \.category-art-all-fixed/);
+ assert.match(css,/color:var\(--green\)/);
+ assert.doesNotMatch(panel,/Imagem de fundo do botão Todos/);
  assert.match(css,/\.round-menu \.category-tile-all\{[\s\S]*position:sticky;[\s\S]*left:0/);
  assert.match(css,/\.round-menu \.section-title-row\{display:none\}/);
  assert.match(css,/\.round-menu \.catalog-toolbar \.select\{display:none\}/);
@@ -95,23 +96,23 @@ test('categorias com imagens originais e Todos fixo acessam todos os produtos',(
  assert.match(vitrine,/btn\.setAttribute\('aria-pressed',String\(active\)\)/);
 });
 
-test('imagem de Todos funciona como fundo e não depende de haver produto na categoria virtual',()=>{
- const from=vitrine.indexOf(' const allImage=');
+test('ícone de nove círculos de Todos é fixo, usa a cor da loja e mantém filtro',()=>{
+ const from=vitrine.indexOf(' const allArtwork=');
  const to=vitrine.indexOf(" $('quickCategories').innerHTML=",from);
  assert.ok(from>=0&&to>from);
- const render=new Function('menu','fold','esc','imageUrl',vitrine.slice(from,to)+';return allCategory;');
- const renderTile=categories=>render({categories},v=>String(v).toLowerCase(),v=>String(v),path=>'https://images.test/'+path);
- const withImage=renderTile([{name:'Todos',image_path:'shop/todos.png'}]);
- const withoutImage=renderTile([]);
- assert.match(withImage,/class="category-art category-art-all-photo"/);
- assert.match(withImage,/src="https:\/\/images\.test\/shop\/todos\.png"/);
- assert.match(withImage,/aria-label="Exibir todos os produtos"/);
- assert.match(withImage,/<b>Todos<\/b>/);
- assert.match(withoutImage,/class="category-art category-art-emoji"/);
- assert.doesNotMatch(withoutImage,/<img/);
- assert.match(panel,/categoryKey\(normalized\)!=='todos'/);
- assert.match(todosImageMigration,/lower\(btrim\(c\.name\)\)='todos'/);
- assert.match(todosImageMigration,/cp\.active=true and cp\.online_enabled=true/);
+ const render=new Function(vitrine.slice(from,to)+';return allCategory;');
+ const tile=render();
+ assert.match(tile,/class="category-art category-art-all-fixed"/);
+ assert.match(tile,/viewBox="0 0 90 90"/);
+ assert.equal((tile.match(/<circle /g)||[]).length,9);
+ assert.match(tile,/data-cat="" aria-pressed="true"/);
+ assert.match(tile,/aria-label="Exibir todos os produtos"/);
+ assert.match(tile,/<b>Todos<\/b>/);
+ assert.doesNotMatch(tile,/<img/);
+ assert.match(css,/\.round-menu \.category-tile-all \.category-art-all-fixed[\s\S]*color:var\(--green\)/);
+ assert.match(css,/fill:currentColor/);
+ assert.match(panel,/filter\(name=>categoryKey\(name\)!=='todos'\)/);
+ assert.match(panel,/categoryKey\(normalized\)==='todos'/);
 });
 
 test('configurações de loja, mensagem de WhatsApp e registro de pedido estão preservados',()=>{
