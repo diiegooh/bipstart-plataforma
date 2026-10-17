@@ -7,17 +7,17 @@ const html=readFileSync('public/cliente.html','utf8');
 const css=readFileSync('public/cliente.css','utf8');
 const js=readFileSync('public/cliente.js','utf8');
 
-test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',()=>{
+test('sidebar tem identidade da loja, engrenagem e botão Sair no rodapé',()=>{
  new vm.Script(js,{filename:'public/cliente.js'});
- for(const id of ['sidebar','sideShopName','sideSettings','sideColor','sideLogout','sideToggle','sideBackdrop']){
+ for(const id of ['sidebar','sideShopName','sideSettings','sideLogout','sideToggle','sideBackdrop']){
   assert.match(html,new RegExp('id="'+id+'"'),id);
  }
  assert.doesNotMatch(html,/Central de operação/);
  assert.match(html,/aria-label="Menu da loja"/);
- assert.match(html,/Alterar cor/);
+ assert.doesNotMatch(html,/id="sideColor"|id="sideColorPremium"|Alterar cor/);
  assert.doesNotMatch(html,/id="modeChooser"|id="backToModes"/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=49/);
+ assert.match(html,/cliente\.js\?v=50/);
  assert.match(html,/cliente\.css\?v=32/);
 });
 
@@ -116,7 +116,7 @@ test('Produtos incorpora estoque e Pedidos online não promete pedidos automáti
  assert.doesNotMatch(js,/\$\('sideOpenMenu'\)/);
  assert.match(js,/data-nav="entregas">Abrir fila de entregas/);
  assert.match(js,/if\(\['cardapio','pedidos','motoboys'\]\.includes\(nav\.dataset\.nav\)&&!proAccess\(\)\)return/);
- assert.match(js,/if\(!canCustomize\(\)\)return msg\('Alterar a COR DO SITE está disponível somente no plano Premium\.'/);
+ assert.doesNotMatch(js,/#sideColor|sideColorPremium/);
  assert.match(js,/if\(e\.target\.closest\('#sideLogout'\)\)\{closeSideMenu\(\);\$\('logout'\)\.click\(\);return\}/);
 });
 
