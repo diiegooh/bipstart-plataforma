@@ -48,7 +48,7 @@ function mockNav(premium){
  const render=create(node,x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
   'caixa',{name:'Adega <Teste>',logo_path:'loja-id/logo.png'},()=>premium,()=>premium,
   path=>'https://images.example/'+path,()=>'https://bipstart.example/cardapio?loja=adega-teste',
-  {documentElement:{style:{setProperty(){}}}});
+  {documentElement:{style:{setProperty(){}}},querySelector(){return null;}});
  render();
  return {node};
 }
@@ -116,7 +116,7 @@ test('Produtos incorpora estoque e Pedidos online não promete pedidos automáti
  assert.doesNotMatch(js,/\$\('sideOpenMenu'\)/);
  assert.match(js,/data-nav="entregas">Abrir fila de entregas/);
  assert.match(js,/if\(\['cardapio','pedidos','motoboys'\]\.includes\(nav\.dataset\.nav\)&&!proAccess\(\)\)return/);
- assert.match(js,/if\(!canCustomize\(\)\)return msg\('Alterar a cor do cardápio está disponível somente no plano Premium\.'/);
+ assert.match(js,/if\(!canCustomize\(\)\)return msg\('Alterar a COR DO SITE está disponível somente no plano Premium\.'/);
  assert.match(js,/if\(e\.target\.closest\('#sideLogout'\)\)\{closeSideMenu\(\);\$\('logout'\)\.click\(\);return\}/);
 });
 

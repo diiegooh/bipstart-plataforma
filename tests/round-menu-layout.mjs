@@ -152,6 +152,6 @@ test('COR DO SITE sincroniza painel e cardápio e não oferece outra cor no card
  assert.doesNotMatch(vitrine,/roundMenuActive\(\)&&menu\.menu_theme_color/);
  assert.doesNotMatch(panel,/name="menu_theme_color"/);
  assert.match(css,/\.round-menu \.cartfloat\{[\s\S]*background:color-mix\(in srgb,var\(--green\)/);
- assert.match(adminCss,/#workspace \.side #nav nav button\.active\{[\s\S]*background:var\(--store-accent/);
- assert.match(adminCss,/#workspace \.button,#workspace \.pdv-product \.pdv-add/);
+ assert.match(readFileSync('public/cliente.css','utf8'),/#workspace \.side #nav nav button\.active\{[\s\S]*background:var\(--store-accent/);
+ assert.match(readFileSync('public/cliente.css','utf8'),/#workspace \.button,#workspace \.pdv-product \.pdv-add/);
 });
