@@ -179,15 +179,14 @@ function proAccess(){return ent?.plan_code==='pro'&&hasAccess()}
 function canCustomize(){return proAccess()}
 function planManagementCard(){
  const active=ent?.plan_code==='pro'?'pro':'basic';
- const target=active==='basic'?'pro':'basic';
- const requested=shop?.requested_plan;
- const pending=requested===target;
- const info=pending?
-   '<p class="plan-management-pending">Plano '+esc(plans[target])+' solicitado. Aguarde a confirmação e a ativação manual pela BipStart.</p>':
-   '<button type="button" class="ghost plan-request-button" data-plan-request="'+target+'">Solicitar '+(target==='pro'?'upgrade para Premium':'mudança para Básico')+'</button>';
+ const pending=active==='basic'&&shop?.requested_plan==='pro';
+ const info=active==='pro'?
+   '<p class="muted small">Plano Premium ativo.</p>':pending?
+   '<p class="plan-management-pending">Upgrade para Premium solicitado. Aguarde a confirmação e a ativação manual pela BipStart.</p>':
+   '<button type="button" class="ghost plan-request-button" data-plan-request="pro">Solicitar upgrade para Premium</button>';
  return '<section class="plan-management" aria-label="Meu plano e dados da loja">'+
    '<h3>Meu plano</h3><p>Plano ativo: <strong>'+esc(plans[active])+'</strong></p>'+
-   '<p class="muted small">Seus produtos, estoque, vendas, cardápio, endereço e configurações permanecem na mesma loja ao trocar de plano.</p>'+
+   '<p class="muted small">Seus produtos, estoque, vendas, cardápio, endereço e configurações permanecem na mesma loja ao fazer upgrade.</p>'+
    info+
    (pending?'<a class="ghost plan-contact" href="'+esc(contactUrl('alteracao'))+'" target="_blank" rel="noopener noreferrer">Solicitar ativação pelo WhatsApp ↗</a>':'')+
    '</section>';
@@ -718,15 +717,13 @@ function cardapioLayoutSettings(){
  const isSubtitle=shop.show_logo_subtitle===true;
  return '<section class="menu-editor-panel menu-layout-settings" id="menuLayoutSettings" aria-labelledby="menuLayoutTitle">'+
   '<h3 id="menuLayoutTitle">Personalização do cardápio</h3>'+
-  '<form id="menuLayoutForm">'+
+  '<div class="menu-layout-fields">'+
    '<fieldset class="menu-layout-subtitle"><legend>Exibir frase abaixo do nome da loja?</legend>'+
     '<label><input type="radio" name="show_logo_subtitle" value="true"'+(isSubtitle?' checked':'')+'> Sim</label>'+
     '<label><input type="radio" name="show_logo_subtitle" value="false"'+(!isSubtitle?' checked':'')+'> Não</label>'+
    '</fieldset>'+
    '<label class="menu-layout-tagline">Frase abaixo do nome da loja<input type="text" name="logo_subtitle" maxlength="100" value="'+esc(shop.logo_subtitle||'')+'" placeholder="Ex.: Sabor que conquista"></label>'+
-   '<div class="menu-layout-actions"><button type="submit" class="button">Salvar personalização</button>'+
-    '</div>'+
-   '</form></section>';
+   '</div></section>';
 }
 
 function cardapioEditor(){
@@ -778,14 +775,14 @@ function receiptSettingsPanel(){
  return '<section class="receipt-settings-panel" aria-labelledby="receiptSettingsTitle">'+
   '<h3 id="receiptSettingsTitle">Formato do comprovante de venda</h3>'+
   '<p class="muted">Escolha o papel para impressão ou PDF. A configuração vale para esta loja neste navegador.</p>'+
-  '<form id="receiptSettingsForm">'+
+  '<div class="receipt-settings-fields">'+
   '<label>Tamanho da nota<select name="paper">'+
    [['58','Bobina térmica 58 mm'],['80','Bobina térmica 80 mm'],['a4','Folha A4']].map(([value,label])=>
     '<option value="'+value+'"'+(prefs.paper===value?' selected':'')+'>'+label+'</option>').join('')+
    '</select></label>'+
   '<label>Mensagem no rodapé<input type="text" name="footer" maxlength="120" value="'+esc(prefs.footer)+'" placeholder="Ex.: Obrigado pela preferência!"></label>'+
   '<label class="receipt-settings-check"><input type="checkbox" name="preview"'+(prefs.preview?' checked':'')+'> Abrir comprovante após finalizar cada venda</label>'+
-  '<button type="submit" class="button">Salvar formato da nota</button></form>'+
+  '</div>'+
   '<p class="muted small">Documento comercial sem valor fiscal; não substitui NFC-e ou nota fiscal.</p>'+
   '</section>';
 }
@@ -1155,8 +1152,8 @@ function renderPage(){
        +'<fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +logoSection+'</div>':'')
-      +'<button class="button">Salvar configurações</button></form></div>'+
-      (isMenu?cardapioLayoutSettings()+receiptSettingsPanel()+categoryImagesSettings():'');
+      +(isMenu?cardapioLayoutSettings()+receiptSettingsPanel()+categoryImagesSettings():'')+
+      '<button type="submit" class="button settings-save-button">Salvar</button></form></div>';
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
       +'<div class="data-form"><form id="customForm"><label>Descreva sua solicitação<textarea name="details" minlength="10" maxlength="3000" placeholder="Envie sua logo e conte as mudanças desejadas..." required></textarea></label><button class="button">Enviar solicitação</button></form></div>'
@@ -1347,15 +1344,6 @@ async function handleSubmit(form){
       await storeForm(form,'shop_products',body,id);
       break;
     }
-    case 'receiptSettingsForm':{
-      if(!shop||shop.model!=='pdv'||!hasAccess())throw Error('A loja não está disponível.');
-      if(!receiptPaperOptions.includes(v.paper)||String(v.footer||'').length>120)
-        throw Error('Escolha um tamanho de papel válido e um rodapé com até 120 caracteres.');
-      try{localStorage.setItem(receiptSettingsKey(),JSON.stringify({
-        paper:v.paper,preview:form.elements.namedItem('preview').checked,footer:String(v.footer||'')
-      }));}catch{throw Error('Não foi possível salvar a preferência neste navegador.');}
-      renderPage();msg('Formato da nota salvo neste navegador para esta loja.');return;
-    }
     case 'saleForm':{
       if(!cart.length)throw Error('Adicione produtos ao carrinho.');
       if(v.payment_method==='dinheiro'){
@@ -1405,19 +1393,6 @@ async function handleSubmit(form){
       }else await storeForm(form,'shop_deliveries',payload,null);
       break;
     }
-    case 'menuLayoutForm':{
-      if(tab!=='configuracoes'||shop?.model!=='pdv'||!proAccess())throw Error('Personalização do cardápio exclusiva do Premium.');
-      const menu_layout_style='round';
-      const show_logo_subtitle=v.show_logo_subtitle==='true';
-      const logo_subtitle=String(v.logo_subtitle||'').trim();
-      if(!['true','false'].includes(v.show_logo_subtitle)||logo_subtitle.length>100||
-         (show_logo_subtitle&&!logo_subtitle))throw Error('Confira a frase abaixo da logo.');
-      const body={menu_layout_style,show_logo_subtitle,logo_subtitle};
-      await rest('shops',{method:'PATCH',query:{id:'eq.'+shop.id},body});
-      shop={...shop,...body};
-      msg('Identidade do cardápio oficial atualizada.');
-      break;
-    }
     case 'cardapioLogoForm':{
       if(tab!=='cardapio'||shop?.model!=='pdv'||!canCustomize())throw Error('Logo personalizada exclusiva do plano Premium.');
       const file=form.querySelector('input[name=logo]')?.files?.[0];
@@ -1440,7 +1415,18 @@ async function handleSubmit(form){
         // Sincroniza o campo legado para não haver cores divergentes entre vitrines.
         body.menu_theme_color=v.brand_color;
       }
+      let receiptPreference=null;
       if(shop.model==='pdv'){
+        if(!receiptPaperOptions.includes(String(v.paper||''))||String(v.footer||'').length>120)
+          throw Error('Escolha um tamanho de papel válido e um rodapé com até 120 caracteres.');
+        receiptPreference={paper:v.paper,preview:form.elements.namedItem('preview')?.checked===true,footer:String(v.footer||'')};
+        if(proAccess()){
+          const show_logo_subtitle=v.show_logo_subtitle==='true';
+          const logo_subtitle=String(v.logo_subtitle||'').trim();
+          if(!['true','false'].includes(v.show_logo_subtitle)||logo_subtitle.length>100||(show_logo_subtitle&&!logo_subtitle))
+            throw Error('Confira a frase abaixo do nome da loja.');
+          Object.assign(body,{menu_layout_style:'round',show_logo_subtitle,logo_subtitle});
+        }
         const enteredEstablishment=String(v.establishment_type||'').trim();
         if(!enteredEstablishment||enteredEstablishment.length>65)throw Error('Informe um tipo de estabelecimento com até 65 caracteres.');
         const savedOption=menuEstablishmentTypes.find(([key,label])=>key===enteredEstablishment||label.toLocaleLowerCase('pt-BR')===enteredEstablishment.toLocaleLowerCase('pt-BR'));
@@ -1461,6 +1447,14 @@ async function handleSubmit(form){
       await rest('shops',{method:'PATCH',query:{id:'eq.'+shop.id},body});
       shop={...shop,...body};
       $('sideShopName').textContent=shop.name;
+      if(receiptPreference){
+        try{localStorage.setItem(receiptSettingsKey(),JSON.stringify(receiptPreference));}
+        catch{
+          await reloadData();renderPage();
+          msg('Dados da loja salvos, mas a preferência de impressão não pôde ser salva neste navegador.',true);
+          return;
+        }
+      }
       break;
     }
     case 'customForm':{
@@ -1564,9 +1558,8 @@ document.addEventListener('click',async e=>{
   if(e.target.id==='receiptModal'){closeReceiptDialog();return;}
   const planButton=e.target.closest('[data-plan-request]');
   if(planButton){
-    if(!shop||!hasAccess()||!['basic','pro'].includes(planButton.dataset.planRequest))return;
-    const target=planButton.dataset.planRequest;
-    if(target===ent?.plan_code)return;
+    if(!shop||!hasAccess()||ent?.plan_code!=='basic'||planButton.dataset.planRequest!=='pro')return;
+    const target='pro';
     if(!window.confirm('Solicitar mudança desta mesma loja para o plano '+plans[target]+
        '? Todos os produtos e configurações serão mantidos. O plano novo só será liberado após a confirmação da BipStart.'))return;
     planButton.disabled=true;
