@@ -212,15 +212,22 @@ async function refreshActivatedPlan(){
  }catch(error){console.warn('Atualização do plano indisponível:',error.message)}
  finally{planRefreshBusy=false;}
 }
-function contactUrl(reason='contratacao'){
+function contactUrl(reason='contratacao',registeredEmail=''){
   const chosen=plans[shop?.requested_plan]||'Básico';
   const price=planPrices[shop?.requested_plan]||planPrices.basic;
+  const email=String(registeredEmail||session?.user?.email||'Não informado').trim();
+  const request=reason==='renovacao'?'renovar':reason==='alteracao'?'solicitar a alteração de':'contratar';
   const lines=[
-    'Olá! Gostaria de '+(reason==='renovacao'?'renovar':'contratar')+' meu plano BipStart.',
-    'Loja: '+String(shop?.name||''),
-    'Plano de interesse: '+chosen+' — '+price,
-    'Identificador da loja: '+String(shop?.id||''),
-    'Por favor, envie as instruções de pagamento pelo WhatsApp.'
+    'Olá, equipe BipStart! 👋',
+    'Gostaria de '+request+' meu plano BipStart.',
+    '',
+    '🏪 Nome da loja: '+String(shop?.name||''),
+    '📧 E-mail cadastrado: '+email,
+    '📦 Plano de interesse: '+chosen+' — '+price,
+    '🆔 Identificador da loja: '+String(shop?.id||''),
+    '',
+    'Por favor, envie as instruções de pagamento pelo WhatsApp.',
+    'Aguardo a confirmação do pagamento e a liberação do acesso. Obrigado!'
   ];
   return 'https://wa.me/'+BIPSTART_PLAN_WHATSAPP+'?text='+encodeURIComponent(lines.join('\n'));
 }
@@ -234,11 +241,12 @@ function renderAccessGate(){
   $('gateDesc').textContent=expiredTrial?'O período gratuito encerrou. Seus dados continuam salvos. Para voltar a usar as funcionalidades, contrate um plano pelo WhatsApp.':
     expiredPaid?'Seu acesso está pausado. Renove pelo WhatsApp e aguarde a confirmação para retomar.':
     suspended?'Seu acesso foi suspenso pela administração. Fale conosco pelo WhatsApp para regularizar.':
-    'Envie sua solicitação pelo WhatsApp. Após confirmar o pagamento, a equipe BipStart liberará seu acesso manualmente.';
+    'Após enviar a mensagem preparada no WhatsApp, aguarde as instruções de pagamento. A BipStart liberará seu acesso após a confirmação manual.';
   $('gateShop').textContent=shop.name;
   $('gatePlan').textContent=(plans[shop.requested_plan]||'Básico')+' — '+(planPrices[shop.requested_plan]||planPrices.basic);
   $('gateWhatsapp').href=contactUrl(expiredPaid?'renovacao':'contratacao');
-  $('gateStatus').textContent=waiting?'Aguardando confirmação':'Acesso temporariamente bloqueado';
+  $('gateWhatsapp').classList.toggle('hidden',waiting);
+  $('gateStatus').textContent=waiting?'Aguardando contratação':'Acesso temporariamente bloqueado';
 }
 async function openShop(){
  salesRequestId++;salesReport=null;salesLoading=false;salesPeriod='day';salesDay=localReportDate();
@@ -1289,7 +1297,7 @@ async function uploadImage(file){
   return name;
 }
 async function storeForm(form,table,body,id){if(id)await rest(table,{method:'PATCH',query:{id:'eq.'+id,shop_id:'eq.'+shop.id},body});else await rest(table,{method:'POST',body:{...body,shop_id:shop.id}})}
-async function handleSubmit(form){
+async function handleSubmit(form,contractWindow=null){
   const v=formVal(form),id=form.dataset.id;
   switch(form.id){
     case 'loginForm':{
@@ -1325,7 +1333,17 @@ async function handleSubmit(form){
       if(!plans[v.requested_plan]||v.model!=='pdv')throw Error('Escolha um plano válido para PDV e cardápio.');
       const created=await rest('shops',{method:'POST',body:{owner_id:user.id,name:v.name.trim(),whatsapp:v.whatsapp?.replace(/\D/g,'')||null,slug,model:v.model,requested_plan:v.requested_plan,signup_choice:v.signup_choice}});
       shop=created?.[0];if(!shop)throw Error('A loja não pôde ser criada.');
-      await openShop();msg(v.signup_choice==='trial'?'Loja criada! Seus 7 dias gratuitos começaram.':'Loja cadastrada! Peça a contratação pelo WhatsApp e aguarde a liberação.');break;
+      await openShop();
+      if(v.signup_choice==='whatsapp'){
+        const url=contactUrl('contratacao',user.email);
+        // Aba aberta diretamente no envio do formulário, antes das chamadas assíncronas.
+        if(contractWindow&&!contractWindow.closed){
+          try{contractWindow.location.replace(url)}
+          catch{window.location.assign(url)}
+        }else window.location.assign(url);
+        msg('Loja cadastrada! Envie a mensagem preparada no WhatsApp e aguarde as instruções de pagamento.');
+      }else msg('Loja criada! Seus 7 dias gratuitos começaram.');
+      break;
     }
     case 'categoryForm':{
       if(!proAccess())throw Error('Cardápio online exclusivo Premium.');
@@ -1492,7 +1510,29 @@ async function handleSubmit(form){
   }
   if(!['loginForm','signupForm','shopForm','resetPassForm'].includes(form.id)){showForm=null;pastedProductImage=null;await reloadData();renderPage();if(form.id!=='saleForm')msg('Dados salvos com sucesso.');}
 }
-document.addEventListener('submit',async e=>{const form=e.target;if(!form.matches('form'))return;e.preventDefault();const btn=form.querySelector('button[type=submit],button.button');if(btn)btn.disabled=true;try{await handleSubmit(form)}catch(err){msg(err.message||'Erro ao salvar',true)}finally{if(btn?.isConnected)btn.disabled=false}});
+document.addEventListener('submit',async e=>{
+ const form=e.target;if(!form.matches('form'))return;
+ e.preventDefault();
+ const btn=form.querySelector('button[type=submit],button.button');
+ if(btn?.disabled)return;
+ let contractWindow=null;
+ if(form.id==='shopForm'&&form.elements.namedItem('signup_choice')?.value==='whatsapp'){
+   try{
+     contractWindow=window.open('about:blank','_blank');
+     if(contractWindow){
+       contractWindow.opener=null;
+       contractWindow.document.title='Abrindo WhatsApp • BipStart';
+       contractWindow.document.body.textContent='Preparando sua solicitação de contratação...';
+     }
+   }catch{contractWindow=null}
+ }
+ if(btn)btn.disabled=true;
+ try{await handleSubmit(form,contractWindow)}
+ catch(err){
+   if(contractWindow&&!contractWindow.closed)contractWindow.close();
+   msg(err.message||'Erro ao salvar',true);
+ }finally{if(btn?.isConnected)btn.disabled=false}
+});
 document.addEventListener('paste',e=>{
   const categoryTarget=e.target.closest?.('[data-category-image-paste]');
   if(categoryTarget){
