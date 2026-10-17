@@ -1456,18 +1456,19 @@ function renderPage(){
   }else if(tab==='vendas'){
     content=renderSalesReport();
   }else if(tab==='motoboys'){
-    content=heading('Motoboys • Plano Premium','Cadastre entregadores e compartilhe o link de acesso.','<button class="button" data-new="courier">+ Novo motoboy</button>');
-    content+='<p class="muted">Após salvar um motoboy, compartilhe o link exibido no cadastro abaixo. O primeiro acesso inclui o convite individual; depois de vincular a conta, o mesmo painel oferece o login normal.</p>';
+    content=heading('Motoboys • Plano Premium','Cadastre entregadores e defina o login pelo telefone e a senha individual.','<button class="button" data-new="courier">+ Novo motoboy</button>');
+    content+='<p class="muted">O telefone cadastrado será usado para entrar no aplicativo do motoboy. Escolha uma senha no cadastro e compartilhe o link de login. Contas antigas por convite continuam funcionando.</p>';
     content+=showForm?.kind==='courier'?courierForm(showForm.value):'';
     content+=couriers.length?'<div class="stack">'+couriers.map(c=>{
       const link=courierAccessUrl(c);
-      const pending=!c.account_id;
+      const pending=!c.account_id,managed=c.account_id&&c.login_managed;
       return '<div class="item courier-access-item"><div class="courier-access-info"><strong>'+esc(c.name)+'</strong><small>'+esc(c.phone||'Sem telefone')+
-        ' • '+(c.account_id?'Conta vinculada':'Aguardando aceite do convite')+
+        ' • '+(managed?'Login por telefone':c.account_id?'Conta vinculada por convite':'Aguardando criação do login')+
         ' • '+(c.active?'Ativo':'Desativado')+'</small>'+
-        '<p class="courier-access-label">'+(pending?'Link para primeiro acesso e convite:':'Link de login do motoboy:')+'</p>'+
+        '<p class="courier-access-label">'+(pending?'Link de convite pendente:':'Link de login do motoboy:')+'</p>'+
         '<a class="courier-access-url" target="_blank" rel="noopener noreferrer" href="'+esc(link)+'">'+esc(link)+'</a>'+
-        (pending?'<small>O motoboy cria a conta, confirma o e-mail e aceita o convite para receber entregas.</small>':'')+
+        (managed?'<small>Usuário: '+esc(c.phone)+'. A senha foi definida no cadastro e pode ser alterada em Editar.</small>':
+         pending?'<small>Edite o motoboy para definir uma senha e ativar o login pelo telefone.</small>':'')+
         '</div><div class="actions courier-access-actions">'+
          '<button type="button" class="button" data-share-courier="'+esc(link)+'" data-courier-name="'+esc(c.name)+'">Compartilhar link</button>'+
          '<button type="button" class="ghost" data-copy-invite="'+esc(link)+'">Copiar link</button>'+
@@ -1557,9 +1558,19 @@ function productForm(p){
   '<div class="paste-area" data-image-paste tabindex="0" role="button" aria-label="Colar imagem do produto" style="border:1px dashed #9068c8;border-radius:12px;padding:16px;cursor:pointer;min-height:75px">Clique aqui e pressione Ctrl+V para colar uma imagem copiada.<div data-image-preview aria-live="polite" style="margin-top:8px"></div></div>'
  );
 }
-function courierForm(c){c=c||{};return formShell('courier',c.id,
+function courierForm(c){
+ c=c||{};
+ const legacy=!!c.account_id&&!c.login_managed;
+ const canChoosePassword=!legacy;
+ return formShell('courier',c.id,
   field('name','Nome completo','text',c.name,'required maxlength="100"')+
-  field('phone','Telefone ou WhatsApp','tel',c.phone||'','required minlength="10" maxlength="20"')+
+  field('phone','Telefone (login)','tel',c.phone||'','required minlength="10" maxlength="20" autocomplete="tel"')+
+  (canChoosePassword?
+   '<label>Senha do motoboy '+(c.account_id?'(opcional para alterar)':'(obrigatória)')+
+   '<input type="password" name="login_password" autocomplete="new-password" minlength="8" maxlength="72"'+
+   (!c.account_id?' required':'')+' placeholder="'+(c.account_id?'Deixe vazio para manter a senha':'Mínimo de 8 caracteres')+'"></label>'+
+   '<small class="courier-credential-help">O telefone será o login. A senha fica protegida no Supabase Auth e não é exibida depois de salva.</small>':
+   '<p class="muted small">Este motoboy já usa uma conta por convite e continua entrando com e-mail e senha próprios.</p>')+
   '<label>Disponibilidade<select name="active"><option value="true"'+(c.active!==false?' selected':'')+'>Ativo</option><option value="false"'+(c.active===false?' selected':'')+'>Desativado</option></select></label>'
 )}
 function eligibleOnlineDeliveryOrders(currentDelivery){
@@ -1626,6 +1637,18 @@ async function uploadImage(file){
   return name;
 }
 async function storeForm(form,table,body,id){if(id)await rest(table,{method:'PATCH',query:{id:'eq.'+id,shop_id:'eq.'+shop.id},body});else await rest(table,{method:'POST',body:{...body,shop_id:shop.id}})}
+async function provisionCourierAccess(body){
+ if(!await ensureSession())throw Error('Sua sessão expirou. Entre novamente.');
+ const response=await fetch(cfg.supabaseUrl+'/functions/v1/bipstart-courier-credentials',{
+  method:'POST',
+  headers:{'Content-Type':'application/json',apikey:cfg.publishableKey,
+   Authorization:'Bearer '+session.access_token},
+  body:JSON.stringify(body),cache:'no-store'
+ });
+ const data=await response.json().catch(()=>null);
+ if(!response.ok)throw Error(data?.message||'Não foi possível criar o login do motoboy.');
+ return data;
+}
 async function handleSubmit(form,contractWindow=null){
   const v=formVal(form),id=form.dataset.id;
   switch(form.id){
@@ -1752,8 +1775,25 @@ async function handleSubmit(form,contractWindow=null){
     case 'courierForm':{
       if(!proAccess())throw Error('Motoboys disponíveis somente no Plano Premium vigente.');
       const phone=String(v.phone||'').replace(/\D/g,'');
-      if(!v.name?.trim()||phone.length<10||phone.length>13)throw Error('Informe nome e telefone com DDD.');
-      await storeForm(form,'shop_couriers',{name:v.name.trim(),phone,active:v.active!=='false'},id);
+      const normalized=/^55\d{10,11}$/.test(phone)?phone.slice(2):phone;
+      const old=id?couriers.find(c=>c.id===id):null;
+      if(!v.name?.trim()||!/^[1-9]\d{9,10}$/.test(normalized))
+        throw Error('Informe nome e telefone brasileiro com DDD.');
+      const password=String(v.login_password||'');
+      if(!old||!old.account_id||old.login_managed){
+        if((!old||!old.account_id)&&password.length<8)throw Error('Crie uma senha de pelo menos 8 caracteres para o motoboy.');
+        if(password&&password.length<8)throw Error('A senha precisa ter pelo menos 8 caracteres.');
+        await provisionCourierAccess({
+          action:old?(old.account_id?'update':'provision'):'create',
+          shop_id:shop.id,...(id?{courier_id:id}:{}),
+          name:v.name.trim(),phone:normalized,active:v.active!=='false',
+          ...(password?{password}:{})
+        });
+        msg('Acesso do motoboy salvo. Login: '+normalized+'.');
+      }else{
+        await storeForm(form,'shop_couriers',
+          {name:v.name.trim(),phone:normalized,active:v.active!=='false'},id);
+      }
       break;
     }
     case 'deliveryForm':{
