@@ -186,6 +186,35 @@ test('a lista de vendas é recolhida, clicável e só mostra produtos ao expandi
  assert.match(receipt,/Água gelada/);
 });
 
+test('clicar novamente recolhe a venda e abrir outra fecha os detalhes anteriores',()=>{
+ const begin=source.indexOf("  const salesRow=e.target.closest('tr[data-sales-open]');");
+ const end=source.indexOf("  const feeSaveButton=e.target.closest('[data-sales-save-fee]');",begin);
+ assert.ok(begin>0&&end>begin);
+ const run=new Function('e','tab','document',source.slice(begin,end));
+ function button(id){
+  const state={value:'false'};
+  return {getAttribute(name){return name==='aria-controls'?'sales-details-'+id:state.value;},
+   setAttribute(name,value){if(name==='aria-expanded')state.value=value;},
+   expanded:()=>state.value};
+ }
+ const buttons={a:button('a'),b:button('b')};
+ const details={'sales-details-a':{hidden:true},'sales-details-b':{hidden:true}};
+ const rows=Object.fromEntries(Object.keys(buttons).map(id=>[id,{querySelector:()=>buttons[id]}]));
+ const doc={getElementById:id=>details[id],
+  querySelectorAll:()=>Object.values(buttons).filter(btn=>btn.expanded()==='true')};
+ function click(id){run({target:{closest:()=>rows[id]}},'vendas',doc);}
+ click('a');
+ assert.equal(buttons.a.expanded(),'true');
+ assert.equal(details['sales-details-a'].hidden,false);
+ click('a');
+ assert.equal(buttons.a.expanded(),'false');
+ assert.equal(details['sales-details-a'].hidden,true);
+ click('a');click('b');
+ assert.equal(buttons.a.expanded(),'false');
+ assert.equal(details['sales-details-a'].hidden,true);
+ assert.equal(buttons.b.expanded(),'true');
+ assert.equal(details['sales-details-b'].hidden,false);
+});
 test('desconta a taxa por carrinho no líquido e no lucro, sem somar taxa por produto',()=>{
  const salesWithFees=[
   {id:'card',total:100,payment_method:'credito',card_fee_percent:3.99,card_fee_amount:3.99,created_at:'2026-10-14T12:30:00Z'},
