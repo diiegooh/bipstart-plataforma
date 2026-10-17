@@ -1459,15 +1459,15 @@ function renderPage(){
     content=renderSalesReport();
   }else if(tab==='motoboys'){
     content=heading('Motoboys • Plano Premium','Cadastre entregadores e defina o login pelo telefone e a senha individual.','<button class="button" data-new="courier">+ Novo motoboy</button>');
-    content+='<p class="muted">O telefone cadastrado será usado para entrar no aplicativo do motoboy. Escolha uma senha no cadastro e compartilhe o link de login. Contas antigas por convite continuam funcionando.</p>';
+    content+='<p class="muted">O telefone cadastrado será usado para entrar no aplicativo do motoboy. Escolha uma senha no cadastro e compartilhe o link de login. O acesso é somente por usuário e senha cadastrados pelo responsável.</p>';
     content+=showForm?.kind==='courier'?courierForm(showForm.value):'';
     content+=couriers.length?'<div class="stack">'+couriers.map(c=>{
-      const link=courierAccessUrl(c);
+      const link=location.origin+'/motoboy';
       const pending=!c.account_id,managed=c.account_id&&c.login_managed;
       return '<div class="item courier-access-item"><div class="courier-access-info"><strong>'+esc(c.name)+'</strong><small>'+esc(c.phone||'Sem telefone')+
-        ' • '+(managed?'Login por telefone':c.account_id?'Conta vinculada por convite':'Aguardando criação do login')+
+        ' • '+(managed?'Login por telefone':c.account_id?'Conta antiga — atualize o cadastro':'Aguardando criação do login')+
         ' • '+(c.active?'Ativo':'Desativado')+'</small>'+
-        '<p class="courier-access-label">'+(pending?'Link de convite pendente:':'Link de login do motoboy:')+'</p>'+
+        '<p class="courier-access-label">'+'Link de login do motoboy:'+'</p>'+
         '<a class="courier-access-url" target="_blank" rel="noopener noreferrer" href="'+esc(link)+'">'+esc(link)+'</a>'+
         (managed?'<small>Usuário: '+esc(c.phone)+'. A senha foi definida no cadastro e pode ser alterada em Editar.</small>':
          pending?'<small>Edite o motoboy para definir uma senha e ativar o login pelo telefone.</small>':'')+
@@ -1576,7 +1576,7 @@ function courierForm(c){
    '<input type="password" name="login_password_confirm" autocomplete="new-password" minlength="8" maxlength="72"'+
    (!c.account_id?' required':'')+' placeholder="Repita a senha"></label>'+
    '<small class="courier-credential-help">O telefone será o login. A senha fica protegida no Supabase Auth e não é exibida depois de salva.</small>':
-   '<p class="muted small">Este motoboy já usa uma conta por convite e continua entrando com e-mail e senha próprios.</p>')+
+   '<p class="muted small">Esta conta foi criada no sistema antigo. Remova e cadastre novamente para definir usuário e senha.</p>')+
   '<label>Disponibilidade<select name="active"><option value="true"'+(c.active!==false?' selected':'')+'>Ativo</option><option value="false"'+(c.active===false?' selected':'')+'>Desativado</option></select></label>'
 )}
 function eligibleOnlineDeliveryOrders(currentDelivery){
