@@ -23,7 +23,7 @@ test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do lay
  assert.match(client,/data-public-menu-link/);
  assert.doesNotMatch(html,/id="sideOpenMenu"/);
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
- assert.match(html,/\/cliente\.js\?v=61/);
+ assert.match(html,/\/cliente\.js\?v=62/);
  assert.match(html,/\/cliente\.css\?v=39/);
 });
 function pdv(props={}){
@@ -36,16 +36,16 @@ function pdv(props={}){
     {id:'c',name:'Café',category:'Bebidas',price:4,stock:8,active:true,image_path:null}
    ],
    cart:[{id:'a',name:'Coxinha especial',price:15,qty:2}],
-   pdvQuery:'',pdvCategory:'',pdvInStockOnly:true,pdvPayment:'pix',...props
+   pdvQuery:'',pdvCategory:'',pdvInStockOnly:true,pdvPayment:'pix',pdvCardFeePercent:'3.99',...props
  };
  const escapeHtml=x=>String(x??'').replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
  }[c]));
  return new Function(
-  'products','cart','pdvQuery','pdvCategory','pdvInStockOnly','pdvPayment','esc','fmt','imageUrl','publicShopUrl',
+  'products','cart','pdvQuery','pdvCategory','pdvInStockOnly','pdvPayment','pdvCardFeePercent','esc','fmt','imageUrl','publicShopUrl',
   source+';return {filteredPdvProducts,pdvBestSellerProducts,pdvBestSellers,pdvProductCards,renderGodzillaPDV,selectPdvPayment,currentPayment:()=>pdvPayment};'
  )(...[
-  data.products,data.cart,data.pdvQuery,data.pdvCategory,data.pdvInStockOnly,data.pdvPayment,
+  data.products,data.cart,data.pdvQuery,data.pdvCategory,data.pdvInStockOnly,data.pdvPayment,data.pdvCardFeePercent,
   escapeHtml,n=>'R$ '+Number(n).toFixed(2),path=>'https://cdn.bipstart.example/'+path,
   ()=>'https://bipstart.example/cardapio?loja=loja-de-teste'
  ]);
@@ -157,7 +157,13 @@ test('checkout permanece no RPC seguro de BipStart, sem pagamentos automáticos'
  assert.match(client,/p_payment_method:v\.payment_method/);
  assert.match(client,/if\(v\.payment_method==='dinheiro'\)/);
  assert.match(client,/Informe um valor recebido suficiente/);
- assert.match(client,/não é cobrada nem registrada na venda/);
+ assert.match(client,/Taxa registrada na venda e descontada do lucro no relatório/);
+ assert.match(client,/p_card_fee_percent:feePercent/);
+ assert.match(client,/Informe uma taxa da maquininha válida/);
+ const markup=pdv({pdvPayment:'credito',pdvCardFeePercent:'2.5'}).renderGodzillaPDV();
+ assert.match(markup,/name="card_fee_percent"[^>]*value="2.5"/);
+ assert.match(markup,/Desconto da maquininha/);
+ assert.match(markup,/Líquido estimado/);
  assert.match(client,/shop_id:'eq\.'\+shop\.id/);
  assert.doesNotMatch(html,/id="modeChooser"/);
 });
