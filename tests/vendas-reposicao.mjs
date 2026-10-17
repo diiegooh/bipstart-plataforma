@@ -141,7 +141,7 @@ test('cada carrinho tem número próprio no dia e reúne produtos na mesma venda
  const sale3=day.slice(day.indexOf('aria-label="Venda #3"'));
  assert.match(sale3,/Produto A/);
  assert.match(sale3,/Produto B/);
- assert.match(sale3,/Total da venda: <strong>R\$ 35\.00/);
+ assert.match(sale3,/Total vendido: <strong>R\$ 35\.00/);
  assert.match(sale3,/Cartão de crédito/);
  assert.match(html,/1 venda\(s\)/);
  assert.match(css,/#workspace \.sales-checkout-heading/);
@@ -172,11 +172,11 @@ test('desconta a taxa por carrinho no líquido e no lucro, sem somar taxa por pr
  assert.match(html,/Unidades vendidas: 4/);
  assert.match(html,/Lucro: R\$ 105\.41/);
  const sale=html.slice(html.indexOf('Cartão de crédito'));
- assert.match(sale,/Taxa da maquininha \(3,99%\): <strong>−R\$ 3\.99/);
- assert.match(sale,/Recebimento líquido: <strong>R\$ 96\.01/);
+ assert.match(sale,/Unidades vendidas: <strong>2/);
+ assert.match(sale,/Custo: <strong>R\$ 30\.00/);
  assert.match(sale,/Lucro: <strong>R\$ 66\.01/);
- assert.match(html,/Taxa da maquininha \(1,5%\): <strong>−R\$ 0\.60/);
- assert.match(html,/Lucro bruto<\/th>/);
+ assert.match(html,/Lucro: <strong>R\$ 24\.40/);
+ assert.doesNotMatch(html,/<th>Lucro bruto<\/th>|<span>Taxa da maquininha/);
 });
 test('venda antiga no cartão sem taxa continua sem dedução inventada',()=>{
  const old={id:'old',total:20,payment_method:'credito',card_fee_percent:null,
@@ -187,9 +187,8 @@ test('venda antiga no cartão sem taxa continua sem dedução inventada',()=>{
  assert.equal(r.paymentTotals.unknownFees,1);
  assert.equal(f.cardFeeInfo(old).known,false);
  const markup=f.renderSalesReport();
- assert.match(markup,/Taxa da maquininha: <strong>Não registrada/);
- assert.match(markup,/Recebimento líquido: <strong>Não informado/);
  assert.match(markup,/Lucro: <strong>—/);
+ assert.doesNotMatch(markup,/<span>Taxa da maquininha/);
  assert.match(markup,/venda\(s\) antiga\(s\) com taxa de cartão não registrada/);
  assert.equal(f.cardFeeInfo({payment_method:'pix',card_fee_amount:null}).amount,0);
  const migration=readFileSync('sql/bipstart_card_payment_fees_20261017.sql','utf8');
