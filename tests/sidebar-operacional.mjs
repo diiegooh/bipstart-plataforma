@@ -18,7 +18,7 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.doesNotMatch(html,/id="modeChooser"|id="backToModes"/);
  assert.match(html,/Sair/);
  assert.match(html,/cliente\.js\?v=42/);
- assert.match(html,/cliente\.css\?v=26/);
+ assert.match(html,/cliente\.css\?v=27/);
 });
 
 test('coluna mostra seis opções, incluindo link externo do cardápio, sem aba separada de Estoque',()=>{

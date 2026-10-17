@@ -214,3 +214,13 @@ test('estoque baixo e esgotados filtram por situação, sem aplicar a categoria 
  const empty=cards.productGrid('Geral','out');
  assert.match(empty,/Nenhum produto sem estoque nesta categoria/);
 });
+
+test('o título CONTROLE acompanha a cor do tema geral, sem vermelho',()=>{
+ const kicker=css.match(/#workspace \.inventory-kicker\{([^}]+)\}/)?.[1]||'';
+ assert.match(kicker,/color:var\(--store-accent,#a878ff\)/);
+ assert.doesNotMatch(kicker,/#ff5262|red|#f00/i);
+ const panel=css.match(/#workspace \.content:has\(\.inventory-kicker\)\{([^}]+)\}/)?.[1]||'';
+ assert.match(panel,/color-mix\(in srgb,var\(--store-accent,#a878ff\)/);
+ assert.doesNotMatch(panel,/#24120e/);
+ assert.match(client,/class="inventory-kicker">CONTROLE/);
+});

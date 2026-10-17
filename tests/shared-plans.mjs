@@ -84,5 +84,5 @@ test('mudança de plano exibe botão de solicitação e mantém personalização
  assert.match(source,/renderPage\(\)/);
  assert.match(source,/setInterval\(\(\)=>\{if\(document\.visibilityState==='visible'\)void refreshActivatedPlan\(\)\},60000\)/);
  assert.match(css,/#workspace \.plan-management/);
- assert.match(panel,/\/cliente\.css\?v=26/);
+ assert.match(panel,/\/cliente\.css\?v=27/);
 });
