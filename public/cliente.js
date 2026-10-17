@@ -1055,6 +1055,10 @@ function onlineOrderCard(order){
    '</div></article>';
 }
 
+function courierAccessUrl(c,origin=location.origin){
+ const base=origin+'/motoboy';
+ return c?.account_id||!c?.invite_code?base:base+'?convite='+encodeURIComponent(c.invite_code);
+}
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
   if(!pages().some(([key])=>key===tab))tab='resumo';
@@ -1099,16 +1103,22 @@ function renderPage(){
   }else if(tab==='vendas'){
     content=renderSalesReport();
   }else if(tab==='motoboys'){
-    content=heading('Motoboys • Plano Premium','Cadastre entregadores e compartilhe os convites de acesso.','<button class="button" data-new="courier">+ Novo motoboy</button>');
-    content+='<p class="muted">Cada motoboy cria sua própria conta e aceita o convite. O acesso é individual e restrito às entregas da loja.</p>';
+    content=heading('Motoboys • Plano Premium','Cadastre entregadores e compartilhe o link de acesso.','<button class="button" data-new="courier">+ Novo motoboy</button>');
+    content+='<p class="muted">Após salvar um motoboy, compartilhe o link exibido no cadastro abaixo. O primeiro acesso inclui o convite individual; depois de vincular a conta, o mesmo painel oferece o login normal.</p>';
     content+=showForm?.kind==='courier'?courierForm(showForm.value):'';
     content+=couriers.length?'<div class="stack">'+couriers.map(c=>{
-      const link=c.invite_code?location.origin+'/motoboy?convite='+encodeURIComponent(c.invite_code):'';
-      return '<div class="item"><div><strong>'+esc(c.name)+'</strong><small>'+esc(c.phone||'Sem telefone')+
+      const link=courierAccessUrl(c);
+      const pending=!c.account_id;
+      return '<div class="item courier-access-item"><div class="courier-access-info"><strong>'+esc(c.name)+'</strong><small>'+esc(c.phone||'Sem telefone')+
         ' • '+(c.account_id?'Conta vinculada':'Aguardando aceite do convite')+
         ' • '+(c.active?'Ativo':'Desativado')+'</small>'+
-        (link?'<p class="muted small">Convite individual: <a target="_blank" rel="noopener noreferrer" href="'+esc(link)+'">'+esc(link)+'</a></p>':'')+
-        '</div><div class="actions">'+(link?'<button type="button" data-copy-invite="'+esc(link)+'">Copiar convite</button>':'')+editBtn('courier',c.id)+'</div></div>';
+        '<p class="courier-access-label">'+(pending?'Link para primeiro acesso e convite:':'Link de login do motoboy:')+'</p>'+
+        '<a class="courier-access-url" target="_blank" rel="noopener noreferrer" href="'+esc(link)+'">'+esc(link)+'</a>'+
+        (pending?'<small>O motoboy cria a conta, confirma o e-mail e aceita o convite para receber entregas.</small>':'')+
+        '</div><div class="actions courier-access-actions">'+
+         '<button type="button" class="button" data-share-courier="'+esc(link)+'" data-courier-name="'+esc(c.name)+'">Compartilhar link</button>'+
+         '<button type="button" class="ghost" data-copy-invite="'+esc(link)+'">Copiar link</button>'+
+         editBtn('courier',c.id)+'</div></div>';
     }).join('')+'</div>':empty();
   }else if(tab==='entregas'){
     content=heading('Fila de entregas • Plano Premium','Entregas pendentes são oferecidas aos motoboys disponíveis.','<button class="button" data-new="delivery">+ Nova entrega</button>');
@@ -1709,10 +1719,23 @@ document.addEventListener('click',async e=>{
     }
     return;
   }
+  const courierShare=e.target.closest('[data-share-courier]');
   const invite=e.target.closest('[data-copy-invite]');
-  if(invite){
-    try{await navigator.clipboard.writeText(invite.dataset.copyInvite);msg('Link do convite copiado.')}
-    catch{window.prompt('Copie o link do motoboy:',invite.dataset.copyInvite)}
+  if(courierShare||invite){
+    if(tab!=='motoboys'||!proAccess())return;
+    const link=courierShare?.dataset.shareCourier||invite?.dataset.copyInvite;
+    if(!link||!(link===location.origin+'/motoboy'||link.startsWith(location.origin+'/motoboy?convite=')))return;
+    if(courierShare&&typeof navigator.share==='function'){
+      try{
+        await navigator.share({title:'Acesso motoboy • '+(courierShare.dataset.courierName||'BipStart'),text:'Seu acesso às entregas da loja:',url:link});
+        return;
+      }catch(error){if(error?.name==='AbortError')return;}
+    }
+    try{
+      if(!navigator.clipboard?.writeText)throw Error('Cópia indisponível');
+      await navigator.clipboard.writeText(link);
+      msg('Link de acesso do motoboy copiado. Compartilhe com o entregador.');
+    }catch{window.prompt('Copie o link de acesso do motoboy:',link)}
     return;
   }
   const categoryPaste=e.target.closest('[data-category-image-paste]');
