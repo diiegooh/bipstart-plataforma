@@ -694,7 +694,7 @@ function cardapioLogoEditor(){
  const photo=own?imageUrl(shop.logo_path):'/bipstart-marca-icon.png';
  return '<section class="menu-editor-panel menu-logo-editor" aria-labelledby="menuLogoTitle">'+
   '<div class="menu-logo-editor-heading"><div><h3 id="menuLogoTitle">Logo cadastrada da loja</h3>'+
-   '<p class="muted">Esta marca permanece salva para sua loja, mas não aparece no cabeçalho do cardápio oficial.</p></div>'+
+   '<p class="muted">Esta logo aparece no card redondo no canto superior direito do cardápio online.</p></div>'+
    '<img class="menu-logo-editor-preview" src="'+esc(photo)+'" alt="'+(own?'Logo atual da loja':'Símbolo padrão BipStart')+'" loading="lazy"></div>'+
   '<form id="cardapioLogoForm">'+
    '<label>Escolher logo (JPG, PNG ou WebP, até 5 MB)<input type="file" name="logo" accept="image/jpeg,image/png,image/webp"></label>'+
