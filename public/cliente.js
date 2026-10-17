@@ -974,8 +974,16 @@ function renderGodzillaPDV(){
    '<button type="button" data-remove="'+esc(c.id)+'" aria-label="Remover '+esc(c.name)+'">×</button>'+
    '</div><strong>'+fmt(c.qty*c.price)+'</strong></div>';
  }).join('');
- const paymentChoices=[['pix','Pix'],['dinheiro','Dinheiro'],['credito','Cartão de crédito'],['debito','Cartão de débito']];
- const choiceHtml=paymentChoices.map(([code,label])=>'<option value="'+code+'"'+(pdvPayment===code?' selected':'')+'>'+label+'</option>').join('');
+ const paymentChoices=[['dinheiro','Dinheiro'],['cartao','Cartão'],['pix','Pix']];
+ const activePayment=isCard?'cartao':pdvPayment;
+ const paymentButtons=paymentChoices.map(([code,label])=>
+  '<button type="button" class="pdv-payment-chip'+(activePayment===code?' selected':'')+
+  '" data-payment-option="'+code+'" aria-pressed="'+(activePayment===code)+'">'+label+'</button>'
+ ).join('');
+ const cardTypeButtons=[['credito','Crédito'],['debito','Débito']].map(([code,label])=>
+  '<button type="button" class="pdv-card-kind'+(pdvPayment===code?' selected':'')+
+  '" data-card-method="'+code+'" aria-pressed="'+(pdvPayment===code)+'">'+label+'</button>'
+ ).join('');
  return '<div class="godzilla-pdv">'+
  '<div class="pdv-title"><h2>PDV</h2></div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
@@ -991,16 +999,28 @@ function renderGodzillaPDV(){
  '<div class="pdv-sale-head"><div><span class="kicker">CAIXA</span><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
  '<div class="pdv-sale-list">'+(cartItems||'<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>')+'</div>'+
  '<div class="pdv-sale-total"><span>'+count+' item(ns) · Total</span><strong>'+fmt(sum)+'</strong></div>'+
- '<form id="saleForm" class="pdv-payment-form"><label>Forma de pagamento<select name="payment_method" id="pdvPaymentMethod">'+choiceHtml+'</select></label>'+
+ '<form id="saleForm" class="pdv-payment-form">'+
+ '<div class="pdv-payment-selector"><span class="pdv-payment-label" id="pdvPaymentLabel">Forma de pagamento</span>'+
+ '<div class="pdv-payment-options" role="group" aria-labelledby="pdvPaymentLabel">'+paymentButtons+'</div>'+
+ '<input type="hidden" name="payment_method" id="pdvPaymentMethod" value="'+esc(pdvPayment)+'"></div>'+
  '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="number" id="pdvReceived" name="received" min="0" step="0.01" placeholder="0,00"></label>'+
  '<div class="pdv-calculation">Troco <strong id="pdvChange">'+fmt(0)+'</strong></div></div>'+
- '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'"><label>Taxa do cartão (%) — simulação<input id="pdvFeePercent" name="card_fee_percent" type="number" min="0" max="100" step="0.01" value="3.99"></label>'+
+ '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'">'+
+ '<span class="pdv-card-kind-label" id="pdvCardKindLabel">Tipo de cartão</span>'+
+ '<div class="pdv-card-kinds" role="group" aria-labelledby="pdvCardKindLabel">'+cardTypeButtons+'</div>'+
+ '<label>Taxa da maquininha (%)<input id="pdvFeePercent" name="card_fee_percent" type="number" min="0" max="100" step="0.01" value="3.99"></label>'+
  '<div class="pdv-calculation">Líquido estimado <strong id="pdvNet">'+fmt(sum*0.9601)+'</strong></div>'+
  '<small class="muted">Estimativa informativa; não é cobrada nem registrada na venda.</small></div>'+
  '<button type="submit" class="button pdv-finish" '+(!cart.length?'disabled':'')+'>Finalizar venda ↗</button>'+
  '<p class="muted small">Registre apenas pagamentos recebidos fora da BipStart. O sistema atualiza o estoque após confirmar a venda.</p></form>'+
  ((typeof lastReceipt!=='undefined'&&lastReceipt?.shopId===shop?.id)?'<button class="ghost pdv-last-receipt" type="button" data-receipt-last>🧾 Reimprimir último comprovante</button>':'')+
  '</aside></div></div>';
+}
+function selectPdvPayment(method){
+ if(method==='cartao')pdvPayment=['credito','debito'].includes(pdvPayment)?pdvPayment:'credito';
+ else if(['dinheiro','pix','credito','debito'].includes(method))pdvPayment=method;
+ else return false;
+ return true;
 }
 function updatePdvEstimates(){
  const total=cart.reduce((a,c)=>a+c.qty*c.price,0);
@@ -1597,7 +1617,6 @@ document.addEventListener('input',e=>{
 });
 document.addEventListener('change',e=>{
  if(e.target.id==='pdvCategory'){pdvCategory=e.target.value;const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();}
- if(e.target.id==='pdvPaymentMethod'){pdvPayment=e.target.value;renderPage();}
 });
 document.addEventListener('change',e=>{
  const categoryFile=e.target.closest?.('[data-category-image-file]');
@@ -1641,6 +1660,19 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
+  const paymentButton=e.target.closest('[data-payment-option]');
+  if(paymentButton){
+    if(tab==='caixa'&&selectPdvPayment(paymentButton.dataset.paymentOption))renderPage();
+    return;
+  }
+  const cardKindButton=e.target.closest('[data-card-method]');
+  if(cardKindButton){
+    if(tab==='caixa'&&['credito','debito'].includes(cardKindButton.dataset.cardMethod)){
+      selectPdvPayment(cardKindButton.dataset.cardMethod);
+      renderPage();
+    }
+    return;
+  }
   if(e.target.closest('[data-receipt-close]')){closeReceiptDialog();return;}
   if(e.target.closest('[data-receipt-print]')){printReceipt(lastReceipt);return;}
   if(e.target.closest('[data-receipt-download]')){downloadReceipt(lastReceipt);return;}
