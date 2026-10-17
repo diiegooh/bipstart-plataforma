@@ -56,6 +56,14 @@ function applyBrand(){
  }
 }
 function drawPage(){
+ // Identidade da Salgatti isolada: outras lojas mantêm a personalização própria.
+ const isSalgatti=/salgatti/.test(fold([menu.name,menu.slug].filter(Boolean).join(' ')));
+ document.body.classList.toggle('salgatti-theme',isSalgatti);
+ if(isSalgatti&&!document.querySelector('.salgatti-mark')){
+  document.querySelector('.store-header').insertAdjacentHTML('afterbegin','<img class="salgatti-mark" src="/salgatti-logo.svg" alt="Marca Salgatti" width="86" height="86">');
+  document.querySelector('.header-title').insertAdjacentHTML('afterbegin','<p class="salgatti-motto">SABOR QUE CONQUISTA</p>');
+  document.querySelector('.section-title-row').insertAdjacentHTML('afterbegin','<h2 class="salgatti-catalog-heading">Escolha seus produtos</h2>');
+ }
  applyBrand();
  document.title=menu.name+' • Cardápio digital';
  $('storeName').textContent=menu.name;
