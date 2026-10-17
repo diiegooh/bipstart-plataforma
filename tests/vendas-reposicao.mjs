@@ -38,8 +38,8 @@ const items=[
 
 test('as funções compõem JavaScript válido e os arquivos usam versão nova',()=>{
  new vm.Script(source,{filename:'cliente.js'});
- assert.match(page,/cliente\.js\?v=60/);
- assert.match(page,/cliente\.css\?v=38/);
+ assert.match(page,/cliente\.js\?v=61/);
+ assert.match(page,/cliente\.css\?v=39/);
  assert.match(css,/\.sales-table-wrap/);
  assert.match(css,/\.restock-list/);
 });
@@ -85,6 +85,7 @@ test('cada dia agrupa linhas, soma lucro bruto e sinaliza estimativas',()=>{
  assert.equal(report.figures.quantity,3);
  assert.equal(report.salesCount,2);
  assert.deepEqual(report.sales,sales);
+ assert.deepEqual(report.days.map(day=>day.sales[0].number),[1,1]);
  assert.equal(report.days.reduce((sum,d)=>sum+d.total.profit,0),18);
  assert.match(source,/Lucro bruto estimado/);
  assert.match(source,/Custo dos itens/);
@@ -107,6 +108,43 @@ test('Vendas abre após carregar registros e mostra faturamento, custo e lucro s
  assert.match(markup,/data-sales-period="month"/);
  const empty=fns(products,{sales:[],items:[]}).renderSalesReport();
  assert.match(empty,/Nenhuma venda registrada neste período/);
+});
+
+test('cada carrinho tem número próprio no dia e reúne produtos na mesma venda',()=>{
+ const mixedSales=[
+  {id:'v3',total:35,payment_method:'credito',created_at:'2026-10-17T14:00:00Z'},
+  {id:'v2',total:8,payment_method:'dinheiro',created_at:'2026-10-17T12:00:00Z'},
+  {id:'v4',total:6,payment_method:'pix',created_at:'2026-10-16T12:00:00Z'},
+  {id:'v1',total:18,payment_method:'pix',created_at:'2026-10-17T09:00:00Z'}
+ ];
+ const mixedItems=[
+  {sale_id:'v3',product_id:'p1',product_name:'Produto A',quantity:2,unit_price:15,unit_cost:5},
+  {sale_id:'v3',product_id:'p2',product_name:'Produto B',quantity:1,unit_price:5,unit_cost:3},
+  {sale_id:'v2',product_id:'p1',product_name:'Produto C',quantity:1,unit_price:8,unit_cost:4},
+  {sale_id:'v1',product_id:'p1',product_name:'Produto D',quantity:2,unit_price:9,unit_cost:5},
+  {sale_id:'v4',product_id:'p2',product_name:'Produto E',quantity:1,unit_price:6,unit_cost:2}
+ ];
+ const f=fns(products,{sales:mixedSales,items:mixedItems});
+ const report=f.salesReportData();
+ assert.equal(report.days.length,2);
+ assert.deepEqual(report.days[0].sales.map(s=>s.sale.id),['v1','v2','v3']);
+ assert.deepEqual(report.days[0].sales.map(s=>s.number),[1,2,3]);
+ assert.deepEqual(report.days[1].sales.map(s=>s.number),[1]);
+ assert.deepEqual(report.days[0].sales[2].lines.map(l=>l.item.product_name),['Produto A','Produto B']);
+ assert.equal(report.days[0].sales[2].total.revenue,35);
+ assert.equal(report.days[0].salesTotal,61);
+ const html=f.renderSalesReport();
+ const day=html.slice(html.indexOf('17 de outubro'),html.indexOf('16 de outubro'));
+ assert.match(day,/Venda #1/);
+ assert.match(day,/Venda #2/);
+ assert.match(day,/Venda #3/);
+ const sale3=day.slice(day.indexOf('aria-label="Venda #3"'));
+ assert.match(sale3,/Produto A/);
+ assert.match(sale3,/Produto B/);
+ assert.match(sale3,/Total da venda: <strong>R\$ 35\.00/);
+ assert.match(sale3,/Cartão de crédito/);
+ assert.match(html,/1 venda\(s\)/);
+ assert.match(css,/#workspace \.sales-checkout-heading/);
 });
 
 test('vendas do período carregam todas as páginas e somente itens da própria loja',()=>{
