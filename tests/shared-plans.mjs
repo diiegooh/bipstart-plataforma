@@ -59,7 +59,7 @@ test('cadastro mantém o mesmo shop_id e a mesma base em mudanças de plano',()=
  assert.doesNotMatch(panel,/id="modeChooser"|id="backToModes"/);
  assert.match(source,/tab='caixa';showForm=null;pastedProductImage=null/);
  assert.match(panel,/id="workspace"/);
- assert.match(panel,/\/cliente\.js\?v=66/);
+ assert.match(panel,/\/cliente\.js\?v=67/);
  assert.doesNotMatch(source,/As configurações de publicação anteriores permanecem salvas para o upgrade\./);
 });
 test('pedido de troca não concede Premium; ativação administra a mesma loja',()=>{
@@ -89,5 +89,5 @@ test('mudança de plano exibe botão de solicitação e mantém personalização
  assert.match(source,/renderPage\(\)/);
  assert.match(source,/setInterval\(\(\)=>\{if\(document\.visibilityState==='visible'\)void refreshActivatedPlan\(\)\},60000\)/);
  assert.match(css,/#workspace \.plan-management/);
- assert.match(panel,/\/cliente\.css\?v=42/);
+ assert.match(panel,/\/cliente\.css\?v=43/);
 });
