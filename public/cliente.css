@@ -860,3 +860,15 @@ body.receipt-open{overflow:hidden}
 #workspace .data-form input:focus,#workspace .data-form select:focus{
  border-color:var(--store-accent,#7c3aed);
 }
+
+/* Seletor compacto de cor nas Configurações da loja (não altera os outros inputs). */
+#workspace #settingsForm input[type="color"][name="brand_color"]{
+ display:block;
+ width:82px;
+ max-width:82px;
+ height:42px;
+ min-height:42px;
+ padding:4px;
+ border-radius:10px;
+ cursor:pointer;
+}
