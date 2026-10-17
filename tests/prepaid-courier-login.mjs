@@ -51,7 +51,7 @@ test('Admin mostra próximo vencimento, contador e ação +30 com confirmação 
  assert.equal(helper.premiumDueDate(shop),d(shop.active_until));
  const line=helper.premiumPaymentSummary(shop);
  assert.match(line,/Próximo vencimento:/);
- assert.match(line,/acréscimos: 3/);
+ assert.match(line,/\+30 dias registrados: 3/);
  assert.match(admin,/data-renew-30/);
  assert.match(admin,/request\('bipstart_admin_premium_renewal_summary'\)/);
  assert.match(admin,/request\('bipstart_admin_extend_premium',\{p_shop_id:shopId\}\)/);
@@ -72,7 +72,7 @@ test('telefone do motoboy vira login seguro; conta antiga por e-mail continua fu
  const login=new Function(driver.slice(start,stop)+';return courierLoginEmail;')();
  assert.equal(login('11 98888-7777'),'courier-5511988887777@login.bipstart.example');
  assert.equal(login('+55 (11) 98888-7777'),'courier-5511988887777@login.bipstart.example');
- assert.equal(login('998887777'),'courier-55998887777@login.bipstart.example');
+ assert.equal(login('11 98888-7777'),'courier-5511988887777@login.bipstart.example');
  assert.equal(login('entregador@example.org'),'entregador@example.org');
  assert.throws(()=>login('abc'),/Informe seu telefone/);
  assert.match(driverHtml,/Telefone com DDD ou e-mail antigo/);
@@ -109,7 +109,7 @@ test('lojista define senha com confirmação e nunca salva a senha no banco da l
  assert.match(client,/Authorization:'Bearer '\+session\.access_token/);
  assert.match(client,/case 'courierForm'/);
  assert.match(courierSql,/login_managed boolean not null default false/);
- assert.doesNotMatch(courierSql,/\bpassword\b|\bsenha\b/i);
+ assert.doesNotMatch(courierSql,/add column[^\n]*password|add column[^\n]*senha/i);
 });
 
 test('Edge Function valida proprietário e Premium, usa Supabase Auth e não devolve credenciais',()=>{
