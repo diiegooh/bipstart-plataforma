@@ -987,3 +987,26 @@ body.receipt-open{overflow:hidden}
  #workspace .sales-checkout-footer{padding:11px 12px}
  #workspace .sales-checkout-meta strong{font-size:16px}
 }
+
+/* Exportação gerencial de vendas: cinco indicadores e lista completa do período. */
+#workspace .sales-period-totals{grid-template-columns:repeat(5,minmax(135px,1fr))}
+#workspace .sales-export-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 13px}
+#workspace .sales-export-actions button{min-height:44px;padding:11px 16px;border-radius:11px;font-size:13px;font-weight:750}
+#workspace .sales-records-section{margin:15px 0 19px;padding:17px;border:1px solid #46604a;border-radius:15px;background:#101d15}
+#workspace .sales-records-section h3{font-size:19px;margin:0 0 6px;color:#fff}
+#workspace .sales-records-section>p{margin:0 0 13px}
+#workspace .sales-records-scroll{max-width:100%;overflow-x:auto;border-radius:10px;border:1px solid #3a503f}
+#workspace .sales-records-table{width:100%;border-collapse:collapse;min-width:690px;font-size:12px}
+#workspace .sales-records-table th,#workspace .sales-records-table td{padding:12px 13px;text-align:right;border-bottom:1px solid #293b2e}
+#workspace .sales-records-table th{color:#bad1bf;background:#1a2a1d;white-space:nowrap;font-weight:800}
+#workspace .sales-records-table th:nth-child(-n+2),#workspace .sales-records-table td:nth-child(-n+2){text-align:left}
+#workspace .sales-records-table tr:last-child td{border-bottom:0}
+#workspace .sales-records-table td strong{color:#fff}
+#workspace .sales-records-table .sales-record-profit{color:#79eea3;font-weight:800}
+@media(max-width:1000px){#workspace .sales-period-totals{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}}
+@media(max-width:540px){
+ #workspace .sales-export-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+ #workspace .sales-export-actions button{padding:10px 6px;font-size:12px}
+ #workspace .sales-records-section{padding:12px}
+}
+@media(max-width:350px){#workspace .sales-export-actions{grid-template-columns:1fr}}
