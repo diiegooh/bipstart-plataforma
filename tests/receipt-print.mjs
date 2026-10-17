@@ -35,7 +35,9 @@ test('comprovante é JavaScript válido e formato configurável por loja sem mod
  assert.match(receipt.receiptSettingsPanel(),/Folha A4/);
  assert.match(receipt.receiptSettingsPanel(),/Abrir comprovante após finalizar cada venda/);
  assert.match(receipt.receiptSettingsPanel(),/Mensagem no rodapé/);
- assert.match(js,/case 'receiptSettingsForm':/);
+ assert.doesNotMatch(js,/case 'receiptSettingsForm':/);
+ assert.match(js,/receiptPreference=\{paper:v\.paper/);
+ assert.match(js,/class="receipt-settings-fields"/);
  assert.match(js,/localStorage\.setItem\(receiptSettingsKey\(\),JSON\.stringify\(/);
  assert.match(html,/id="receiptModal"/);
  assert.match(html,/data-receipt-content/);
