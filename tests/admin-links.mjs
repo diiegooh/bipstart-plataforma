@@ -19,8 +19,42 @@ test('admin mantém apenas Lojas e planos e Personalizações, sem Gerenciar lin
  assert.doesNotMatch(js,/adminLinksSection|adminShopLinks|adminGeneralLinks|loadLinks\(\)|bipstart_admin_list_shop_links/);
  assert.match(js,/const ADMIN_TABS=\{shops:'adminShopsSection',custom:'customizationSection'\}/);
  assert.match(js,/setAdminTab\(tab\.dataset\.adminTab\)/);
- assert.match(html,/\/admin\.js\?v=8/);
+ assert.match(html,/\/admin\.js\?v=9/);
 });
+test('Admin exibe solicitações de upgrade pendentes em Personalizações e só libera após aprovação manual',()=>{
+ const start=js.indexOf('function pendingUpgrades(shops){');
+ const end=js.indexOf('async function loadCustomization(){',start);
+ assert.ok(start>0&&end>start);
+ const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const funcs=new Function('escapeHtml','PLAN','shopWhatsappUrl',
+  js.slice(start,end)+';return {pendingUpgrades,upgradeCard,upgradeWhatsappUrl};')(
+  escapeHtml,{basic:'Básico',pro:'Premium'},
+  v=>'https://wa.me/55'+String(v||'').replace(/\D/g,''));
+ const shops=[
+  {shop_id:'aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb',shop_name:'Loja <Teste>',
+   owner_email:'teste@example.com',shop_whatsapp:'11999999999',requested_plan:'pro',plan_code:'basic'},
+  {shop_id:'bbbbbbbb-1111-4222-8333-cccccccccccc',shop_name:'Outra',
+   requested_plan:'pro',plan_code:'pro'},
+  {shop_id:'cccccccc-1111-4222-8333-dddddddddddd',shop_name:'Básico',
+   requested_plan:'basic',plan_code:'basic'}
+ ];
+ assert.deepEqual(funcs.pendingUpgrades(shops).map(x=>x.shop_id),[shops[0].shop_id]);
+ const card=funcs.upgradeCard(shops[0]);
+ assert.match(card,/Solicitação de upgrade/);
+ assert.match(card,/Plano Básico → Premium/);
+ assert.match(card,/Loja &lt;Teste&gt;/);
+ assert.match(card,/data-upgrade-activate/);
+ assert.match(card,/Conversar pelo WhatsApp/);
+ assert.doesNotMatch(card,/<Teste>/);
+ assert.match(html,/id="upgradeRequests"/);
+ assert.match(html,/id="upgradeMessage"/);
+ assert.match(html,/id="customRequests"/);
+ assert.match(js,/bipstart_admin_list_shops_with_contacts/);
+ assert.match(js,/p_shop_id:shopId,p_plan:'pro',p_action:'activate'/);
+ assert.match(js,/Você confirmou o pagamento/);
+ assert.match(js,/renderUpgrades\(items\)/);
+});
+
 test('lista administrativa mostra WhatsApp clicável das lojas com formato válido',()=>{
  const start=js.indexOf('function shopWhatsappUrl(value){');
  const end=js.indexOf('const REQUEST_STATUS=',start);
