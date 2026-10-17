@@ -1050,3 +1050,9 @@ body.receipt-open{overflow:hidden}
  #workspace .sales-inline-detail .sales-fee-editor{margin:8px -12px -12px}
  #workspace .sales-record-toggle{font-size:12px;gap:5px}
 }
+
+/* Teste Premium: prazo remanescente do teste Básico, sem renovação do contador. */
+#workspace .plan-trial-upgrade{display:flex;flex-direction:column;align-items:flex-start;gap:7px;max-width:100%}
+#workspace .plan-trial-upgrade small{display:block;max-width:490px;font-size:12px;line-height:1.5;color:#c1d9c6}
+#workspace .plan-trial-upgrade .plan-request-button{border-color:#68b78d;background:#213d2e}
+@media(max-width:500px){#workspace .plan-trial-upgrade{width:100%}}
