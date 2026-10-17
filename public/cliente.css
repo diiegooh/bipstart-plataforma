@@ -884,3 +884,43 @@ body.receipt-open{overflow:hidden}
 #workspace .courier-access-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
 #workspace .courier-access-actions .button,#workspace .courier-access-actions .ghost{min-height:38px;padding:9px 12px}
 @media(max-width:540px){#workspace .courier-access-item{align-items:stretch}#workspace .courier-access-actions{justify-content:stretch}#workspace .courier-access-actions .button,#workspace .courier-access-actions .ghost{flex:1 1 auto}}
+
+/* Pedidos online: número, produtos, pagamentos, cliente e ações em ordem de leitura. */
+#workspace .online-order-card{gap:0;padding:0;overflow:hidden}
+#workspace .online-order-top{padding:19px 21px 16px;border-bottom:1px solid #36503d}
+#workspace .online-order-identifier{display:flex;align-items:baseline;column-gap:12px;row-gap:3px;flex-wrap:wrap}
+#workspace .online-order-eyebrow{display:block;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--store-accent,#a78bfa);font-weight:850}
+#workspace .online-order-top h3{margin:0;font-size:25px;letter-spacing:.01em}
+#workspace .online-order-top small{font-size:12px}
+#workspace .online-order-section{padding:17px 21px;border-bottom:1px solid #314537;min-width:0}
+#workspace .online-order-section h4,#workspace .online-order-actions-heading{font-size:13px;letter-spacing:.035em;font-weight:850;color:#effaf1;margin:0 0 13px}
+#workspace .online-order-overview,#workspace .online-order-payment-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:15px}
+#workspace .online-order-overview>div,#workspace .online-order-payment-meta>div{display:flex;align-items:flex-start;flex-direction:column;gap:6px;min-width:0}
+#workspace .online-order-overview span,#workspace .online-order-payment-meta span{font-size:11px;color:#a0b2a5}
+#workspace .online-order-overview strong:not(.online-state-pill),#workspace .online-order-payment-meta strong:not(.online-state-pill){font-size:14px;color:#f5faf5;overflow-wrap:anywhere}
+#workspace .online-order-products .online-order-items{margin-top:2px;padding:10px 0 0;border-top:1px solid #36503d;border-bottom:0}
+#workspace .online-order-products .online-order-notes{margin-top:10px}
+#workspace .online-order-payment .online-order-fees{display:flex;flex-wrap:wrap;gap:5px 22px;margin:1px 0 13px;color:#bbcbc0;font-size:12px}
+#workspace .online-order-fees span{display:inline-flex;gap:5px}
+#workspace .online-order-fees strong{color:#e8f4eb;font-weight:650}
+#workspace .online-order-total-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #36503d;padding:12px 0 0}
+#workspace .online-order-total-row>span{color:#ebf7ee;font-size:13px;font-weight:800}
+#workspace .online-order-total-row .online-order-total{font-size:28px}
+#workspace .online-order-customer h3{color:#fff;font-size:20px;margin:0 0 12px;overflow-wrap:anywhere}
+#workspace .online-order-customer .online-order-details{grid-template-columns:1fr}
+#workspace .online-order-customer .online-order-address{margin-top:13px}
+#workspace .online-order-actions{margin-top:0;padding:18px 21px 20px;align-items:stretch}
+#workspace .online-order-actions-heading{grid-column:1/-1;margin-bottom:0}
+#workspace .online-order-actions .online-status-block{background:color-mix(in srgb,var(--store-accent,#7c3aed) 6%,#152018);justify-content:flex-start}
+#workspace .online-order-actions .online-order-dispatch,#workspace .online-order-actions .online-notification-optout,#workspace .online-order-actions .online-order-notification-link{grid-column:1/-1}
+@media(max-width:750px){
+ #workspace .online-order-actions{grid-template-columns:1fr}
+ #workspace .online-order-overview,#workspace .online-order-payment-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:440px){
+ #workspace .online-order-top{padding:16px}
+ #workspace .online-order-section{padding:15px 16px}
+ #workspace .online-order-actions{padding:16px;gap:10px}
+ #workspace .online-order-top h3{font-size:22px}
+ #workspace .online-order-total-row .online-order-total{font-size:24px}
+}
