@@ -854,7 +854,7 @@ body.receipt-open{overflow:hidden}
  border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 50%,#37313c);
  color:#f8f8fa;
 }
-#workspace .menu-layout-settings form input[type=color],
+#workspace .menu-layout-settings .menu-layout-fields input[type=color],
 #workspace .menu-layout-settings .menu-layout-fields select,
 #workspace .data-form input:focus,#workspace .data-form select:focus{
  border-color:var(--store-accent,#7c3aed);
