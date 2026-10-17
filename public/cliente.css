@@ -172,6 +172,23 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 .pdv-sale-total span{color:#d4c5e6;font-size:13px}
 .pdv-sale-total strong{font-size:27px;white-space:nowrap}
 .pdv-payment-form label{margin:8px 0 13px}
+
+/* Caixa do PDV: três métodos principais lado a lado e seleção sem menu suspenso. */
+#workspace .pdv-payment-selector{display:grid;gap:10px;margin:8px 0 16px}
+#workspace .pdv-payment-label{font-weight:750;font-size:14px;color:#f4eefa}
+#workspace .pdv-payment-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#workspace .pdv-payment-chip{width:100%;min-width:0;min-height:47px;padding:8px 5px;border-radius:11px;border:1px solid #64497e;background:#160f23;color:#e7d9f8;font-size:13px;font-weight:750;cursor:pointer;transition:border-color .16s,background .16s,color .16s}
+#workspace .pdv-payment-chip:hover{border-color:var(--store-accent,#aa73ee);background:#251831}
+#workspace .pdv-payment-chip.selected{background:color-mix(in srgb,var(--store-accent,#7c3aed) 23%,#20152e);border:2px solid var(--store-accent,#af7bf1);color:#fff;box-shadow:0 0 0 1px color-mix(in srgb,var(--store-accent,#7c3aed) 22%,transparent)}
+#workspace .pdv-payment-chip:focus-visible,#workspace .pdv-card-kind:focus-visible{outline:3px solid var(--store-accent,#b388fa);outline-offset:2px}
+#workspace .pdv-card-kind-label{display:block;color:#e4d2f3;font-size:12px;font-weight:700;margin:0 0 8px}
+#workspace .pdv-card-kinds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}
+#workspace .pdv-card-kind{min-height:40px;padding:8px 10px;background:#130e1c;border:1px solid #604880;color:#ddd0e9;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer}
+#workspace .pdv-card-kind.selected{border-color:var(--store-accent,#a675ed);background:color-mix(in srgb,var(--store-accent,#7c3aed) 22%,#1b1128);color:#fff}
+#workspace #pdvCashFields,#workspace #pdvCardFields{margin-bottom:13px}
+#workspace #pdvCashFields.hidden,#workspace #pdvCardFields.hidden{display:none!important}
+@media(max-width:390px){#workspace .pdv-payment-options{gap:5px}#workspace .pdv-payment-chip{font-size:12px;padding:8px 3px;min-height:44px}}
+
 .pdv-payment-form select,.pdv-payment-form input{margin-top:7px}
 .pdv-calculation{display:flex;justify-content:space-between;gap:12px;color:#ceb7e0;margin:10px 0}
 .pdv-calculation strong{color:#fff}
