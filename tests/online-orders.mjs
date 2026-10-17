@@ -17,9 +17,9 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrineHtml,/id="name"[^>]*required/);
  assert.match(vitrineHtml,/id="phone"[^>]*required/);
  assert.match(vitrineHtml,/id="address"/);
- assert.match(vitrineHtml,/\/vitrine\.js\?v=28/);
- assert.match(panelHtml,/\/cliente\.js\?v=47/);
- assert.match(panelHtml,/\/cliente\.css\?v=30/);
+ assert.match(vitrineHtml,/\/vitrine\.js\?v=29/);
+ assert.match(panelHtml,/\/cliente\.js\?v=48/);
+ assert.match(panelHtml,/\/cliente\.css\?v=31/);
  assert.match(vitrine,/await registerOnlineOrder\(\)/);
  assert.match(vitrine,/checkoutMessage\(receipt\.id\)/);
  assert.match(vitrine,/showCheckoutNextStep\(receipt\)/);
@@ -104,9 +104,10 @@ test('dashboard apresenta dados e controles de pagamento; escapa nome/endereço 
 
 test('sidebar acompanha cor da loja com contraste e mantém o fundo escuro',()=>{
  assert.match(panel,/function applySidebarTheme\(\)/);
- assert.match(panel,/canCustomize\(\)\?String\(shop\.brand_color\|\|''\):'#7c3aed'/);
+ assert.match(panel,/const value=String\(shop\?\.brand_color\|\|''\)/);
  assert.match(panel,/document\.documentElement\.style\.setProperty\('--store-accent',color\)/);
  assert.match(panel,/document\.documentElement\.style\.setProperty\('--store-accent-ink'/);
+ assert.match(panel,/document\.documentElement\.style\.setProperty\('--accent',color\)/);
  assert.match(css,/#workspace \.side #nav nav button\.active\{/);
  assert.match(css,/background:linear-gradient\(110deg,var\(--store-accent/);
  assert.match(css,/color:var\(--store-accent-ink,#fff\)/);

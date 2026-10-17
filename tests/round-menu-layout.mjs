@@ -118,12 +118,13 @@ test('loja Premium continua com personalização de cor e slogan sob o nome',()=
  assert.match(panel,/name="establishment_type"/);
  assert.match(panel,/name="show_logo_subtitle"/);
  assert.match(panel,/name="logo_subtitle"/);
- assert.match(panel,/name="menu_theme_color"/);
+ assert.doesNotMatch(panel,/name="menu_theme_color"/);
+ assert.match(panel,/COR DO SITE/);
  assert.match(panel,/Exibir frase abaixo do nome da loja/);
  assert.match(panel,/Frase abaixo do nome da loja/);
- assert.match(panel,/const body=\{menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color\}/);
+ assert.match(panel,/const body=\{menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle\}/);
  assert.match(panel,/case 'menuLayoutForm':/);
- assert.match(vitrine,/roundMenuActive\(\)&&menu\.menu_theme_color/);
+ assert.match(vitrine,/const color=String\(menu\.brand_color\|\|''\)\.trim\(\)/);
  assert.match(html,/id="logoSubtitle"/);
  assert.match(vitrine,/menu\.show_logo_subtitle!==true/);
  assert.match(css,/\.round-menu \.store-header \.menu-tagline:not\(\.hidden\)/);
@@ -137,4 +138,20 @@ test('migração torna único o novo modelo sem apagar pedidos, estoque, usuári
  assert.match(previousMigration,/e\.plan_code='pro'/);
  assert.match(previousMigration,/p\.online_enabled=true/);
  assert.match(previousMigration,/grant execute on function public\.bipstart_public_menu\(text\) to anon,authenticated/);
+});
+
+
+test('COR DO SITE sincroniza painel e cardápio e não oferece outra cor no cardápio',()=>{
+ assert.match(panel,/field\('brand_color','COR DO SITE','color',shop\.brand_color/);
+ assert.match(panel,/body\.brand_color=v\.brand_color/);
+ assert.match(panel,/body\.menu_theme_color=v\.brand_color/);
+ assert.match(panel,/function applySidebarTheme\(\)/);
+ assert.match(panel,/document\.documentElement\.style\.setProperty\('--store-accent',color\)/);
+ assert.match(panel,/document\.documentElement\.style\.setProperty\('--store-accent-ink'/);
+ assert.match(vitrine,/const color=String\(menu\.brand_color\|\|''\)\.trim\(\)/);
+ assert.doesNotMatch(vitrine,/roundMenuActive\(\)&&menu\.menu_theme_color/);
+ assert.doesNotMatch(panel,/name="menu_theme_color"/);
+ assert.match(css,/\.round-menu \.cartfloat\{[\s\S]*background:color-mix\(in srgb,var\(--green\)/);
+ assert.match(adminCss,/#workspace \.side #nav nav button\.active\{[\s\S]*background:var\(--store-accent/);
+ assert.match(adminCss,/#workspace \.button,#workspace \.pdv-product \.pdv-add/);
 });

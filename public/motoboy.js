@@ -8,7 +8,7 @@ let cfg=null,session=null,captchaToken='',captchaWidget=null,loading=false;
 function message(value,err=false){
  const box=$('courierMessage');
  box.classList.remove('hidden');
- box.style.borderColor=err?'#d76c8f':'#7d53b6';
+ box.style.borderColor=err?'#d76c8f':'var(--store-accent,#7c3aed)';
  box.textContent=String(value);
 }
 function storeSession(){
@@ -82,6 +82,25 @@ function mapUrl(address){
 function wazeUrl(address){
  return 'https://waze.com/ul?q='+encodeURIComponent(address)+'&navigate=yes';
 }
+// Validação explícita: cores são dados da loja e jamais estilos arbitrários.
+function themeColor(color){return /^#[0-9a-f]{6}$/i.test(String(color||''))?String(color):'#7c3aed';}
+function themeContrast(color){
+ const c=themeColor(color),values=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)/255);
+ const linear=values.map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);
+ const luminance=linear[0]*.2126+linear[1]*.7152+linear[2]*.0722;
+ return luminance>.35?'#101510':'#ffffff';
+}
+function themeVars(color){
+ const safe=themeColor(color);
+ return '--courier-shop-accent:'+safe+';--courier-shop-ink:'+themeContrast(safe);
+}
+function applyCourierTheme(color){
+ const safe=themeColor(color);
+ document.documentElement.style.setProperty('--store-accent',safe);
+ document.documentElement.style.setProperty('--store-accent-ink',themeContrast(safe));
+ document.body.classList.toggle('courier-themed',true);
+ document.querySelector('meta[name="theme-color"]')?.setAttribute('content',safe);
+}
 function deliveryCard(d,offer){
  const name=esc(d.customer_name||'Cliente');
  const route=mapUrl(d.address||'');
@@ -92,7 +111,7 @@ function deliveryCard(d,offer){
   d.status==='atribuida'?
    '<button class="button" type="button" data-job-action="start" data-id="'+esc(d.delivery_id)+'">Iniciar rota</button>':
    '<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">Marcar como entregue</button>';
- return '<article class="courier-delivery">'+
+ return '<article class="courier-delivery" style="'+themeVars(d.shop_color)+'">'+
   '<span class="status">'+esc(state)+' • '+esc(d.shop_name)+'</span>'+
   '<h3>'+name+'</h3>'+
   '<p><strong>'+esc(d.address)+'</strong></p>'+
@@ -108,16 +127,25 @@ async function refresh(){
  if(loading)return;
  loading=true;
  try{
-  const [memberships,jobs]=await Promise.all([
-   rpc('bipstart_courier_my_shops'),rpc('bipstart_courier_queue')
+  const [memberships,jobs,themes]=await Promise.all([
+   rpc('bipstart_courier_my_shops'),
+   rpc('bipstart_courier_queue'),
+   rpc('bipstart_courier_shop_theme').catch(error=>{
+    console.warn('Tema das lojas temporariamente indisponível:',error.message);
+    return [];
+   })
   ]);
   const shops=Array.isArray(memberships)?memberships:[];
   const rows=Array.isArray(jobs)?jobs:[];
+  const colors=new Map((Array.isArray(themes)?themes:[]).map(t=>[t.shop_id,themeColor(t.brand_color)]));
+  // Uma loja: identidade completa; várias lojas: tema neutro e cor individual por entrega.
+  applyCourierTheme(shops.length===1?colors.get(shops[0].shop_id):'#7c3aed');
+  const coloredRows=rows.map(d=>({...d,shop_color:colors.get(d.shop_id)||'#7c3aed'}));
   $('courierIdentity').textContent=shops.length?
    'Seus serviços em '+shops.length+' loja(s).':'Nenhuma loja Pro ativa vinculada. Use um convite para começar.';
-  $('shopChips').innerHTML=shops.map(m=>'<span class="pill">'+esc(m.shop_name)+' • '+esc(m.courier_name)+'</span>').join('');
-  const offers=rows.filter(r=>r.is_offer===true);
-  const active=rows.filter(r=>r.is_offer!==true);
+  $('shopChips').innerHTML=shops.map(m=>'<span class="pill" style="'+themeVars(colors.get(m.shop_id))+'">'+esc(m.shop_name)+' • '+esc(m.courier_name)+'</span>').join('');
+  const offers=coloredRows.filter(r=>r.is_offer===true);
+  const active=coloredRows.filter(r=>r.is_offer!==true);
   $('offers').innerHTML=offers.length?offers.map(r=>deliveryCard(r,true)).join(''):
    '<div class="empty">Nenhuma entrega disponível no momento.</div>';
   $('assignments').innerHTML=active.length?active.map(r=>deliveryCard(r,false)).join(''):
@@ -187,6 +215,7 @@ $('inviteForm').onsubmit=async event=>{
 };
 $('logout').onclick=()=>{
  session=null;storeSession();authView(false);resetCaptcha();
+ applyCourierTheme('#7c3aed');
  $('loginForm').reset();message('Você saiu com segurança.');
 };
 $('refresh').onclick=refresh;

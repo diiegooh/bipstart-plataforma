@@ -17,8 +17,8 @@ test('sidebar tem identidade da loja, engrenagem e os três botões do rodapé',
  assert.match(html,/Alterar cor/);
  assert.doesNotMatch(html,/id="modeChooser"|id="backToModes"/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=47/);
- assert.match(html,/cliente\.css\?v=30/);
+ assert.match(html,/cliente\.js\?v=48/);
+ assert.match(html,/cliente\.css\?v=31/);
 });
 
 test('coluna torna visíveis o editor e cardápio oficial, sem opção de prévia',()=>{

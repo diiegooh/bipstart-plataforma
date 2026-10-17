@@ -188,3 +188,13 @@ Em **Configurar cardápio**, a identidade e a cor Premium continuam editáveis (
 **Integração de pedidos preservada:** o checkout usa `bipstart_place_online_order` e grava o pedido antes do WhatsApp. O cliente ainda precisa confirmar a mensagem no aplicativo do WhatsApp. O fluxo de motoboys Premium permanece integrado aos pedidos por meio do botão **Criar entrega para este pedido** na aba Pedidos online, com atualização de status pela entrega vinculada. **Não há atribuição automática de motoboy** nem confirmação automática do envio do WhatsApp.
 
 O banco define `shops.menu_layout_style` como `round` para lojas existentes e novas, pela migração `sql/bipstart_official_menu_compact_20261017.sql`. O código da vitrine ignora essa configuração de layout para impedir o retorno do visual antigo. Não altera produtos, estoque, pedidos, pagamentos, motoboys, planos nem as proteções Premium existentes.
+
+## COR DO SITE — tema unificado (17/10/2026)
+
+Em **Configurações da loja**, o plano Premium apresenta o seletor **COR DO SITE**. A cor escolhida é salva em `shops.brand_color`, sincronizada também ao campo antigo `menu_theme_color` para compatibilidade, e passa a ser a identidade visual única de **painel administrativo/PDV, cadastro/estoque, pedidos online, cardápio e tela de entregas dos motoboys**. A seção de personalização do cardápio não oferece mais uma segunda cor divergente.
+
+A vitrine usa somente `brand_color`; o painel aplica `--store-accent`, `--store-accent-ink` e `--accent` com contraste automático de acordo com a luminosidade da cor, sem alterar os indicadores semânticos de erro, cancelamento, pagamento e estoque. No plano Básico, permanece a cor já atribuída à loja; a escolha livre de cor continua exclusiva do Premium.
+
+Na área autenticada dos motoboys, a nova RPC `bipstart_courier_shop_theme()` fornece somente as cores de lojas **vinculadas ao motoboy autenticado e com acesso Premium válido**. Se atende uma loja, a interface adota a cor dela; se atende várias lojas, cada entrega e marcador de loja mantém sua própria cor, com cabeçalho neutro. As cores são validadas como `#RRGGBB` antes de entrarem no CSS. A atualização automática de entregas também atualiza as cores em até 20 segundos. Login/desvinculação sem loja mantém o tema padrão da plataforma.
+
+A alteração de cores não muda preços, pedidos, contratos, WhatsApp, disponibilidade, atribuição de motoboys ou fluxos de checkout. A página pública de apresentação geral da BipStart não é associada a uma loja única e conserva a identidade da plataforma.

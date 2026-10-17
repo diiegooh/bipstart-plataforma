@@ -78,7 +78,7 @@ test('vitrine pública não oferece controle administrativo ou menu de três lin
  assert.match(client,/requested\.get\('editar'\)==='cardapio'/);
  assert.match(client,/hiding\('workspace',true\);renderPage\(\)/);
  assert.doesNotMatch(client,/modeChooser|backToModes/);
- assert.match(clientHtml,/cliente\.js\?v=47/);
+ assert.match(clientHtml,/cliente\.js\?v=48/);
  assert.match(js,/async function boot\(\)/);
  assert.match(js,/drawPage\(\)/);
 });

@@ -711,3 +711,31 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
  outline:3px solid var(--green);
  outline-offset:2px;
 }
+
+
+/* Uma única cor por loja: aplica brand_color à vitrine oficial, inclusive navegação e checkout. */
+.round-menu .cartfloat{
+ border-color:var(--green);
+ background:color-mix(in srgb,var(--green) 25%,#090b0e);
+ box-shadow:0 0 0 6px color-mix(in srgb,var(--green) 13%,#08080b),
+            0 0 28px color-mix(in srgb,var(--green) 36%,transparent);
+}
+.round-menu .cartfloat b{background:var(--green);color:var(--theme-ink)}
+.round-menu .category-tile.active .category-art,
+.round-menu .category-tile:focus-visible .category-art{
+ border-color:var(--green);
+ box-shadow:0 0 18px color-mix(in srgb,var(--green) 30%,transparent);
+}
+.round-menu .category-tile.active > b{color:var(--green)}
+.round-menu .location-card,.round-menu .hours-card,
+.round-menu .summary,.round-menu .searchbox,
+.round-menu .onlinecart,.round-menu .cartline{
+ border-color:color-mix(in srgb,var(--green) 30%,#303039);
+}
+.round-menu .btn,.round-menu .checkout-btn{background:var(--green);color:var(--theme-ink)}
+.round-menu .searchbox:focus-within,
+.round-menu .select:focus-visible,.round-menu .input:focus-visible,
+.round-menu textarea:focus-visible{
+ border-color:var(--green);
+ outline-color:var(--green);
+}

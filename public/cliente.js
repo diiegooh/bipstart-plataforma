@@ -318,13 +318,15 @@ function operationalMenuItems(){
   ];
 }
 function applySidebarTheme(){
- const value=canCustomize()?String(shop.brand_color||''):'#7c3aed';
+ const value=String(shop?.brand_color||'');
  const color=/^#[0-9a-fA-F]{6}$/.test(value)?value:'#7c3aed';
  const rgb=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255);
  const linear=rgb.map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));
  const luminance=linear[0]*.2126+linear[1]*.7152+linear[2]*.0722;
  document.documentElement.style.setProperty('--store-accent',color);
  document.documentElement.style.setProperty('--store-accent-ink',luminance>.35?'#101510':'#ffffff');
+ document.documentElement.style.setProperty('--accent',color);
+ document.querySelector('meta[name="theme-color"]')?.setAttribute('content',color);
 }
 function renderNav(){
   applySidebarTheme();
@@ -725,7 +727,6 @@ function cardapioLayoutSettings(){
     '<label><input type="radio" name="show_logo_subtitle" value="false"'+(!isSubtitle?' checked':'')+'> Não</label>'+
    '</fieldset>'+
    '<label class="menu-layout-tagline">Frase abaixo do nome da loja<input type="text" name="logo_subtitle" maxlength="100" value="'+esc(shop.logo_subtitle||'')+'" placeholder="Ex.: Sabor que conquista"></label>'+
-   '<label>Cor do cardápio (Premium)<input type="color" name="menu_theme_color" value="'+esc(shop.menu_theme_color||shop.brand_color||'#7c3aed')+'"><small>Essa cor não altera o painel da loja.</small></label>'+
    '<div class="menu-layout-actions"><button type="submit" class="button">Salvar personalização</button>'+
     '<a class="ghost" href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer">Abrir cardápio oficial ↗</a></div>'+
    '</form></section>';
@@ -1151,7 +1152,7 @@ function renderPage(){
       +'<div class="data-form"><form id="settingsForm">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
-      +(canCustomize()?field('brand_color','Cor principal do cardápio','color',shop.brand_color||'#7c3aed'):'')
+      +(canCustomize()?field('brand_color','COR DO SITE','color',shop.brand_color||'#7c3aed')+'<p class="muted small">Uma cor para todo o ambiente da loja: PDV, pedidos, cardápio e entregas dos motoboys vinculados.</p>':'')
       +(isMenu?'<div class="menu-settings">'
        +field('opening_hours','Horário de atendimento','text',shop.opening_hours||'','maxlength="160" placeholder="Ex.: Segunda a sábado, 18h às 23h"')
        +field('location_text','Localização ou endereço','text',shop.location_text||'','maxlength="240" placeholder="Ex.: Rua das Flores, 100 — Centro"')
@@ -1415,12 +1416,10 @@ async function handleSubmit(form){
       const establishment_type=String(v.establishment_type||'');
       const show_logo_subtitle=v.show_logo_subtitle==='true';
       const logo_subtitle=String(v.logo_subtitle||'').trim();
-      const menu_theme_color=String(v.menu_theme_color||'');
       if(!menuEstablishmentTypes.some(([key])=>key===establishment_type))throw Error('Selecione um tipo de estabelecimento válido.');
       if(!['true','false'].includes(v.show_logo_subtitle)||logo_subtitle.length>100||
          (show_logo_subtitle&&!logo_subtitle))throw Error('Confira a frase abaixo da logo.');
-      if(!/^#[0-9a-f]{6}$/i.test(menu_theme_color))throw Error('Escolha uma cor válida para o cardápio.');
-      const body={menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color};
+      const body={menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle};
       await rest('shops',{method:'PATCH',query:{id:'eq.'+shop.id},body});
       shop={...shop,...body};
       msg('Identidade do cardápio oficial atualizada.');
@@ -1445,6 +1444,8 @@ async function handleSubmit(form){
       if(canCustomize()){
         if(!/^#[0-9a-f]{6}$/i.test(String(v.brand_color||'')))throw Error('Selecione uma cor válida.');
         body.brand_color=v.brand_color;
+        // Sincroniza o campo legado para não haver cores divergentes entre vitrines.
+        body.menu_theme_color=v.brand_color;
       }
       if(shop.model==='pdv'){
         const methods=[...form.querySelectorAll('input[name=payment_methods]:checked')].map(input=>input.value);
@@ -1690,7 +1691,7 @@ document.addEventListener('click',async e=>{
   if(e.target.closest('#sideLogout')){closeSideMenu();$('logout').click();return}
   if(e.target.closest('#sideColor')){
     closeSideMenu();
-    if(!canCustomize())return msg('Alterar a cor do cardápio está disponível somente no plano Premium.',true);
+    if(!canCustomize())return msg('Alterar a COR DO SITE está disponível somente no plano Premium.',true);
     tab='configuracoes';showForm=null;pastedProductImage=null;renderPage();
     const colorInput=document.querySelector('#settingsForm input[name="brand_color"]');
     if(colorInput){colorInput.scrollIntoView({block:'center',behavior:'smooth'});colorInput.focus();}

@@ -23,3 +23,44 @@
 .courier-delivery .status{font-size:11px;letter-spacing:.09em;color:#ddb6ff;text-transform:uppercase;font-weight:850}
 .courier-delivery .price{color:#dab0ff;font-weight:800}
 @media(max-width:750px){.courier-columns{grid-template-columns:1fr}.courier-invite form{grid-template-columns:1fr}.courier-invite form .button{width:100%}}
+
+
+/* Motoboys recebem a cor da loja autorizada (sem perder estados de entrega/erro). */
+body.courier-themed{
+ --accent:var(--store-accent,#7c3aed);
+ --line:color-mix(in srgb,var(--store-accent,#7c3aed) 31%,#403249);
+ accent-color:var(--store-accent,#7c3aed);
+}
+body.courier-themed .button,
+body.courier-themed .switch button.selected{
+ background:var(--store-accent,#7c3aed);
+ color:var(--store-accent-ink,#fff);
+}
+body.courier-themed .kicker,body.courier-themed .text-button,
+body.courier-themed .price{
+ color:var(--store-accent,#7c3aed);
+}
+body.courier-themed .ghost,body.courier-themed .card{
+ border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 40%,#48404f);
+}
+body.courier-themed button:focus-visible,body.courier-themed a:focus-visible{
+ outline:2px solid var(--store-accent,#7c3aed);
+ outline-offset:2px;
+}
+.courier-delivery[style],.courier-shop-list .pill[style]{
+ border-color:var(--courier-shop-accent,#7c3aed);
+}
+.courier-delivery[style]{
+ background:color-mix(in srgb,var(--courier-shop-accent,#7c3aed) 11%,#15101b);
+}
+.courier-delivery[style] .status,.courier-delivery[style] .price{
+ color:var(--courier-shop-accent,#7c3aed);
+}
+.courier-delivery[style] .courier-actions .button{
+ background:var(--courier-shop-accent,#7c3aed);
+ color:var(--courier-shop-ink,#fff);
+}
+.courier-shop-list .pill[style]{
+ background:color-mix(in srgb,var(--courier-shop-accent,#7c3aed) 16%,#1a1423);
+ color:#f5effa;
+}

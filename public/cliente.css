@@ -801,3 +801,69 @@ body.receipt-open{overflow:hidden}
 #workspace .menu-preview-settings-link p{margin:0 0 14px}
 #workspace .menu-preview-settings-link>.ghost,#workspace .menu-preview-settings-link>.button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;margin:4px 8px 4px 0;text-decoration:none;padding:10px 14px}
 @media(max-width:560px){#workspace .menu-preview-settings-link>.ghost,#workspace .menu-preview-settings-link>.button{width:100%;margin:5px 0}}
+
+
+/* COR DO SITE: identidade da loja vinculada a --store-accent em toda a área operacional.
+   Cores semânticas de erro/sucesso/estoque não são substituídas. */
+#workspace{
+ --accent:var(--store-accent,#7c3aed);
+ --accent-ink:var(--store-accent-ink,#fff);
+ --line:color-mix(in srgb,var(--store-accent,#7c3aed) 24%,#323238);
+ --panel2:color-mix(in srgb,var(--store-accent,#7c3aed) 9%,#15131c);
+ accent-color:var(--store-accent,#7c3aed);
+}
+#workspace a:focus-visible,#workspace button:focus-visible,#workspace input:focus-visible,
+#workspace select:focus-visible,#workspace textarea:focus-visible{
+ outline:2px solid var(--store-accent,#7c3aed);
+ outline-offset:2px;
+}
+#workspace .button,#workspace .pdv-product .pdv-add,
+#workspace .inventory-actions button,#workspace .stock-row .actions button{
+ background:var(--store-accent,#7c3aed);
+ color:var(--store-accent-ink,#fff);
+ border-color:var(--store-accent,#7c3aed);
+}
+#workspace .button:hover,#workspace .pdv-product .pdv-add:hover{
+ filter:brightness(1.12);
+}
+#workspace .ghost,#workspace .data-form,#workspace .menu-editor-panel,
+#workspace .pdv-panel,#workspace .online-order-card,#workspace .courier-card,
+#workspace .orders-premium{
+ border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 35%,#3d3744);
+}
+#workspace .ghost:hover,#workspace .item button:hover,#workspace .side .side-action:hover{
+ border-color:var(--store-accent,#7c3aed);
+}
+#workspace .side #nav nav button.active{
+ background:var(--store-accent,#7c3aed);
+ color:var(--store-accent-ink,#fff);
+ border-color:var(--store-accent,#7c3aed);
+ box-shadow:0 7px 25px color-mix(in srgb,var(--store-accent,#7c3aed) 25%,transparent);
+}
+#workspace .side #nav nav button.active .side-nav-icon{filter:none}
+#workspace .side-logo,#workspace .side .side-action,
+#workspace .side .side-settings:focus-visible,
+#workspace .pdv-mobile-menu #sideToggle:focus-visible{
+ border-color:var(--store-accent,#7c3aed);
+}
+#workspace .side #nav nav a.side-public-menu .side-external-icon,
+#workspace .inventory-kicker,#workspace .pdv-product-price,
+#workspace .price:not(.inventory-card-prices),#workspace .menu-editor-meta small{
+ color:var(--store-accent,#7c3aed);
+}
+#workspace .inventory-card:hover,#workspace .pdv-product:hover,
+#workspace .inventory-category-card.active,#workspace .inventory-category-card:hover,
+#workspace .category-image-setting-row:hover,#workspace .menu-editor-meta button:hover{
+ border-color:var(--store-accent,#7c3aed);
+}
+#workspace .pdv-sale-qty button,#workspace .item .actions button,
+#workspace .category-image-actions button{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 22%,#11131a);
+ border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 50%,#37313c);
+ color:#f8f8fa;
+}
+#workspace .menu-layout-settings form input[type=color],
+#workspace .menu-layout-settings form select,
+#workspace .data-form input:focus,#workspace .data-form select:focus{
+ border-color:var(--store-accent,#7c3aed);
+}
