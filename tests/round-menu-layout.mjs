@@ -23,6 +23,9 @@ test('cardápio compacto é único modelo, sem prévia ou seletor clássico',()=
  assert.match(css,/\.round-menu \.menu-hero-logo-card\{display:none\}/);
  assert.match(css,/\.round-menu \.menu-hero-logo-card\.has-store-logo\{/);
  assert.match(css,/\.round-menu \.menu-hero-logo-card\.has-store-logo\{[\s\S]*grid-column:2;[\s\S]*grid-row:1\/3/);
+ assert.match(css,/\.round-menu \.menu-hero-logo-card\.has-store-logo\{[\s\S]*width:110px;[\s\S]*height:110px;[\s\S]*border:0;[\s\S]*box-shadow:none/);
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\) 76px/);
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\) 64px/);
  assert.match(vitrine,/image\.parentElement\?\.classList\.toggle\('has-store-logo',own\)/);
  assert.match(css,/\.round-menu \.store-header #storeName\{display:none\}/);
  assert.match(css,/\.round-menu \.store-header \.menu-tagline:not\(\.hidden\)\{[\s\S]*grid-column:1;[\s\S]*text-align:left/);
