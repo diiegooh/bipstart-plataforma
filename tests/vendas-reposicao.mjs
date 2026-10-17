@@ -18,7 +18,7 @@ function fns(productsList=products,loadedReport=null){
  const end=source.indexOf('function productStockState(product)',start);
  assert.ok(start>=0&&end>start);
  return new Function('products','salesReport','salesPeriod','salesDay','localReportDate','productStockState','fmt','esc','heading','tile','empty','salesLoading',
-  source.slice(start,end)+';return {salesDateRange,saleLineFinancial,cardFeeInfo,salesPaymentTotals,salesProfitInfo,salesProfitLabel,salesReportData,reportFigures,restockProducts,renderRestockList,renderSalesReport,salesRecordInfo,salesRecordRow,salesPrintableHtml};')(
+  source.slice(start,end)+';return {salesDateRange,saleLineFinancial,cardFeeInfo,salesPaymentTotals,salesProfitInfo,salesProfitLabel,salesReportData,reportFigures,restockProducts,renderRestockList,renderSalesReport,salesRecordInfo,salesRecordRow,salesRecordDetails,salesPrintableHtml};')(
   productsList,loadedReport,'day','2026-10-14',mkDate,product=>{
    if(Number(product.stock)<=0)return {state:'out'};
    return Number(product.stock)<=Number(product.min_stock)?{state:'low'}:{state:'ok'};
@@ -134,17 +134,55 @@ test('cada carrinho tem número próprio no dia e reúne produtos na mesma venda
  assert.equal(report.days[0].sales[2].total.revenue,35);
  assert.equal(report.days[0].salesTotal,61);
  const html=f.renderSalesReport();
- const day=html.slice(html.indexOf('17 de outubro'),html.indexOf('16 de outubro'));
- assert.match(day,/Venda #1/);
- assert.match(day,/Venda #2/);
- assert.match(day,/Venda #3/);
- const sale3=day.slice(day.indexOf('aria-label="Venda #3"'));
+ assert.match(html,/Venda #1/);
+ assert.match(html,/Venda #2/);
+ assert.match(html,/Venda #3/);
+ assert.match(html,/id="sales-details-v3" hidden/);
+ const sale3=f.salesRecordDetails(report.days[0].sales[2],report.days[0].day);
  assert.match(sale3,/Produto A/);
  assert.match(sale3,/Produto B/);
  assert.match(sale3,/Total vendido: <strong>R\$ 35\.00/);
  assert.match(sale3,/Cartão de crédito/);
- assert.match(html,/1 venda\(s\)/);
- assert.match(css,/#workspace \.sales-checkout-heading/);
+ assert.doesNotMatch(html,/class="sales-checkouts"/);
+ assert.match(css,/#workspace \.sales-inline-detail/);
+});
+
+test('a lista de vendas é recolhida, clicável e só mostra produtos ao expandir',()=>{
+ const saleId='12345678-1234-4234-8234-123456789abc';
+ const otherId='87654321-1234-4234-8234-123456789abc';
+ const multiSales=[
+  {id:saleId,total:30,payment_method:'pix',created_at:'2026-10-14T10:00:00Z'},
+  {id:otherId,total:10,payment_method:'dinheiro',created_at:'2026-10-14T11:00:00Z'}
+ ];
+ const multiItems=[
+  {sale_id:saleId,product_id:'p1',product_name:'Coxinha especial',quantity:2,unit_price:12,unit_cost:5},
+  {sale_id:saleId,product_id:'p2',product_name:'Água gelada',quantity:1,unit_price:6,unit_cost:2},
+  {sale_id:otherId,product_id:'p3',product_name:'Outro item',quantity:1,unit_price:10,unit_cost:4}
+ ];
+ const html=fns(products,{sales:multiSales,items:multiItems}).renderSalesReport();
+ assert.equal((html.match(/class="sales-record-row"/g)||[]).length,2);
+ assert.equal((html.match(/class="sales-record-details-row"/g)||[]).length,2);
+ assert.match(html,new RegExp('data-sales-open="'+saleId+'"'));
+ assert.match(html,new RegExp('id="sales-details-'+saleId+'" hidden'));
+ assert.match(html,new RegExp('aria-controls="sales-details-'+saleId+'"'));
+ assert.match(html,/class="sales-record-toggle" aria-expanded="false"/);
+ const detail=html.slice(html.indexOf('id="sales-details-'+saleId+'" hidden'),html.indexOf('</tr>',html.indexOf('id="sales-details-'+saleId+'" hidden')));
+ assert.match(detail,/Coxinha especial/);
+ assert.match(detail,/Água gelada/);
+ assert.match(detail,/Preço unit.: R\$ 12\.00/);
+ assert.match(detail,/Total vendido: <strong>R\$ 30\.00/);
+ assert.match(detail,/Lucro: <strong>R\$ 18\.00/);
+ assert.doesNotMatch(detail,/Outro item/);
+ assert.doesNotMatch(html,/class="sales-checkouts"/);
+ assert.match(css,/\.sales-record-details-row\[hidden\]\{display:none!important\}/);
+ assert.match(css,/#workspace \.sales-record-toggle:focus-visible/);
+ assert.match(source,/const salesRow=e\.target\.closest\('tr\[data-sales-open\]'\)/);
+ assert.match(source,/detail\.hidden=false;button\.setAttribute\('aria-expanded','true'\)/);
+ assert.match(source,/opened\.hidden=true/);
+ const print=fns(products,{sales:multiSales,items:multiItems});
+ const receipt=print.salesPrintableHtml(print.salesReportData(),'receipt','Loja','14/10/2026');
+ assert.match(receipt,/Coxinha especial/);
+ assert.match(receipt,/Água gelada/);
 });
 
 test('desconta a taxa por carrinho no líquido e no lucro, sem somar taxa por produto',()=>{
