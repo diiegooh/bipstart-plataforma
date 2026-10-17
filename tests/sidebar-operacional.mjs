@@ -7,7 +7,7 @@ const html=readFileSync('public/cliente.html','utf8');
 const css=readFileSync('public/cliente.css','utf8');
 const js=readFileSync('public/cliente.js','utf8');
 
-test('sidebar tem identidade da loja, engrenagem e botão Sair no rodapé',()=>{
+test('sidebar mantém engrenagem de configurações e botão Sair no rodapé',()=>{
  new vm.Script(js,{filename:'public/cliente.js'});
  for(const id of ['sidebar','sideShopName','sideSettings','sideLogout','sideToggle','sideBackdrop']){
   assert.match(html,new RegExp('id="'+id+'"'),id);
@@ -17,17 +17,17 @@ test('sidebar tem identidade da loja, engrenagem e botão Sair no rodapé',()=>{
  assert.doesNotMatch(html,/id="sideColor"|id="sideColorPremium"|Alterar cor/);
  assert.doesNotMatch(html,/id="modeChooser"|id="backToModes"/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=50/);
+ assert.match(html,/cliente\.js\?v=51/);
  assert.match(html,/cliente\.css\?v=32/);
 });
 
-test('coluna torna visíveis o editor e cardápio oficial, sem opção de prévia',()=>{
+test('coluna mantém cardápio oficial e remove atalho de edição lateral',()=>{
  const start=js.indexOf('function operationalMenuItems(){');
  const end=js.indexOf('function renderNav(){',start);
  assert.ok(start>=0&&end>start);
  const items=new Function(js.slice(start,end)+';return operationalMenuItems();')();
- assert.deepEqual(items.map(x=>x[1]),['PDV','Produtos','Cardápio online','Configurar cardápio','Pedidos online','Motoboys','Vendas']);
- assert.deepEqual(items.map(x=>x[0]),['caixa','produtos','cardapio_publico','cardapio','pedidos','motoboys','vendas']);
+ assert.deepEqual(items.map(x=>x[1]),['PDV','Produtos','Cardápio online','Pedidos online','Motoboys','Vendas']);
+ assert.deepEqual(items.map(x=>x[0]),['caixa','produtos','cardapio_publico','pedidos','motoboys','vendas']);
  assert.match(css,/#workspace \.side #nav nav button\.active\{background:linear-gradient\(100deg,#fc0816,#f51b20\)/);
 });
 
@@ -63,10 +63,10 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
  assert.match(basicNav,/<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="Cardápio online: exclusivo Premium"/);
  assert.match(basicNav,/<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="Pedidos online: exclusivo Premium"/);
  assert.match(basicNav,/<button type="button" class="side-public-menu locked" disabled aria-disabled="true" aria-label="Motoboys: exclusivo Premium"/);
- assert.equal((basicNav.match(/disabled aria-disabled="true"/g)||[]).length,4);
- assert.equal((basicNav.match(/<small class="side-lock">Premium<\/small>/g)||[]).length,4);
+ assert.equal((basicNav.match(/disabled aria-disabled="true"/g)||[]).length,3);
+ assert.equal((basicNav.match(/<small class="side-lock">Premium<\/small>/g)||[]).length,3);
  assert.deepEqual([...basicNav.matchAll(/<b>([^<]+)<\/b>/g)].map(m=>m[1]),
-   ['PDV','Produtos','Vendas','Cardápio online','Configurar cardápio','Pedidos online','Motoboys']);
+   ['PDV','Produtos','Vendas','Cardápio online','Pedidos online','Motoboys']);
  assert.match(css,/side-public-menu\.locked:disabled\{opacity/);
  assert.match(basicNav,/Cardápio online: exclusivo Premium/);
  assert.match(basicNav,/<b>Cardápio online<\/b>/);
@@ -77,11 +77,11 @@ test('sidebar marca PDV ativo, usa logo da loja Premium e protege opções do B�
  const premiumNav=premium.node('nav').innerHTML;
  assert.match(premiumNav,/data-nav="motoboys" class=""/);
  assert.deepEqual([...premiumNav.matchAll(/<b>([^<]+)<\/b>/g)].map(m=>m[1]),
-   ['PDV','Produtos','Cardápio online','Configurar cardápio','Pedidos online','Motoboys','Vendas']);
+   ['PDV','Produtos','Cardápio online','Pedidos online','Motoboys','Vendas']);
  assert.match(premiumNav,/<a class="side-public-menu" data-public-menu-link href="https:\/\/bipstart\.example\/cardapio\?loja=adega-teste"/);
  assert.match(premiumNav,/Abrir cardápio online da loja em outra aba/);
  assert.match(premiumNav,/side-external-icon/);
- assert.match(premiumNav,/data-nav="cardapio"[^>]*><span class="side-nav-icon"/);
+ assert.doesNotMatch(premiumNav,/data-nav="cardapio"/);
  assert.doesNotMatch(premiumNav,/data-round-preview-link|Testar modelo redondo/);
  assert.doesNotMatch(basicNav,/data-round-preview-link|data-nav="cardapio"/);
  assert.match(js,/const current=tab==='entregas'\?'pedidos':tab/);
