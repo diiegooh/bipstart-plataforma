@@ -140,3 +140,20 @@ test('foto quadrada compacta e cards menores apenas no modelo alternativo',()=>{
  assert.match(css,/\.round-menu \.round-card-click\{/);
  assert.doesNotMatch(vitrine,/classList\.toggle\('round-menu',true\)/);
 });
+
+test('cabeçalho do modelo alternativo segue referência, com CARDÁPIO à esquerda e logo à direita',()=>{
+ assert.match(html,/<p class="menu-hero-heading" aria-hidden="true">CARDÁPIO<\/p>/);
+ assert.match(html,/<div class="menu-hero-logo-card">/);
+ assert.match(html,/<img id="storeLogo"/);
+ assert.match(html,/<h1 id="storeName">Sua loja<\/h1>/);
+ assert.match(css,/\.menu-hero-heading\{display:none\}/);
+ assert.match(css,/\.menu-hero-logo-card\{display:contents\}/);
+ assert.match(css,/\.round-menu \.store-header \.header-title\{[\s\S]*grid-template-columns:minmax\(0,1fr\)/);
+ assert.match(css,/\.round-menu \.menu-hero-heading\{[\s\S]*grid-column:1;[\s\S]*grid-row:1/);
+ assert.match(css,/\.round-menu \.store-header \.header-title h1,[\s\S]*grid-column:1;[\s\S]*grid-row:2/);
+ assert.match(css,/\.round-menu \.menu-hero-logo-card\{[\s\S]*grid-column:2;[\s\S]*grid-row:1\/4/);
+ assert.match(css,/\.round-menu \.round-header-cart\{[\s\S]*top:auto;[\s\S]*bottom:8px/);
+ assert.match(css,/@media\(max-width:640px\)\{[\s\S]*\.round-menu \.menu-hero-heading\{[\s\S]*font-size:clamp\(28px,7\.3vw,46px\)/);
+ assert.match(vitrine,/menu\?\.plan_code==='pro'&&typeof menu\.logo_path==='string'/);
+ assert.match(vitrine,/\$\('roundHeaderCart'\)\.addEventListener\('click',openCart\)/);
+});

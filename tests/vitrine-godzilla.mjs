@@ -29,7 +29,7 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  for(const id of ['storeName','quickCategories','catalog','search','category','cartDrawer','cartItems','shipping','address','pay','cartTotal','sendOrder','error']){
   assert.ok(html.includes('id="'+id+'"'),id);
  }
- assert.match(html,/<div class="header-title">[\s\S]*<img id="storeLogo"[^>]+src="\/bipstart-marca-icon\.png"[^>]*>[\s\S]*<h1 id="storeName">Sua loja<\/h1>/);
+ assert.match(html,/<div class="header-title">[\s\S]*<p class="menu-hero-heading"[^>]*>CARDÁPIO<\/p>[\s\S]*<div class="menu-hero-logo-card">[\s\S]*<img id="storeLogo"[^>]+src="\/bipstart-marca-icon\.png"[^>]*>[\s\S]*<h1 id="storeName">Sua loja<\/h1>/);
  assert.doesNotMatch(html,/>CARDÁPIO <span id="storeName"|SABOR QUE CONQUISTA/);
  assert.doesNotMatch(html,/<section class="hero-green"|id="heroLogo"|id="heroOrder"|id="headerLogo"/);
  assert.doesNotMatch(html,/class="hero-copy"|CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP/);
@@ -37,8 +37,8 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  assert.match(css,/\.store-header \.header-title h1\{/);
  assert.match(css,/@media\(max-width:650px\)/);
  assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=22/);
- assert.match(html,/\/vitrine\.js\?v=23/);
+ assert.match(html,/\/vitrine\.css\?v=23/);
+ assert.match(html,/\/vitrine\.js\?v=24/);
  assert.match(css,/\.dproduct/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
@@ -338,12 +338,12 @@ test('Premium usa logo própria e padrão BipStart não escreve nome nem slogan'
  const storeLogo={src:'',alt:'',classes:new Set(),
   classList:{toggle(name,enabled){if(enabled)storeLogo.classes.add(name);else storeLogo.classes.delete(name);}}};
  const make=new Function('$','menu','imageUrl',js.slice(a,b)+';return displayStoreLogo;');
- const withPro=make(id=>id==='storeLogo'?storeLogo:null,{name:'Loja Teste',logo_path:'id-loja/marca.png',src:'https://img.example'},p=>'https://img.example/'+p);
+ const withPro=make(id=>id==='storeLogo'?storeLogo:null,{name:'Loja Teste',plan_code:'pro',logo_path:'id-loja/marca.png',src:'https://img.example'},p=>'https://img.example/'+p);
  withPro();
  assert.equal(storeLogo.src,'https://img.example/id-loja/marca.png');
  assert.equal(storeLogo.alt,'Logo da loja Loja Teste');
  assert.equal(storeLogo.classes.has('store-logo-custom'),true);
- const fallback=make(()=>storeLogo,{name:'Loja Teste',logo_path:null,src:'https://img.example'},()=>{throw Error('não consultar imagem personalizada');});
+ const fallback=make(()=>storeLogo,{name:'Loja Teste',plan_code:'basic',logo_path:'id-loja/marca.png',src:'https://img.example'},()=>{throw Error('não consultar imagem personalizada');});
  fallback();
  assert.equal(storeLogo.src,'/bipstart-marca-icon.png');
  assert.equal(storeLogo.alt,'Símbolo BipStart');
