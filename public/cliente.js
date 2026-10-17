@@ -463,6 +463,14 @@ function salesPaymentTotals(salesList){
   return sum;
  },{gross:0,cardFees:0,net:0,unknownFees:0});
 }
+function salesProfitInfo(figures,paymentTotals,missingSales=0){
+ // Uma taxa histórica não informada não bloqueia o valor que já é calculável.
+ return {value:figures.missing||missingSales?null:figures.profit-paymentTotals.cardFees,
+  partial:!!(figures.estimated||paymentTotals.unknownFees)};
+}
+function salesProfitLabel(info){
+ return info.value===null?'—':fmt(info.value)+(info.partial?' *':'');
+}
 function salesReportData(salesList=salesReport?.sales||[],itemsList=salesReport?.items||[]){
  // Uma venda = um carrinho finalizado, com seus itens agrupados pelo identificador da venda.
  const byDay=new Map(),saleGroups=new Map();
@@ -536,6 +544,7 @@ async function loadSalesReport(){
 function salesRecordInfo(group,day){
  const sale=group.sale,fee=cardFeeInfo(sale),summary=group.total;
  const unknownCost=summary.missing>0||!group.lines.length;
+ const netProfit=salesProfitInfo(summary,{cardFees:fee.amount,unknownFees:fee.known?0:1},unknownCost?1:0);
  return {
   number:group.number,
   date:day,
@@ -543,7 +552,8 @@ function salesRecordInfo(group,day){
   units:summary.quantity,
   gross:Number(sale.total||0),
   cost:unknownCost?null:summary.cost,
-  profit:unknownCost||!fee.known?null:summary.profit-fee.amount,
+  profit:netProfit.value,
+  profitPartial:netProfit.partial,
   items:group.lines.map(({item,financial})=>({
    name:String(item.product_name||''),qty:financial.quantity,
    total:financial.revenue
@@ -557,7 +567,7 @@ function salesRecordRow(group,day){
   '<td>'+esc(date+' '+item.time)+'</td>'+
   '<td>'+item.units+'</td><td>'+fmt(item.gross)+'</td>'+
   '<td>'+(item.cost===null?'—':fmt(item.cost))+'</td>'+
-  '<td class="sales-record-profit">'+(item.profit===null?'—':fmt(item.profit))+'</td></tr>';
+  '<td class="sales-record-profit">'+salesProfitLabel({value:item.profit,partial:item.profitPartial})+'</td></tr>';
 }
 function salesPrintableHtml(report,format,storeName,rangeLabel){
  if(!['receipt','a4'].includes(format))throw Error('Formato de exportação inválido.');
@@ -571,17 +581,17 @@ function salesPrintableHtml(report,format,storeName,rangeLabel){
   return {...info,displayDate:date};
  }));
  const totals=report.paymentTotals,figures=report.figures;
- const profit=figures.missing||totals.unknownFees||report.unmatchedSales.length?null:figures.profit-totals.cardFees;
+ const profit=salesProfitInfo(figures,totals,report.unmatchedSales.length);
  const dataRows=rows.map(item=>
   '<tr><td>#'+item.number+'</td><td>'+esc(item.displayDate+' '+item.time)+'</td>'+
   '<td>'+item.units+'</td><td>'+money(item.gross)+'</td>'+
-  '<td>'+money(item.cost)+'</td><td>'+money(item.profit)+'</td></tr>').join('');
+  '<td>'+money(item.cost)+'</td><td>'+salesProfitLabel({value:item.profit,partial:item.profitPartial})+'</td></tr>').join('');
  const summary=[
   ['Vendas',String(report.salesCount)],
   ['Unidades vendidas',String(figures.quantity)],
   ['Total vendido',money(totals.gross)],
   ['Custo',money(figures.missing||report.unmatchedSales.length?null:figures.cost)],
-  ['Lucro',money(profit)]
+  ['Lucro',salesProfitLabel(profit)]
  ];
  const title='RELATÓRIO DE VENDAS';
  const detail=rows.map(item=>
@@ -591,10 +601,10 @@ function salesPrintableHtml(report,format,storeName,rangeLabel){
   '<div class="print-line"><b>Unidades vendidas</b><b>'+item.units+'</b></div>'+
   '<div class="print-line"><b>Total vendido</b><b>'+money(item.gross)+'</b></div>'+
   '<div class="print-line"><b>Custo</b><b>'+money(item.cost)+'</b></div>'+
-  '<div class="print-line"><b>Lucro</b><b>'+money(item.profit)+'</b></div>'+
+  '<div class="print-line"><b>Lucro</b><b>'+salesProfitLabel({value:item.profit,partial:item.profitPartial})+'</b></div>'+
   '</section>').join('');
- const warning=(totals.unknownFees||figures.missing||report.unmatchedSales.length)?
-  '<p class="warning">— indica custos não informados ou taxas de cartão antigas sem registro. Não foram estimados descontos inexistentes.</p>':'';
+ const warning=(totals.unknownFees||figures.missing||figures.estimated||report.unmatchedSales.length)?
+  '<p class="warning">* Lucro parcial ou estimado: custos históricos estimados ou taxa de cartão antiga sem registro. Informe a taxa real no painel para fechar o cálculo. — indica custo desconhecido.</p>':'';
  const body='<main class="sheet"><header class="print-header"><strong>'+esc(storeName)+'</strong>'+
   '<h1>'+title+'</h1><p>PERÍODO: '+esc(rangeLabel)+'</p>'+
   '<p class="nonfiscal">RELATÓRIO GERENCIAL · NÃO FISCAL</p></header>'+
@@ -661,13 +671,13 @@ function renderSalesReport(){
  const report=salesReportData();
  const figures=report.figures;
  const paymentTotals=report.paymentTotals;
- const profitAvailable=!paymentTotals.unknownFees&&!figures.missing&&!report.unmatchedSales.length;
+ const calculatedProfit=salesProfitInfo(figures,paymentTotals,report.unmatchedSales.length);
  content+='<div class="grid sales-period-totals">'+
   tile('Vendas',report.salesCount)+
   tile('Unidades vendidas',figures.quantity)+
   tile('Total vendido',fmt(paymentTotals.gross))+
   tile('Custo',figures.missing||report.unmatchedSales.length?'—':fmt(figures.cost))+
-  tile('Lucro',profitAvailable?fmt(figures.profit-paymentTotals.cardFees):'—')+'</div>';
+  tile('Lucro',salesProfitLabel(calculatedProfit))+'</div>';
  content+='<p class="sales-disclaimer">Lucro = total vendido − custo dos produtos − taxas da maquininha registradas. Não inclui impostos e outras despesas.</p>';
  if(figures.estimated)
   content+='<p class="sales-disclaimer">Em '+figures.estimated+
@@ -676,7 +686,7 @@ function renderSalesReport(){
   content+='<p class="sales-disclaimer">'+
    (figures.missing?figures.missing+' item(ns) sem custo conhecido. ':'')+
    (paymentTotals.unknownFees?paymentTotals.unknownFees+' venda(s) antiga(s) com taxa de cartão não registrada. ':'')+
-   'O lucro indisponível aparece como —, sem inventar valores históricos.</p>';
+   'O lucro calculável aparece como parcial (*) até a taxa real ser informada. — indica custo desconhecido.</p>';
  if(report.unmatchedSales.length)
   content+='<p class="sales-disclaimer">Há '+report.unmatchedSales.length+' venda(s) sem itens detalhados; elas entram no faturamento, mas não no lucro calculado.</p>';
  if(!report.days.length)return content+empty('Nenhuma venda registrada neste período.');
@@ -695,13 +705,13 @@ function renderSalesReport(){
  for(const day of report.days){
    const summary=day.total;
    const profitLabel='Lucro';
-   const dailyHasProfit=!summary.missing&&!day.paymentTotals.unknownFees&&day.sales.every(group=>group.lines.length);
+   const dailyProfit=salesProfitInfo(summary,day.paymentTotals,day.sales.filter(group=>!group.lines.length).length);
    const date=new Date(day.day+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
    content+='<section class="sales-day"><div class="sales-day-heading"><div><h3>'+esc(date)+'</h3><small>'+
     day.sales.length+' venda(s) · '+day.lines.length+' produto(s) na lista</small></div>'+
     '<div class="sales-day-summary"><span>Vendas: <strong>'+day.sales.length+'</strong></span>'+
     '<span>Total vendido: <strong>'+fmt(day.salesTotal)+'</strong></span>'+
-    '<span>'+profitLabel+': <strong>'+(dailyHasProfit?fmt(summary.profit-day.paymentTotals.cardFees):'—')+'</strong></span></div></div>'+
+    '<span>'+profitLabel+': <strong>'+salesProfitLabel(dailyProfit)+'</strong></span></div></div>'+
     '<div class="sales-checkouts">'+day.sales.map(group=>{
      const sale=group.sale,info=salesRecordInfo(group,day.day);
      return '<section class="sales-checkout" aria-label="Venda #'+group.number+'">'+
@@ -722,7 +732,7 @@ function renderSalesReport(){
       '<span>Unidades vendidas: <strong>'+info.units+'</strong></span>'+
       '<span>Total vendido: <strong>'+fmt(info.gross)+'</strong></span>'+
       '<span>Custo: <strong>'+(info.cost===null?'—':fmt(info.cost))+'</strong></span>'+
-      '<span>Lucro: <strong>'+(info.profit===null?'—':fmt(info.profit))+'</strong></span>'+
+      '<span>Lucro: <strong>'+salesProfitLabel({value:info.profit,partial:info.profitPartial})+'</strong></span>'+
       '</footer>'+
       '</section>';
     }).join('')+'</div></section>';
