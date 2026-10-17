@@ -716,7 +716,6 @@ function cardapioLayoutSettings(){
  const isSubtitle=shop.show_logo_subtitle===true;
  return '<section class="menu-editor-panel menu-layout-settings" id="menuLayoutSettings" aria-labelledby="menuLayoutTitle">'+
   '<h3 id="menuLayoutTitle">Personalização do cardápio</h3>'+
-  '<p class="muted">Este é o modelo oficial do cardápio online. Altere a identidade da loja sem afetar produtos, pedidos ou entregas.</p>'+
   '<form id="menuLayoutForm">'+
    '<label>Tipo de estabelecimento<select name="establishment_type">'+
     menuEstablishmentTypes.map(([key,label])=>
