@@ -7,6 +7,7 @@ const html=readFileSync('public/vitrine.html','utf8');
 const css=readFileSync('public/vitrine.css','utf8');
 const vitrine=readFileSync('public/vitrine.js','utf8');
 const panel=readFileSync('public/cliente.js','utf8');
+const server=readFileSync('server.mjs','utf8');
 const panelCss=readFileSync('public/cliente.css','utf8');
 const previousMigration=readFileSync('sql/bipstart_round_menu_layout_20261016.sql','utf8');
 const officialMigration=readFileSync('sql/bipstart_official_menu_compact_20261017.sql','utf8');
@@ -96,23 +97,26 @@ test('categorias com imagens originais e Todos fixo acessam todos os produtos',(
  assert.match(vitrine,/btn\.setAttribute\('aria-pressed',String\(active\)\)/);
 });
 
-test('ícone de nove círculos de Todos é fixo, usa a cor da loja e mantém filtro',()=>{
+test('card Todos exibe o PNG dentro da moldura e acompanha a cor do site',()=>{
  const from=vitrine.indexOf(' const allArtwork=');
  const to=vitrine.indexOf(" $('quickCategories').innerHTML=",from);
  assert.ok(from>=0&&to>from);
- const render=new Function(vitrine.slice(from,to)+';return allCategory;');
- const tile=render();
+ const build=new Function(vitrine.slice(from,to)+';return allCategory;');
+ const tile=build();
  assert.match(tile,/class="category-art category-art-all-fixed"/);
- assert.match(tile,/viewBox="0 0 90 90"/);
- assert.equal((tile.match(/<circle /g)||[]).length,9);
+ assert.match(tile,/class="category-all-png"/);
  assert.match(tile,/data-cat="" aria-pressed="true"/);
  assert.match(tile,/aria-label="Exibir todos os produtos"/);
  assert.match(tile,/<b>Todos<\/b>/);
- assert.doesNotMatch(tile,/<img/);
- assert.match(css,/\.round-menu \.category-tile-all \.category-art-all-fixed[\s\S]*color:var\(--green\)/);
- assert.match(css,/fill:currentColor/);
+ assert.doesNotMatch(tile,/<svg|<circle /);
+ assert.match(css,/\.round-menu \.category-tile-all \.category-art-all-fixed\{[\s\S]*background:color-mix/);
+ assert.match(css,/\.round-menu \.category-tile-all \.category-all-png\{/);
+ assert.match(css,/mask-image:url\('\/todos-nove-circulos\.png'\)/);
+ assert.match(css,/background-color:var\(--green\)/);
+ assert.match(server,/'\/todos-nove-circulos\.png': \['todos-nove-circulos\.png', 'image\/png'\]/);
+ const png=readFileSync('public/todos-nove-circulos.png');
+ assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
  assert.match(panel,/filter\(name=>categoryKey\(name\)!=='todos'\)/);
- assert.match(panel,/categoryKey\(normalized\)==='todos'/);
 });
 
 test('configurações de loja, mensagem de WhatsApp e registro de pedido estão preservados',()=>{
