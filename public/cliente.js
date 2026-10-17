@@ -920,6 +920,28 @@ function filteredPdvProducts(){
    &&(!pdvCategory||String(p.category||'Geral')===pdvCategory)
    &&(!term||[p.name,p.category].some(value=>String(value||'').toLocaleLowerCase('pt-BR').includes(term))));
 }
+function pdvBestSellerProducts(){
+ // Destaques escolhidos pela loja, independentes dos filtros de busca do catálogo.
+ return products.filter(p=>p.active!==false&&p.is_best_seller===true)
+   .sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
+}
+function pdvBestSellers(){
+ const featured=pdvBestSellerProducts();
+ if(!featured.length)return '';
+ return '<section class="pdv-best-sellers" aria-label="Acesso rápido aos mais vendidos">'+
+  '<div class="pdv-best-sellers-title"><strong>★ Mais vendidos</strong><small>Acesso rápido · toque para adicionar</small></div>'+
+  '<div class="pdv-best-sellers-list">'+featured.map(p=>{
+   const qty=cart.find(c=>c.id===p.id)?.qty||0;
+   const outOfStock=Number(p.stock)<=qty;
+   const photo=p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="" loading="lazy">':'<span class="pdv-best-seller-placeholder" aria-hidden="true">★</span>';
+   return '<button type="button" class="pdv-best-seller" data-cart="'+esc(p.id)+'"'+(outOfStock?' disabled':'')+
+    ' aria-label="'+esc(outOfStock?'Sem estoque: '+p.name:'Adicionar '+p.name+' ao carrinho')+'">'+
+    '<span class="pdv-best-seller-photo">'+photo+'</span>'+
+    '<span class="pdv-best-seller-text"><strong>'+esc(p.name)+'</strong><small>'+
+    (outOfStock?'Sem estoque':fmt(p.price))+'</small></span>'+
+    '<span class="pdv-best-seller-plus" aria-hidden="true">'+(outOfStock?'×':'+')+'</span></button>';
+  }).join('')+'</div></section>';
+}
 function pdvProductCards(){
  const available=filteredPdvProducts();
  return available.length?available.map(p=>{
@@ -962,6 +984,7 @@ function renderGodzillaPDV(){
  '<label class="pdv-category-label"><span class="sr-only">Filtrar categoria</span><select id="pdvCategory">'+categoriesHtml+'</select></label>'+
  '<button type="button" id="pdvStockToggle" class="ghost'+(pdvInStockOnly?' active':'')+'">'+
  (pdvInStockOnly?'✓ Só disponíveis':'Todos os produtos')+'</button></div>'+
+ pdvBestSellers()+
  '<div class="pdv-list-head"><strong>Produtos da loja</strong><small>'+products.length+' cadastrados</small></div>'+
  '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
  '</section><aside class="pdv-panel pdv-sale-panel" aria-label="Venda atual">'+
@@ -1209,6 +1232,8 @@ function productForm(p){
   field('name','Nome do item', 'text',p.name,'required maxlength="160"')+
   categoryField+
   field('price','Preço de venda no PDV (R$)','number',p.price??0,'required min="0" step="0.01"')+
+  '<label class="product-best-seller-option"><input type="checkbox" name="is_best_seller" value="true"'+(p.is_best_seller===true?' checked':'')+'>'+
+  '<span><strong>★ Mais vendido</strong><small>Exibir este produto no acesso rápido do PDV.</small></span></label>'+
   (proAccess()?'<div class="menu-price-controls"><label class="online-sale-question">Venda online?'+
    '<select name="online_enabled" required>'+
     '<option value=""'+(!p.id?' selected':'')+' disabled>Selecione Sim ou Não</option>'+
@@ -1365,6 +1390,7 @@ async function handleSubmit(form,contractWindow=null){
       const isMenu=tab==='cardapio';
       const body={
        name:v.name.trim(),category:v.category.trim()||'Geral',price:Number(v.price),image_path,
+       is_best_seller:v.is_best_seller==='true',
        online_enabled:proAccess()?v.online_enabled==='true':(p?.online_enabled===true),
        menu_price_enabled:proAccess()?v.online_enabled==='true':(p?.menu_price_enabled===true),
        menu_price:proAccess()?(v.online_enabled==='true'?Number(v.menu_price):p?.menu_price??null):(p?.menu_price??null),
