@@ -49,7 +49,8 @@ function categoryArtwork(name){
 }
 function displayStoreLogo(){
  const image=$('storeLogo');
- const own=menu?.plan_code==='pro'&&typeof menu.logo_path==='string'&&menu.logo_path.trim()&&menu.src;
+ const own=Boolean(menu?.plan_code==='pro'&&typeof menu.logo_path==='string'&&menu.logo_path.trim()&&menu.src);
+ image.parentElement?.classList.toggle('has-store-logo',own);
  image.src=own?imageUrl(menu.logo_path):'/bipstart-marca-icon.png';
  image.alt=own?'Logo da loja '+menu.name:'Símbolo BipStart';
  image.classList.toggle('store-logo-custom',!!own);
