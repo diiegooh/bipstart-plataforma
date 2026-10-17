@@ -17,6 +17,13 @@
 .admin-actions{display:flex;flex-wrap:wrap;gap:5px}.admin-actions .ghost{border:1px solid #604b80}
 .admin-shortcut{font-weight:600;color:#d2a9ff;text-decoration:none}
 .customization-grid{display:grid;gap:16px;margin-top:16px}
+.admin-request-group{margin-top:25px;min-width:0}
+.admin-request-group+.admin-request-group{padding-top:20px;border-top:1px solid #493760}
+.admin-request-group h3{margin:0 0 8px;font-size:19px}
+.admin-request-group>p{color:var(--muted);font-size:13px}
+.upgrade-card{border-color:#796047;background:linear-gradient(145deg,#262034,#1e172a)}
+.upgrade-kind{color:#e5b96e;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.upgrade-card .customization-details p{margin:8px 0 0;color:#cfc5da;font-size:13px}
 .customization-card{padding:20px;background:#1e1532;border:1px solid #594273;border-radius:16px}
 .customization-head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:start}
 .customization-head h3{margin:0;font-size:19px}
@@ -61,10 +68,18 @@
  </section>
  <section id="customizationSection" class="card hidden" role="tabpanel" aria-labelledby="adminTabCustom">
   <div class="admin-header">
-   <div><span class="kicker">ATENDIMENTO</span><h2 id="customizationHeading">Solicitações de personalização</h2>
-   <p class="muted">Pedidos dos clientes, andamento do atendimento e contato comercial.</p></div>
+   <div><span class="kicker">ATENDIMENTO</span><h2 id="customizationHeading">Solicitações dos clientes</h2>
+   <p class="muted">Acompanhe upgrades pendentes e pedidos de personalização.</p></div>
   </div>
-  <p id="customMessage" role="status" aria-live="polite">Carregando solicitações...</p>
-  <div id="customRequests" class="customization-grid"></div>
+  <section class="admin-request-group" aria-labelledby="upgradeHeading">
+   <h3 id="upgradeHeading">Upgrades de plano</h3>
+   <p id="upgradeMessage" role="status" aria-live="polite">Carregando upgrades...</p>
+   <div id="upgradeRequests" class="customization-grid"></div>
+  </section>
+  <section class="admin-request-group" aria-labelledby="customRequestHeading">
+   <h3 id="customRequestHeading">Pedidos de personalização</h3>
+   <p id="customMessage" role="status" aria-live="polite">Carregando solicitações...</p>
+   <div id="customRequests" class="customization-grid"></div>
+  </section>
  </section>
-</main><script src="/admin.js?v=8" defer></script></body></html>
+</main><script src="/admin.js?v=9" defer></script></body></html>
