@@ -335,7 +335,9 @@ test('menu inferior removido sem perder categorias e carrinho flutuante',()=>{
 test('Premium usa logo própria e padrão BipStart não escreve nome nem slogan',()=>{
  const a=js.indexOf('function displayStoreLogo(){'),b=js.indexOf('function applyBrand(){',a);
  assert.ok(a>=0&&b>a);
- const storeLogo={src:'',alt:'',classes:new Set(),
+ const logoCard={classes:new Set(),classList:{toggle(name,enabled){if(enabled)this._set?.add(name);else this._set?.delete(name);},_set:null}};
+ logoCard.classList._set=logoCard.classes;
+ const storeLogo={src:'',alt:'',classes:new Set(),parentElement:logoCard,
   classList:{toggle(name,enabled){if(enabled)storeLogo.classes.add(name);else storeLogo.classes.delete(name);}}};
  const make=new Function('$','menu','imageUrl',js.slice(a,b)+';return displayStoreLogo;');
  const withPro=make(id=>id==='storeLogo'?storeLogo:null,{name:'Loja Teste',plan_code:'pro',logo_path:'id-loja/marca.png',src:'https://img.example'},p=>'https://img.example/'+p);
@@ -343,11 +345,13 @@ test('Premium usa logo própria e padrão BipStart não escreve nome nem slogan'
  assert.equal(storeLogo.src,'https://img.example/id-loja/marca.png');
  assert.equal(storeLogo.alt,'Logo da loja Loja Teste');
  assert.equal(storeLogo.classes.has('store-logo-custom'),true);
+ assert.equal(logoCard.classes.has('has-store-logo'),true);
  const fallback=make(()=>storeLogo,{name:'Loja Teste',plan_code:'basic',logo_path:'id-loja/marca.png',src:'https://img.example'},()=>{throw Error('não consultar imagem personalizada');});
  fallback();
  assert.equal(storeLogo.src,'/bipstart-marca-icon.png');
  assert.equal(storeLogo.alt,'Símbolo BipStart');
  assert.equal(storeLogo.classes.has('store-logo-custom'),false);
+ assert.equal(logoCard.classes.has('has-store-logo'),false);
  assert.doesNotMatch(html,/CARDÁPIO <span|salgatti-motto|SABOR QUE CONQUISTA/);
  assert.doesNotMatch(js,/salgatti-motto|salgatti-mark|SABOR QUE CONQUISTA/);
  assert.match(js,/\$\('storeName'\)\.textContent=menu\.name/);
