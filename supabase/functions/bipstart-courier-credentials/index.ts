@@ -44,7 +44,7 @@ Deno.serve(async (request: Request) => {
     const data = await request.json();
     const shopId = String(data?.shop_id || "");
     const action = String(data?.action || "");
-    if (!uuid.test(shopId) || !["create", "provision", "update"].includes(action))
+    if (!uuid.test(shopId) || !["create", "provision", "update", "remove"].includes(action))
       return response(400, "Solicitação inválida.");
 
     // Autorização por loja e plano, nunca somente por ID enviado no navegador.
@@ -60,6 +60,33 @@ Deno.serve(async (request: Request) => {
       (entitlement.status === "active" &&
         (!entitlement.active_until || Date.parse(entitlement.active_until) > now)));
     if (entErr || !active) return response(403, "O cadastro de motoboys exige Premium vigente.");
+
+    if (action === "remove") {
+      const courierId = String(data?.courier_id || "");
+      if (!uuid.test(courierId)) return response(400, "Motoboy inválido.");
+      const { data: courier, error: courierError } = await db.from("shop_couriers")
+        .select("id,account_id,login_managed,removed_at").eq("id",courierId)
+        .eq("shop_id",shopId).maybeSingle();
+      if (courierError || !courier || courier.removed_at)
+        return response(404, "Motoboy não encontrado.");
+      const { data: ongoing, error: deliveryError } = await db.from("shop_deliveries")
+        .select("id").eq("shop_id",shopId).eq("courier_id",courierId)
+        .in("status",["atribuida","a_caminho"]).limit(1);
+      if (deliveryError) return response(500,"Não foi possível verificar entregas em andamento.");
+      if (ongoing?.length) return response(409,"Este motoboy possui entrega em andamento. Conclua ou redistribua antes de remover.");
+      const { error: removalError } = await db.from("shop_couriers")
+        .update({ active:false,removed_at:new Date().toISOString(),invite_code:null })
+        .eq("id",courierId).eq("shop_id",shopId).is("removed_at",null);
+      if (removalError) return response(500,"Não foi possível remover o motoboy.");
+      // Bloqueia credenciais criadas e gerenciadas exclusivamente pela loja.
+      if (courier.login_managed && courier.account_id) {
+        const { error: banError } = await db.auth.admin.updateUserById(
+          courier.account_id,{ ban_duration:"876000h" }
+        );
+        if (banError) return response(500,"Motoboy removido, mas o bloqueio do login exige revisão administrativa.");
+      }
+      return response(200,"Motoboy removido. Histórico preservado.");
+    }
 
     const name = String(data?.name ?? "").trim();
     const phone = brazilPhone(data?.phone);
