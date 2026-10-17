@@ -605,7 +605,8 @@ function renderSalesReport(){
       '<footer class="sales-checkout-footer">'+
       '<span>Total da venda: <strong>'+fmt(sale.total)+'</strong></span>'+
       (fee.known?
-       '<span>Taxa da maquininha'+percentLabel+': <strong>−'+fmt(fee.amount)+'</strong></span>'+
+       (['credito','debito'].includes(sale.payment_method)?
+        '<span>Taxa da maquininha'+percentLabel+': <strong>−'+fmt(fee.amount)+'</strong></span>':'')+
        '<span>Recebimento líquido: <strong>'+fmt(Number(sale.total)-fee.amount)+'</strong></span>'+
        '<span>'+profitTitle+': <strong>'+fmt(figures.profit-fee.amount)+'</strong></span>':
        '<span>Taxa da maquininha: <strong>Não registrada</strong></span>'+
