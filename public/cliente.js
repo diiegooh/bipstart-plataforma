@@ -459,8 +459,10 @@ function salesReportData(salesList=salesReport?.sales||[],itemsList=salesReport?
   total:reportFigures(lines)
  }));
  const figures=reportFigures(days.flatMap(d=>d.lines));
- const unmatchedSales=salesList.filter(s=>!itemsList.some(i=>i.sale_id===s.id));
- return {days,figures,salesCount:salesList.length,unmatchedSales};
+ // Preserve a lista de vendas usada para calcular o faturamento total.
+ const saleIdsWithItems=new Set(itemsList.map(i=>i.sale_id));
+ const unmatchedSales=salesList.filter(s=>!saleIdsWithItems.has(s.id));
+ return {sales:salesList,days,figures,salesCount:salesList.length,unmatchedSales};
 }
 async function salesPaginated(table,query,pageSize=200){
  const result=[];
