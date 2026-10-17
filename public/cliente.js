@@ -7,7 +7,7 @@ let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSc
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false;
-let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix';
+let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99';
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
@@ -444,6 +444,25 @@ function reportFigures(lines){
    return sum;
  },{revenue:0,cost:0,profit:0,quantity:0,estimated:0,missing:0});
 }
+function cardFeeInfo(sale){
+ if(!['credito','debito'].includes(sale.payment_method))return {known:true,percent:0,amount:0};
+ const raw=sale.card_fee_amount;
+ if(raw===null||raw===undefined||raw===''||!Number.isFinite(Number(raw)))
+   return {known:false,percent:null,amount:0};
+ return {known:true,
+  percent:sale.card_fee_percent===null||sale.card_fee_percent===undefined?null:Number(sale.card_fee_percent),
+  amount:Number(raw)};
+}
+function salesPaymentTotals(salesList){
+ return salesList.reduce((sum,sale)=>{
+  const gross=Number(sale.total||0),fee=cardFeeInfo(sale);
+  sum.gross+=gross;
+  sum.cardFees+=fee.amount;
+  sum.net+=gross-fee.amount;
+  if(!fee.known)sum.unknownFees++;
+  return sum;
+ },{gross:0,cardFees:0,net:0,unknownFees:0});
+}
 function salesReportData(salesList=salesReport?.sales||[],itemsList=salesReport?.items||[]){
  // Uma venda = um carrinho finalizado, com seus itens agrupados pelo identificador da venda.
  const byDay=new Map(),saleGroups=new Map();
@@ -466,11 +485,12 @@ function salesReportData(salesList=salesReport?.sales||[],itemsList=salesReport?
    const sales=groups.map((group,index)=>({...group,number:index+1,total:reportFigures(group.lines)}));
    const lines=sales.flatMap(group=>group.lines);
    return {day,sales,lines,total:reportFigures(lines),
+    paymentTotals:salesPaymentTotals(sales.map(group=>group.sale)),
     salesTotal:sales.reduce((total,group)=>total+Number(group.sale.total||0),0)};
  });
  const figures=reportFigures(days.flatMap(day=>day.lines));
  const unmatchedSales=salesList.filter(s=>!saleGroups.get(s.id)?.lines.length);
- return {sales:salesList,days,figures,salesCount:salesList.length,unmatchedSales};
+ return {sales:salesList,days,figures,paymentTotals:salesPaymentTotals(salesList),salesCount:salesList.length,unmatchedSales};
 }
 async function salesPaginated(table,query,pageSize=200){
  const result=[];
@@ -489,7 +509,7 @@ async function loadSalesReport(){
  try{
    const range=salesDateRange(period,reference);
    const found=await salesPaginated('shop_sales',{
-     select:'id,shop_id,total,payment_method,created_at',
+     select:'id,shop_id,total,payment_method,card_fee_percent,card_fee_amount,created_at',
      shop_id:'eq.'+selectedShop,
      and:'(created_at.gte.'+range.start+',created_at.lt.'+range.end+')',
      order:'created_at.desc'
@@ -519,7 +539,7 @@ function renderSalesReport(){
    '<button type="button" data-sales-period="'+key+'" class="'+(key===salesPeriod?'active':'')+'" aria-pressed="'+(key===salesPeriod)+'">'+label+'</button>').join('')+
    '</div><label><span class="sr-only">Selecionar data</span><input type="date" id="salesReferenceDate" value="'+esc(salesDay)+'"></label>'+
    '<button class="ghost" type="button" data-sales-refresh>↻ Atualizar</button></div>';
- let content=heading('Vendas','Detalhes de produtos, pagamentos e lucro bruto por dia.');
+ let content=heading('Vendas','Vendas por carrinho, custos, taxas do cartão e lucro após desconto da maquininha.');
  content+=controls+'<p class="sales-period-label">Período: <strong>'+esc(range.label)+'</strong> · Horário local</p>';
  if(salesLoading)return content+'<div class="empty">Carregando vendas do período...</div>';
  if(!salesReport)return content+'<div class="empty">Selecione o período para carregar o relatório.</div>';
@@ -527,34 +547,45 @@ function renderSalesReport(){
  const report=salesReportData();
  const figures=report.figures;
  const caption=figures.missing?'Lucro bruto parcial':figures.estimated?'Lucro bruto estimado':'Lucro bruto';
+ const paymentTotals=report.paymentTotals;
  content+='<div class="grid sales-period-totals">'+
   tile('Vendas no período',report.salesCount)+
   tile('Unidades vendidas',figures.quantity)+
-  tile('Total vendido',fmt(report.sales.reduce((sum,s)=>sum+Number(s.total),0)))+
+  tile('Total vendido',fmt(paymentTotals.gross))+
   tile('Custo dos itens',fmt(figures.cost))+
-  tile(caption,fmt(figures.profit))+'</div>';
+  tile('Taxas da maquininha',fmt(paymentTotals.cardFees))+
+  tile(paymentTotals.unknownFees?'Líquido após taxas registradas':'Recebimento líquido',fmt(paymentTotals.net))+
+  tile(caption,fmt(figures.profit))+
+  tile(paymentTotals.unknownFees?'Lucro após taxas registradas':'Lucro após taxa do cartão',
+    fmt(figures.profit-paymentTotals.cardFees))+'</div>';
  if(figures.estimated||figures.missing)
   content+='<p class="sales-disclaimer">'+
    (figures.estimated?'Em '+figures.estimated+' item(ns) de vendas antigas, o custo foi estimado usando o valor cadastrado atualmente. ':'')+
    (figures.missing?'Em '+figures.missing+' item(ns), o custo é desconhecido e o lucro não entra na soma. ':'')+
-   'Lucro bruto = venda − custo, sem descontar taxas e despesas adicionais.</p>';
- else content+='<p class="sales-disclaimer">Lucro bruto antes de taxas, impostos e outras despesas.</p>';
+   'Lucro bruto = venda − custo. O lucro após taxa desconta as taxas de cartão registradas; outras despesas não estão incluídas.</p>';
+ else content+='<p class="sales-disclaimer">O lucro após taxa desconta a maquininha; impostos e outras despesas não estão incluídos.</p>';
+ if(paymentTotals.unknownFees)
+  content+='<p class="sales-disclaimer">Há '+paymentTotals.unknownFees+
+   ' venda(s) antiga(s) no cartão sem taxa registrada. Valores líquidos e lucros após taxas podem estar superestimados; não foram atribuídas taxas fictícias.</p>';
  if(report.unmatchedSales.length)
   content+='<p class="sales-disclaimer">Há '+report.unmatchedSales.length+' venda(s) sem itens detalhados; elas entram no faturamento, mas não no lucro calculado.</p>';
  if(!report.days.length)return content+empty('Nenhuma venda registrada neste período.');
  const payments={pix:'Pix',dinheiro:'Dinheiro',credito:'Cartão de crédito',debito:'Cartão de débito'};
  for(const day of report.days){
    const summary=day.total;
-   const profitLabel=summary.missing?'Lucro parcial':summary.estimated?'Lucro estimado':'Lucro bruto';
+   const profitLabel=summary.missing?'Lucro parcial após taxa':summary.estimated?'Lucro estimado após taxa':'Lucro após taxa';
    const date=new Date(day.day+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
    content+='<section class="sales-day"><div class="sales-day-heading"><div><h3>'+esc(date)+'</h3><small>'+
     day.sales.length+' venda(s) · '+day.lines.length+' produto(s) na lista</small></div>'+
-    '<div class="sales-day-summary"><span>Vendido: <strong>'+fmt(day.salesTotal)+'</strong></span>'+
-    '<span>'+profitLabel+': <strong>'+fmt(summary.profit)+'</strong></span></div></div>'+
+    '<div class="sales-day-summary"><span>Bruto: <strong>'+fmt(day.salesTotal)+'</strong></span>'+
+    '<span>Taxas cartão: <strong>−'+fmt(day.paymentTotals.cardFees)+'</strong></span>'+
+    '<span>'+profitLabel+': <strong>'+fmt(summary.profit-day.paymentTotals.cardFees)+'</strong></span></div></div>'+
     '<div class="sales-checkouts">'+day.sales.map(group=>{
      const sale=group.sale,figures=group.total;
      const dateTime=new Date(sale.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-     const profitTitle=figures.missing?'Lucro parcial':figures.estimated?'Lucro estimado':'Lucro bruto';
+     const profitTitle=figures.missing?'Lucro parcial após taxa':figures.estimated?'Lucro estimado após taxa':'Lucro após taxa';
+     const fee=cardFeeInfo(sale);
+     const percentLabel=fee.percent===null?'':' ('+esc(fee.percent.toLocaleString('pt-BR',{maximumFractionDigits:2}))+'%)';
      return '<section class="sales-checkout" aria-label="Venda #'+group.number+'">'+
       '<header class="sales-checkout-heading"><div class="sales-checkout-identification">'+
       '<strong>Venda #'+group.number+'</strong><span>'+esc(dateTime)+'</span></div>'+
@@ -562,7 +593,7 @@ function renderSalesReport(){
       '<strong>'+fmt(sale.total)+'</strong></div></header>'+
       (group.lines.length?
         '<div class="sales-table-wrap"><table class="sales-table"><thead><tr>'+
-        '<th>Produto</th><th>Qtd.</th><th>Custo</th><th>Preço vendido</th><th>Lucro</th>'+
+        '<th>Produto</th><th>Qtd.</th><th>Custo</th><th>Preço vendido</th><th>Lucro bruto</th>'+
         '</tr></thead><tbody>'+group.lines.map(({item,financial:x})=>{
          const costLabel=x.missing?'Indisponível':fmt(x.cost)+(x.estimated?' *':'');
          const profit=x.missing?'—':fmt(x.profit)+(x.estimated?' *':'');
@@ -571,8 +602,16 @@ function renderSalesReport(){
           '<td class="sales-profit">'+profit+'</td></tr>';
         }).join('')+'</tbody></table></div>':
         '<p class="sales-checkout-empty">Os itens desta venda não estão disponíveis no histórico detalhado.</p>')+
-      '<footer class="sales-checkout-footer"><span>Total da venda: <strong>'+fmt(sale.total)+'</strong></span>'+
-      '<span>'+profitTitle+': <strong>'+fmt(figures.profit)+'</strong></span></footer>'+
+      '<footer class="sales-checkout-footer">'+
+      '<span>Total da venda: <strong>'+fmt(sale.total)+'</strong></span>'+
+      (fee.known?
+       '<span>Taxa da maquininha'+percentLabel+': <strong>−'+fmt(fee.amount)+'</strong></span>'+
+       '<span>Recebimento líquido: <strong>'+fmt(Number(sale.total)-fee.amount)+'</strong></span>'+
+       '<span>'+profitTitle+': <strong>'+fmt(figures.profit-fee.amount)+'</strong></span>':
+       '<span>Taxa da maquininha: <strong>Não registrada</strong></span>'+
+       '<span>Recebimento líquido: <strong>Não informado</strong></span>'+
+       '<span>Lucro após taxa: <strong>Não informado</strong></span>')+
+      '</footer>'+
       '</section>';
     }).join('')+'</div></section>';
  }
@@ -1033,9 +1072,10 @@ function renderGodzillaPDV(){
  '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'">'+
  '<span class="pdv-card-kind-label" id="pdvCardKindLabel">Tipo de cartão</span>'+
  '<div class="pdv-card-kinds" role="group" aria-labelledby="pdvCardKindLabel">'+cardTypeButtons+'</div>'+
- '<label>Taxa da maquininha (%)<input id="pdvFeePercent" name="card_fee_percent" type="number" min="0" max="100" step="0.01" value="3.99"></label>'+
- '<div class="pdv-calculation">Líquido estimado <strong id="pdvNet">'+fmt(sum*0.9601)+'</strong></div>'+
- '<small class="muted">Estimativa informativa; não é cobrada nem registrada na venda.</small></div>'+
+ '<label>Taxa da maquininha (%)<input id="pdvFeePercent" name="card_fee_percent" type="number" min="0" max="100" step="0.01" value="'+esc(pdvCardFeePercent)+'"></label>'+
+ '<div class="pdv-calculation">Desconto da maquininha <strong id="pdvFeeAmount">−'+fmt(Math.round(sum*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
+ '<div class="pdv-calculation">Líquido estimado <strong id="pdvNet">'+fmt(sum-Math.round(sum*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
+ '<small class="muted">Taxa registrada na venda e descontada do lucro no relatório; a BipStart não processa pagamentos.</small></div>'+
  '<button type="submit" class="button pdv-finish" '+(!cart.length?'disabled':'')+'>Finalizar venda ↗</button>'+
  '<p class="muted small">Registre apenas pagamentos recebidos fora da BipStart. O sistema atualiza o estoque após confirmar a venda.</p></form>'+
  ((typeof lastReceipt!=='undefined'&&lastReceipt?.shopId===shop?.id)?'<button class="ghost pdv-last-receipt" type="button" data-receipt-last>🧾 Reimprimir último comprovante</button>':'')+
@@ -1056,7 +1096,10 @@ function updatePdvEstimates(){
  const net=document.getElementById('pdvNet');
  if(fee&&net){
    const percent=Math.min(100,Math.max(0,Number(fee.value||0)));
-   net.textContent=fmt(total*(1-percent/100));
+   const discounted=Math.round(total*percent)/100;
+   const feeAmount=document.getElementById('pdvFeeAmount');
+   if(feeAmount)feeAmount.textContent='−'+fmt(discounted);
+   net.textContent=fmt(total-discounted);
  }
 }
 
@@ -1467,9 +1510,15 @@ async function handleSubmit(form,contractWindow=null){
         if(!Number.isFinite(Number(v.received))||v.received===''||Number(v.received)+0.001<total)
           throw Error('Informe um valor recebido suficiente para finalizar a venda em dinheiro.');
       }
+      const cardMethod=['credito','debito'].includes(v.payment_method);
+      const feePercent=cardMethod?Number(v.card_fee_percent):0;
+      if(!['dinheiro','pix','credito','debito'].includes(v.payment_method))throw Error('Forma de pagamento inválida.');
+      if(cardMethod&&(v.card_fee_percent===''||!Number.isFinite(feePercent)||feePercent<0||feePercent>100))
+        throw Error('Informe uma taxa da maquininha válida, entre 0% e 100%.');
       pdvPayment=v.payment_method;
       const sold=cart.map(c=>({id:c.id,name:c.name,qty:c.qty,price:c.price}));
-      const data=await rpc('bipstart_complete_sale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),p_payment_method:v.payment_method});
+      const data=await rpc('bipstart_complete_sale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),
+        p_payment_method:v.payment_method,p_card_fee_percent:feePercent});
       let recorded=[];
       try{
         if(data?.sale_id)recorded=await rest('shop_sale_items',{query:{
@@ -1479,7 +1528,9 @@ async function handleSubmit(form,contractWindow=null){
       lastReceipt=receiptSnapshot(data,v.payment_method,v.received||'',sold,recorded);
       cart=[];
       if(receiptSettings().preview)showReceiptDialog(lastReceipt);
-      msg('Venda registrada: '+fmt(data.total)+'. Comprovante disponível para impressão.');
+      msg('Venda registrada: '+fmt(data.total)+
+        (cardMethod?' · Taxa: '+fmt(data.card_fee_amount||0)+' · Líquido: '+fmt(data.net_total):'')+
+        '. Comprovante disponível para impressão.');
       break;
     }
     case 'courierForm':{
@@ -1638,7 +1689,10 @@ document.addEventListener('input',e=>{
  if(e.target.id==='pdvSearch'){
   pdvQuery=e.target.value;
   const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();
- }else if(e.target.id==='pdvReceived'||e.target.id==='pdvFeePercent')updatePdvEstimates();
+ }else if(e.target.id==='pdvReceived'||e.target.id==='pdvFeePercent'){
+   if(e.target.id==='pdvFeePercent')pdvCardFeePercent=e.target.value;
+   updatePdvEstimates();
+ }
 });
 document.addEventListener('change',e=>{
  if(e.target.id==='pdvCategory'){pdvCategory=e.target.value;const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();}
