@@ -745,22 +745,34 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
  background:#050407;
  padding-right:5px;
 }
-/* O filtro Todos usa um ícone fixo de 9 círculos, tingido pela cor do site. */
+/* Card de Todos: máscara PNG real da imagem enviada, pintada com a cor da loja. */
 .round-menu .category-tile-all .category-art-all-fixed{
  display:grid;
  place-items:center;
- background:color-mix(in srgb,var(--green) 10%,#0b0a10);
- color:var(--green);
+ padding:10px;
+ background:color-mix(in srgb,var(--green) 11%,#0b0a10);
+ border:1px solid color-mix(in srgb,var(--green) 25%,#303039);
  border-radius:23px;
 }
-.round-menu .category-tile-all .category-art-all-fixed svg{
+.round-menu .category-tile-all .category-all-png{
  display:block;
- width:78%;
- height:78%;
- fill:currentColor;
+ width:100%;
+ height:100%;
+ background-color:var(--green);
+ -webkit-mask-image:url('/todos-nove-circulos.png');
+ mask-image:url('/todos-nove-circulos.png');
+ -webkit-mask-size:contain;
+ mask-size:contain;
+ -webkit-mask-position:center;
+ mask-position:center;
+ -webkit-mask-repeat:no-repeat;
+ mask-repeat:no-repeat;
 }
 @media(max-width:600px){
- .round-menu .category-tile-all .category-art-all-fixed{border-radius:18px}
+ .round-menu .category-tile-all .category-art-all-fixed{
+  padding:7px;
+  border-radius:18px;
+ }
 }
 .round-menu .category-tile-all:focus-visible{
  outline:3px solid var(--green);
