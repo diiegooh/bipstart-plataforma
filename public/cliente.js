@@ -445,23 +445,31 @@ function reportFigures(lines){
  },{revenue:0,cost:0,profit:0,quantity:0,estimated:0,missing:0});
 }
 function salesReportData(salesList=salesReport?.sales||[],itemsList=salesReport?.items||[]){
- const saleById=new Map(salesList.map(s=>[s.id,s]));
- const byDay=new Map();
- for(const item of itemsList){
-   const sale=saleById.get(item.sale_id);if(!sale)continue;
-   const dt=new Date(sale.created_at);
-   const day=localReportDate(dt);
+ // Uma venda = um carrinho finalizado, com seus itens agrupados pelo identificador da venda.
+ const byDay=new Map(),saleGroups=new Map();
+ for(const sale of salesList){
+   const day=localReportDate(new Date(sale.created_at));
    if(!byDay.has(day))byDay.set(day,[]);
-   byDay.get(day).push({item,sale,financial:saleLineFinancial(item)});
+   const group={sale,lines:[]};
+   byDay.get(day).push(group);
+   saleGroups.set(sale.id,group);
  }
- const days=[...byDay.entries()].sort((a,b)=>b[0].localeCompare(a[0])).map(([day,lines])=>({
-  day,lines:lines.sort((a,b)=>new Date(b.sale.created_at)-new Date(a.sale.created_at)),
-  total:reportFigures(lines)
- }));
- const figures=reportFigures(days.flatMap(d=>d.lines));
- // Preserve a lista de vendas usada para calcular o faturamento total.
- const saleIdsWithItems=new Set(itemsList.map(i=>i.sale_id));
- const unmatchedSales=salesList.filter(s=>!saleIdsWithItems.has(s.id));
+ for(const item of itemsList){
+   const group=saleGroups.get(item.sale_id);
+   if(!group)continue;
+   group.lines.push({item,sale:group.sale,financial:saleLineFinancial(item)});
+ }
+ const days=[...byDay.entries()].sort((a,b)=>b[0].localeCompare(a[0])).map(([day,groups])=>{
+   // #1 é a primeira venda do dia, #2 a segunda, mesmo ao consultar semana ou mês.
+   groups.sort((a,b)=>new Date(a.sale.created_at)-new Date(b.sale.created_at)||
+    String(a.sale.id).localeCompare(String(b.sale.id)));
+   const sales=groups.map((group,index)=>({...group,number:index+1,total:reportFigures(group.lines)}));
+   const lines=sales.flatMap(group=>group.lines);
+   return {day,sales,lines,total:reportFigures(lines),
+    salesTotal:sales.reduce((total,group)=>total+Number(group.sale.total||0),0)};
+ });
+ const figures=reportFigures(days.flatMap(day=>day.lines));
+ const unmatchedSales=salesList.filter(s=>!saleGroups.get(s.id)?.lines.length);
  return {sales:salesList,days,figures,salesCount:salesList.length,unmatchedSales};
 }
 async function salesPaginated(table,query,pageSize=200){
@@ -540,18 +548,33 @@ function renderSalesReport(){
    const profitLabel=summary.missing?'Lucro parcial':summary.estimated?'Lucro estimado':'Lucro bruto';
    const date=new Date(day.day+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
    content+='<section class="sales-day"><div class="sales-day-heading"><div><h3>'+esc(date)+'</h3><small>'+
-    day.lines.length+' produto(s) na lista</small></div><div class="sales-day-summary"><span>Vendido: <strong>'+fmt(summary.revenue)+'</strong></span>'+
+    day.sales.length+' venda(s) · '+day.lines.length+' produto(s) na lista</small></div>'+
+    '<div class="sales-day-summary"><span>Vendido: <strong>'+fmt(day.salesTotal)+'</strong></span>'+
     '<span>'+profitLabel+': <strong>'+fmt(summary.profit)+'</strong></span></div></div>'+
-    '<div class="sales-table-wrap"><table class="sales-table"><thead><tr>'+
-    '<th>Horário</th><th>Produto</th><th>Qtd.</th><th>Pagamento</th><th>Custo</th><th>Preço vendido</th><th>Lucro</th>'+
-    '</tr></thead><tbody>'+day.lines.map(({sale,item,financial:x})=>{
+    '<div class="sales-checkouts">'+day.sales.map(group=>{
+     const sale=group.sale,figures=group.total;
      const dateTime=new Date(sale.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-     const costLabel=x.missing?'Indisponível':fmt(x.cost)+(x.estimated?' *':'');
-     const profitLabel=x.missing?'—':fmt(x.profit)+(x.estimated?' *':'');
-     return '<tr><td>'+dateTime+'</td><td><strong>'+esc(item.product_name)+'</strong><small>Unit.: '+fmt(x.unitPrice)+'</small></td>'+
-      '<td>'+esc(x.quantity)+'</td><td>'+esc(payments[sale.payment_method]||sale.payment_method)+'</td>'+
-      '<td>'+costLabel+'</td><td>'+fmt(x.revenue)+'</td><td class="sales-profit">'+profitLabel+'</td></tr>';
-    }).join('')+'</tbody></table></div></section>';
+     const profitTitle=figures.missing?'Lucro parcial':figures.estimated?'Lucro estimado':'Lucro bruto';
+     return '<section class="sales-checkout" aria-label="Venda #'+group.number+'">'+
+      '<header class="sales-checkout-heading"><div class="sales-checkout-identification">'+
+      '<strong>Venda #'+group.number+'</strong><span>'+esc(dateTime)+'</span></div>'+
+      '<div class="sales-checkout-meta"><span>'+esc(payments[sale.payment_method]||sale.payment_method||'Não informado')+'</span>'+
+      '<strong>'+fmt(sale.total)+'</strong></div></header>'+
+      (group.lines.length?
+        '<div class="sales-table-wrap"><table class="sales-table"><thead><tr>'+
+        '<th>Produto</th><th>Qtd.</th><th>Custo</th><th>Preço vendido</th><th>Lucro</th>'+
+        '</tr></thead><tbody>'+group.lines.map(({item,financial:x})=>{
+         const costLabel=x.missing?'Indisponível':fmt(x.cost)+(x.estimated?' *':'');
+         const profit=x.missing?'—':fmt(x.profit)+(x.estimated?' *':'');
+         return '<tr><td><strong>'+esc(item.product_name)+'</strong><small>Unit.: '+fmt(x.unitPrice)+'</small></td>'+
+          '<td>'+esc(x.quantity)+'</td><td>'+costLabel+'</td><td>'+fmt(x.revenue)+'</td>'+
+          '<td class="sales-profit">'+profit+'</td></tr>';
+        }).join('')+'</tbody></table></div>':
+        '<p class="sales-checkout-empty">Os itens desta venda não estão disponíveis no histórico detalhado.</p>')+
+      '<footer class="sales-checkout-footer"><span>Total da venda: <strong>'+fmt(sale.total)+'</strong></span>'+
+      '<span>'+profitTitle+': <strong>'+fmt(figures.profit)+'</strong></span></footer>'+
+      '</section>';
+    }).join('')+'</div></section>';
  }
  return content;
 }
