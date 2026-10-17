@@ -650,11 +650,11 @@ function categoryImagesSettings(){
   const name=normalizedProductCategory(product),key=categoryKey(name);
   if(name&&!names.has(key))names.set(key,name);
  }
- const ordered=[...names.values()].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ const ordered=['Todos',...names.values()].filter((name,index,list)=>list.findIndex(value=>categoryKey(value)===categoryKey(name))===index && !!name).sort((a,b)=>a==='Todos'?-1:b==='Todos'?1:a.localeCompare(b,'pt-BR'));
  const rows=ordered.map(name=>
   '<div class="category-image-setting-row">'+
    categoryThumbnail(name)+
-   '<div class="category-image-setting-info"><strong>'+esc(name)+'</strong><small>Foto exibida no cardápio online</small></div>'+
+   '<div class="category-image-setting-info"><strong>'+esc(name)+'</strong><small>'+(categoryKey(name)==='todos'?'Imagem de fundo do botão Todos':'Foto exibida no cardápio online')+'</small></div>'+
    categoryImageActions(name)+
   '</div>').join('');
  return '<section class="category-image-settings" id="categoryImagesSettings">'+
@@ -685,7 +685,7 @@ function productGrid(selected='all',stockMode='all'){
   empty(emptyMessage);
 }
 function categoryOptions(selected){
-  const names=[...new Set(['Geral',...categories.map(c=>c.name),...products.map(p=>p.category||'Geral')])];
+  const names=[...new Set(['Geral',...categories.filter(c=>categoryKey(c.name)!=='todos').map(c=>c.name),...products.map(p=>p.category||'Geral')])];
   return names.map(name=>'<option value="'+esc(name)+'"'+(name===selected?' selected':'')+'>'+esc(name)+'</option>').join('');
 }
 function cardapioLogoEditor(){
@@ -727,7 +727,8 @@ function cardapioLayoutSettings(){
 function cardapioEditor(){
  if(!proAccess())return heading('Cardápio online','Disponível exclusivamente no Plano Premium.')+
    '<div class="empty">Faça upgrade para Premium nas Configurações para publicar o cardápio. Seus produtos permanecem salvos.</div>';
- const list=categories.length?categories.map(cat=>{
+ const visibleCategories=categories.filter(cat=>categoryKey(cat.name)!=='todos');
+ const list=visibleCategories.length?visibleCategories.map(cat=>{
   const count=products.filter(p=>p.category.toLocaleLowerCase('pt-BR')===cat.name.toLocaleLowerCase('pt-BR')).length;
   return '<div class="menu-category-line"><strong>'+esc(cat.name)+'</strong><small>'+count+' item(ns)</small></div>';
  }).join(''):'<p class="muted">Comece adicionando uma categoria, como Salgados ou Bebidas.</p>';
@@ -1231,8 +1232,9 @@ async function saveCategoryImage(name,file){
   throw Error('Imagens de categorias disponíveis apenas no Premium com o cardápio configurado.');
  const normalized=String(name||'').trim();
  if(!normalized||normalized.length>65||
-   !categories.some(c=>categoryKey(c.name)===categoryKey(normalized))&&
-   !products.some(p=>categoryKey(p.category)===categoryKey(normalized)))
+   (categoryKey(normalized)!=='todos' &&
+    !categories.some(c=>categoryKey(c.name)===categoryKey(normalized))&&
+    !products.some(p=>categoryKey(p.category)===categoryKey(normalized))))
   throw Error('Categoria inválida. Atualize a página e tente novamente.');
  if(!await ensureSession())throw Error('Sua sessão expirou. Entre novamente.');
  const image_path=await uploadImage(file);
@@ -1303,7 +1305,7 @@ async function handleSubmit(form){
       if(!menuSchemaReady)throw Error('Categorias aguardando atualização do banco de dados.');
       if(shop.model!=='pdv')throw Error('Categorias disponíveis somente para lojas.');
       const name=String(v.name||'').trim();
-      if(name.length<1||name.length>65)throw Error('Informe uma categoria válida (até 65 caracteres).');
+      if(name.length<1||name.length>65||categoryKey(name)==='todos')throw Error('Informe uma categoria válida (até 65 caracteres). Todos é um filtro automático.');
       if(categories.some(c=>c.name.toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR')))throw Error('Esta categoria já está cadastrada.');
       const order=categories.reduce((max,c)=>Math.max(max,Number(c.sort_order)||0),0)+10;
       await rest('shop_menu_categories',{method:'POST',body:{shop_id:shop.id,name,sort_order:order}});
