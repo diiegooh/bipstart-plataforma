@@ -50,7 +50,7 @@ test('Admin exibe solicitações de upgrade pendentes em Personalizações e só
  assert.match(html,/id="upgradeMessage"/);
  assert.match(html,/id="customRequests"/);
  assert.match(js,/bipstart_admin_list_shops_with_contacts/);
- assert.match(js,/p_shop_id:shopId,p_plan:'pro',p_action:'activate'/);
+ assert.match(js,/request\('bipstart_admin_extend_premium',\{p_shop_id:shopId\}\)/);
  assert.match(js,/Você confirmou o pagamento/);
  assert.match(js,/renderUpgrades\(items\)/);
 });
