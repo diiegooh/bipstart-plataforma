@@ -245,7 +245,7 @@ $('adminRows').addEventListener('click',async e=>{
  const action=btn.dataset.action;
  if(!shopId||!PLAN[plan]||!['activate','suspend'].includes(action))return;
  const text=action==='activate'
-  ?'Você confirma que verificou o pagamento desta loja por WhatsApp e deseja ativar o plano '+PLAN[plan]+'?'
+  ?'Você confirma que verificou o pagamento da loja e deseja '+(plan==='pro'?'somar 30 dias Premium ao próximo vencimento':'ativar o plano '+PLAN[plan])+'?'
   :'Deseja suspender imediatamente o acesso desta loja?';
  if(!window.confirm(text))return;
  busy=true;btn.disabled=true;
@@ -296,7 +296,7 @@ $('upgradeRequests').addEventListener('click',async event=>{
    new Date(item.trial_until).toLocaleString('pt-BR')+
    '? Os dias já utilizados no Básico continuam contando e o prazo original não muda.':
   'Você confirmou o pagamento da loja "'+item.shop_name+
-   '" e deseja ativar o Premium por 30 dias? Esta ação libera o plano imediatamente.';
+   '"? Serão somados 30 dias Premium à data do próximo vencimento, sem perder dias já pagos.';
  if(!window.confirm(prompt))return;
  busy=true;button.disabled=true;$('reload').disabled=true;
  try{
