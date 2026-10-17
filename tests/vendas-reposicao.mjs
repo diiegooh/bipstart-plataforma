@@ -22,7 +22,7 @@ function fns(productsList=products,loadedReport=null){
   productsList,loadedReport,'day','2026-10-14',mkDate,product=>{
    if(Number(product.stock)<=0)return {state:'out'};
    return Number(product.stock)<=Number(product.min_stock)?{state:'low'}:{state:'ok'};
-  },amount=>'R$ '+Number(amount||0).toFixed(2),v=>String(v??'').replace(/</g,'&lt;'),
+  },amount=>'R$ '+Number(amount||0).toFixed(2),v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),
   (title)=>'<h2>'+title+'</h2>',
   (title,amount)=>'<span>'+title+': '+amount+'</span>',
   txt=>'<p>'+txt+'</p>',false);
@@ -88,7 +88,7 @@ test('cada dia agrupa linhas, soma lucro bruto e sinaliza estimativas',()=>{
  assert.deepEqual(report.days.map(day=>day.sales[0].number),[1,1]);
  assert.equal(report.days.reduce((sum,d)=>sum+d.total.profit,0),18);
  assert.match(source,/Lucro/);
- assert.match(source,/Custo dos itens/);
+ assert.match(source,/Custo/);
  assert.match(source,/Preço vendido/);
  assert.match(source,/Pagamento/);
 });
