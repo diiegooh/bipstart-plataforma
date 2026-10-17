@@ -745,7 +745,7 @@ function cardapioEditor(){
   ['Pagamento',(shop.payment_methods||[]).join(', ')||'Configurar'],
   ['Entrega',fmt(shop.delivery_fee||0)]
  ];
- return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.','<div class="menu-heading-actions"><button class="button" data-new="product">+ Adicionar item</button></div>')+
+ return heading('Meu cardápio','Organize categorias, produtos, descrições e preços.')+
  (menuSchemaReady?'':'<p class="warn">A nova versão do cardápio está aguardando a atualização do banco de dados. Não salve alterações até a configuração terminar.</p>')+
  cardapioLogoEditor()+
  cardapioLayoutSettings()+
