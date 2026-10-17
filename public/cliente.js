@@ -712,15 +712,14 @@ function cardapioLogoEditor(){
 const menuEstablishmentTypes=[["outros","Outro estabelecimento"],["bar_petiscaria","Bar e petiscaria"],["adega_conveniencia","Adega e conveniência"],["hamburgueria","Hamburgueria"],["pizzaria","Pizzaria"],["lanchonete","Lanchonete"],["marmitaria","Marmitaria"],["restaurante","Restaurante"],["doceria","Doceria"],["acaiteria","Açaíteria"],["espetaria","Espetaria"],["mercado","Mercado"]];
 function cardapioLayoutSettings(){
  if(!proAccess())return '';
- const establishment=shop.establishment_type||'outros';
+ const savedEstablishment=shop.establishment_type||'outros';
+ const establishment=menuEstablishmentTypes.find(([key])=>key===savedEstablishment)?.[1]||savedEstablishment;
  const isSubtitle=shop.show_logo_subtitle===true;
  return '<section class="menu-editor-panel menu-layout-settings" id="menuLayoutSettings" aria-labelledby="menuLayoutTitle">'+
   '<h3 id="menuLayoutTitle">Personalização do cardápio</h3>'+
   '<form id="menuLayoutForm">'+
-   '<label>Tipo de estabelecimento<select name="establishment_type">'+
-    menuEstablishmentTypes.map(([key,label])=>
-     '<option value="'+esc(key)+'"'+(establishment===key?' selected':'')+'>'+esc(label)+'</option>').join('')+
-   '</select><small>Tipo cadastrado para identificar o segmento da loja.</small></label>'+
+   '<label>Tipo de estabelecimento<input type="text" name="establishment_type" list="menuEstablishmentSuggestions" value="'+esc(establishment)+'" maxlength="65" required placeholder="Ex.: Adega, cafeteria ou petiscaria">'+
+   '<datalist id="menuEstablishmentSuggestions">'+menuEstablishmentTypes.map(([,label])=>'<option value="'+esc(label)+'"></option>').join('')+'</datalist></label>'+
    '<fieldset class="menu-layout-subtitle"><legend>Exibir frase abaixo do nome da loja?</legend>'+
     '<label><input type="radio" name="show_logo_subtitle" value="true"'+(isSubtitle?' checked':'')+'> Sim</label>'+
     '<label><input type="radio" name="show_logo_subtitle" value="false"'+(!isSubtitle?' checked':'')+'> Não</label>'+
@@ -1410,10 +1409,12 @@ async function handleSubmit(form){
     case 'menuLayoutForm':{
       if(tab!=='cardapio'||shop?.model!=='pdv'||!proAccess())throw Error('Configuração do cardápio exclusiva do Premium.');
       const menu_layout_style='round';
-      const establishment_type=String(v.establishment_type||'');
+      const enteredEstablishment=String(v.establishment_type||'').trim();
+      const savedOption=menuEstablishmentTypes.find(([key,label])=>key===enteredEstablishment||label.toLocaleLowerCase('pt-BR')===enteredEstablishment.toLocaleLowerCase('pt-BR'));
+      const establishment_type=savedOption?.[0]||enteredEstablishment;
       const show_logo_subtitle=v.show_logo_subtitle==='true';
       const logo_subtitle=String(v.logo_subtitle||'').trim();
-      if(!menuEstablishmentTypes.some(([key])=>key===establishment_type))throw Error('Selecione um tipo de estabelecimento válido.');
+      if(!enteredEstablishment||enteredEstablishment.length>65)throw Error('Informe um tipo de estabelecimento com até 65 caracteres.');
       if(!['true','false'].includes(v.show_logo_subtitle)||logo_subtitle.length>100||
          (show_logo_subtitle&&!logo_subtitle))throw Error('Confira a frase abaixo da logo.');
       const body={menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle};
