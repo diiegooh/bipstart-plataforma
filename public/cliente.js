@@ -299,7 +299,7 @@ async function reloadData(){
   onlineOrders=await get('shop_online_orders');
   requests=await get('shop_customization_requests');
   if(proAccess()){
-    couriers=await rest('shop_couriers',{query:{select:'*',shop_id:'eq.'+shop.id}});
+    couriers=await rest('shop_couriers',{query:{select:'*',shop_id:'eq.'+shop.id,removed_at:'is.null'}});
     deliveries=await get('shop_deliveries');
   }
 }
@@ -1474,7 +1474,8 @@ function renderPage(){
         '</div><div class="actions courier-access-actions">'+
          '<button type="button" class="button" data-share-courier="'+esc(link)+'" data-courier-name="'+esc(c.name)+'">Compartilhar link</button>'+
          '<button type="button" class="ghost" data-copy-invite="'+esc(link)+'">Copiar link</button>'+
-         editBtn('courier',c.id)+'</div></div>';
+         editBtn('courier',c.id)+
+         '<button type="button" class="ghost" data-delete-courier="'+esc(c.id)+'">Remover</button></div></div>';
     }).join('')+'</div>':empty();
   }else if(tab==='entregas'){
     content=heading('Fila de entregas • Plano Premium','Entregas pendentes são oferecidas aos motoboys disponíveis.','<button class="button" data-new="delivery">+ Nova entrega</button>');
@@ -2234,6 +2235,31 @@ document.addEventListener('click',async e=>{
     }catch{
       window.prompt('Copie o link do cardápio:',url);
     }
+    return;
+  }
+  const deleteCourier=e.target.closest('[data-delete-courier]');
+  if(deleteCourier){
+    if(tab!=='motoboys'||!proAccess()||!shop)return;
+    const courier=couriers.find(c=>c.id===deleteCourier.dataset.deleteCourier);
+    if(!courier)return;
+    if(!window.confirm('Remover o motoboy '+courier.name+'? O acesso será encerrado e o histórico das entregas será preservado.'))return;
+    deleteCourier.disabled=true;
+    try{
+      const current=await ensureSession();
+      if(!current)throw Error('Faça login novamente.');
+      const response=await fetch(cfg.supabaseUrl+'/functions/v1/bipstart-courier-credentials',{
+        method:'POST',
+        headers:{apikey:cfg.publishableKey,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+        body:JSON.stringify({action:'remove',shop_id:shop.id,courier_id:courier.id})
+      });
+      const data=await response.json().catch(()=>null);
+      if(!response.ok)throw Error(data?.message||'Não foi possível remover o motoboy.');
+      if(showForm?.kind==='courier'&&showForm.value?.id===courier.id)showForm=null;
+      await reloadData();
+      renderPage();
+      msg('Motoboy removido. O histórico das entregas foi preservado.');
+    }catch(error){msg(error.message||'Falha ao remover motoboy.',true)}
+    finally{if(deleteCourier.isConnected)deleteCourier.disabled=false}
     return;
   }
   const courierShare=e.target.closest('[data-share-courier]');
