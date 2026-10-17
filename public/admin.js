@@ -207,7 +207,7 @@ async function load(){
    adminShopRecords=items;
    $('adminRows').innerHTML=items.map(row).join('');
    renderUpgrades(items);
-   message(items.length+' loja(s) encontradas. Confirme o pagamento antes de liberar.');
+   message(items.length+' loja(s) encontradas. Pagos: confirmar pagamento. Testes Premium: manter prazo original.');
    try{await loadCustomization()}
    catch(e){$('customRequests').replaceChildren();$('customMessage').textContent='Não foi possível carregar as solicitações: '+e.message}
  }catch(e){
