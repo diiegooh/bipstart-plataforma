@@ -93,7 +93,11 @@ function drawPage(){
  }
  const categories=categoryNames();
  $('category').innerHTML='<option value="">Todas as categorias</option>'+categories.map(name=>'<option value="'+esc(name)+'">'+esc(name)+'</option>').join('');
- const allCategory='<button type="button" class="category-tile category-tile-all" data-cat="" aria-pressed="true" aria-label="Exibir todos os produtos"><span class="category-art category-art-emoji" aria-hidden="true">▦</span><b>Todos</b></button>';
+ const allImage=(menu?.categories||[]).find(item=>fold(item?.name)==='todos')?.image_path;
+ const allArtwork=allImage?
+  '<span class="category-art category-art-all-photo" aria-hidden="true"><img src="'+esc(imageUrl(allImage))+'" alt="" loading="lazy" decoding="async"></span>':
+  '<span class="category-art category-art-emoji" aria-hidden="true">▦</span>';
+ const allCategory='<button type="button" class="category-tile category-tile-all" data-cat="" aria-pressed="true" aria-label="Exibir todos os produtos">'+allArtwork+'<b>Todos</b></button>';
  $('quickCategories').innerHTML=allCategory+categories.filter(name=>fold(name)!=='todos').map(name=>'<button type="button" class="category-tile" data-cat="'+esc(name)+'">'+categoryArtwork(name)+'<b>'+esc(name)+'</b></button>').join('');
  const combos=categories.find(name=>/combo/i.test(fold(name)));
  $('comboBanner').classList.toggle('hidden',!combos);
