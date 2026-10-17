@@ -10,6 +10,7 @@ const panel=readFileSync('public/cliente.js','utf8');
 const panelCss=readFileSync('public/cliente.css','utf8');
 const previousMigration=readFileSync('sql/bipstart_round_menu_layout_20261016.sql','utf8');
 const officialMigration=readFileSync('sql/bipstart_official_menu_compact_20261017.sql','utf8');
+const todosImageMigration=readFileSync('sql/bipstart_todos_category_background_20261017.sql','utf8');
 
 test('cardápio compacto é único modelo, sem prévia ou seletor clássico',()=>{
  new vm.Script(vitrine);
@@ -88,6 +89,25 @@ test('categorias com imagens originais e Todos fixo acessam todos os produtos',(
  assert.equal(calls,2);
  assert.match(vitrine,/btn\.dataset\.cat===''[\s]*\?!category/);
  assert.match(vitrine,/btn\.setAttribute\('aria-pressed',String\(active\)\)/);
+});
+
+test('imagem de Todos funciona como fundo e não depende de haver produto na categoria virtual',()=>{
+ const from=vitrine.indexOf(' const allImage=');
+ const to=vitrine.indexOf(" $('quickCategories').innerHTML=",from);
+ assert.ok(from>=0&&to>from);
+ const render=new Function('menu','fold','esc','imageUrl',vitrine.slice(from,to)+';return allCategory;');
+ const renderTile=categories=>render({categories},v=>String(v).toLowerCase(),v=>String(v),path=>'https://images.test/'+path);
+ const withImage=renderTile([{name:'Todos',image_path:'shop/todos.png'}]);
+ const withoutImage=renderTile([]);
+ assert.match(withImage,/class="category-art category-art-all-photo"/);
+ assert.match(withImage,/src="https:\/\/images\.test\/shop\/todos\.png"/);
+ assert.match(withImage,/aria-label="Exibir todos os produtos"/);
+ assert.match(withImage,/<b>Todos<\/b>/);
+ assert.match(withoutImage,/class="category-art category-art-emoji"/);
+ assert.doesNotMatch(withoutImage,/<img/);
+ assert.match(panel,/categoryKey\(normalized\)!=='todos'/);
+ assert.match(todosImageMigration,/lower\(btrim\(c\.name\)\)='todos'/);
+ assert.match(todosImageMigration,/cp\.active=true and cp\.online_enabled=true/);
 });
 
 test('configurações de loja, mensagem de WhatsApp e registro de pedido estão preservados',()=>{
