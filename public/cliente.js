@@ -159,7 +159,7 @@ async function requireVerifiedEmail(){
 }
 async function loadShops(){
   await requireVerifiedEmail();
-  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,created_at',order:'created_at.desc',limit:'20'}});
+  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,created_at',order:'created_at.desc',limit:'20'}});
   if(!rows?.length){
     hideAll();hiding('createShop',true);hiding('logout',true);
     if(initialPlan)$('shopForm').elements.namedItem('requested_plan').value=initialPlan;
@@ -180,13 +180,27 @@ function canCustomize(){return proAccess()}
 function planManagementCard(){
  const active=ent?.plan_code==='pro'?'pro':'basic';
  const pending=active==='basic'&&shop?.requested_plan==='pro';
- const info=active==='pro'?'':pending?
-   '<p class="plan-management-pending">Upgrade para Premium solicitado. Aguarde a confirmação e a ativação manual pela BipStart.</p>':
-   '<button type="button" class="ghost plan-request-button" data-plan-request="pro">Solicitar upgrade para Premium</button>';
+ const trial=trialValid();
+ const trialEnd=trial&&ent.trial_until?
+   new Date(ent.trial_until).toLocaleString('pt-BR'):'';
+ const trialRequested=pending&&shop?.upgrade_request_type==='trial';
+ const info=active==='pro'?
+   (trial?'<p class="plan-management-pending">Premium em teste até '+esc(trialEnd)+
+    '. A data original de suspensão dos 7 dias foi mantida.</p>':''):
+   pending?
+     (trialRequested?
+       '<p class="plan-management-pending">Teste Premium solicitado. Aguardando aprovação da BipStart. Os dias já usados no teste Básico continuam contando; término: '+esc(trialEnd)+'.</p>':
+       '<p class="plan-management-pending">Upgrade Premium pago solicitado. Aguarde a confirmação e a ativação manual pela BipStart.</p>'):
+     (trial?
+       '<div class="plan-trial-upgrade">'+
+       '<button type="button" class="ghost plan-request-button" data-plan-trial-request="pro">Testar Premium com os dias restantes</button>'+
+       '<small>O teste continua até '+esc(trialEnd)+'. Os 7 dias não reiniciam e não há cobrança.</small></div>'+
+       '<button type="button" class="ghost plan-request-button" data-plan-request="pro">Solicitar Premium pago</button>':
+       '<button type="button" class="ghost plan-request-button" data-plan-request="pro">Solicitar upgrade para Premium</button>');
  return '<section class="plan-management" aria-label="Meu plano e dados da loja">'+
    '<h3>Meu plano</h3><p>Plano ativo: <strong>'+esc(plans[active])+'</strong></p>'+
    info+
-   (pending?'<a class="ghost plan-contact" href="'+esc(contactUrl('alteracao'))+'" target="_blank" rel="noopener noreferrer">Solicitar ativação pelo WhatsApp ↗</a>':'')+
+   (pending&&!trialRequested?'<a class="ghost plan-contact" href="'+esc(contactUrl('alteracao'))+'" target="_blank" rel="noopener noreferrer">Solicitar ativação pelo WhatsApp ↗</a>':'')+
    '</section>';
 }
 async function refreshActivatedPlan(){
@@ -200,7 +214,7 @@ async function refreshActivatedPlan(){
   if(JSON.stringify(latest)===previous)return;
   ent=latest;
   const rows=await rest('shops',{query:{
-    select:'id,name,slug,model,requested_plan,signup_choice,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,created_at',
+    select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,created_at',
     id:'eq.'+id,limit:'1'
   }});
   if(rows[0])shop={...shop,...rows[0]};
@@ -2003,6 +2017,24 @@ document.addEventListener('click',async e=>{
     return;
   }
   if(e.target.id==='receiptModal'){closeReceiptDialog();return;}
+  const trialUpgradeButton=e.target.closest('[data-plan-trial-request]');
+  if(trialUpgradeButton){
+    if(!shop||ent?.plan_code!=='basic'||!trialValid()||
+      trialUpgradeButton.dataset.planTrialRequest!=='pro')return;
+    const end=new Date(ent.trial_until).toLocaleString('pt-BR');
+    if(!window.confirm('Solicitar teste Premium até '+end+
+      '? Os dias já usados no Básico continuam contando. Os 7 dias NÃO reiniciam, e a liberação depende de aprovação da BipStart.'))return;
+    trialUpgradeButton.disabled=true;
+    try{
+      const ok=await rpc('bipstart_request_premium_trial',{p_shop_id:shop.id});
+      if(ok!==true)throw Error('O pedido de teste não foi confirmado.');
+      shop.requested_plan='pro';
+      shop.upgrade_request_type='trial';
+      renderPage();
+      msg('Teste Premium solicitado. A data de suspensão permanece em '+end+'. Aguarde a liberação no Admin.');
+    }catch(error){trialUpgradeButton.disabled=false;msg(error.message,true)}
+    return;
+  }
   const planButton=e.target.closest('[data-plan-request]');
   if(planButton){
     if(!shop||!hasAccess()||ent?.plan_code!=='basic'||planButton.dataset.planRequest!=='pro')return;
@@ -2014,6 +2046,7 @@ document.addEventListener('click',async e=>{
       const success=await rpc('bipstart_request_plan_change',{p_shop_id:shop.id,p_plan:target});
       if(success!==true)throw Error('Não foi possível registrar a solicitação de plano.');
       shop.requested_plan=target;
+      shop.upgrade_request_type='paid';
       renderPage();
       msg('Solicitação do plano '+plans[target]+' registrada. Entre em contato para concluir a ativação.');
     }catch(error){planButton.disabled=false;msg(error.message,true);}
