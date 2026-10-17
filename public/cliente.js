@@ -619,14 +619,14 @@ function salesPrintableHtml(report,format,storeName,rangeLabel){
  const pageMargin=narrow?'2mm':'12mm';
  const money=value=>value===null?'—':fmt(value);
  const rows=report.days.flatMap(day=>day.sales.map(group=>{
-  const info=salesRecordInfo(group,day);
+  const info=salesRecordInfo(group,day.day);
   const date=new Date(day.day+'T12:00:00').toLocaleDateString('pt-BR');
   return {...info,displayDate:date};
  }));
  const totals=report.paymentTotals,figures=report.figures;
  const profit=salesProfitInfo(figures,totals,report.unmatchedSales.length);
  const dataRows=rows.map(item=>
-  '<tr><td>#'+item.number+'</td><td>'+esc(item.displayDate+' '+item.time)+'</td>'+
+  '<tr><td>Venda #'+item.number+'</td><td>'+esc(item.displayDate+' '+item.time)+'</td>'+
   '<td>'+item.units+'</td><td>'+money(item.gross)+'</td>'+
   '<td>'+money(item.cost)+'</td><td>'+salesProfitLabel({value:item.profit,partial:item.profitPartial})+'</td></tr>').join('');
  const summary=[
@@ -646,44 +646,115 @@ function salesPrintableHtml(report,format,storeName,rangeLabel){
   '<div class="print-line"><b>Custo</b><b>'+money(item.cost)+'</b></div>'+
   '<div class="print-line"><b>Lucro</b><b>'+salesProfitLabel({value:item.profit,partial:item.profitPartial})+'</b></div>'+
   '</section>').join('');
+ const a4Details=report.days.flatMap(day=>day.sales.map(group=>{
+  const sale=group.sale,info=salesRecordInfo(group,day.day);
+  const date=new Date(day.day+'T12:00:00').toLocaleDateString('pt-BR');
+  const payments={dinheiro:'Dinheiro',pix:'Pix',credito:'Cartão de crédito',debito:'Cartão de débito'};
+  const payment=payments[sale.payment_method]||sale.payment_method||'Não informado';
+  const fee=cardFeeInfo(sale);
+  const products=group.lines.map(({item,financial:x})=>
+   '<tr><td>'+esc(item.product_name)+'</td><td>'+esc(x.quantity)+'</td>'+
+   '<td>'+money(x.unitPrice)+'</td><td>'+(x.missing?'—':money(x.cost)+(x.estimated?' *':''))+'</td>'+
+   '<td>'+money(x.revenue)+'</td></tr>').join('');
+  return '<article class="a4-sale">'+
+   '<div class="a4-sale-heading"><h3>Venda #'+group.number+'</h3>'+
+   '<span>'+esc(date+' · '+info.time+' · '+payment)+'</span></div>'+
+   (group.lines.length?
+    '<table class="a4-products"><thead><tr><th>Produto</th><th>Qtd.</th><th>Preço un.</th><th>Custo</th><th>Vendido</th>'+
+    '</tr></thead><tbody>'+products+'</tbody></table>':
+    '<p>Produtos não disponíveis no histórico detalhado.</p>')+
+   (['credito','debito'].includes(sale.payment_method)?
+     '<p class="a4-fee">'+(fee.known?
+       'Taxa da maquininha: '+money(fee.amount)+(fee.percent===null?'':' ('+
+        esc(fee.percent.toLocaleString('pt-BR',{maximumFractionDigits:2}))+'%)'):
+       'Taxa do cartão não registrada; lucro parcial (*)')+'</p>':'')+
+   '<div class="a4-sale-totals"><span>Unidades: <b>'+info.units+'</b></span>'+
+   '<span>Total vendido: <b>'+money(info.gross)+'</b></span>'+
+   '<span>Custo: <b>'+money(info.cost)+'</b></span>'+
+   '<span>Lucro: <b>'+salesProfitLabel({value:info.profit,partial:info.profitPartial})+'</b></span></div>'+
+   '</article>';
+ })).join('');
  const warning=(totals.unknownFees||figures.missing||figures.estimated||report.unmatchedSales.length)?
   '<p class="warning">* Lucro parcial ou estimado: custos históricos estimados ou taxa de cartão antiga sem registro. Informe a taxa real no painel para fechar o cálculo. — indica custo desconhecido.</p>':'';
+ const summaryHtml=summary.map(([label,value])=>
+  '<div><span>'+esc(label)+'</span><strong>'+value+'</strong></div>').join('');
  const body='<main class="sheet"><header class="print-header"><strong>'+esc(storeName)+'</strong>'+
   '<h1>'+title+'</h1><p>PERÍODO: '+esc(rangeLabel)+'</p>'+
   '<p class="nonfiscal">RELATÓRIO GERENCIAL · NÃO FISCAL</p></header>'+
-  '<section class="print-summary">'+summary.map(([label,value])=>
-   '<div><span>'+esc(label)+'</span><strong>'+value+'</strong></div>').join('')+'</section>'+
+  '<section class="print-summary">'+summaryHtml+'</section>'+
   '<h2>Lista de vendas</h2>'+
   (narrow?detail:
    '<table class="print-records"><thead><tr><th>Venda</th><th>Data e hora</th>'+
    '<th>Unidades</th><th>Total vendido</th><th>Custo</th><th>Lucro</th>'+
-   '</tr></thead><tbody>'+dataRows+'</tbody></table>')+
+   '</tr></thead><tbody>'+dataRows+'</tbody></table>'+
+   '<section class="a4-details"><h2>Produtos vendidos por carrinho</h2>'+
+   '<p class="a4-details-note">Detalhamento das vendas numeradas no período selecionado.</p>'+
+   a4Details+'</section>')+
   warning+'<footer>Lucro após taxas da maquininha registradas. Não inclui impostos e outras despesas.<br>'+
   'Documento gerencial, não substitui NF-e, NFC-e ou nota fiscal.</footer></main>';
+ const toolbar='<div class="toolbar">'+
+  (narrow?'':'<label class="print-option"><input type="checkbox" id="includeProducts"'+
+   ' onchange="document.body.classList.toggle(&quot;include-products&quot;,this.checked)">'+
+   ' Incluir produtos das vendas no A4</label>')+
+  '<button type="button" onclick="window.print()">Imprimir / Salvar como PDF</button></div>';
  return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">'+
   '<meta name="viewport" content="width=device-width,initial-scale=1">'+
   '<title>'+title+' · '+esc(storeName)+'</title>'+
   '<style>@page{size:'+pageSize+';margin:'+pageMargin+'}'+
-  '*,*::before,*::after{box-sizing:border-box}body{margin:0;padding:18px;background:#edf0f2;color:#111;font:12px Arial,sans-serif}'+
-  '.toolbar{text-align:center;margin:0 0 14px}.toolbar button{padding:10px 15px;cursor:pointer}'+
-  '.sheet{width:100%;max-width:'+width+';margin:0 auto;padding:'+(narrow?'4mm':'9mm')+';background:#fff}'+
-  '.print-header{text-align:center;border-bottom:2px solid #222;padding-bottom:10px}'+
-  '.print-header strong{font-size:15px}.print-header h1{font-size:'+(narrow?'14':'20')+'px;margin:8px 0}'+
-  '.print-header p{margin:4px 0}.nonfiscal{font-size:10px;font-weight:bold}'+
-  '.print-summary{margin:12px 0}.print-summary>div{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px dashed #aaa}'+
-  '.print-summary strong{white-space:nowrap}h2{font-size:14px;margin:18px 0 9px}'+
-  '.print-records{width:100%;border-collapse:collapse;font-size:11px}'+
-  '.print-records th,.print-records td{text-align:right;padding:8px 5px;border-bottom:1px solid #ccc}'+
+  '*,*::before,*::after{box-sizing:border-box}'+
+  'body{margin:0;padding:20px;background:#eef0f2;color:#142017;font:12px Arial,sans-serif}'+
+  '.toolbar{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin:0 auto 18px}'+
+  '.toolbar button{padding:11px 19px;border:0;border-radius:8px;background:#22472f;color:white;font-weight:bold;cursor:pointer}'+
+  '.print-option{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;cursor:pointer}'+
+  '.print-option input{width:17px;height:17px;accent-color:#225b38}'+
+  '.sheet{width:100%;max-width:'+width+';margin:0 auto;padding:'+(narrow?'4mm':'10mm')+';background:white;box-shadow:0 3px 18px #0001}'+
+  '.print-header{text-align:center;border-bottom:2px solid #234b32;padding-bottom:12px}'+
+  '.print-header strong{font-size:15px;overflow-wrap:anywhere}'+
+  '.print-header h1{font-size:'+(narrow?'14':'20')+'px;margin:9px 0;letter-spacing:.025em}'+
+  '.print-header p{margin:4px 0}.nonfiscal{font-size:10px;font-weight:bold;color:#59665c}'+
+  '.print-summary{margin:14px 0}'+
+  (narrow?
+   '.print-summary>div{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px dashed #aaa}':
+   '.print-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}'+
+   '.print-summary>div{display:flex;flex-direction:column;justify-content:center;gap:7px;min-height:55px;padding:9px 7px;border:1px solid #d9e2da;border-radius:5px;background:#f3f7f4;text-align:center}'+
+   '.print-summary>div span{font-size:10px;line-height:1.3}'+
+   '.print-summary>div strong{font-size:13px}'+
+   '.print-summary>div:last-child{background:#e7f4e9;border-color:#9ac7a2}')+
+  '.print-summary strong{white-space:nowrap}h2{font-size:14px;margin:19px 0 10px}'+
+  '.print-records{width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed}'+
+  '.print-records th,.print-records td{text-align:right;padding:8px 4px;border-bottom:1px solid #dbe3dd;overflow-wrap:anywhere;vertical-align:top}'+
+  '.print-records th{background:#e8f0ea;color:#163e25;font-weight:bold;white-space:nowrap}'+
+  '.print-records tbody tr:nth-child(even){background:#f8faf8}'+
   '.print-records th:nth-child(-n+2),.print-records td:nth-child(-n+2){text-align:left}'+
-  '.print-records thead{display:table-header-group}.print-records tr{break-inside:avoid}'+
+  '.print-records th:nth-child(1){width:15%}.print-records th:nth-child(2){width:22%}'+
+  '.print-records th:nth-child(3){width:12%}.print-records th:nth-child(4){width:19%}'+
+  '.print-records th:nth-child(5){width:16%}.print-records th:nth-child(6){width:16%}'+
+  '.print-records thead{display:table-header-group}.print-records tr{break-inside:avoid;page-break-inside:avoid}'+
   '.print-sale{margin:13px 0 0;border-top:1px dashed #222;padding-top:9px;break-inside:avoid}'+
   '.print-sale h3{font-size:12px;margin:0 0 7px}.print-line{display:flex;justify-content:space-between;gap:10px;padding:4px 0;overflow-wrap:anywhere}'+
-  '.print-line span:first-child,.print-line b:first-child{min-width:0}.print-line span:last-child,.print-line b:last-child{white-space:nowrap}'+
+  '.print-line span:first-child,.print-line b:first-child{min-width:0}'+
+  '.print-line span:last-child,.print-line b:last-child{white-space:nowrap}'+
+  '.a4-details{display:none;margin-top:22px}.include-products .a4-details{display:block}'+
+  '.a4-details-note{color:#59665c;font-size:10px;margin:-4px 0 12px}'+
+  '.a4-sale{border:1px solid #dce5dc;border-radius:6px;margin:0 0 11px;overflow:hidden;break-inside:avoid;page-break-inside:avoid}'+
+  '.a4-sale-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;background:#edf4ee}'+
+  '.a4-sale-heading h3{margin:0;font-size:12px}.a4-sale-heading span{font-size:10px;color:#425848;text-align:right}'+
+  '.a4-products{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px}'+
+  '.a4-products th,.a4-products td{padding:7px 9px;border-bottom:1px solid #e6ebe6;text-align:right;overflow-wrap:anywhere}'+
+  '.a4-products th:first-child,.a4-products td:first-child{text-align:left;width:41%}'+
+  '.a4-products th:nth-child(2){width:9%}'+
+  '.a4-sale-totals{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px;background:#f7faf7;font-size:10px}'+
+  '.a4-fee{margin:7px 10px;font-size:10px;color:#5a6045}'+
   'footer{border-top:1px solid #aaa;margin-top:16px;padding-top:10px;font-size:10px;text-align:center;line-height:1.5}'+
-  '.warning{font-size:10px;border:1px solid #888;padding:8px}'+
-  '@media print{body{padding:0;background:#fff}.toolbar{display:none}.sheet{max-width:none;padding:0}}'+
-  '</style></head><body><div class="toolbar"><button onclick="window.print()">Imprimir / Salvar como PDF</button></div>'+
-  body+'</body></html>';
+  '.warning{font-size:10px;border:1px solid #aaa;padding:8px;margin-top:13px;line-height:1.5}'+
+  '@media(max-width:650px){.sheet{padding:12px}.print-records{font-size:9px}'+
+  '.print-records th,.print-records td{padding:6px 3px}.print-summary{gap:4px}'+
+  '.print-summary>div{padding:6px 3px}.print-summary>div strong{font-size:11px}}'+
+  '@media print{body{padding:0;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}'+
+  '.toolbar{display:none}.sheet{max-width:none;box-shadow:none;padding:0}'+
+  'thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}'+
+  '.a4-sale{break-inside:avoid-page}.a4-details h2{break-after:avoid-page}}'+
+  '</style></head><body>'+toolbar+body+'</body></html>';
 }
 function printSalesReport(format){
  if(tab!=='vendas'||salesLoading||!shop||!hasAccess()||!salesReport||salesReport.error)
@@ -697,7 +768,9 @@ function printSalesReport(format){
  popup.document.write(salesPrintableHtml(report,format,shop.name,salesDateRange().label));
  popup.document.close();
  popup.focus();
- popup.setTimeout(()=>{try{popup.print()}catch{}},350);
+ // O A4 abre uma prévia para escolher se os produtos entram no PDF.
+ // O cupom térmico mantém a impressão direta.
+ if(format==='receipt')popup.setTimeout(()=>{try{popup.print()}catch{}},350);
 }
 function renderSalesReport(){
  const range=salesDateRange();
