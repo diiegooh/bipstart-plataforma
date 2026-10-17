@@ -19,7 +19,7 @@ test('admin mantém apenas Lojas e planos e Personalizações, sem Gerenciar lin
  assert.doesNotMatch(js,/adminLinksSection|adminShopLinks|adminGeneralLinks|loadLinks\(\)|bipstart_admin_list_shop_links/);
  assert.match(js,/const ADMIN_TABS=\{shops:'adminShopsSection',custom:'customizationSection'\}/);
  assert.match(js,/setAdminTab\(tab\.dataset\.adminTab\)/);
- assert.match(html,/\/admin\.js\?v=10/);
+ assert.match(html,/\/admin\.js\?v=11/);
 });
 test('Admin exibe solicitações de upgrade pendentes em Personalizações e só libera após aprovação manual',()=>{
  const start=js.indexOf('function pendingUpgrades(shops){');
