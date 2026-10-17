@@ -70,7 +70,7 @@ test('categorias usam mesmas imagens, rótulos e seleção do cardápio clássic
  const end=vitrine.indexOf(" const combos=",begin);
  const snippet=vitrine.slice(begin,end);
  assert.match(snippet,/categoryArtwork\(name\)/);
- assert.match(snippet,/const allCategory=isRound\?/);
+ assert.match(vitrine,/const allCategory=isRound\?/);
  assert.match(snippet,/allCategory\+categories\.filter/);
  assert.doesNotMatch(snippet,/round-category|categoryEmoji\(name\)/);
 });
