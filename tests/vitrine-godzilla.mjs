@@ -100,9 +100,10 @@ test('PDV mantém painel interno e acesso ao mesmo cardápio dinâmico',()=>{
 });
 
 
-test('título CARDÁPIO é centralizado sem perder nome da loja e recursos de pedido',()=>{
+test('título CARDÁPIO preserva logo e recursos de pedido, mas oculta nome da loja',()=>{
  assert.equal((html.match(/<h1 id="storeName">Sua loja<\/h1>/g)||[]).length,1);
  assert.equal((html.match(/id="storeName"/g)||[]).length,1);
+ assert.match(css,/\.round-menu \.store-header #storeName\{display:none\}/);
  assert.match(js,/\$\('storeName'\)\.textContent=menu\.name/);
  assert.match(js,/\$\('storeName'\)\.textContent='Cardápio indisponível'/);
  assert.match(html,/class="store-header"/);
