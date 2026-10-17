@@ -731,7 +731,7 @@ function cardapioLayoutSettings(){
    '<label>Tipo de estabelecimento<select name="establishment_type">'+
     menuEstablishmentTypes.map(([key,label])=>
      '<option value="'+esc(key)+'"'+(establishment===key?' selected':'')+'>'+esc(label)+'</option>').join('')+
-   '</select><small>Esse tipo aparece automaticamente acima da logo no modelo redondo.</small></label>'+
+   '</select><small>Tipo cadastrado para identificar o segmento da loja.</small></label>'+
    '<fieldset class="menu-layout-subtitle"><legend>Exibir frase abaixo da logo?</legend>'+
     '<label><input type="radio" name="show_logo_subtitle" value="true"'+(isSubtitle?' checked':'')+'> Sim</label>'+
     '<label><input type="radio" name="show_logo_subtitle" value="false"'+(!isSubtitle?' checked':'')+'> Não</label>'+

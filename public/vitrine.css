@@ -554,13 +554,12 @@ body.salgatti-theme{
 
 
 /* Layout redondo: alternativa opt-in; tudo fica isolado na classe round-menu. */
-.round-header-cart{display:none}.menu-eyebrow,.menu-tagline{display:none}
+.round-header-cart{display:none}.menu-tagline{display:none}
 .round-preview-badge{position:absolute;top:6px;left:12px;font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--green)}
 body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,var(--green) 13%,transparent),transparent 47%),radial-gradient(ellipse at 95% 75%,color-mix(in srgb,var(--green) 9%,transparent),transparent 43%),#050407;color:#f9f5fa}
 .round-menu .delivery-app{width:min(1170px,100%);overflow:visible}
 .round-menu .store-header{min-height:206px;display:grid;grid-template-columns:1fr;place-items:center;background:#060408df;border-bottom:1px solid color-mix(in srgb,var(--green) 40%,transparent);padding:23px 76px 24px}
 .round-menu .store-header .header-title{grid-column:1;display:flex;flex-direction:column;gap:2px;text-align:center;align-items:center;width:100%}
-.round-menu .menu-eyebrow{display:block;margin:0 0 3px;color:#e9dbee;font-size:12px;font-weight:650;letter-spacing:.34em;text-transform:uppercase}
 .round-menu .store-header .header-title h1,.round-menu.salgatti-theme .store-header .header-title h1{font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-size:clamp(42px,6vw,78px);line-height:.98;letter-spacing:.04em;font-weight:700;color:#fff7fb;text-shadow:0 0 20px color-mix(in srgb,var(--green) 40%,transparent);white-space:normal;text-wrap:balance}
 .round-menu .store-header .store-logo{width:70px;height:70px;margin:3px auto;object-fit:contain}
 .round-menu .store-header .store-logo-custom{width:104px;height:82px}
@@ -596,7 +595,7 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
 @media(max-width:900px){.round-menu .delivery-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 12px}}
 @media(max-width:700px){.round-menu .delivery-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 10px}}
 @media(max-width:640px){.round-menu .store-header{min-height:170px;padding:27px 65px 15px}.round-menu .store-header .header-title h1,.round-menu.salgatti-theme .store-header .header-title h1{font-size:clamp(39px,10vw,62px)}
-.round-menu .menu-eyebrow{font-size:10px;letter-spacing:.22em}.round-menu .menu-tagline:not(.hidden){letter-spacing:.15em}
+.round-menu .menu-tagline:not(.hidden){letter-spacing:.15em}
 .round-menu .round-header-cart{width:45px;height:45px;right:12px;top:19px;font-size:20px;border-radius:12px}
 .round-menu .location-row{padding:8px 10px 14px}
 .round-menu .category-strip{padding:8px 10px 22px;gap:8px}
@@ -670,25 +669,14 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
  grid-row:1/4;
  justify-self:end;
  width:clamp(100px,12vw,148px);
- min-height:clamp(112px,13vw,155px);
- border:1px solid color-mix(in srgb,var(--green) 58%,#4e4355);
- border-radius:25px;
- background:linear-gradient(160deg,#141019,#070609);
- box-shadow:0 0 18px color-mix(in srgb,var(--green) 19%,transparent);
- padding:9px;
+ min-height:auto;
+ border:0;
+ border-radius:0;
+ background:transparent;
+ box-shadow:none;
+ padding:0;
  margin-bottom:20px;
- overflow:hidden;
-}
-.round-menu .menu-hero-logo-card .menu-eyebrow:not(.hidden){
- display:block;
- font-size:10px;
- letter-spacing:.11em;
- line-height:1.3;
- text-align:center;
- color:var(--green);
- margin:0 0 6px;
- max-width:100%;
- overflow-wrap:anywhere;
+ overflow:visible;
 }
 .round-menu .store-header .menu-hero-logo-card .store-logo,
 .round-menu .store-header .menu-hero-logo-card .store-logo-custom{
@@ -697,8 +685,9 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
  height:96px;
  max-width:100%;
  margin:0;
- padding:3px;
+ padding:0;
  object-fit:contain;
+ background:transparent;
 }
 .round-menu .store-header .menu-tagline:not(.hidden){
  grid-column:1;
@@ -742,20 +731,18 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
  }
  .round-menu .menu-hero-logo-card{
   width:clamp(88px,26vw,112px);
-  min-height:100px;
-  padding:6px;
-  border-radius:19px;
+  min-height:auto;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
   margin-bottom:19px;
- }
- .round-menu .menu-hero-logo-card .menu-eyebrow:not(.hidden){
-  font-size:8px;
-  letter-spacing:.04em;
-  margin-bottom:3px;
  }
  .round-menu .store-header .menu-hero-logo-card .store-logo,
  .round-menu .store-header .menu-hero-logo-card .store-logo-custom{
   height:68px;
-  padding:2px;
+  padding:0;
  }
  .round-menu .store-header .menu-tagline:not(.hidden){
   font-size:9px;

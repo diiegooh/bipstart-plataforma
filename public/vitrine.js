@@ -15,7 +15,6 @@ function normalizeWhatsApp(value){
  if(/^\d{10,11}$/.test(digits))digits='55'+digits;
  return /^55\d{10,11}$/.test(digits)?digits:'';
 }
-const establishmentLabels={"outros":"ESTABELECIMENTO","bar_petiscaria":"BAR E PETISCARIA","adega_conveniencia":"ADEGA E CONVENIÊNCIA","hamburgueria":"HAMBURGUERIA","pizzaria":"PIZZARIA","lanchonete":"LANCHONETE","marmitaria":"MARMITARIA","restaurante":"RESTAURANTE","doceria":"DOCERIA","acaiteria":"AÇAITERIA","espetaria":"ESPETARIA","mercado":"MERCADO"};
 function roundMenuActive(){return new URLSearchParams(location.search).get('visual')==='redondo'||menu?.menu_layout_style==='round';}
 function categoryNames(){
  const names=new Map();
@@ -68,8 +67,6 @@ function drawPage(){
  const isRound=roundMenuActive();
  document.body.classList.toggle('round-menu',isRound);
  $('menuPreviewBadge').classList.toggle('hidden',new URLSearchParams(location.search).get('visual')!=='redondo');
- $('establishmentEyebrow').textContent=establishmentLabels[menu.establishment_type]||establishmentLabels.outros;
- $('establishmentEyebrow').classList.toggle('hidden',!isRound);
  $('logoSubtitle').textContent=String(menu.logo_subtitle||'');
  $('logoSubtitle').classList.toggle('hidden',!isRound||menu.show_logo_subtitle!==true||!String(menu.logo_subtitle||'').trim());
  const isSalgatti=/salgatti/.test(fold([menu.name,menu.slug].filter(Boolean).join(' ')));

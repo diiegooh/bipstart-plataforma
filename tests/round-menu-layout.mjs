@@ -65,19 +65,17 @@ test('categorias e cores seguem a loja com formato adaptado a celular',()=>{
  assert.match(vitrine,/\$\('category'\)\.addEventListener\('change',renderProducts\)/);
  assert.doesNotMatch(css,/\.round-menu \.bottom-nav/);
 });
-test('identidade traz categoria do estabelecimento acima da logo e frase opcional abaixo',()=>{
- assert.match(html,/id="establishmentEyebrow"/);
+test('cabeçalho sem texto acima da logo e frase opcional abaixo do nome da loja',()=>{
+ assert.doesNotMatch(html,/id="establishmentEyebrow"|ESTABELECIMENTO/);
+ assert.doesNotMatch(vitrine,/establishmentEyebrow|establishmentLabels/);
  assert.match(html,/id="logoSubtitle"/);
  assert.match(html,/id="storeLogo"/);
  assert.match(html,/id="storeName"/);
- assert.match(vitrine,/BAR E PETISCARIA/);
- assert.match(vitrine,/ADEGA E CONVENIÊNCIA/);
- assert.match(vitrine,/menu\.establishment_type/);
  assert.match(vitrine,/menu\.show_logo_subtitle!==true/);
  assert.match(vitrine,/menu\.logo_subtitle/);
  assert.match(vitrine,/roundMenuActive\(\)&&menu\.menu_theme_color/);
  assert.match(vitrine,/\$\('storeName'\)\.textContent=menu\.name/);
- assert.match(css,/\.round-menu \.menu-eyebrow\{display:block/);
+ assert.doesNotMatch(css,/\.round-menu \.menu-hero-logo-card \.menu-eyebrow|\.round-menu \.menu-eyebrow/);
  assert.match(css,/\.round-menu \.menu-tagline:not\(\.hidden\)\{display:block/);
 });
 test('configurações Premium validam e persistem modelo, cor, slogan e tipo de estabelecimento',()=>{
@@ -156,4 +154,29 @@ test('cabeçalho do modelo alternativo segue referência, com CARDÁPIO à esque
  assert.match(css,/@media\(max-width:640px\)\{[\s\S]*\.round-menu \.menu-hero-heading\{[\s\S]*font-size:clamp\(28px,7\.3vw,46px\)/);
  assert.match(vitrine,/menu\?\.plan_code==='pro'&&typeof menu\.logo_path==='string'/);
  assert.match(vitrine,/\$\('roundHeaderCart'\)\.addEventListener\('click',openCart\)/);
+});
+
+test('logo à direita sem fundo, borda, sombra ou texto superior, desktop e mobile',()=>{
+ const desktopStart=css.indexOf('.round-menu .menu-hero-logo-card{');
+ assert.ok(desktopStart>0);
+ const desktop=css.slice(desktopStart,css.indexOf('}',desktopStart));
+ assert.match(desktop,/background:transparent/);
+ assert.match(desktop,/border:0/);
+ assert.match(desktop,/box-shadow:none/);
+ assert.match(desktop,/padding:0/);
+ assert.match(desktop,/overflow:visible/);
+ assert.doesNotMatch(desktop,/linear-gradient|border:1px/);
+ const mobileStart=css.indexOf(' .round-menu .menu-hero-logo-card{',desktopStart);
+ assert.ok(mobileStart>desktopStart);
+ const mobile=css.slice(mobileStart,css.indexOf('}',mobileStart));
+ assert.match(mobile,/background:transparent/);
+ assert.match(mobile,/border:0/);
+ assert.match(mobile,/box-shadow:none/);
+ assert.match(mobile,/padding:0/);
+ assert.doesNotMatch(html,/establishmentEyebrow/);
+ assert.match(html,/<p class="menu-hero-heading" aria-hidden="true">CARDÁPIO<\/p>/);
+ assert.match(html,/<h1 id="storeName">Sua loja<\/h1>/);
+ assert.match(html,/<img id="storeLogo"/);
+ assert.match(vitrine,/menu\?\.plan_code==='pro'/);
+ assert.match(vitrine,/\/bipstart-marca-icon\.png/);
 });
