@@ -18,7 +18,7 @@ function fns(productsList=products,loadedReport=null){
  const end=source.indexOf('function productStockState(product)',start);
  assert.ok(start>=0&&end>start);
  return new Function('products','salesReport','salesPeriod','salesDay','localReportDate','productStockState','fmt','esc','heading','tile','empty','salesLoading',
-  source.slice(start,end)+';return {salesDateRange,saleLineFinancial,cardFeeInfo,salesPaymentTotals,salesReportData,reportFigures,restockProducts,renderRestockList,renderSalesReport};')(
+  source.slice(start,end)+';return {salesDateRange,saleLineFinancial,cardFeeInfo,salesPaymentTotals,salesReportData,reportFigures,restockProducts,renderRestockList,renderSalesReport,salesRecordInfo,salesRecordRow,salesPrintableHtml};')(
   productsList,loadedReport,'day','2026-10-14',mkDate,product=>{
    if(Number(product.stock)<=0)return {state:'out'};
    return Number(product.stock)<=Number(product.min_stock)?{state:'low'}:{state:'ok'};
@@ -87,7 +87,7 @@ test('cada dia agrupa linhas, soma lucro bruto e sinaliza estimativas',()=>{
  assert.deepEqual(report.sales,sales);
  assert.deepEqual(report.days.map(day=>day.sales[0].number),[1,1]);
  assert.equal(report.days.reduce((sum,d)=>sum+d.total.profit,0),18);
- assert.match(source,/Lucro bruto estimado/);
+ assert.match(source,/Lucro/);
  assert.match(source,/Custo dos itens/);
  assert.match(source,/Preço vendido/);
  assert.match(source,/Pagamento/);
@@ -96,10 +96,10 @@ test('cada dia agrupa linhas, soma lucro bruto e sinaliza estimativas',()=>{
 test('Vendas abre após carregar registros e mostra faturamento, custo e lucro sem travar',()=>{
  const f=fns(products,{sales,items});
  const markup=f.renderSalesReport();
- assert.match(markup,/Vendas no período: 2/);
+ assert.match(markup,/Vendas: 2/);
  assert.match(markup,/Total vendido: R\$ 30\.00/);
- assert.match(markup,/Custo dos itens: R\$ 12\.00/);
- assert.match(markup,/Lucro bruto estimado: R\$ 18\.00/);
+ assert.match(markup,/Custo: R\$ 12\.00/);
+ assert.match(markup,/Lucro: R\$ 18\.00/);
  assert.match(markup,/Coxinha/);
  assert.match(markup,/Pix/);
  assert.match(markup,/Dinheiro/);
@@ -168,13 +168,13 @@ test('desconta a taxa por carrinho no líquido e no lucro, sem somar taxa por pr
  assert.equal(report.days[0].sales.length,3);
  assert.equal(report.days[0].sales.find(x=>x.sale.id==='card').lines.length,2);
  const html=f.renderSalesReport();
- assert.match(html,/Taxas da maquininha: R\$ 4\.59/);
- assert.match(html,/Recebimento líquido: R\$ 155\.41/);
- assert.match(html,/Lucro após taxa do cartão: R\$ 105\.41/);
+ assert.match(html,/Vendas: 3/);
+ assert.match(html,/Unidades vendidas: 4/);
+ assert.match(html,/Lucro: R\$ 105\.41/);
  const sale=html.slice(html.indexOf('Cartão de crédito'));
  assert.match(sale,/Taxa da maquininha \(3,99%\): <strong>−R\$ 3\.99/);
  assert.match(sale,/Recebimento líquido: <strong>R\$ 96\.01/);
- assert.match(sale,/Lucro após taxa: <strong>R\$ 66\.01/);
+ assert.match(sale,/Lucro: <strong>R\$ 66\.01/);
  assert.match(html,/Taxa da maquininha \(1,5%\): <strong>−R\$ 0\.60/);
  assert.match(html,/Lucro bruto<\/th>/);
 });
@@ -189,8 +189,8 @@ test('venda antiga no cartão sem taxa continua sem dedução inventada',()=>{
  const markup=f.renderSalesReport();
  assert.match(markup,/Taxa da maquininha: <strong>Não registrada/);
  assert.match(markup,/Recebimento líquido: <strong>Não informado/);
- assert.match(markup,/Lucro após taxa: <strong>Não informado/);
- assert.match(markup,/venda\(s\) antiga\(s\) no cartão sem taxa registrada/);
+ assert.match(markup,/Lucro: <strong>—/);
+ assert.match(markup,/venda\(s\) antiga\(s\) com taxa de cartão não registrada/);
  assert.equal(f.cardFeeInfo({payment_method:'pix',card_fee_amount:null}).amount,0);
  const migration=readFileSync('sql/bipstart_card_payment_fees_20261017.sql','utf8');
  assert.match(migration,/add column if not exists card_fee_percent numeric\(5,2\)/);
@@ -201,6 +201,46 @@ test('venda antiga no cartão sem taxa continua sem dedução inventada',()=>{
  assert.match(source,/select:'id,shop_id,total,payment_method,card_fee_percent,card_fee_amount,created_at'/);
 });
 
+test('relatório visível apresenta só cinco indicadores e lista com todas as vendas',()=>{
+ const f=fns(products,{sales,items});
+ const html=f.renderSalesReport();
+ const summary=html.match(/<div class="grid sales-period-totals">([\s\S]*?)<\/div>/)?.[1]||'';
+ for(const name of ['Vendas','Unidades vendidas','Total vendido','Custo','Lucro'])
+  assert.match(summary,new RegExp(name+':'));
+ for(const unwanted of ['Taxas da maquininha','Recebimento líquido','Lucro bruto','Lucro após taxa'])
+  assert.doesNotMatch(summary,new RegExp(unwanted));
+ assert.match(html,/class="sales-records-table"/);
+ assert.match(html,/Lista de vendas/);
+ assert.match(html,/data-sales-export="receipt"/);
+ assert.match(html,/data-sales-export="a4"/);
+ assert.match(html,/<th>Venda<\/th><th>Data e hora<\/th><th>Unidades vendidas<\/th><th>Total vendido<\/th><th>Custo<\/th><th>Lucro<\/th>/);
+ const visibleRows=html.match(/class="sales-record-profit"/g)||[];
+ assert.equal(visibleRows.length,2);
+ assert.match(css,/#workspace \.sales-records-table/);
+});
+test('exportação cupom não fiscal e A4/PDF contém registros do período sem alterar vendas',()=>{
+ const date='2026-10-14T12:30:00Z';
+ const sale={id:'card',total:100,payment_method:'credito',card_fee_percent:3.99,card_fee_amount:3.99,created_at:date};
+ const items=[{sale_id:'card',product_id:'p1',product_name:'Produto <Promo>',quantity:2,unit_price:50,unit_cost:20}];
+ const f=fns(products,{sales:[sale],items});
+ const report=f.salesReportData();
+ const receipt=f.salesPrintableHtml(report,'receipt','Loja <Exemplo>','14/10/2026');
+ assert.match(receipt,/@page\{size:80mm 297mm;margin:2mm\}/);
+ assert.match(receipt,/RELATÓRIO GERENCIAL · NÃO FISCAL/);
+ assert.match(receipt,/Venda #1/);
+ assert.match(receipt,/2× Produto &lt;Promo&gt;/);
+ assert.match(receipt,/Lucro<\/b><b>R\$ 56\.01/);
+ assert.match(receipt,/Imprimir \/ Salvar como PDF/);
+ assert.doesNotMatch(receipt,/<Exemplo>|<Promo>/);
+ const a4=f.salesPrintableHtml(report,'a4','Loja Teste','14/10/2026');
+ assert.match(a4,/@page\{size:A4;margin:12mm\}/);
+ assert.match(a4,/<table class="print-records">/);
+ assert.match(a4,/<th>Venda<\/th><th>Data e hora<\/th>/);
+ assert.match(a4,/R\$ 56\.01/);
+ assert.match(a4,/NÃO FISCAL/);
+ assert.throws(()=>f.salesPrintableHtml(report,'invalid','Loja','14/10/2026'),/Formato de exportação inválido/);
+ assert.match(source,/if\(tab==='vendas'\)printSalesReport\(exportButton\.dataset\.salesExport\)/);
+});
 test('vendas do período carregam todas as páginas e somente itens da própria loja',()=>{
  assert.match(source,/async function salesPaginated\(/);
  assert.match(source,/offset:String\(offset\)/);
