@@ -116,6 +116,32 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 .pdv-filters button{height:44px;white-space:nowrap;font-size:12px}
 .pdv-filters .ghost.active{border-color:#a167e6;color:#e4bfff}
 .pdv-list-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+
+/* Destaques definidos pelo lojista: atalho rápido para adicionar ao carrinho. */
+#workspace .pdv-best-sellers{min-width:0;margin:0 0 18px;padding:13px;border:1px solid color-mix(in srgb,var(--store-accent,#7c3aed) 45%,#3d2b53);border-radius:15px;background:color-mix(in srgb,var(--store-accent,#7c3aed) 9%,#160f25)}
+#workspace .pdv-best-sellers-title{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+#workspace .pdv-best-sellers-title strong{font-size:14px;color:#f7e8ff}
+#workspace .pdv-best-sellers-title small{font-size:11px;color:#b7a8c8}
+#workspace .pdv-best-sellers-list{display:flex;align-items:stretch;gap:9px;overflow-x:auto;overscroll-behavior-x:contain;padding:2px 2px 7px;scrollbar-width:thin}
+#workspace .pdv-best-seller{flex:0 0 184px;max-width:64vw;min-width:0;display:flex;align-items:center;gap:9px;padding:8px;border-radius:12px;border:1px solid #644782;background:#221731;color:#fff;text-align:left;cursor:pointer;transition:border-color .15s,background .15s}
+#workspace .pdv-best-seller:hover:not(:disabled){border-color:var(--store-accent,#a76ef0);background:#30203f}
+#workspace .pdv-best-seller:focus-visible{outline:3px solid var(--store-accent,#a76ef0);outline-offset:2px}
+#workspace .pdv-best-seller:disabled{opacity:.48;cursor:not-allowed}
+#workspace .pdv-best-seller-photo{display:grid;place-items:center;width:44px;height:44px;flex:0 0 44px;border-radius:9px;overflow:hidden;background:#39264c}
+#workspace .pdv-best-seller-photo img{width:100%;height:100%;object-fit:cover;display:block}
+#workspace .pdv-best-seller-placeholder{color:#d2a5ff;font-size:24px}
+#workspace .pdv-best-seller-text{min-width:0;flex:1}
+#workspace .pdv-best-seller-text strong{display:block;font-size:12px;line-height:1.3;overflow-wrap:anywhere;max-height:32px;overflow:hidden}
+#workspace .pdv-best-seller-text small{display:block;color:#e5c6ff;font-size:12px;font-weight:700;margin-top:4px}
+#workspace .pdv-best-seller-plus{flex:0 0 19px;font-size:19px;font-weight:800;text-align:center;color:var(--store-accent,#c794ff)}
+/* Marcação de mais vendido no formulário de produto (Básico e Premium). */
+#workspace .product-best-seller-option{display:flex;align-items:center;gap:12px;background:#20182d;border:1px solid #584374;border-radius:12px;padding:12px 14px;cursor:pointer}
+#workspace .product-best-seller-option input[type="checkbox"]{width:20px;height:20px;min-width:20px;min-height:20px;flex:0 0 20px;margin:0;accent-color:var(--store-accent,#a76ef0)}
+#workspace .product-best-seller-option span{display:flex;flex-direction:column;gap:3px;min-width:0}
+#workspace .product-best-seller-option strong{font-size:14px;color:#f8ecff}
+#workspace .product-best-seller-option small{font-size:12px;font-weight:400;color:#c0b1d0;line-height:1.4}
+@media(max-width:440px){#workspace .pdv-best-sellers{padding:10px}#workspace .pdv-best-seller{flex-basis:168px}#workspace .pdv-best-seller-photo{width:40px;height:40px;flex-basis:40px}}
+
 .pdv-list-head small{color:var(--muted)}
 .pdv-products{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
 .pdv-product{background:linear-gradient(175deg,#251a39,#151020);border:1px solid #4b3768;border-radius:16px;overflow:hidden;min-width:0;transition:transform .2s,border-color .2s}
