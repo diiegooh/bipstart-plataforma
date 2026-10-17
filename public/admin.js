@@ -62,6 +62,17 @@ function shopWhatsappUrl(value){
  if(/^55\d{10,11}$/.test(digits))return 'https://wa.me/'+digits;
  return '';
 }
+function premiumDueDate(item){
+ const end=item.active_until;
+ if(!end||!Number.isFinite(Date.parse(end)))return 'Ainda sem vencimento pago';
+ return new Date(end).toLocaleString('pt-BR');
+}
+function premiumPaymentSummary(item){
+ return '<div class="admin-premium-payment">'+
+  '<strong>Próximo vencimento: '+escapeHtml(premiumDueDate(item))+'</strong>'+
+  '<small>+30 dias registrados: '+Number(item.premium_paid_periods||0)+'</small>'+
+  '</div>';
+}
 function row(item){
  const whatsappUrl=shopWhatsappUrl(item.shop_whatsapp);
  const whatsappLine=whatsappUrl?
@@ -74,9 +85,12 @@ function row(item){
  const option=Object.entries(PLAN).map(([value,label])=>'<option value="'+value+'"'+(value===plan?' selected':'')+'>'+label+'</option>').join('');
  return '<tr data-shop-id="'+escapeHtml(item.shop_id)+'"><td><strong>'+escapeHtml(item.shop_name)+'</strong><div class="admin-email">'+escapeHtml(item.owner_email||'E-mail não disponível')+'</div>'+whatsappLine+'<div class="admin-muted">'+escapeHtml(item.shop_id)+'</div></td>'+
    '<td>'+escapeHtml(PLAN[item.requested_plan]||item.requested_plan)+'<div class="admin-muted">'+(item.signup_choice==='trial'?'Teste solicitado':'WhatsApp')+'</div></td>'+
-   '<td class="admin-status">'+escapeHtml(status)+'<div class="admin-muted">'+(item.active_until?'Até '+new Date(item.active_until).toLocaleDateString('pt-BR'):(item.trial_until&&item.access_status==='trialing'?'Teste até '+new Date(item.trial_until).toLocaleString('pt-BR'):''))+'</div></td>'+
+   '<td class="admin-status">'+escapeHtml(status)+'<div class="admin-muted">'+(item.active_until?'Até '+new Date(item.active_until).toLocaleDateString('pt-BR'):(item.trial_until&&item.access_status==='trialing'?'Teste até '+new Date(item.trial_until).toLocaleString('pt-BR'):''))+'</div>'+
+   ((item.plan_code==='pro'||item.requested_plan==='pro')?premiumPaymentSummary(item):'')+'</td>'+
    '<td><select aria-label="Plano para ativar">'+option+'</select></td><td><div class="admin-actions">'+
-   '<button type="button" class="button" data-action="activate">Ativar (pago)</button>'+
+   '<button type="button" class="button" data-action="activate">Ativar</button>'+
+   ((item.plan_code==='pro'||item.requested_plan==='pro')?
+    '<button type="button" class="button admin-add-30" data-renew-30>+30 dias</button>':'')+
    '<button type="button" class="ghost" data-action="suspend">Suspender</button></div></td></tr>';
 }
 const REQUEST_STATUS={novo:'Pendente',em_analise:'Em andamento',concluido:'Concluído'};
@@ -144,7 +158,7 @@ function upgradeCard(item){
  const trialAction=eligible?
   '<button type="button" class="button" data-upgrade-trial>Liberar teste Premium</button>':
   '<p class="admin-muted">O teste Básico expirou ou foi encerrado. Não é possível reiniciar os 7 dias.</p>';
- const paidAction='<button type="button" class="button" data-upgrade-activate>Ativar Premium pago (30 dias)</button>';
+ const paidAction='<button type="button" class="button" data-upgrade-activate>Ativar Premium pago (+30 dias)</button>';
  return '<article class="customization-card upgrade-card" data-upgrade-shop-id="'+escapeHtml(item.shop_id)+'">'+
   '<div class="customization-head"><div><p class="upgrade-kind">'+
   (trialRequested?'Solicitação de teste Premium':'Solicitação de upgrade')+'</p>'+
@@ -200,6 +214,10 @@ async function load(){
    await signedInAccount();
    const items=await request('bipstart_admin_list_shops_with_contacts');
    if(!Array.isArray(items))throw Error('Resposta inesperada ao consultar as lojas.');
+   const renewals=await request('bipstart_admin_premium_renewal_summary');
+   if(!Array.isArray(renewals))throw Error('Não foi possível consultar os vencimentos.');
+   const renewalByShop=new Map(renewals.map(item=>[item.shop_id,item]));
+   for(const item of items)Object.assign(item,renewalByShop.get(item.shop_id)||{});
    const requestModes=await request('bipstart_admin_list_upgrade_request_modes');
    if(!Array.isArray(requestModes))throw Error('Não foi possível identificar os pedidos de teste.');
    const requestByShop=new Map(requestModes.map(item=>[item.shop_id,item.upgrade_request_type]));
@@ -232,11 +250,36 @@ $('adminRows').addEventListener('click',async e=>{
  if(!window.confirm(text))return;
  busy=true;btn.disabled=true;
  try{
-  const ok=await request('bipstart_admin_set_access',{p_shop_id:shopId,p_plan:plan,p_action:action});
-  if(ok!==true)throw Error('A atualização não foi confirmada.');
-  message('Acesso atualizado. Nenhuma cobrança foi processada pela BipStart.');
+  const result=action==='activate'&&plan==='pro'?
+   await request('bipstart_admin_extend_premium',{p_shop_id:shopId}):
+   await request('bipstart_admin_set_access',{p_shop_id:shopId,p_plan:plan,p_action:action});
+  if(action==='activate'&&plan==='pro'){
+   if(!Array.isArray(result)||!result[0]?.active_until)throw Error('O novo vencimento não foi confirmado.');
+   message('Pagamento registrado. Próximo vencimento: '+premiumDueDate(result[0])+
+    '. Renovações: '+result[0].premium_paid_periods+'.');
+  }else{
+   if(result!==true)throw Error('A atualização não foi confirmada.');
+   message('Acesso atualizado. Nenhuma cobrança foi processada pela BipStart.');
+  }
  }catch(err){message(err.message,true)}
  finally{busy=false;btn.disabled=false;await load()}
+});
+$('adminRows').addEventListener('click',async event=>{
+ const button=event.target.closest('[data-renew-30]');
+ if(!button||busy)return;
+ const shopId=button.closest('[data-shop-id]')?.dataset.shopId;
+ const item=adminShopRecords.find(s=>s.shop_id===shopId);
+ if(!item||!(item.plan_code==='pro'||item.requested_plan==='pro'))return;
+ if(!window.confirm('Pagamento confirmado de 30 dias para "'+item.shop_name+
+  '"? O prazo será SOMADO ao próximo vencimento (não substituído).'))return;
+ busy=true;button.disabled=true;$('reload').disabled=true;
+ try{
+  const result=await request('bipstart_admin_extend_premium',{p_shop_id:shopId});
+  if(!Array.isArray(result)||!result[0]?.active_until)throw Error('O Supabase não confirmou a renovação.');
+  message('Acrescentados 30 dias. Próximo vencimento: '+premiumDueDate(result[0])+
+   '. Total de acréscimos: '+result[0].premium_paid_periods+'.');
+ }catch(error){message('Não foi possível somar 30 dias: '+error.message,true)}
+ finally{busy=false;button.disabled=false;$('reload').disabled=false;await load()}
 });
 $('upgradeRequests').addEventListener('click',async event=>{
  const button=event.target.closest('[data-upgrade-activate], [data-upgrade-trial]');
@@ -259,11 +302,12 @@ $('upgradeRequests').addEventListener('click',async event=>{
  try{
   const ok=isTrial?
    await request('bipstart_admin_upgrade_trial',{p_shop_id:shopId}):
-   await request('bipstart_admin_set_access',{p_shop_id:shopId,p_plan:'pro',p_action:'activate'});
-  if(ok!==true)throw Error('O Supabase não confirmou a liberação.');
+   await request('bipstart_admin_extend_premium',{p_shop_id:shopId});
+  if(isTrial?ok!==true:!Array.isArray(ok)||!ok[0]?.active_until)
+   throw Error('O Supabase não confirmou a liberação.');
   $('upgradeMessage').textContent=isTrial?
    'Teste Premium liberado sem alterar a data de suspensão. Atualizando...':
-   'Plano Premium pago ativado por 30 dias. Atualizando...';
+   'Pagamento Premium confirmado. +30 dias somados ao próximo vencimento. Atualizando...';
  }catch(error){
   $('upgradeMessage').textContent='Não foi possível liberar o upgrade: '+error.message;
   busy=false;button.disabled=false;$('reload').disabled=false;
