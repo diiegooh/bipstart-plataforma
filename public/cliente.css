@@ -629,6 +629,30 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 }
 
 
+/* Pedidos online compactos: três colunas no desktop. */
+#workspace .online-order-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+#workspace .online-order-card{padding:13px;gap:9px;border-radius:13px}
+#workspace .online-order-section{min-width:0}
+#workspace .online-order-top h3{font-size:17px;margin-top:2px}
+#workspace .online-order-products h4,#workspace .online-order-section h4{font-size:12px}
+#workspace .online-order-overview,#workspace .online-order-payment-meta{gap:7px}
+#workspace .online-state-pill{font-size:10px;padding:4px 7px;white-space:normal;width:fit-content}
+#workspace .online-order-items{border:1px solid #4d8662;border-radius:10px;background:#193325;padding:10px;gap:5px;margin-top:7px}
+#workspace .online-order-items h5{color:#b2f9cb;margin:0 0 4px;text-transform:uppercase;letter-spacing:.06em;font-size:11px;font-weight:900}
+#workspace .online-order-items .online-order-item{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid #376348}
+#workspace .online-order-items .online-order-item:last-child{border-bottom:0}
+#workspace .online-order-item-name{font-weight:850;font-size:13px;color:#fff;line-height:1.35;min-width:0}
+#workspace .online-order-item-qty{display:inline-block;color:#a8f5c5;font-size:15px;margin-right:4px}
+#workspace .online-order-items .online-order-item>strong{font-size:12px;color:#cbfbd8;white-space:nowrap}
+#workspace .online-order-total{font-size:19px}
+#workspace .online-order-actions{grid-template-columns:1fr;gap:8px}
+#workspace .online-status-block{padding:9px;gap:6px}
+#workspace .online-status-controls button{min-height:34px;padding:7px 8px;font-size:11px}
+#workspace .online-order-address,#workspace .online-order-notes{padding:8px;font-size:12px}
+@media(max-width:1350px){#workspace .online-order-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:850px){#workspace .online-order-list{grid-template-columns:1fr}}
+@media(max-width:440px){#workspace .online-order-card{padding:12px}}
+
 /* Relatórios de vendas: filtros de período, totais e linha detalhada por produto. */
 /* Barra única e alinhada para Dia / Semana / Mês, data e Atualizar. */
 #workspace .sales-report-controls{
