@@ -1364,8 +1364,8 @@ function onlineOrderCard(order){
     '<div><span>Recebimento</span><strong>'+esc(order.delivery_method==='delivery'?'Entrega':'Retirada na loja')+'</strong></div>'+
     '<div><span>Situação</span><strong class="online-state-pill'+(status==='cancelled'?' is-cancelled':status==='fulfilled'?' is-done':'')+'">'+esc(label[status])+'</strong></div>'+
    '</div>'+
-   '<div class="online-order-items">'+items.map(item=>
-    '<div><span>'+esc(item.qty)+'× '+esc(item.name)+'</span><strong>'+fmt(item.total)+'</strong></div>'
+   '<div class="online-order-items" aria-label="Itens vendidos"><h5>Itens vendidos</h5>'+items.map(item=>
+    '<div class="online-order-item"><span class="online-order-item-name"><b class="online-order-item-qty">'+esc(item.qty)+'×</b> '+esc(item.name)+'</span><strong>'+fmt(item.total)+'</strong></div>'
    ).join('')+'</div>'+
    (order.notes?'<p class="online-order-notes"><strong>Observações:</strong> '+esc(order.notes)+'</p>':'')+
   '</section>'+
