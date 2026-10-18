@@ -397,16 +397,6 @@ $('sendPreparedWhatsapp').addEventListener('click',()=>{
  // O clique abre o WhatsApp diretamente; o registro acontece em paralelo.
  if(registeredOrderId&&orderToken)void saveWhatsappUpdatesConsent(registeredOrderId,orderToken);
 });
-$('copyTrackingUrl').addEventListener('click',async()=>{
- try{
-  const url=$('trackingUrl').href;
-  if(!url.includes('/acompanhar#'))throw Error('Link indisponível.');
-  await navigator.clipboard.writeText(url);
-  $('trackingCopyFeedback').textContent='✓ Link copiado. Guarde para consultar seu pedido.';
- }catch{
-  $('trackingCopyFeedback').textContent='Não foi possível copiar automaticamente. Abra o link para guardá-lo.';
- }
-});
 $('sendOrder').addEventListener('click',async()=>{
  const button=$('sendOrder');
  button.disabled=true;
