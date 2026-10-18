@@ -62,15 +62,11 @@
   <div class="total grand-total"><span>Total</span><span id="cartTotal">R$ 0,00</span></div>
   <button id="sendOrder" type="button" class="btn checkout-btn" disabled>Continuar pedido</button>
   <section id="trackingReady" class="tracking-ready hidden" role="status" aria-live="polite">
-   <h3>Pedido registrado!</h3>
-   <p>Guarde este link para acompanhar seu pedido e pagamento.</p>
-   <a id="trackingUrl" class="tracking-link" target="_blank" rel="noopener noreferrer" href="#">Acompanhar meu pedido ↗</a>
-   <button id="copyTrackingUrl" class="btn alt" type="button">Copiar link de acompanhamento</button>
-   <p id="whatsappConsentNotice" class="whatsapp-consent-note">Ao clicar em “Enviar pedido à loja pelo WhatsApp”, você autoriza a loja a enviar atualizações de preparo, pagamento e entrega deste pedido. Sem promoções. Você pode solicitar a interrupção dos avisos.</p>
-   <a id="sendPreparedWhatsapp" class="btn checkout-btn" href="#" target="_blank" rel="noopener noreferrer" aria-describedby="whatsappConsentNotice">Enviar pedido à loja pelo WhatsApp ↗</a>
-   <small id="trackingCopyFeedback" role="status" aria-live="polite">O envio à loja só será concluído quando você confirmar a mensagem no WhatsApp.</small>
+   <a id="trackingUrl" class="hidden" href="#" target="_blank" rel="noopener noreferrer" aria-label="Acompanhar pedido"></a>
+   <a id="sendPreparedWhatsapp" class="btn checkout-btn" href="#" target="_blank" rel="noopener noreferrer">Enviar pedido pelo WhatsApp ↗</a>
+   <small id="trackingCopyFeedback" class="hidden" role="status" aria-live="polite"></small>
   </section>
 </aside>
-<script src="/vitrine.js?v=33" defer></script>
+<script src="/vitrine.js?v=34" defer></script>
 </body>
 </html>
