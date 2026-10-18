@@ -89,7 +89,13 @@ function drawPage(){
  }else link.classList.add('hidden');
  const pay=(menu.payment_methods||[]).filter(x=>Object.hasOwn(paymentLabels,x));
  if(pay.length){
-  $('pay').innerHTML=Object.entries(paymentLabels).filter(([key])=>(menu.payment_methods||[]).includes(key)).map(([key,label])=>'<option value="'+key+'">'+esc(label)+'</option>').join('');
+  const common=pay.filter(code=>code==='pix'||code==='dinheiro');
+  const card=pay.filter(code=>code==='credito'||code==='debito');
+  $('pay').innerHTML=
+   common.map(code=>'<option value="'+code+'">'+esc(paymentLabels[code])+'</option>').join('')+
+   (card.length?'<optgroup label="Cartão">'+card.map(code=>'<option value="'+code+'">'+esc(paymentLabels[code])+'</option>').join('')+'</optgroup>':'');
+ }else{
+  $('pay').innerHTML='<option value="">Consulte as formas de pagamento da loja</option>';
  }
  const categories=categoryNames();
  $('category').innerHTML='<option value="">Todas as categorias</option>'+categories.map(name=>'<option value="'+esc(name)+'">'+esc(name)+'</option>').join('');
