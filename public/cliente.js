@@ -1451,7 +1451,6 @@ function renderPage(){
     }).join('')+'</div>':empty();
   }else if(tab==='entregas'){
     content=heading('Fila de entregas • Plano Premium','Entregas pendentes são oferecidas aos motoboys disponíveis.','<button class="button" data-new="delivery">+ Nova entrega</button>');
-    content+='<p class="muted">Vincule a entrega ao pedido online para sincronizar o status automaticamente. Entregas manuais sem vínculo não alteram pedidos.</p>';
     content+=showForm?.kind==='delivery'?deliveryForm(showForm.value):'';
     const statusNames={pendente:'Aguardando motoboy',atribuida:'Aceita',a_caminho:'Saiu para entrega',entregue:'Entregue',cancelada:'Cancelada'};
     content+=deliveries.length?'<div class="stack">'+deliveries.map(d=>{
