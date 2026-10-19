@@ -1345,6 +1345,7 @@ function onlineOrderCard(order){
  const paymentStatus=Object.hasOwn(paymentLabel,order.payment_status)?order.payment_status:'pending';
  const orderNext=nextOnlineOrderStep(status,order.delivery_method),paymentNext=nextOnlinePaymentStep(paymentStatus);
  const orderOpen=status!=='cancelled'&&status!=='fulfilled';
+ const awaiting=status==='awaiting_confirmation';
  const finishLabel='Finalizar pedido';
  const items=Array.isArray(order.items)?order.items:[];
  const phone=String(order.customer_phone||'').replace(/\\D/g,'');
@@ -1367,18 +1368,18 @@ function onlineOrderCard(order){
    '<div class="online-order-details"><strong class="online-phone-line">'+phoneUri+' '+contact+'</strong></div>'+
    (order.delivery_method==='delivery'?'<p class="online-order-address"><strong>📍 Endereço:</strong> '+esc(order.delivery_address||'Não informado')+'</p>':'')+
   '</section>'+
-  '<section class="online-order-actions" aria-label="Ações do pedido">'+
+  '<section class="online-order-actions'+(awaiting?' online-order-first-response':'')+'" aria-label="Ações do pedido">'+
    '<div class="online-status-block"><div class="online-status-controls">'+
-    (orderOpen?((orderNext&&orderNext.next!=='fulfilled'?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+' →</button>':'')+
-     '<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>'):'<span class="online-status-end">'+(status==='cancelled'?'Pedido cancelado':'Pedido finalizado')+'</span>')+
-    '<button type="button" class="ghost online-cancel" data-order-cancel="'+esc(order.id)+'"'+(!orderOpen?' disabled':'')+'>Cancelar pedido</button>'+
+    (orderOpen?((orderNext?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+(awaiting?'':' →')+'</button>':'')+
+     (!awaiting?'<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>':'') ):'<span class="online-status-end">'+(status==='cancelled'?'Pedido não aceito':'Pedido finalizado')+'</span>')+
+    (orderOpen?'<button type="button" class="'+(awaiting?'button online-reject':'ghost online-cancel')+'" data-order-cancel="'+esc(order.id)+'">Não aceitar pedido</button>':'')+
    '</div></div>'+
-   '<div class="online-status-block"><span class="online-status-title">Pagamento</span><div class="online-status-controls">'+
+   (!awaiting?'<div class="online-status-block"><span class="online-status-title">Pagamento</span><div class="online-status-controls">'+
     (paymentNext?'<button type="button" class="button online-advance" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+' →</button>':
      '<span class="online-status-end">'+(paymentStatus==='cancelled'?'Pagamento cancelado':'Pagamento confirmado')+'</span>')+
     '<button type="button" class="ghost online-cancel" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button>'+
-   '</div></div>'+
-   ((typeof proAccess==='function'&&proAccess()&&order.delivery_method==='delivery'&&!['cancelled','fulfilled'].includes(status)&&!deliveries.some(d=>d.online_order_id===order.id))?
+   '</div></div>':'')+
+   (!awaiting&&(typeof proAccess==='function'&&proAccess()&&order.delivery_method==='delivery'&&!['cancelled','fulfilled'].includes(status)&&!deliveries.some(d=>d.online_order_id===order.id))?
     '<button type="button" class="ghost online-order-dispatch" data-online-delivery="'+esc(order.id)+'">🛵 Criar entrega para este pedido</button>':'')+
   '</section></article>';
 }
