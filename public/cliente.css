@@ -610,7 +610,7 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 #workspace .online-status-controls button:disabled{opacity:.48;cursor:not-allowed}
 #workspace .online-status-controls button:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:2px}
 #workspace .online-status-end{font-size:12px;font-weight:750;color:#d8e5dc;flex:1 1 125px}
-#workspace .online-order-details .online-phone-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#workspace .online-order-details .online-phone-line{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex-wrap:nowrap;min-width:0}#workspace .online-order-details .online-order-phone{flex:0 1 auto;min-width:0;overflow-wrap:anywhere}#workspace .online-order-details .online-order-whatsapp{margin:0}
 #workspace .online-order-whatsapp{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:32px;height:32px;color:#25D366;text-decoration:none;border-radius:50%;transition:background-color .15s}
 #workspace .online-order-whatsapp:hover{background:rgba(37,211,102,.13)}
 #workspace .online-order-whatsapp:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:2px}
