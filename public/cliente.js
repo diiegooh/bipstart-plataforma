@@ -1345,7 +1345,7 @@ function onlineOrderCard(order){
  const paymentStatus=Object.hasOwn(paymentLabel,order.payment_status)?order.payment_status:'pending';
  const orderNext=nextOnlineOrderStep(status,order.delivery_method),paymentNext=nextOnlinePaymentStep(paymentStatus);
  const orderOpen=status!=='cancelled'&&status!=='fulfilled';
- const finishLabel=typeof proAccess==='function'&&proAccess()?'Finalizar pela loja':'Finalizar pedido';
+ const finishLabel='Finalizar pedido';
  const items=Array.isArray(order.items)?order.items:[];
  const phone=String(order.customer_phone||'').replace(/\\D/g,'');
  const phoneUri=/^\\d{10,13}$/.test(phone)?'<a class="online-order-phone" href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone);
