@@ -76,7 +76,6 @@ function mapUrl(address){
 function wazeUrl(address){
  return 'https://waze.com/ul?q='+encodeURIComponent(address)+'&navigate=yes';
 }
-// Validação explícita: cores são dados da loja e jamais estilos arbitrários.
 function themeColor(color){return /^#[0-9a-f]{6}$/i.test(String(color||''))?String(color):'#7c3aed';}
 function themeContrast(color){
  const c=themeColor(color),values=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)/255);
@@ -96,7 +95,7 @@ function applyCourierTheme(color){
  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',safe);
 }
 function whatsappUrl(phone){
- const digits=String(phone||'').replace(/\\D/g,'');
+ const digits=String(phone||'').replace(/\D/g,'');
  if(!digits)return '';
  const br=digits.startsWith('55')?digits:'55'+digits;
  return 'https://wa.me/'+br;
@@ -117,11 +116,10 @@ function deliveryCard(d,offer){
   '<p><strong>Cliente:</strong> '+name+'</p>'+
   '<p><strong>Endereço:</strong> '+esc(address||'Endereço não informado')+'</p>'+
   '<p><strong>Itens do pedido:</strong></p>'+
-  '<p class="courier-order-items">'+esc(items||'Itens não informados').replace(/\\n/g,'<br>')+'</p>'+
+  '<p class="courier-order-items">'+esc(items||'Itens não informados').replace(/\n/g,'<br>')+'</p>'+
   '<div class="courier-actions courier-order-actions">'+
-   (offer?button:'')+
+   button+
    (contact?'<a class="button courier-whatsapp" target="_blank" rel="noopener noreferrer" href="'+esc(contact)+'">WhatsApp</a>':'')+
-   (offer?'':d.status==='atribuida'?button:'<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">ENTREGUE</button>')+
   '</div></article>';
 }
 async function refresh(){
