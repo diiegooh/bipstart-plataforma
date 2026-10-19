@@ -6,7 +6,7 @@ let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=
 let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all',selectedStockPanel='',showBestSellerPicker=false;
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
-let onlineOrdersPolling=false;
+let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99';
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
@@ -297,14 +297,33 @@ async function reloadData(){
   }
   sales=await get('shop_sales');
   onlineOrders=await get('shop_online_orders');
+  if(knownOnlineOrderIds===null)knownOnlineOrderIds=new Set(onlineOrders.map(o=>o.id));
   requests=await get('shop_customization_requests');
   if(proAccess()){
     couriers=await rest('shop_couriers',{query:{select:'*',shop_id:'eq.'+shop.id,removed_at:'is.null'}});
     deliveries=await get('shop_deliveries');
   }
 }
+function playNewOrderSound(){
+ try{
+  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+  if(!AudioContextClass)return;
+  orderSoundContext=orderSoundContext||new AudioContextClass();
+  if(orderSoundContext.state==='suspended')void orderSoundContext.resume();
+  const ctx=orderSoundContext,now=ctx.currentTime;
+  [0,0.22,0.44].forEach((offset,index)=>{
+   const osc=ctx.createOscillator(),gain=ctx.createGain();
+   osc.type='sine';osc.frequency.value=[880,1175,1568][index];
+   gain.gain.setValueAtTime(0.0001,now+offset);
+   gain.gain.exponentialRampToValueAtTime(0.22,now+offset+0.025);
+   gain.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.18);
+   osc.connect(gain);gain.connect(ctx.destination);
+   osc.start(now+offset);osc.stop(now+offset+0.2);
+  });
+ }catch(error){console.warn('Som de novo pedido indisponível:',error.message);}
+}
 async function refreshOnlineOrdersIfVisible(){
- if(onlineOrdersPolling||pendingOrderUpdates.size||!shop||!hasAccess()||tab!=='pedidos'||
+ if(onlineOrdersPolling||pendingOrderUpdates.size||!shop||!hasAccess()||!proAccess()||
     document.visibilityState==='hidden'||!$('workspace')||$('workspace').classList.contains('hidden'))return;
  onlineOrdersPolling=true;
  const currentShop=shop.id;
@@ -312,9 +331,18 @@ async function refreshOnlineOrdersIfVisible(){
    const latest=await rest('shop_online_orders',{query:{
      select:'*',shop_id:'eq.'+currentShop,order:'created_at.desc',limit:'200'
    }});
-   if(shop?.id!==currentShop||tab!=='pedidos'||pendingOrderUpdates.size)return;
+   if(shop?.id!==currentShop||pendingOrderUpdates.size)return;
+   const previousIds=knownOnlineOrderIds;
+   const newOrders=previousIds===null?[]:latest.filter(o=>!previousIds.has(o.id));
+   knownOnlineOrderIds=new Set(latest.map(o=>o.id));
    const sig=rows=>rows.map(o=>o.id+':'+o.status+':'+o.payment_status).join('|');
-   if(sig(latest)!==sig(onlineOrders)){onlineOrders=latest;renderPage();}
+   const changed=sig(latest)!==sig(onlineOrders);
+   if(newOrders.length){
+     playNewOrderSound();
+     renderNav();
+     if(tab!=='pedidos')msg('🔔 Novo pedido online recebido!');
+   }
+   if(changed){onlineOrders=latest;if(tab==='pedidos')renderPage();else renderNav();}
  }catch(error){console.warn('Atualização de pedidos indisponível:',error.message);}
  finally{onlineOrdersPolling=false;}
 }
@@ -366,8 +394,9 @@ function renderNav(){
       return '<a class="side-public-menu" data-public-menu-link href="'+esc(publicShopUrl())+'" target="_blank" rel="noopener noreferrer" aria-label="Abrir cardápio online da loja em outra aba" title="Abrir cardápio online em outra aba">'+
         '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b><span class="side-external-icon" aria-hidden="true">↗</span></a>';
     }
-    return '<button type="button" data-nav="'+esc(id)+'" class="'+(current===id?'active':'')+'"'+(current===id?' aria-current="page"':'')+'>'+
-      '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b></button>';
+    const pendingCount=id==='pedidos'?onlineOrders.filter(o=>o.status==='awaiting_confirmation').length:0;
+    return '<button type="button" data-nav="'+esc(id)+'" class="'+(current===id?'active':'')+(pendingCount?' online-order-nav-alert':'')+'"'+(current===id?' aria-current="page"':'')+'>'+
+      '<span class="side-nav-icon" aria-hidden="true">'+icon+'</span><b>'+esc(name)+'</b>'+(pendingCount?'<span class="online-order-nav-count">'+pendingCount+'</span>':'')+'</button>';
   }).join('')+'</nav>';
   $('sideShopName').textContent=shop.name;
   $('sideSettings').classList.toggle('active',tab==='configuracoes');
