@@ -394,8 +394,12 @@ async function saveWhatsappUpdatesConsent(orderId,token){
  }
 }
 $('sendPreparedWhatsapp').addEventListener('click',()=>{
- // O clique abre o WhatsApp diretamente; o registro acontece em paralelo.
+ // O pedido já está registrado; ao encaminhá-lo ao WhatsApp, limpe o carrinho local.
  if(registeredOrderId&&orderToken)void saveWhatsappUpdatesConsent(registeredOrderId,orderToken);
+ cart.clear();
+ selectedQty.clear();
+ renderCart();
+ closeCart();
 });
 $('sendOrder').addEventListener('click',async()=>{
  const button=$('sendOrder');
