@@ -1164,6 +1164,20 @@ body.receipt-open{overflow:hidden}
 }
 
 
+/* Botão do menu lateral sempre visível no painel da loja. */
+#workspace .pdv-mobile-menu{
+ display:flex!important;align-items:center;justify-content:flex-start;
+ position:sticky;top:0;z-index:95;margin:0 0 12px;padding:6px 0;
+}
+#workspace .pdv-mobile-menu #sideToggle{
+ display:inline-flex;align-items:center;justify-content:center;gap:9px;
+ min-height:44px;padding:10px 15px;background:#18251b;color:#fff;
+ border:1px solid var(--store-accent,#7c3aed);border-radius:12px;
+ font-size:13px;font-weight:850;box-shadow:0 4px 14px #0003;cursor:pointer;
+}
+#workspace .pdv-mobile-menu #sideToggle:hover{filter:brightness(1.15)}
+#workspace .pdv-mobile-menu #sideToggle:focus-visible{outline:3px solid #ff5963;outline-offset:3px}
+
 /* Ajuste de layout do PDV: menu lateral recolhido em gaveta e caixa de pagamento ampliada. */
 #workspace .dashboard{grid-template-columns:minmax(0,1fr)!important}
 #workspace .side{
