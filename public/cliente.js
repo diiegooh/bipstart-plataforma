@@ -1244,13 +1244,13 @@ function renderGodzillaPDV(){
  const cash=pdvPayment==='dinheiro',isCard=['credito','debito'].includes(pdvPayment);
  const cartItems=cart.map(c=>{
   const p=products.find(p=>p.id===c.id);
-  return '<div class="pdv-sale-item"><div><strong>'+esc(c.name)+'</strong><small>'+
-   fmt(c.price)+' por unidade'+(p?' · Estoque '+esc(p.stock):'')+'</small></div>'+
+  return '<div class="pdv-sale-item"><div class="pdv-sale-product"><strong>'+esc(c.name)+'</strong>'+
+   (p?'<small>Estoque: '+esc(p.stock)+'</small>':'')+'<b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div>'+
    '<div class="pdv-sale-qty">'+
    '<button type="button" data-qty-less="'+esc(c.id)+'" aria-label="Diminuir '+esc(c.name)+'">−</button>'+
    '<b>'+c.qty+'</b><button type="button" data-cart="'+esc(c.id)+'" aria-label="Aumentar '+esc(c.name)+'">+</button>'+
    '<button type="button" data-remove="'+esc(c.id)+'" aria-label="Remover '+esc(c.name)+'">×</button>'+
-   '</div><strong>'+fmt(c.qty*c.price)+'</strong></div>';
+   '</div></div>';
  }).join('');
  const paymentChoices=[['dinheiro','Dinheiro'],['cartao','Cartão'],['pix','Pix']];
  const activePayment=isCard?'cartao':pdvPayment;
