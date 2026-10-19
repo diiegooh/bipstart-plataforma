@@ -653,6 +653,10 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 @media(max-width:850px){#workspace .online-order-list{grid-template-columns:1fr}}
 @media(max-width:440px){#workspace .online-order-card{padding:12px}}
 
+.courier-password-match{display:block;min-height:1.25em;margin-top:5px;font-size:12px;font-weight:700}
+.courier-password-match.is-mismatch{color:#ff7777}
+.courier-password-match.is-match{color:#8ee6a4}
+input[name="login_password_confirm"]:invalid{border-color:#ff7777}
 /* Relatórios de vendas: filtros de período, totais e linha detalhada por produto. */
 /* Barra única e alinhada para Dia / Semana / Mês, data e Atualizar. */
 #workspace .sales-report-controls{
