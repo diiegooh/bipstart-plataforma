@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const paymentLabels={pix:'Pix',credito:'Cartão de crédito',debito:'Cartão de débito',dinheiro:'Dinheiro'};
-let menu=null,cart=new Map();
+let menu=null,cart=new Map(),config=null;
 function showErr(text){$('error').classList.remove('hidden');$('error').textContent=String(text)}
 function imageUrl(path){
  if(!path||!menu?.src)return '';
@@ -63,8 +63,12 @@ function render(){
   locationLink.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(menu.location);
   locationLink.classList.remove('hidden');
  }else locationLink.classList.add('hidden');
- const payments=(menu.payment_methods||[]).filter(p=>Object.hasOwn(paymentLabels,p)).map(p=>paymentLabels[p]);
- $('paymentMethods').textContent=payments.length?payments.join(', '):'Consulte a loja';
+ const paymentSelect=$('paymentMethod');
+ const availablePayments=(menu.payment_methods||[]).filter(p=>Object.hasOwn(paymentLabels,p));
+ paymentSelect.innerHTML='<option value="a_combinar">A combinar com a loja</option>'+
+  availablePayments.map(p=>'<option value="'+esc(p)+'">'+esc(paymentLabels[p])+'</option>').join('');
+ const payments=availablePayments.map(p=>paymentLabels[p]);
+ $('paymentMethods').textContent=payments.length?payments.join(', '):'A combinar com a loja';
  $('deliveryFee').textContent=Number(menu.delivery_fee)>0?money(menu.delivery_fee):'Grátis / a combinar';
  const logo=menu.logo_path?imageUrl(menu.logo_path):'';
  $('brandMark').innerHTML=logo?'<img src="'+esc(logo)+'" alt="Logo da loja '+esc(menu.name)+'">':
@@ -107,13 +111,15 @@ function closeCart(){
  $('cartPanel').classList.add('hidden');
  $('cartOpen').focus();
 }
-function checkoutMessage(){
- const mode=$('shippingMode').value;
- const delivery=mode==='delivery';
- const address=$('deliveryAddress').value.trim();
+function checkoutMessage(orderId,trackingUrl){
+ const mode=$('shippingMode').value,delivery=mode==='delivery';
+ const address=$('deliveryAddress').value.trim(),name=$('customerName').value.trim();
+ const phone=$('customerPhone').value.trim(),notes=$('orderNotes').value.trim();
  if(!totalItems())throw Error('Adicione ao menos um item ao pedido.');
+ if(name.length<2)throw Error('Informe seu nome.');
+ if(phone.replace(/\\D/g,'').length<10)throw Error('Informe um telefone válido com DDD.');
  if(delivery&&address.length<8)throw Error('Informe seu endereço completo de entrega.');
- const lines=['Olá! Quero fazer um pedido pelo CARDÁPIO ('+menu.name+'):',''];
+ const lines=['Olá! Enviei um pedido pelo CARDÁPIO ('+menu.name+').','Pedido #'+String(orderId).slice(0,8),'Cliente: '+name,'Telefone: '+phone,''];
  for(const [id,qty] of cart){
   const p=(menu.items||[]).find(x=>x.id===id);
   if(p)lines.push(qty+'x '+p.name+' — '+money(Number(p.price)*qty));
@@ -121,11 +127,31 @@ function checkoutMessage(){
  lines.push('','Subtotal: '+money(subtotal()));
  lines.push('Recebimento: '+(delivery?'Entrega':'Retirada'));
  if(delivery){lines.push('Taxa de entrega: '+money(deliveryCost()));lines.push('Endereço: '+address)}
+ lines.push('Pagamento: '+(paymentLabels[$('paymentMethod').value]||'A combinar'));
  lines.push('Total: '+money(subtotal()+deliveryCost()));
- const notes=$('orderNotes').value.trim();
  if(notes)lines.push('Observações: '+notes);
- lines.push('Por favor, confirme disponibilidade e forma de pagamento.');
- return lines.join('\n');
+ lines.push('Acompanhe o status do pedido: '+trackingUrl);
+ return lines.join('\\n');
+}
+async function placeOnlineOrder(){
+ const slug=new URLSearchParams(location.search).get('loja')||'';
+ const name=$('customerName').value.trim(),phone=$('customerPhone').value.trim();
+ const mode=$('shippingMode').value,address=$('deliveryAddress').value.trim();
+ const notes=$('orderNotes').value.trim(),payment=$('paymentMethod').value;
+ if(!totalItems())throw Error('Adicione ao menos um item ao pedido.');
+ if(name.length<2)throw Error('Informe seu nome.');
+ if(phone.replace(/\\D/g,'').length<10)throw Error('Informe um telefone válido com DDD.');
+ if(mode==='delivery'&&address.length<8)throw Error('Informe seu endereço completo de entrega.');
+ const token=crypto.randomUUID();
+ const items=[...cart].map(([id,qty])=>({id,qty}));
+ const response=await fetch(config.supabaseUrl+'/rest/v1/rpc/bipstart_place_online_order',{
+  method:'POST',headers:{apikey:config.publishableKey,'Content-Type':'application/json'},
+  body:JSON.stringify({p_slug:slug,p_client_token:token,p_name:name,p_phone:phone,p_delivery_method:mode,p_address:address,p_payment_method:payment,p_notes:notes,p_items:items})
+ });
+ const result=await response.json().catch(()=>null);
+ if(!response.ok||!result?.id)throw Error(result?.message||result?.details||result?.hint||'Não foi possível registrar o pedido. Confira os dados e tente novamente.');
+ const trackingUrl=location.origin+'/acompanhar#pedido='+encodeURIComponent(result.id)+'&chave='+encodeURIComponent(token);
+ return {id:result.id,trackingUrl};
 }
 document.addEventListener('click',event=>{
  const add=event.target.closest('[data-add]');
@@ -151,13 +177,21 @@ $('showCart').addEventListener('click',openCart);
 $('cartClose').addEventListener('click',closeCart);
 $('cartBackdrop').addEventListener('click',closeCart);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('cartPanel').classList.contains('hidden'))closeCart()});
-$('finishOrder').addEventListener('click',()=>{
+$('finishOrder').addEventListener('click',async()=>{
+ const button=$('finishOrder');let whatsappWindow=null;
  try{
   const number=normalizeWhatsApp(menu?.whatsapp);
   if(!number)throw Error('Esta loja ainda não cadastrou um WhatsApp comercial.');
-  const text=checkoutMessage();
-  window.open('https://wa.me/'+number+'?text='+encodeURIComponent(text),'_blank','noopener,noreferrer');
- }catch(e){showErr(e.message);closeCart();window.scrollTo({top:0,behavior:'smooth'})}
+  if(!config?.enabled)throw Error('O sistema de pedidos está indisponível no momento.');
+  button.disabled=true;button.textContent='REGISTRANDO PEDIDO…';
+  whatsappWindow=window.open('about:blank','_blank');
+  const order=await placeOnlineOrder();
+  const whatsappUrl='https://wa.me/'+number+'?text='+encodeURIComponent(checkoutMessage(order.id,order.trackingUrl));
+  if(whatsappWindow)whatsappWindow.location.href=whatsappUrl;else window.location.href=whatsappUrl;
+ }catch(e){
+  if(whatsappWindow)whatsappWindow.close();
+  showErr(e.message);closeCart();window.scrollTo({top:0,behavior:'smooth'});
+ }finally{button.disabled=totalItems()===0;button.textContent='ENVIAR PEDIDO ↗';}
 });
 async function boot(){
  try{
@@ -165,6 +199,7 @@ async function boot(){
   if(!/^[a-z0-9-]{3,60}$/.test(slug))throw Error('Endereço da loja inválido.');
   const cfg=await fetch('/api/public-config').then(r=>r.json());
   if(!cfg.enabled)throw Error('Cardápios em preparação.');
+  config=cfg;
   const r=await fetch(cfg.supabaseUrl+'/rest/v1/rpc/bipstart_public_menu',{
    method:'POST',
    headers:{apikey:cfg.publishableKey,'Content-Type':'application/json'},
