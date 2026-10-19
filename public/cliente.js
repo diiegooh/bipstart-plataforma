@@ -1380,7 +1380,6 @@ function onlineOrderCard(order){
    '</div></div>'+
    ((typeof proAccess==='function'&&proAccess()&&order.delivery_method==='delivery'&&!['cancelled','fulfilled'].includes(status)&&!deliveries.some(d=>d.online_order_id===order.id))?
     '<button type="button" class="ghost online-order-dispatch" data-online-delivery="'+esc(order.id)+'">🛵 Criar entrega para este pedido</button>':'')+
-   (order.whatsapp_updates_opt_in===true?'<button type="button" class="ghost online-notification-optout" data-order-optout="'+esc(order.id)+'">Desativar avisos WhatsApp</button>':'')+
    (orderNotificationLinks.has(order.id)?'<a class="ghost online-order-notification-link" target="_blank" rel="noopener noreferrer" href="'+esc(orderNotificationLinks.get(order.id))+'">Enviar atualização ao cliente no WhatsApp ↗</a>':'')+
   '</section></article>';
 }
