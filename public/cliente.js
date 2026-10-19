@@ -1211,7 +1211,7 @@ function pdvBestSellers(){
  const featured=pdvBestSellerProducts();
  if(!featured.length)return '';
  return '<section class="pdv-best-sellers" aria-label="Acesso rápido aos mais vendidos">'+
-  '<div class="pdv-best-sellers-title"><strong>★ Mais vendidos</strong><small>Acesso rápido · toque para adicionar</small></div>'+
+  '<div class="pdv-best-sellers-title"><strong>★ Mais vendidos</strong></div>'+
   '<div class="pdv-best-sellers-list">'+featured.map(p=>{
    const qty=cart.find(c=>c.id===p.id)?.qty||0;
    const outOfStock=Number(p.stock)<=qty;
