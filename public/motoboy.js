@@ -110,9 +110,14 @@ function deliveryCard(d,offer){
   d.status==='atribuida'?
    '<button class="button" type="button" data-job-action="start" data-id="'+esc(d.delivery_id)+'">INICIAR ROTA</button>':
    '<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">ENTREGUE</button>';
+ const orderNumber=String(d.delivery_id||'').replace(/-/g,'').slice(-6).toUpperCase();
+ const items=String(d.items_text||'').trim();
  return '<article class="courier-delivery" style="'+themeVars(d.shop_color)+'">'+
-  '<h3>'+name+'</h3>'+
-  '<p><strong>'+esc(address||'Endereço não informado')+'</strong></p>'+
+  '<h3>Pedido #'+esc(orderNumber||'—')+'</h3>'+
+  '<p><strong>Cliente:</strong> '+name+'</p>'+
+  '<p><strong>Endereço:</strong> '+esc(address||'Endereço não informado')+'</p>'+
+  '<p><strong>Itens do pedido:</strong></p>'+
+  '<p class="courier-order-items">'+esc(items||'Itens não informados').replace(/\\n/g,'<br>')+'</p>'+
   (contact?'<p><a class="ghost" target="_blank" rel="noopener noreferrer" href="'+esc(contact)+'">WhatsApp do cliente ↗</a></p>':'')+
   '<div class="courier-actions">'+button+'</div></article>';
 }
