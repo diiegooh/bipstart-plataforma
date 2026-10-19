@@ -6,7 +6,7 @@ const statuses={
  preparing:'Em preparo',
  out_for_delivery:'Saiu para entrega',
  fulfilled:'Finalizado',
- cancelled:'Cancelado'
+ cancelled:'Cancelado pela loja'
 };
 const payments={pending:'Aguardando pagamento',paid:'Pago',cancelled:'Pagamento cancelado'};
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -31,7 +31,12 @@ function renderTracking(order){
   ['awaiting_confirmation','confirmed','preparing','fulfilled'];
  const current=stages.indexOf(order.status);
  const done=order.status==='fulfilled',cancelled=order.status==='cancelled';
- $('orderSteps').replaceChildren();
+ if(cancelled){
+  const notice=document.createElement('p');
+  notice.className='tracking-cancelled-message';
+  notice.textContent='A loja não aceitou ou cancelou este pedido. Entre em contato com a loja se precisar de esclarecimentos.';
+  $('orderSteps').replaceChildren(notice);
+ }else $('orderSteps').replaceChildren();
  for(let i=0;i<stages.length;i++){
   const code=stages[i],li=document.createElement('li');
   const completed=done||(!cancelled&&current>i),active=!cancelled&&current===i;
