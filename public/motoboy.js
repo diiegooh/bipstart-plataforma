@@ -119,8 +119,9 @@ function deliveryCard(d,offer){
   '<p><strong>Itens do pedido:</strong></p>'+
   '<p class="courier-order-items">'+esc(items||'Itens não informados').replace(/\\n/g,'<br>')+'</p>'+
   '<div class="courier-actions courier-order-actions">'+
+   (offer?button:'')+
    (contact?'<a class="button courier-whatsapp" target="_blank" rel="noopener noreferrer" href="'+esc(contact)+'">WhatsApp</a>':'')+
-   (offer?button:d.status==='atribuida'?button:'<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">ENTREGUE</button>')+
+   (offer?'':d.status==='atribuida'?button:'<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">ENTREGUE</button>')+
   '</div></article>';
 }
 async function refresh(){
