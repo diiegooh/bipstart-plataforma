@@ -104,8 +104,6 @@ function whatsappUrl(phone){
 function deliveryCard(d,offer){
  const name=esc(d.customer_name||'Cliente');
  const address=String(d.address||'');
- const route=mapUrl(address);
- const waze=wazeUrl(address);
  const contact=whatsappUrl(d.customer_phone);
  const button=offer?
   '<button class="button" type="button" data-job-action="accept" data-id="'+esc(d.delivery_id)+'">Aceitar entrega</button>':
@@ -116,8 +114,6 @@ function deliveryCard(d,offer){
   '<h3>'+name+'</h3>'+
   '<p><strong>'+esc(address||'Endereço não informado')+'</strong></p>'+
   (contact?'<p><a class="ghost" target="_blank" rel="noopener noreferrer" href="'+esc(contact)+'">WhatsApp do cliente ↗</a></p>':'')+
-  '<div class="route-links"><a class="ghost" target="_blank" rel="noopener noreferrer" href="'+esc(route)+'">Google Maps ↗</a>'+
-  '<a class="ghost" target="_blank" rel="noopener noreferrer" href="'+esc(waze)+'">Waze ↗</a></div>'+
   '<div class="courier-actions">'+button+'</div></article>';
 }
 async function refresh(){
@@ -196,10 +192,6 @@ document.addEventListener('click',async e=>{
   message(action==='accept'?'Entrega aceita com sucesso.':
    action==='start'?'Rota iniciada. Boa entrega!':'Entrega concluída e pedido finalizado.');
   await refresh();
-  if(action==='start'){
-   const link=button.closest('.courier-delivery')?.querySelector('.route-links a');
-   if(link?.href)window.open(link.href,'_blank','noopener,noreferrer');
-  }
  }catch(err){message(err.message,true)}
  finally{button.disabled=false}
 });
