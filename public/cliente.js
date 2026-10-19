@@ -1372,7 +1372,7 @@ function onlineOrderCard(order){
    '<div class="online-status-block"><div class="online-status-controls">'+
     (orderOpen?((orderNext?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+(awaiting?'':' →')+'</button>':'')+
      (!awaiting?'<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>':'') ):'<span class="online-status-end">'+(status==='cancelled'?'Pedido não aceito':'Pedido finalizado')+'</span>')+
-    (orderOpen?'<button type="button" class="'+(awaiting?'button online-reject':'ghost online-cancel')+'" data-order-cancel="'+esc(order.id)+'">Não aceitar pedido</button>':'')+
+    (orderOpen?'<button type="button" class="'+(awaiting?'button online-reject':'ghost online-cancel')+'" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar pedido')+'</button>':'')+
    '</div></div>'+
    (!awaiting?'<div class="online-status-block"><span class="online-status-title">Pagamento</span><div class="online-status-controls">'+
     (paymentNext?'<button type="button" class="button online-advance" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+' →</button>':
