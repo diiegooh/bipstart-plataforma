@@ -1450,7 +1450,7 @@ function renderPage(){
          '<button type="button" class="ghost" data-delete-courier="'+esc(c.id)+'">Remover</button></div></div>';
     }).join('')+'</div>':empty();
   }else if(tab==='entregas'){
-    content=heading('Fila de entregas • Plano Premium','Entregas pendentes são oferecidas aos motoboys disponíveis.','<button class="button" data-new="delivery">+ Nova entrega</button>');
+    content=heading('Fila de entregas • Plano Premium','','<button class="button" data-new="delivery">+ Nova entrega</button>');
     content+=showForm?.kind==='delivery'?deliveryForm(showForm.value):'';
     const statusNames={pendente:'Aguardando motoboy',atribuida:'Aceita',a_caminho:'Saiu para entrega',entregue:'Entregue',cancelada:'Cancelada'};
     content+=deliveries.length?'<div class="stack">'+deliveries.map(d=>{
