@@ -1211,3 +1211,14 @@ body.receipt-open{overflow:hidden}
 @media(max-width:390px){
  #workspace .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+/* Adição rápida de produtos à faixa Mais vendidos diretamente no PDV. */
+#workspace .pdv-best-sellers-title{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#workspace .pdv-best-seller-manage{display:inline-grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border:0;border-radius:10px;background:var(--store-accent,#8b5cf6);color:#fff;font-size:25px;font-weight:800;line-height:1;cursor:pointer}
+#workspace .pdv-best-seller-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px;margin:10px 0 13px;padding:12px;border:1px solid #34463a;border-radius:12px;background:#0d1510}
+#workspace .pdv-best-seller-picker>strong{grid-column:1/-1;font-size:12px;color:#dbe6de;margin-bottom:3px}
+#workspace .pdv-best-seller-picker>button{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:9px 10px;border:1px solid #334638;border-radius:9px;background:#17251b;color:#f4f7f4;text-align:left;cursor:pointer}
+#workspace .pdv-best-seller-picker>button span{overflow-wrap:anywhere;font-size:12px}
+#workspace .pdv-best-seller-picker>button b{display:grid;place-items:center;flex:0 0 23px;height:23px;border-radius:7px;background:#267344;color:#fff;font-size:18px}
+#workspace .pdv-best-seller-picker>small{grid-column:1/-1;color:#9fb0a3}
