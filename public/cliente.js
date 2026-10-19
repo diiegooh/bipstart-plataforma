@@ -1380,7 +1380,6 @@ function onlineOrderCard(order){
    '</div></div>'+
    ((typeof proAccess==='function'&&proAccess()&&order.delivery_method==='delivery'&&!['cancelled','fulfilled'].includes(status)&&!deliveries.some(d=>d.online_order_id===order.id))?
     '<button type="button" class="ghost online-order-dispatch" data-online-delivery="'+esc(order.id)+'">🛵 Criar entrega para este pedido</button>':'')+
-   (orderNotificationLinks.has(order.id)?'<a class="ghost online-order-notification-link" target="_blank" rel="noopener noreferrer" href="'+esc(orderNotificationLinks.get(order.id))+'">Enviar atualização ao cliente no WhatsApp ↗</a>':'')+
   '</section></article>';
 }
 
@@ -2179,10 +2178,6 @@ document.addEventListener('click',async e=>{
       orderNotificationLinks.delete(id);
       if(result.notification==='manual'&&result.manualUrl)orderNotificationLinks.set(id,result.manualUrl);
       renderPage();
-      const info=result.notification==='accepted'?' Aviso solicitado ao WhatsApp.':
-        result.notification==='manual'?' Clique em "Enviar atualização ao cliente no WhatsApp" para concluir o envio.':
-        result.notification==='opt_out'?' Cliente não autorizou notificações automáticas.':
-        ' Aviso não enviado: verifique o número do cliente.';
       if(result.notification==='manual'||result.notification==='opt_out'||result.notification==='accepted'){
         msg(payment?'Status do pagamento atualizado.':'Situação do pedido atualizada.');
       }
