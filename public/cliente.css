@@ -1123,3 +1123,28 @@ body.receipt-open{overflow:hidden}
  #workspace .online-order-total-row .online-order-total{font-size:29px}
  #workspace .online-order-items{padding:12px}
 }
+
+
+/* Pedido novo: destaque com a cor configurada pela loja até ser confirmado. */
+#workspace .online-order-card.online-order-awaiting{
+ border:2px solid var(--store-accent,#7c3aed);
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 19%,#101813);
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--store-accent,#7c3aed) 24%,transparent),0 8px 24px color-mix(in srgb,var(--store-accent,#7c3aed) 20%,transparent);
+}
+#workspace .online-order-card.online-order-awaiting .online-order-top,
+#workspace .online-order-card.online-order-awaiting .online-order-overview,
+#workspace .online-order-card.online-order-awaiting .online-order-payment-meta,
+#workspace .online-order-card.online-order-awaiting .online-order-items,
+#workspace .online-order-card.online-order-awaiting .online-order-section{
+ border-color:color-mix(in srgb,var(--store-accent,#7c3aed) 38%,#263b2d);
+}
+#workspace .online-order-card.online-order-awaiting .online-order-top,
+#workspace .online-order-card.online-order-awaiting .online-order-overview,
+#workspace .online-order-card.online-order-awaiting .online-order-payment-meta,
+#workspace .online-order-card.online-order-awaiting .online-order-total-row{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 13%,transparent);
+}
+#workspace .online-order-card.online-order-awaiting .online-order-eyebrow,
+#workspace .online-order-card.online-order-awaiting .online-order-total{
+ color:var(--store-accent,#c4b5fd);
+}
