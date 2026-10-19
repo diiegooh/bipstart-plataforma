@@ -2183,7 +2183,9 @@ document.addEventListener('click',async e=>{
         result.notification==='manual'?' Clique em "Enviar atualização ao cliente no WhatsApp" para concluir o envio.':
         result.notification==='opt_out'?' Cliente não autorizou notificações automáticas.':
         ' Aviso não enviado: verifique o número do cliente.';
-      msg((payment?'Status do pagamento atualizado.':'Situação do pedido atualizada.')+info);
+      if(result.notification==='manual'||result.notification==='opt_out'||result.notification==='accepted'){
+        msg(payment?'Status do pagamento atualizado.':'Situação do pedido atualizada.');
+      }
     }catch(error){
       for(const button of controls?.querySelectorAll('button')||[])button.disabled=false;
       msg(error.message,true);
