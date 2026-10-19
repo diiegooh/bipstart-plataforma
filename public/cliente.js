@@ -1576,7 +1576,7 @@ function courierForm(c){
    '<input type="password" name="login_password_confirm" autocomplete="new-password" minlength="8" maxlength="72"'+
    (!c.account_id?' required':'')+' placeholder="Repita a senha" aria-describedby="courier-password-match"></label>'+
    '<small id="courier-password-match" class="courier-password-match" aria-live="polite" role="status"></small>'+
-   '<small class="courier-credential-help">O telefone será o login. A senha fica protegida no Supabase Auth e não é exibida depois de salva.</small>':
+   '':
    '<p class="muted small">Esta conta foi criada no sistema antigo. Remova e cadastre novamente para definir usuário e senha.</p>')+
   '<label>Disponibilidade<select name="active"><option value="true"'+(c.active!==false?' selected':'')+'>Ativo</option><option value="false"'+(c.active===false?' selected':'')+'>Desativado</option></select></label>'
 )}
