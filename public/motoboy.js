@@ -132,18 +132,12 @@ async function refresh(){
   const shops=Array.isArray(memberships)?memberships:[];
   const rows=Array.isArray(jobs)?jobs:[];
   const colors=new Map((Array.isArray(themes)?themes:[]).map(t=>[t.shop_id,themeColor(t.brand_color)]));
-  // Uma loja: identidade completa; várias lojas: tema neutro e cor individual por entrega.
   applyCourierTheme(shops.length===1?colors.get(shops[0].shop_id):'#7c3aed');
   const coloredRows=rows.map(d=>({...d,shop_color:colors.get(d.shop_id)||'#7c3aed'}));
-  $('courierIdentity').textContent=shops.length?
-   'Seus serviços em '+shops.length+' loja(s).':'Nenhuma loja Premium ativa vinculada. Entre em contato com a loja.';
-  $('shopChips').innerHTML=shops.map(m=>'<span class="pill" style="'+themeVars(colors.get(m.shop_id))+'">'+esc(m.shop_name)+' • '+esc(m.courier_name)+'</span>').join('');
-  const offers=coloredRows.filter(r=>r.is_offer===true);
-  const active=coloredRows.filter(r=>r.is_offer!==true);
-  $('offers').innerHTML=offers.length?offers.map(r=>deliveryCard(r,true)).join(''):
-   '<div class="empty">Nenhuma entrega disponível no momento.</div>';
-  $('assignments').innerHTML=active.length?active.map(r=>deliveryCard(r,false)).join(''):
-   '<div class="empty">Nenhuma rota em andamento.</div>';
+  $('courierIdentity').textContent='';
+  const root=$('deliveries');
+  root.innerHTML=coloredRows.length?coloredRows.map(d=>deliveryCard(d,d.is_offer===true)).join(''):
+   '<div class="courier-empty">Sem pedidos</div>';
  }catch(err){
   message(err.message,true);
   if(!await validSession())authView(false);
