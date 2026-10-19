@@ -118,8 +118,10 @@ function deliveryCard(d,offer){
   '<p><strong>Endereço:</strong> '+esc(address||'Endereço não informado')+'</p>'+
   '<p><strong>Itens do pedido:</strong></p>'+
   '<p class="courier-order-items">'+esc(items||'Itens não informados').replace(/\\n/g,'<br>')+'</p>'+
-  (contact?'<p><a class="ghost" target="_blank" rel="noopener noreferrer" href="'+esc(contact)+'">WhatsApp do cliente ↗</a></p>':'')+
-  '<div class="courier-actions">'+button+'</div></article>';
+  '<div class="courier-actions courier-order-actions">'+
+   (contact?'<a class="button courier-whatsapp" target="_blank" rel="noopener noreferrer" href="'+esc(contact)+'">WhatsApp</a>':'')+
+   (offer?button:d.status==='atribuida'?button:'<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">ENTREGUE</button>')+
+  '</div></article>';
 }
 async function refresh(){
  if(!session)return;
