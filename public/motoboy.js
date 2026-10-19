@@ -108,7 +108,7 @@ function deliveryCard(d,offer){
  const button=offer?
   '<button class="button" type="button" data-job-action="accept" data-id="'+esc(d.delivery_id)+'">Aceitar entrega</button>':
   d.status==='atribuida'?
-   '<button class="button" type="button" data-job-action="start" data-id="'+esc(d.delivery_id)+'">INICIAR ROTA</button>':
+   '<button class="button" type="button" data-job-action="start" data-id="'+esc(d.delivery_id)+'" data-address="'+esc(address)+'">INICIAR ROTA</button>':
    '<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">ENTREGUE</button>';
  const orderNumber=String(d.delivery_id||'').replace(/-/g,'').slice(-6).toUpperCase();
  const items=String(d.items_text||'').trim();
@@ -190,10 +190,16 @@ document.addEventListener('click',async e=>{
  button.disabled=true;
  try{
   if(action==='accept')await rpc('bipstart_courier_accept',{p_delivery_id:id});
-  else await rpc('bipstart_courier_set_status',{
-   p_delivery_id:id,
-   p_status:action==='start'?'a_caminho':'entregue'
-  });
+  else {
+   if(action==='start'){
+    const destination=button.dataset.address||'';
+    if(destination.trim())window.open(mapUrl(destination),'_blank','noopener,noreferrer');
+   }
+   await rpc('bipstart_courier_set_status',{
+    p_delivery_id:id,
+    p_status:action==='start'?'a_caminho':'entregue'
+   });
+  }
   message(action==='accept'?'Entrega aceita com sucesso.':
    action==='start'?'Rota iniciada. Boa entrega!':'Entrega concluída e pedido finalizado.');
   await refresh();
