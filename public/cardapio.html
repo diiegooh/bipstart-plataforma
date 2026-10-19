@@ -45,6 +45,15 @@
  <aside class="cart-panel hidden" id="cartPanel" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
   <div class="cart-header"><h2 id="cartTitle">Meu pedido</h2><button id="cartClose" type="button" aria-label="Fechar carrinho" class="icon-button">✕</button></div>
   <div id="cartLines" class="cart-lines"></div>
+  <label class="cart-field">Seu nome
+   <input id="customerName" type="text" maxlength="120" autocomplete="name" placeholder="Nome e sobrenome" required>
+  </label>
+  <label class="cart-field">Telefone / WhatsApp
+   <input id="customerPhone" type="tel" maxlength="20" autocomplete="tel" placeholder="DDD + número" required>
+  </label>
+  <label class="cart-field">Forma de pagamento
+   <select id="paymentMethod"><option value="a_combinar">A combinar com a loja</option><option value="pix">Pix</option><option value="dinheiro">Dinheiro</option><option value="credito">Cartão de crédito</option><option value="debito">Cartão de débito</option></select>
+  </label>
   <label class="cart-field">Recebimento
    <select id="shippingMode"><option value="pickup">Retirar no estabelecimento</option><option value="delivery">Receber por entrega</option></select>
   </label>
