@@ -111,7 +111,7 @@ function deliveryCard(d,offer){
   '<button class="button" type="button" data-job-action="accept" data-id="'+esc(d.delivery_id)+'">Aceitar entrega</button>':
   d.status==='atribuida'?
    '<button class="button" type="button" data-job-action="start" data-id="'+esc(d.delivery_id)+'">Iniciar rota</button>':
-   '<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">Marcar como entregue</button>';
+   '<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">Entregue</button>';
  return '<article class="courier-delivery" style="'+themeVars(d.shop_color)+'">'+
   '<h3>'+name+'</h3>'+
   '<p><strong>'+esc(address||'Endereço não informado')+'</strong></p>'+
@@ -194,7 +194,7 @@ document.addEventListener('click',async e=>{
    p_status:action==='start'?'a_caminho':'entregue'
   });
   message(action==='accept'?'Entrega aceita com sucesso.':
-   action==='start'?'Rota iniciada. Boa entrega!':'Entrega marcada como concluída.');
+   action==='start'?'Rota iniciada. Boa entrega!':'Entrega concluída e pedido finalizado.');
   await refresh();
   if(action==='start'){
    const link=button.closest('.courier-delivery')?.querySelector('.route-links a');
