@@ -1253,3 +1253,21 @@ body.receipt-open{overflow:hidden}
 #workspace .pdv-payment-form{position:relative;background:linear-gradient(165deg,#1c142b,#0e0b19);padding-top:3px}
 @media(max-width:880px){#workspace .pdv-sale-panel{position:static;top:auto}#workspace .pdv-sale-list{max-height:34vh}}
 @media(max-width:480px){#workspace .pdv-sale-item{gap:6px;padding:8px}#workspace .pdv-sale-qty{gap:4px}#workspace .pdv-sale-qty button{min-width:27px;min-height:28px;padding:2px 6px}#workspace .pdv-sale-product>strong{font-size:13px}}
+
+/* Aviso destacado para pedidos online aguardando confirmação. */
+#workspace .side #nav nav button.online-order-nav-alert{
+ position:relative;overflow:visible;background:linear-gradient(110deg,#8e1424,#d91f36);
+ border:2px solid #ff6577;color:#fff;box-shadow:0 0 0 2px #e5233a35,0 7px 22px #ef233d3d;
+ animation:online-order-pulse 1.35s ease-in-out infinite;
+}
+#workspace .side #nav nav button.online-order-nav-alert b{font-weight:950}
+#workspace .side #nav nav .online-order-nav-count{
+ display:inline-flex;align-items:center;justify-content:center;min-width:23px;height:23px;
+ padding:0 6px;border-radius:999px;background:#fff;color:#b40e27;font-size:12px;font-weight:950;
+ box-shadow:0 0 0 2px #b40e27;
+}
+@keyframes online-order-pulse{
+ 0%,100%{filter:brightness(1);box-shadow:0 0 0 2px #e5233a35,0 7px 22px #ef233d3d}
+ 50%{filter:brightness(1.22);box-shadow:0 0 0 5px #e5233a2a,0 7px 26px #ef233d66}
+}
+@media(prefers-reduced-motion:reduce){#workspace .side #nav nav button.online-order-nav-alert{animation:none}}
