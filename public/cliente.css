@@ -1222,3 +1222,20 @@ body.receipt-open{overflow:hidden}
 #workspace .pdv-best-seller-picker>button span{overflow-wrap:anywhere;font-size:12px}
 #workspace .pdv-best-seller-picker>button b{display:grid;place-items:center;flex:0 0 23px;height:23px;border-radius:7px;background:#267344;color:#fff;font-size:18px}
 #workspace .pdv-best-seller-picker>small{grid-column:1/-1;color:#9fb0a3}
+
+
+/* PDV: controles ao lado do produto, carrinho rolável e pagamento sempre acessível. */
+#workspace .pdv-sale-panel{position:sticky;top:12px;align-self:start;min-height:0}
+#workspace .pdv-sale-list{display:grid;gap:8px;max-height:min(38vh,360px);min-height:90px;overflow-y:auto;overscroll-behavior:contain;padding:2px 5px 2px 0;scrollbar-width:thin;scrollbar-color:var(--store-accent,#7c3aed) #21152f}
+#workspace .pdv-sale-item{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px}
+#workspace .pdv-sale-product{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0}
+#workspace .pdv-sale-product>strong{font-size:14px;line-height:1.3}
+#workspace .pdv-sale-product small{margin:0;font-size:11px}
+#workspace .pdv-sale-line-total{font-size:13px;color:#e4c7ff;white-space:nowrap}
+#workspace .pdv-sale-qty{display:flex;align-items:center;justify-content:flex-end;gap:5px;flex-wrap:nowrap}
+#workspace .pdv-sale-qty button{min-width:29px;min-height:29px;padding:2px 7px}
+#workspace .pdv-sale-qty button:last-child{margin-left:2px}
+#workspace .pdv-sale-total{margin-top:10px;padding:12px 0 10px}
+#workspace .pdv-payment-form{position:relative;background:linear-gradient(165deg,#1c142b,#0e0b19);padding-top:3px}
+@media(max-width:880px){#workspace .pdv-sale-panel{position:static;top:auto}#workspace .pdv-sale-list{max-height:34vh}}
+@media(max-width:480px){#workspace .pdv-sale-item{gap:6px;padding:8px}#workspace .pdv-sale-qty{gap:4px}#workspace .pdv-sale-qty button{min-width:27px;min-height:28px;padding:2px 6px}#workspace .pdv-sale-product>strong{font-size:13px}}
