@@ -1148,3 +1148,17 @@ body.receipt-open{overflow:hidden}
 #workspace .online-order-card.online-order-awaiting .online-order-total{
  color:var(--store-accent,#c4b5fd);
 }
+
+
+/* Pedido aguardando resposta: somente aceitar ou recusar, com ações grandes. */
+#workspace .online-order-first-response{grid-template-columns:minmax(0,1fr);gap:10px}
+#workspace .online-order-first-response .online-status-block{padding:0;border:0;background:transparent}
+#workspace .online-order-first-response .online-status-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#workspace .online-order-first-response .online-status-controls button{min-height:60px;padding:15px 12px;font-size:16px;font-weight:900;border-radius:12px}
+#workspace .online-order-first-response .online-advance{background:var(--store-accent,#7c3aed);color:var(--store-accent-ink,#fff);border:2px solid var(--store-accent,#7c3aed);box-shadow:0 5px 14px color-mix(in srgb,var(--store-accent,#7c3aed) 28%,transparent)}
+#workspace .online-order-first-response .online-reject{background:#9f2638;color:#fff;border:2px solid #e45b6e;box-shadow:0 5px 14px rgba(159,38,56,.25)}
+#workspace .online-order-first-response .online-status-controls button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media(max-width:480px){
+ #workspace .online-order-first-response .online-status-controls{grid-template-columns:minmax(0,1fr)}
+ #workspace .online-order-first-response .online-status-controls button{min-height:56px;font-size:15px}
+}
