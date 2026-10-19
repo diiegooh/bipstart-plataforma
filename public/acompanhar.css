@@ -9,3 +9,6 @@
 .tracking-footer{margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.tracking-footer button{border:1px solid #b8ff46;background:#192f1b;color:#efffe9;padding:11px 15px;border-radius:11px;cursor:pointer;font-weight:750}.tracking-footer button:disabled{opacity:.5;cursor:wait}.tracking-footer button:focus-visible{outline:3px solid #b8ff46;outline-offset:3px}.tracking-footer span{color:#8fa795;font-size:12px}
 .notice{border-radius:12px;padding:14px;margin-top:18px}.error{color:#ffd2d9;background:#3d2129;border:1px solid #a24f5f}.privacy{color:#90a494;text-align:center;font-size:12px;margin:23px auto;max-width:430px}
 @media(max-width:420px){.tracking-container{padding:18px 12px 40px}.tracking-panel{padding:17px}.tracking-title{align-items:flex-start}.summary-row{font-size:13px}}
+
+
+.tracking-cancelled-message{margin:12px 0;padding:16px;border:1px solid #dc6576;border-radius:12px;background:#3b1720;color:#ffe1e5;font-weight:750;line-height:1.5;text-align:center}
