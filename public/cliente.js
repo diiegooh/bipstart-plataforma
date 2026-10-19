@@ -1350,7 +1350,7 @@ function onlineOrderCard(order){
  const phone=String(order.customer_phone||'').replace(/\\D/g,'');
  const phoneUri=/^\\d{10,13}$/.test(phone)?'<a class="online-order-phone" href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone);
  const contact=phone&&/^\\d{10,13}$/.test(phone)?'<a class="online-order-whatsapp" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'" aria-label="Conversar com '+esc(order.customer_name)+' no WhatsApp" title="Conversar pelo WhatsApp">WhatsApp</a>':'';
- return '<article class="online-order-card" data-order-id="'+esc(order.id)+'">'+
+ return '<article class="online-order-card'+(status==='awaiting_confirmation'?' online-order-awaiting':'')+'" data-order-id="'+esc(order.id)+'">'+
   '<header class="online-order-top"><div class="online-order-identifier">'+
    '<span class="online-order-eyebrow">Pedido</span><h3>#'+esc(String(order.id).slice(0,8))+'</h3>'+
    '<small>'+esc(new Date(order.created_at).toLocaleString('pt-BR'))+'</small></div></header>'+
