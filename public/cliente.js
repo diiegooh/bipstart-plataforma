@@ -1295,7 +1295,7 @@ function renderGodzillaPDV(){
  '<div class="pdv-calculation">Líquido estimado <strong id="pdvNet">'+fmt(sum-Math.round(sum*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
  '<small class="muted">Taxa registrada na venda e descontada do lucro no relatório; a BipStart não processa pagamentos.</small></div>'+
  '<button type="submit" class="button pdv-finish" '+(!cart.length?'disabled':'')+'>Finalizar venda ↗</button>'+
- '<p class="muted small">Registre apenas pagamentos recebidos fora da BipStart. O sistema atualiza o estoque após confirmar a venda.</p></form>'+
+ '</form>'+
  ((typeof lastReceipt!=='undefined'&&lastReceipt?.shopId===shop?.id)?'<button class="ghost pdv-last-receipt" type="button" data-receipt-last>🧾 Reimprimir último comprovante</button>':'')+
  '</aside></div></div>';
 }
