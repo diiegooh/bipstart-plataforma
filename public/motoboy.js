@@ -95,23 +95,27 @@ function applyCourierTheme(color){
  document.body.classList.toggle('courier-themed',true);
  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',safe);
 }
+function whatsappUrl(phone){
+ const digits=String(phone||'').replace(/\\D/g,'');
+ if(!digits)return '';
+ const br=digits.startsWith('55')?digits:'55'+digits;
+ return 'https://wa.me/'+br;
+}
 function deliveryCard(d,offer){
  const name=esc(d.customer_name||'Cliente');
- const route=mapUrl(d.address||'');
- const waze=wazeUrl(d.address||'');
- const state=offer?'NOVO PEDIDO':d.status==='a_caminho'?'EM ROTA':'ACEITA';
+ const address=String(d.address||'');
+ const route=mapUrl(address);
+ const waze=wazeUrl(address);
+ const contact=whatsappUrl(d.customer_phone);
  const button=offer?
   '<button class="button" type="button" data-job-action="accept" data-id="'+esc(d.delivery_id)+'">Aceitar entrega</button>':
   d.status==='atribuida'?
    '<button class="button" type="button" data-job-action="start" data-id="'+esc(d.delivery_id)+'">Iniciar rota</button>':
    '<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">Marcar como entregue</button>';
  return '<article class="courier-delivery" style="'+themeVars(d.shop_color)+'">'+
-  '<span class="status">'+esc(state)+' • '+esc(d.shop_name)+'</span>'+
   '<h3>'+name+'</h3>'+
-  '<p><strong>'+esc(d.address)+'</strong></p>'+
-  (d.items_text?'<div class="courier-details">'+esc(d.items_text)+'</div>':'')+
-  '<p class="price">Total informado: '+currency(d.total)+'</p>'+
-  (d.customer_phone?'<p class="muted small">Contato do cliente: '+esc(d.customer_phone)+'</p>':'')+
+  '<p><strong>'+esc(address||'Endereço não informado')+'</strong></p>'+
+  (contact?'<p><a class="ghost" target="_blank" rel="noopener noreferrer" href="'+esc(contact)+'">WhatsApp do cliente ↗</a></p>':'')+
   '<div class="route-links"><a class="ghost" target="_blank" rel="noopener noreferrer" href="'+esc(route)+'">Google Maps ↗</a>'+
   '<a class="ghost" target="_blank" rel="noopener noreferrer" href="'+esc(waze)+'">Waze ↗</a></div>'+
   '<div class="courier-actions">'+button+'</div></article>';
