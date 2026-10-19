@@ -1090,3 +1090,36 @@ body.receipt-open{overflow:hidden}
 .admin-premium-payment{display:grid;gap:4px;margin:9px 0 0;padding:9px;border:1px solid #41644d;border-radius:9px;background:#162c1d}
 .admin-premium-payment strong{font-size:12px;color:#b9f1ce}
 .admin-premium-payment small{font-size:11px;color:#d3dfd5}
+
+
+/* Pedidos recebidos: apresentação mais limpa, centralizada e sem excesso de caixas. */
+#workspace .online-order-card{background:#101813;border:1px solid #304936;border-radius:14px;gap:0}
+#workspace .online-order-top{justify-content:center;text-align:center;padding:18px 16px 14px;border-bottom:1px solid #263b2d}
+#workspace .online-order-identifier{justify-content:center;align-items:center;gap:7px}
+#workspace .online-order-identifier .online-order-eyebrow{width:100%}
+#workspace .online-order-top h3{font-size:26px}
+#workspace .online-order-top small{width:100%;margin-top:3px}
+#workspace .online-order-overview,#workspace .online-order-payment-meta{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;text-align:center;gap:10px 22px;margin:0;padding:13px 12px;border-bottom:1px solid #263b2d}
+#workspace .online-order-overview>strong:not(.online-state-pill),#workspace .online-order-payment-meta>strong:not(.online-state-pill){font-size:19px;color:#fff;text-align:center}
+#workspace .online-order-overview .online-state-pill,#workspace .online-order-payment-meta .online-state-pill{font-size:12px}
+#workspace .online-order-items{margin:0;padding:13px 18px;border:0;border-bottom:1px solid #263b2d;border-radius:0;background:transparent}
+#workspace .online-order-items h5{text-align:center;font-size:12px;margin-bottom:8px}
+#workspace .online-order-items .online-order-item{padding:7px 0;border-bottom:1px solid #263b2d}
+#workspace .online-order-items .online-order-item>span{text-align:left}
+#workspace .online-order-items .online-order-item>strong{font-size:14px}
+#workspace .online-order-total-row{justify-content:center;flex-wrap:wrap;text-align:center;gap:5px 12px;border:0;padding:14px 12px;background:#17271b}
+#workspace .online-order-total-row>span{font-size:17px}
+#workspace .online-order-total-row .online-order-total{font-size:32px;color:#c8f7d4}
+#workspace .online-order-section{padding:16px 18px;border-bottom:1px solid #263b2d;text-align:center}
+#workspace .online-order-customer h3{font-size:20px;margin-bottom:8px}
+#workspace .online-order-customer .online-order-details{display:flex;justify-content:center;text-align:center}
+#workspace .online-order-customer .online-order-address{text-align:center}
+#workspace .online-order-actions{border:0;padding:16px 18px 18px}
+#workspace .online-order-actions .online-status-block{background:transparent;border:0;padding:0}
+#workspace .online-order-actions .online-notification-optout{display:none!important}
+@media(max-width:440px){
+ #workspace .online-order-overview,#workspace .online-order-payment-meta{gap:8px 12px;padding:12px 8px}
+ #workspace .online-order-overview>strong:not(.online-state-pill),#workspace .online-order-payment-meta>strong:not(.online-state-pill){font-size:18px}
+ #workspace .online-order-total-row .online-order-total{font-size:29px}
+ #workspace .online-order-items{padding:12px}
+}
