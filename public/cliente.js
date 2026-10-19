@@ -2178,9 +2178,6 @@ document.addEventListener('click',async e=>{
       orderNotificationLinks.delete(id);
       if(result.notification==='manual'&&result.manualUrl)orderNotificationLinks.set(id,result.manualUrl);
       renderPage();
-      if(result.notification==='manual'||result.notification==='opt_out'||result.notification==='accepted'){
-        msg(payment?'Status do pagamento atualizado.':'Situação do pedido atualizada.');
-      }
     }catch(error){
       for(const button of controls?.querySelectorAll('button')||[])button.disabled=false;
       msg(error.message,true);
