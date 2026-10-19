@@ -1422,7 +1422,6 @@ function renderPage(){
     content=heading('Pedidos online','Pedidos registrados pelo cardápio antes da abertura do WhatsApp.',
       '<button type="button" class="ghost" data-orders-refresh>↻ Atualizar pedidos</button>');
     content+='<div class="grid online-order-stats">'+tile('Aguardando confirmação',awaiting)+tile('Em andamento',active)+tile('Pagamentos marcados como recebidos',paid)+'</div>';
-    content+='<p class="muted online-order-notice">O registro ocorre antes de abrir o WhatsApp; não comprova que a mensagem foi enviada. Confirme o pedido com o cliente. O pagamento não é automático e deve ser marcado manualmente depois de recebido.</p>';
     content+='<div class="online-order-list">'+(onlineOrders.length?
       onlineOrders.map(onlineOrderCard).join(''):
       empty('Nenhum pedido online registrado. Compartilhe seu cardápio para receber pedidos.'))+'</div>';
