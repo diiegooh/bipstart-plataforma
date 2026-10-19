@@ -1347,63 +1347,38 @@ function onlineOrderCard(order){
  const orderOpen=status!=='cancelled'&&status!=='fulfilled';
  const finishLabel=typeof proAccess==='function'&&proAccess()?'Finalizar pela loja':'Finalizar pedido';
  const items=Array.isArray(order.items)?order.items:[];
- const phone=String(order.customer_phone||'').replace(/\D/g,'');
- const phoneUri=/^\d{10,13}$/.test(phone)?'<a class="online-order-phone" href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone);
- const contact=phone&&/^\d{10,13}$/.test(phone)?
-    '<a class="online-order-whatsapp" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'" aria-label="Conversar com '+esc(order.customer_name)+' no WhatsApp" title="Conversar pelo WhatsApp">'+
-    '<svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true" focusable="false" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.966-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.058-.174-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.297-.496.1-.198.05-.372-.025-.52-.075-.15-.669-1.612-.916-2.206-.242-.58-.487-.502-.669-.512-.173-.009-.372-.01-.57-.01-.198 0-.52.074-.792.372-.273.297-1.04 1.016-1.04 2.479s1.065 2.875 1.213 3.073c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.49 1.693.627.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.5h-.004a9.866 9.866 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.861 9.861 0 0 1-1.51-5.26C2.169 6.564 6.598 2.14 12.022 2.14c2.633 0 5.109 1.027 6.97 2.89a9.798 9.798 0 0 1 2.884 6.995c-.003 5.425-4.427 9.857-9.825 9.857m8.394-18.305A11.935 11.935 0 0 0 12.018.086C5.433.086.073 5.446.07 12.03c0 2.12.554 4.188 1.606 6.012L0 24l6.094-1.598a11.976 11.976 0 0 0 5.918 1.508h.005c6.585 0 11.946-5.36 11.949-11.945a11.932 11.932 0 0 0-3.491-8.45z"/></svg></a>':'';
+ const phone=String(order.customer_phone||'').replace(/\\D/g,'');
+ const phoneUri=/^\\d{10,13}$/.test(phone)?'<a class="online-order-phone" href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone);
+ const contact=phone&&/^\\d{10,13}$/.test(phone)?'<a class="online-order-whatsapp" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'" aria-label="Conversar com '+esc(order.customer_name)+' no WhatsApp" title="Conversar pelo WhatsApp">WhatsApp</a>':'';
  return '<article class="online-order-card" data-order-id="'+esc(order.id)+'">'+
   '<header class="online-order-top"><div class="online-order-identifier">'+
-   '<span class="online-order-eyebrow">Pedido</span>'+
-   '<h3>#'+esc(String(order.id).slice(0,8))+'</h3>'+
-   '<small>'+esc(new Date(order.created_at).toLocaleString('pt-BR'))+'</small>'+
-  '</div></header>'+
-  '<section class="online-order-section online-order-products" aria-label="Dados do pedido">'+
-   '<h4>Dados do pedido</h4>'+
-   '<div class="online-order-overview">'+
-    '<div><span>Recebimento</span><strong>'+esc(order.delivery_method==='delivery'?'Entrega':'Retirada na loja')+'</strong></div>'+
-    '<div><span>Situação</span><strong class="online-state-pill'+(status==='cancelled'?' is-cancelled':status==='fulfilled'?' is-done':'')+'">'+esc(label[status])+'</strong></div>'+
-   '</div>'+
-   '<div class="online-order-items" aria-label="Itens vendidos"><h5>Itens vendidos</h5>'+items.map(item=>
-    '<div class="online-order-item"><span class="online-order-item-name"><b class="online-order-item-qty">'+esc(item.qty)+'×</b> '+esc(item.name)+'</span><strong>'+fmt(item.total)+'</strong></div>'
-   ).join('')+'</div>'+
-   (order.notes?'<p class="online-order-notes"><strong>Observações:</strong> '+esc(order.notes)+'</p>':'')+
-  '</section>'+
-  '<section class="online-order-section online-order-payment" aria-label="Pagamento e total">'+
-   '<h4>Pagamento e total</h4>'+
-   '<div class="online-order-payment-meta">'+
-    '<div><span>Pagamento combinado</span><strong>'+esc(payLabel[order.payment_method]||'A combinar')+'</strong></div>'+
-    '<div><span>Status do pagamento</span><strong class="online-state-pill'+(paymentStatus==='cancelled'?' is-cancelled':paymentStatus==='paid'?' is-done':'')+'">'+esc(paymentLabel[paymentStatus])+'</strong></div>'+
-   '</div>'+
-   '<p class="online-order-fees"><span>Subtotal <strong>'+fmt(order.subtotal)+'</strong></span><span>Entrega <strong>'+fmt(order.delivery_fee)+'</strong></span></p>'+
-   '<div class="online-order-total-row"><span>Total do pedido</span><strong class="online-order-total">'+fmt(order.total)+'</strong></div>'+
-  '</section>'+
+   '<span class="online-order-eyebrow">Pedido</span><h3>#'+esc(String(order.id).slice(0,8))+'</h3>'+
+   '<small>'+esc(new Date(order.created_at).toLocaleString('pt-BR'))+'</small></div></header>'+
+  '<div class="online-order-overview"><strong>'+esc(order.delivery_method==='delivery'?'Entrega':'Retirada na loja')+'</strong>'+
+   '<strong class="online-state-pill'+(status==='cancelled'?' is-cancelled':status==='fulfilled'?' is-done':'')+'">'+esc(label[status])+'</strong></div>'+
+  '<div class="online-order-items" aria-label="Itens vendidos"><h5>Itens vendidos</h5>'+items.map(item=>
+   '<div class="online-order-item"><span class="online-order-item-name"><b class="online-order-item-qty">'+esc(item.qty)+'×</b> '+esc(item.name)+'</span><strong>'+fmt(item.total)+'</strong></div>'
+  ).join('')+'</div>'+
+  '<div class="online-order-payment-meta"><strong>'+esc(payLabel[order.payment_method]||'A combinar')+'</strong> '+
+   '<strong class="online-state-pill'+(paymentStatus==='cancelled'?' is-cancelled':paymentStatus==='paid'?' is-done':'')+'">'+esc(paymentLabel[paymentStatus])+'</strong></div>'+
+  '<div class="online-order-total-row"><span>Total do pedido</span><strong class="online-order-total">'+fmt(order.total)+'</strong></div>'+
   '<section class="online-order-section online-order-customer" aria-label="Dados do cliente">'+
-   '<h4>Dados do cliente</h4>'+
    '<h3>'+esc(order.customer_name)+'</h3>'+
-   '<div class="online-order-details"><div><span>Telefone</span><strong class="online-phone-line">'+phoneUri+contact+'</strong></div></div>'+
+   '<div class="online-order-details"><strong class="online-phone-line">'+phoneUri+' '+contact+'</strong></div>'+
    (order.delivery_method==='delivery'?'<p class="online-order-address"><strong>📍 Endereço:</strong> '+esc(order.delivery_address||'Não informado')+'</p>':'')+
   '</section>'+
   '<section class="online-order-actions" aria-label="Ações do pedido">'+
-   '<h4 class="online-order-actions-heading">Ações</h4>'+
-   '<div class="online-status-block" aria-label="Gerenciar situação do pedido">'+
-    '<span class="online-status-title">Pedido</span>'+
-    '<div class="online-status-controls">'+
-     (orderOpen?(
-       (orderNext&&orderNext.next!=='fulfilled'?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+' →</button>':'')+
-       '<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>'
-      ):'<span class="online-status-end">'+(status==='cancelled'?'Pedido cancelado':'Pedido finalizado')+'</span>')+
-     '<button type="button" class="ghost online-cancel" data-order-cancel="'+esc(order.id)+'"'+(!orderOpen?' disabled':'')+'>Cancelar pedido</button>'+
-    '</div></div>'+
-   '<div class="online-status-block" aria-label="Gerenciar pagamento">'+
-    '<span class="online-status-title">Pagamento</span>'+
-    '<div class="online-status-controls">'+
-     (paymentNext?'<button type="button" class="button online-advance" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+' →</button>':
-      '<span class="online-status-end">'+(paymentStatus==='cancelled'?'Pagamento cancelado':'Pagamento confirmado')+'</span>')+
-     '<button type="button" class="ghost online-cancel" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button>'+
-    '</div></div>'+
-   ((typeof proAccess==='function'&&proAccess()&&order.delivery_method==='delivery'&&
-      !['cancelled','fulfilled'].includes(status)&&!deliveries.some(d=>d.online_order_id===order.id))?
+   '<div class="online-status-block"><div class="online-status-controls">'+
+    (orderOpen?((orderNext&&orderNext.next!=='fulfilled'?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+' →</button>':'')+
+     '<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>'):'<span class="online-status-end">'+(status==='cancelled'?'Pedido cancelado':'Pedido finalizado')+'</span>')+
+    '<button type="button" class="ghost online-cancel" data-order-cancel="'+esc(order.id)+'"'+(!orderOpen?' disabled':'')+'>Cancelar pedido</button>'+
+   '</div></div>'+
+   '<div class="online-status-block"><span class="online-status-title">Pagamento</span><div class="online-status-controls">'+
+    (paymentNext?'<button type="button" class="button online-advance" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+' →</button>':
+     '<span class="online-status-end">'+(paymentStatus==='cancelled'?'Pagamento cancelado':'Pagamento confirmado')+'</span>')+
+    '<button type="button" class="ghost online-cancel" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button>'+
+   '</div></div>'+
+   ((typeof proAccess==='function'&&proAccess()&&order.delivery_method==='delivery'&&!['cancelled','fulfilled'].includes(status)&&!deliveries.some(d=>d.online_order_id===order.id))?
     '<button type="button" class="ghost online-order-dispatch" data-online-delivery="'+esc(order.id)+'">🛵 Criar entrega para este pedido</button>':'')+
    (order.whatsapp_updates_opt_in===true?'<button type="button" class="ghost online-notification-optout" data-order-optout="'+esc(order.id)+'">Desativar avisos WhatsApp</button>':'')+
    (orderNotificationLinks.has(order.id)?'<a class="ghost online-order-notification-link" target="_blank" rel="noopener noreferrer" href="'+esc(orderNotificationLinks.get(order.id))+'">Enviar atualização ao cliente no WhatsApp ↗</a>':'')+
