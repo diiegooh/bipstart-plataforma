@@ -1574,11 +1574,39 @@ function courierForm(c){
    (!c.account_id?' required':'')+' placeholder="'+(c.account_id?'Deixe vazio para manter a senha':'Mínimo de 8 caracteres')+'"></label>'+
    '<label>Confirmar senha'+(c.account_id?' (se for alterar)':'')+
    '<input type="password" name="login_password_confirm" autocomplete="new-password" minlength="8" maxlength="72"'+
-   (!c.account_id?' required':'')+' placeholder="Repita a senha"></label>'+
+   (!c.account_id?' required':'')+' placeholder="Repita a senha" aria-describedby="courier-password-match"></label>'+
+   '<small id="courier-password-match" class="courier-password-match" aria-live="polite" role="status"></small>'+
    '<small class="courier-credential-help">O telefone será o login. A senha fica protegida no Supabase Auth e não é exibida depois de salva.</small>':
    '<p class="muted small">Esta conta foi criada no sistema antigo. Remova e cadastre novamente para definir usuário e senha.</p>')+
   '<label>Disponibilidade<select name="active"><option value="true"'+(c.active!==false?' selected':'')+'>Ativo</option><option value="false"'+(c.active===false?' selected':'')+'>Desativado</option></select></label>'
 )}
+document.addEventListener('input',event=>{
+ const field=event.target;
+ if(!field.matches('input[name="login_password"],input[name="login_password_confirm"]'))return;
+ const form=field.closest('form');
+ if(!form)return;
+ const password=form.querySelector('[name="login_password"]');
+ const confirm=form.querySelector('[name="login_password_confirm"]');
+ const feedback=form.querySelector('#courier-password-match');
+ if(!password||!confirm||!feedback)return;
+ const hasValue=!!confirm.value;
+ const matches=password.value===confirm.value;
+ feedback.textContent=!hasValue?'':matches?'✓ As senhas coincidem.':'As senhas são diferentes.';
+ feedback.classList.toggle('is-match',hasValue&&matches);
+ feedback.classList.toggle('is-mismatch',hasValue&&!matches);
+ confirm.setCustomValidity(hasValue&&!matches?'As senhas são diferentes.':'');
+});
+document.addEventListener('submit',event=>{
+ const form=event.target;
+ if(!(form instanceof HTMLFormElement)||!form.querySelector('[name="login_password_confirm"]'))return;
+ const password=form.querySelector('[name="login_password"]');
+ const confirm=form.querySelector('[name="login_password_confirm"]');
+ if(password&&confirm&&password.value!==confirm.value){
+  confirm.setCustomValidity('As senhas são diferentes.');
+  confirm.reportValidity();
+  event.preventDefault();
+ }
+});
 function eligibleOnlineDeliveryOrders(currentDelivery){
  const linked=new Set(deliveries.filter(d=>d.online_order_id&&d.id!==currentDelivery?.id).map(d=>d.online_order_id));
  return onlineOrders.filter(o=>o.delivery_method==='delivery'&&!['cancelled','fulfilled'].includes(o.status)&&!linked.has(o.id));
