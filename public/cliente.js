@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[],onlineOrders=[];
-let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all',selectedStockPanel='';
+let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all',selectedStockPanel='',showBestSellerPicker=false;
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false;
@@ -1209,20 +1209,16 @@ function pdvBestSellerProducts(){
 }
 function pdvBestSellers(){
  const featured=pdvBestSellerProducts();
- if(!featured.length)return '';
+ const candidates=products.filter(p=>p.active!==false&&p.is_best_seller!==true).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
  return '<section class="pdv-best-sellers" aria-label="Acesso rápido aos mais vendidos">'+
-  '<div class="pdv-best-sellers-title"><strong>★ Mais vendidos</strong></div>'+
-  '<div class="pdv-best-sellers-list">'+featured.map(p=>{
-   const qty=cart.find(c=>c.id===p.id)?.qty||0;
-   const outOfStock=Number(p.stock)<=qty;
+  '<div class="pdv-best-sellers-title"><strong>★ Mais vendidos</strong><button type="button" class="pdv-best-seller-manage" data-best-seller-picker aria-expanded="'+(showBestSellerPicker?'true':'false')+'" aria-label="Adicionar produtos aos mais vendidos">+</button></div>'+
+  (showBestSellerPicker?'<div class="pdv-best-seller-picker"><strong>Adicionar produto ao acesso rápido</strong>'+
+   (candidates.length?candidates.map(p=>'<button type="button" data-best-seller-add="'+esc(p.id)+'"><span>'+esc(p.name)+'</span><b>+</b></button>').join(''):'<small>Todos os produtos ativos já estão nos mais vendidos.</small>')+'</div>':'')+
+  (featured.length?'<div class="pdv-best-sellers-list">'+featured.map(p=>{
+   const qty=cart.find(c=>c.id===p.id)?.qty||0, outOfStock=Number(p.stock)<=qty;
    const photo=p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="" loading="lazy">':'<span class="pdv-best-seller-placeholder" aria-hidden="true">★</span>';
-   return '<button type="button" class="pdv-best-seller" data-cart="'+esc(p.id)+'"'+(outOfStock?' disabled':'')+
-    ' aria-label="'+esc(outOfStock?'Sem estoque: '+p.name:'Adicionar '+p.name+' ao carrinho')+'">'+
-    '<span class="pdv-best-seller-photo">'+photo+'</span>'+
-    '<span class="pdv-best-seller-text"><strong>'+esc(p.name)+'</strong><small>'+
-    (outOfStock?'Sem estoque':fmt(p.price))+'</small></span>'+
-    '<span class="pdv-best-seller-plus" aria-hidden="true">'+(outOfStock?'×':'+')+'</span></button>';
-  }).join('')+'</div></section>';
+   return '<button type="button" class="pdv-best-seller" data-cart="'+esc(p.id)+'"'+(outOfStock?' disabled':'')+' aria-label="'+esc(outOfStock?'Sem estoque: '+p.name:'Adicionar '+p.name+' ao carrinho')+'"><span class="pdv-best-seller-photo">'+photo+'</span><span class="pdv-best-seller-text"><strong>'+esc(p.name)+'</strong><small>'+(outOfStock?'Sem estoque':fmt(p.price))+'</small></span><span class="pdv-best-seller-plus" aria-hidden="true">'+(outOfStock?'×':'+')+'</span></button>';
+  }).join('')+'</div>':'')+'</section>';
 }
 function pdvProductCards(){
  const available=filteredPdvProducts();
@@ -2312,6 +2308,16 @@ document.addEventListener('click',async e=>{
     showForm={kind:edit.dataset.edit,value:(lists[edit.dataset.edit]||[]).find(v=>v.id===edit.dataset.id)||null};pastedProductImage=null;renderPage();if(edit.dataset.edit==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return
   }
   if(e.target.closest('[data-cancel]')){showForm=null;renderPage();return}
+  const bestSellerPicker=e.target.closest('[data-best-seller-picker]');
+  if(bestSellerPicker){showBestSellerPicker=!showBestSellerPicker;renderPage();return}
+  const addBestSeller=e.target.closest('[data-best-seller-add]');
+  if(addBestSeller){
+   const product=products.find(p=>p.id===addBestSeller.dataset.bestSellerAdd);
+   if(!product)return;
+   try{await rest('shop_products',{method:'PATCH',query:{id:'eq.'+product.id,shop_id:'eq.'+shop.id},body:{is_best_seller:true}});product.is_best_seller=true;showBestSellerPicker=true;renderPage();msg(product.name+' adicionado aos mais vendidos do PDV.')}
+   catch(err){msg(err.message||'Não foi possível adicionar o produto.',true)}
+   return
+  }
   const c=e.target.closest('[data-cart]');if(c){const p=products.find(p=>p.id===c.dataset.cart);if(!p)return;const old=cart.find(x=>x.id===p.id);if((old?.qty||0)>=p.stock)return msg('Estoque insuficiente',true);if(old)old.qty++;else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});renderPage();return}
   const rm=e.target.closest('[data-remove]');if(rm){cart=cart.filter(x=>x.id!==rm.dataset.remove);renderPage()}
 });
