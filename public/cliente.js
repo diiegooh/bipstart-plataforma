@@ -885,7 +885,7 @@ function renderRestockList(){
   '<div><small>Repor</small><strong>'+esc(needed)+' un.</strong></div>'+
   '<div><small>Custo unitário</small><strong>'+fmt(unitCost)+'</strong></div>'+
   '<div><small>Valor da reposição</small><strong>'+fmt(estimatedCost)+'</strong></div></div>').join('')+'</div>'+
-  '<p class="muted restock-note">Estimativa baseada nos custos cadastrados. Confira preços e disponibilidade com o fornecedor antes de comprar.</p></section>';
+  '</section>';
  return content;
 }
 
