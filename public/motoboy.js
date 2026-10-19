@@ -110,8 +110,8 @@ function deliveryCard(d,offer){
  const button=offer?
   '<button class="button" type="button" data-job-action="accept" data-id="'+esc(d.delivery_id)+'">Aceitar entrega</button>':
   d.status==='atribuida'?
-   '<button class="button" type="button" data-job-action="start" data-id="'+esc(d.delivery_id)+'">Iniciar rota</button>':
-   '<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">Entregue</button>';
+   '<button class="button" type="button" data-job-action="start" data-id="'+esc(d.delivery_id)+'">INICIAR ROTA</button>':
+   '<button class="button" type="button" data-job-action="complete" data-id="'+esc(d.delivery_id)+'">ENTREGUE</button>';
  return '<article class="courier-delivery" style="'+themeVars(d.shop_color)+'">'+
   '<h3>'+name+'</h3>'+
   '<p><strong>'+esc(address||'Endereço não informado')+'</strong></p>'+
