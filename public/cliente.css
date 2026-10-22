@@ -2840,3 +2840,8 @@ body.workspace-fullscreen #workspace .content{
 #workspace .online-order-card .online-order-status-under-items .online-status-controls{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
 #workspace .online-order-card .online-order-status-under-items .online-status-controls button{min-height:38px!important}
 @media(max-width:650px){#workspace .online-order-card .online-order-status-under-items{margin:8px 10px 0!important}}
+
+#workspace .online-order-card .online-order-total-row{order:5!important}
+#workspace .online-order-card .online-order-status-under-items{order:6!important;margin:10px 16px!important}
+#workspace .online-order-card .online-order-actions{order:7!important}
+#workspace .online-order-card .online-order-status-under-items .online-status-controls button{white-space:normal!important}
