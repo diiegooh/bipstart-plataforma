@@ -2011,3 +2011,82 @@ body.workspace-fullscreen #workspace .content{min-height:0;overflow:hidden}
  #workspace:has(.godzilla-pdv) .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
  #workspace:has(.godzilla-pdv) .pdv-product-info{padding:9px}
 }
+
+
+/* Tema claro unificado para TODAS as telas da área do lojista: resumo, configurações,
+   pedidos online, produtos, estoque, cardápio, vendas e entregas. */
+#workspace{
+ --bg:#f4f6ff;--panel:#fff;--panel2:#f5f7ff;--line:#dfe5f8;
+ --accent:#7040ed;--text:#253251;--muted:#7885a3;--ok:#16885b;--danger:#c83f5c;
+ color:var(--text);background:transparent;
+}
+#workspace .heading,
+#workspace .heading h1,
+#workspace .heading h2,
+#workspace .heading h3{color:#253251}
+#workspace .heading .muted,#workspace .heading p{color:#7885a3}
+#workspace .content{background:#fff!important;border:1px solid #e0e6f8!important;color:#253251;box-shadow:0 8px 28px #283d7410}
+#workspace .side{background:#fff!important;border:1px solid #e0e6f8!important;color:#253251;box-shadow:0 6px 24px #283d740c}
+#workspace .side-store{border-bottom-color:#e2e7f7!important}
+#workspace .side-store-text strong{color:#253251!important}
+#workspace .side-store-text small{color:#7885a3!important}
+#workspace .side .side-settings{color:#647291!important}
+#workspace .side #nav nav button,
+#workspace .side #nav nav a.side-public-menu{color:#53617f!important;background:transparent;border-color:transparent}
+#workspace .side #nav nav button:hover:not(.active),
+#workspace .side #nav nav a.side-public-menu:hover{background:#f3f5ff!important;border-color:#e2e7fa!important;color:#34446e!important}
+#workspace .side #nav nav button.active,
+#workspace .side #nav nav a.side-public-menu.active{background:#eceeff!important;border-color:#dce2ff!important;color:#3548b3!important;box-shadow:0 5px 16px #6575ed12}
+#workspace .kicker{color:#7450df!important}
+#workspace .muted,#workspace small.muted{color:#7885a3}
+#workspace p{color:inherit}
+#workspace .toolbar h2,#workspace .toolbar h3,
+#workspace .content h1,#workspace .content h2,#workspace .content h3{color:#253251}
+#workspace .tile{background:#f8f9ff!important;border:1px solid #e0e6f8!important;color:#253251;border-radius:15px;box-shadow:0 3px 12px #263b7410}
+#workspace .tile strong{color:#293b67}
+#workspace .tile small{color:#7885a3}
+#workspace .stack .item,
+#workspace .item{background:#fff!important;border:1px solid #e0e6f8!important;color:#293653;border-radius:12px}
+#workspace .item strong{color:#293653}
+#workspace .item small{color:#7885a3}
+#workspace .item .actions{gap:8px}
+#workspace .item button:not(.button):not(.ghost){background:#edf0ff!important;color:#4455a4!important;border:1px solid #d8dffc!important;border-radius:9px;min-height:36px;padding:8px 12px;font-weight:750}
+#workspace .item button:not(.button):not(.ghost):hover{background:#e2e7ff!important;border-color:#bdc9ff!important}
+#workspace .data-form,
+#workspace .cart{background:#f8f9ff!important;border:1px solid #e0e6f8!important;color:#293653;border-radius:16px}
+#workspace .data-form label,
+#workspace .cart label{color:#435170}
+#workspace input:not([type=checkbox]):not([type=radio]):not([type=file]),
+#workspace select,#workspace textarea{background:#fff!important;color:#293653!important;border:1px solid #d6def3!important;border-radius:10px;box-shadow:none}
+#workspace input::placeholder,#workspace textarea::placeholder{color:#929db7}
+#workspace input:focus,#workspace select:focus,#workspace textarea:focus{outline:3px solid #dfe4ff;border-color:#8798ff!important}
+#workspace input[type=checkbox],#workspace input[type=radio]{accent-color:#7040ed}
+#workspace .button,
+#workspace button.button,
+#workspace a.button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 16px;border:1px solid transparent;border-radius:10px;background:linear-gradient(105deg,#5b6ff0,#3268dc)!important;color:#fff!important;font-weight:800;line-height:1.2;text-decoration:none;box-shadow:0 4px 10px #4567d51a;transition:filter .15s,transform .15s,box-shadow .15s}
+#workspace .button:hover,#workspace button.button:hover,#workspace a.button:hover{filter:brightness(1.04);box-shadow:0 6px 14px #4567d526}
+#workspace .button:active,#workspace button.button:active{transform:translateY(1px)}
+#workspace .button:disabled,#workspace button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+#workspace .ghost,
+#workspace button.ghost,#workspace a.ghost{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:8px 13px;background:#f1f3ff!important;color:#45527a!important;border:1px solid #dce2f7!important;border-radius:10px;font-weight:750;text-decoration:none}
+#workspace .ghost:hover,#workspace button.ghost:hover,#workspace a.ghost:hover{background:#e7ebff!important;border-color:#cbd4fb!important}
+#workspace .text-button{color:#6844d7!important}
+#workspace .pill{background:#eeebff!important;color:#6740c8!important;border:1px solid #ded6ff}
+#workspace .price{color:#5c43c7!important}
+#workspace .total{color:#253251}
+#workspace .empty{background:#fafbff;color:#7885a3;border-color:#d8e0f5}
+#workspace .notice{background:#eff3ff;color:#344777;border:1px solid #d4defa}
+#workspace .warn{background:#fff7e9;color:#87551b;border-color:#f1d8a9}
+#workspace .toast{background:#fff;color:#293653;border:1px solid #d9def8;box-shadow:0 12px 35px #253b7426}
+#workspace table{color:#293653;border-color:#e0e6f8}
+#workspace th{background:#f2f4ff;color:#3b496b}
+#workspace td,#workspace th{border-color:#e0e6f8}
+#workspace hr{border:0;border-top:1px solid #e0e6f8}
+#workspace .button:focus-visible,#workspace .ghost:focus-visible,
+#workspace button:focus-visible,#workspace a:focus-visible{outline:3px solid #c9d1ff;outline-offset:2px}
+@media(max-width:580px){
+ #workspace .data-form{padding:12px}
+ #workspace .item .actions{width:100%}
+ #workspace .item .actions>*{flex:1}
+ #workspace .button,#workspace button.button,#workspace a.button{min-height:40px}
+}
