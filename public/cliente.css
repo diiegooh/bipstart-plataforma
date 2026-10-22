@@ -2486,3 +2486,13 @@ body.workspace-fullscreen #workspace .content{
   overflow-y:visible!important;
   touch-action:pan-y!important;
 }
+
+
+/* Cards de motoboy: nome e telefone mais legíveis; link posicionado abaixo. */
+#workspace .courier-access-item{align-items:stretch!important}
+#workspace .courier-access-info{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:7px!important}
+#workspace .courier-access-info>strong{display:block!important;font-size:18px!important;line-height:1.3!important;font-weight:800!important;color:var(--text,#26324b)!important}
+#workspace .courier-access-info>small{font-size:14px!important;line-height:1.45!important}
+#workspace .courier-access-label{margin:18px 0 3px!important;font-size:13px!important}
+#workspace .courier-access-url{margin-top:2px!important;font-size:14px!important;line-height:1.5!important}
+#workspace .courier-access-actions{margin-top:8px!important}
