@@ -73,3 +73,55 @@ body.courier-themed button:focus-visible,body.courier-themed a:focus-visible{
 .courier-delivery .courier-order-actions{display:flex;align-items:stretch;gap:10px;flex-wrap:nowrap;margin-top:16px}
 .courier-delivery .courier-order-actions .button{flex:1;min-width:0;text-align:center;text-decoration:none;padding:10px 12px}
 .courier-delivery .courier-order-actions .courier-whatsapp{background:#25D366!important;border:1px solid #25D366!important;color:#102218!important}
+
+
+/* Tela de acesso do motoboy: formulário limpo, responsivo e com foco na entrada. */
+body:has(#authPanel){
+ background:radial-gradient(ellipse at 50% 0%,#e8e9ff 0%,#f5f6fc 44%,#eef1fa 100%)!important;
+ color:#202746!important;
+}
+body:has(#authPanel) .top{
+ background:rgba(255,255,255,.9)!important;
+ border-bottom:1px solid #e0e4f2!important;
+ box-shadow:0 3px 18px #293b7008!important;
+}
+body:has(#authPanel) .courier-top-actions>strong{color:#35416a!important;font-size:14px!important}
+body:has(#authPanel) .courier-wrap{max-width:1080px!important;min-height:calc(100vh - 85px)!important;display:flex!important;flex-direction:column!important;justify-content:center!important;padding:34px 18px 70px!important}
+body:has(#authPanel) .courier-auth{
+ width:min(100%,460px)!important;max-width:460px!important;margin:0 auto!important;
+ padding:clamp(24px,4vw,38px)!important;border:1px solid #e0e4f2!important;
+ border-radius:24px!important;background:rgba(255,255,255,.97)!important;
+ box-shadow:0 22px 65px #34447518,0 3px 10px #34447508!important;
+}
+body:has(#authPanel) .courier-auth .kicker{display:inline-flex!important;align-items:center!important;gap:8px!important;color:#6a51c6!important;letter-spacing:.13em!important;font-size:10px!important}
+body:has(#authPanel) .courier-auth .kicker:before{content:'🛵';font-size:18px;letter-spacing:0}
+body:has(#authPanel) .courier-auth h1{font-size:clamp(27px,4vw,34px)!important;letter-spacing:-.035em!important;color:#202746!important;margin:10px 0 9px!important}
+body:has(#authPanel) .courier-auth>p{font-size:14px!important;line-height:1.65!important;color:#69728d!important;margin:0 0 24px!important}
+body:has(#authPanel) #loginForm label{font-size:13px!important;font-weight:800!important;color:#343d5e!important;margin:16px 0!important}
+body:has(#authPanel) #loginForm input{
+ margin-top:7px!important;min-height:49px!important;padding:13px 14px!important;
+ border:1px solid #d9deef!important;border-radius:12px!important;
+ background:#f9faff!important;color:#222943!important;outline:none!important;
+ box-shadow:inset 0 1px 2px #28396308!important;transition:border-color .18s,box-shadow .18s!important;
+}
+body:has(#authPanel) #loginForm input::placeholder{color:#9aa2b7!important}
+body:has(#authPanel) #loginForm input:focus{border-color:#8871df!important;box-shadow:0 0 0 4px #8871df20!important;background:#fff!important}
+body:has(#authPanel) #loginForm .button{
+ width:100%!important;min-height:49px!important;margin-top:13px!important;
+ border:0!important;border-radius:12px!important;
+ background:linear-gradient(135deg,#6952d1,#4c38ad)!important;color:#fff!important;
+ font-weight:850!important;font-size:14px!important;letter-spacing:.01em!important;
+ box-shadow:0 8px 18px #5d48c52b!important;transition:transform .16s,box-shadow .16s,filter .16s!important;
+}
+body:has(#authPanel) #loginForm .button:hover{filter:brightness(1.05)!important;transform:translateY(-1px)!important;box-shadow:0 11px 22px #5d48c536!important}
+body:has(#authPanel) #loginForm .button:disabled{opacity:.65!important;transform:none!important}
+body:has(#authPanel) .courier-auth #captcha{display:flex!important;justify-content:center!important;margin:18px 0 0!important;min-height:4px!important;max-width:100%!important;overflow:hidden!important}
+body:has(#authPanel) #courierMessage{max-width:460px!important;width:100%!important;margin:0 auto 16px!important;border-radius:12px!important;background:#fff!important;color:#3b4565!important;padding:12px 15px!important;box-shadow:0 5px 18px #34447512!important}
+@media(max-width:560px){
+ body:has(#authPanel) .top{padding:13px 15px!important;gap:10px!important}
+ body:has(#authPanel) .brand-logo{width:155px!important}
+ body:has(#authPanel) .courier-top-actions{gap:8px!important}
+ body:has(#authPanel) .courier-top-actions>strong{font-size:12px!important}
+ body:has(#authPanel) .courier-wrap{padding:25px 14px 40px!important;justify-content:flex-start!important}
+ body:has(#authPanel) .courier-auth{padding:24px 20px!important;border-radius:20px!important}
+}
