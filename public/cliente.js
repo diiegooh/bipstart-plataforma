@@ -1492,7 +1492,7 @@ function renderPage(){
   }else if(tab==='vendas'){
     content=renderSalesReport();
   }else if(tab==='motoboys'){
-    content=heading('Motoboys','','<button class="button" data-new="courier">+ Novo motoboy</button>');
+    content=heading('Motoboys','','<button type="button" class="ghost" data-nav="entregas">Entrar na fila de pedidos</button><button class="button" data-new="courier">+ Novo motoboy</button>');
     content+=showForm?.kind==='courier'?courierForm(showForm.value):'';
     content+=couriers.length?'<div class="courier-access-list">'+couriers.map(c=>{
       const link=location.origin+'/motoboy';
