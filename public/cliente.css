@@ -3009,3 +3009,33 @@ body.workspace-fullscreen #workspace .content{
   grid-template-columns:minmax(0,1fr)!important;
  }
 }
+
+
+/* Rodapé em duas colunas e ações de pagamento junto do respectivo status */
+#workspace .online-order-card > .online-order-status-under-items{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ align-items:start!important;
+ gap:16px!important;
+}
+#workspace .online-order-card > .online-order-status-under-items > .online-status-block,
+#workspace .online-order-card > .online-order-status-under-items > .online-order-payment-meta{
+ min-width:0!important;width:auto!important;height:auto!important;min-height:0!important;
+ margin:0!important;padding:0!important;border:0!important;background:transparent!important;
+}
+#workspace .online-order-card > .online-order-status-under-items > .online-order-payment-meta{
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ justify-content:flex-start!important;gap:8px!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-controls{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ gap:8px!important;width:100%!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-controls button{
+ width:100%!important;min-width:0!important;
+}
+@media(max-width:650px){
+ #workspace .online-order-card > .online-order-status-under-items{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+}
