@@ -1667,3 +1667,76 @@ body.workspace-fullscreen #workspace .pdv-payment-form {
   body.workspace-fullscreen #workspace .pdv-sale-head h2 { font-size: 20px !important; }
   body.workspace-fullscreen #workspace .pdv-sale-total strong { font-size: 20px !important; }
 }
+
+
+/* Ajustes de contraste e alinhamento visual do menu e dos cartões do PDV. */
+body.workspace-fullscreen #workspace .side-store,
+#workspace .side-store {
+  color: #252947 !important;
+}
+body.workspace-fullscreen #workspace #sideShopName,
+#workspace #sideShopName {
+  color: #252947 !important;
+  font-weight: 800 !important;
+}
+body.workspace-fullscreen #workspace .side-settings,
+#workspace .side-settings {
+  color: #5154c9 !important;
+  background: #f0f1ff !important;
+  border: 1px solid #dfe2ff !important;
+  border-radius: 9px !important;
+}
+body.workspace-fullscreen #workspace .side nav a,
+body.workspace-fullscreen #workspace .side nav button,
+#workspace .side nav a,
+#workspace .side nav button {
+  color: #4b4e6d !important;
+  font-weight: 700 !important;
+}
+body.workspace-fullscreen #workspace .side nav a.active,
+body.workspace-fullscreen #workspace .side nav button.active,
+#workspace .side nav a.active,
+#workspace .side nav button.active {
+  color: #3442b8 !important;
+  background: #edf0ff !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers,
+#workspace .pdv-best-sellers {
+  padding: 13px !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers > div,
+#workspace .pdv-best-sellers > div {
+  gap: 10px !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers button,
+#workspace .pdv-best-sellers button {
+  border-radius: 11px !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers img,
+#workspace .pdv-best-sellers img {
+  object-fit: contain !important;
+}
+body.workspace-fullscreen #workspace .pdv-product-media,
+#workspace .pdv-product-media {
+  background: #f7f8ff !important;
+}
+body.workspace-fullscreen #workspace .pdv-product-media img,
+#workspace .pdv-product-media img {
+  object-fit: contain !important;
+}
+body.workspace-fullscreen #workspace .pdv-product-info strong,
+#workspace .pdv-product-info strong {
+  color: #292b4b !important;
+  line-height: 1.35 !important;
+}
+body.workspace-fullscreen #workspace .pdv-product-price,
+#workspace .pdv-product-price {
+  color: #5146dc !important;
+  font-weight: 850 !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-form .pdv-finish,
+#workspace .pdv-payment-form .pdv-finish {
+  background: linear-gradient(100deg, #4f46e5, #8b35e8) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 15px #6049df2b !important;
+}
