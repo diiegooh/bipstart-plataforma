@@ -1422,8 +1422,7 @@ function onlineOrderCard(order){
   '<div class="online-order-overview"><strong>'+esc(order.delivery_method==='delivery'?'Entrega':'Retirada na loja')+'</strong>'+
    '<strong class="online-state-pill'+(status==='cancelled'?' is-cancelled':status==='fulfilled'?' is-done':'')+'">'+esc(label[status])+'</strong></div>'+
   '<section class="online-order-section online-order-customer" aria-label="Dados do cliente">'+
-   '<span class="online-customer-label">Cliente</span><h3>'+esc(order.customer_name)+'</h3>'+
-   '<span class="online-customer-data-label">Dados do cliente</span>'+
+   '<span class="online-customer-data-label">Dados do cliente</span><h3>'+esc(order.customer_name)+'</h3>'+
    '<div class="online-order-details"><strong class="online-phone-line">'+phoneUri+' '+contact+'</strong></div>'+
    (order.delivery_method==='delivery'?'<p class="online-order-address"><strong>📍 Endereço:</strong> '+esc(order.delivery_address||'Não informado')+'</p>':'')+
   '</section>'+
@@ -1433,11 +1432,6 @@ function onlineOrderCard(order){
   '<div class="online-order-payment-meta"><span class="online-status-title">Status de pagamento</span><strong>'+esc(payLabel[order.payment_method]||'A combinar')+'</strong> '+
    '<strong class="online-state-pill'+(paymentStatus==='cancelled'?' is-cancelled':paymentStatus==='paid'?' is-done':'')+'">'+esc(paymentLabel[paymentStatus])+'</strong></div></div>'+
   '<div class="online-order-total-row"><span>Total do pedido</span><strong class="online-order-total">'+fmt(order.total)+'</strong></div>'+
-  '<div class="online-order-status-under-items"><div class="online-status-block"><span class="online-status-title">Status do pedido</span><div class="online-status-controls">'+
-   (orderOpen?((orderNext?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+(awaiting?'':' →')+'</button>':'')+
-    (!awaiting?'<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>':'') ):'<span class="online-status-end">'+(status==='cancelled'?'Pedido não aceito':'Pedido finalizado')+'</span>')+
-   (orderOpen?'<button type="button" class="'+(awaiting?'button online-reject':'ghost online-cancel')+'" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar pedido')+'</button>':'')+
-  '</div></div></div>'+
   '<section class="online-order-actions'+(awaiting?' online-order-first-response':'')+'" aria-label="Ações de pagamento">'+
    (!awaiting?'<div class="online-status-block"><span class="online-status-title">Pagamento</span><div class="online-status-controls">'+
     (paymentNext?'<button type="button" class="button online-advance" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+' →</button>':
@@ -1446,6 +1440,11 @@ function onlineOrderCard(order){
    '</div></div>':'')+
    (!awaiting&&(typeof proAccess==='function'&&proAccess()&&order.delivery_method==='delivery'&&!['cancelled','fulfilled'].includes(status)&&!deliveries.some(d=>d.online_order_id===order.id))?
     '<button type="button" class="ghost online-order-dispatch" data-online-delivery="'+esc(order.id)+'">🛵 Criar entrega para este pedido</button>':'')+
+  '<div class="online-order-status-under-items"><div class="online-status-block"><span class="online-status-title">Status do pedido</span><div class="online-status-controls">'+
+   (orderOpen?((orderNext?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+(awaiting?'':' →')+'</button>':'')+
+    (!awaiting?'<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>':'') ):'<span class="online-status-end">'+(status==='cancelled'?'Pedido não aceito':'Pedido finalizado')+'</span>')+
+   (orderOpen?'<button type="button" class="'+(awaiting?'button online-reject':'ghost online-cancel')+'" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar pedido')+'</button>':'')+
+  '</div></div></div>'+
   '</section></article>';
 }
 
