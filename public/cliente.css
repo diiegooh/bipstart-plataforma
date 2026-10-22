@@ -2194,3 +2194,85 @@ body.workspace-fullscreen #workspace .content{min-height:0;overflow:hidden}
 #workspace .sales-record-toggle{background:#edf0ff!important;color:#4455a4!important;border-color:#d8dffc!important}
 #workspace .menu-price-controls input[type=checkbox]{accent-color:#7040ed}
 #workspace .content:has(.stock-summary-grid) .toolbar h2{color:#253251!important}
+
+
+/* Rolagem consistente em todas as abas do painel do lojista. Evita que telas longas
+   (configurações, pedidos, produtos, estoque, vendas, relatórios e cardápio) fiquem presas. */
+html:has(body.workspace-fullscreen),
+body.workspace-fullscreen{
+  height:auto!important;
+  min-height:100%!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior-y:contain;
+}
+body.workspace-fullscreen .shell{
+  height:auto!important;
+  min-height:100vh;
+  overflow:visible!important;
+}
+body.workspace-fullscreen #workspace{
+  height:auto!important;
+  min-height:calc(100vh - var(--topbar-height,0px));
+  max-height:none!important;
+  overflow:visible!important;
+}
+body.workspace-fullscreen #workspace .dashboard{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  align-items:start;
+}
+body.workspace-fullscreen #workspace .content{
+  height:auto!important;
+  min-height:calc(100vh - 60px);
+  max-height:none!important;
+  overflow:visible!important;
+  overscroll-behavior: auto;
+}
+body.workspace-fullscreen #workspace .side{
+  max-height:calc(100vh - 30px);
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#c7cdef transparent;
+}
+body.workspace-fullscreen #workspace .content>*{
+  min-width:0;
+}
+body.workspace-fullscreen #workspace .content table,
+body.workspace-fullscreen #workspace .content .table-wrap,
+body.workspace-fullscreen #workspace .content .table-scroll{
+  max-width:100%;
+}
+body.workspace-fullscreen #workspace .content .table-wrap,
+body.workspace-fullscreen #workspace .content .table-scroll{
+  overflow-x:auto;
+  overscroll-behavior-x:contain;
+}
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-catalog{
+  max-height:none!important;
+  height:auto!important;
+  overflow:visible!important;
+}
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-sale-panel{
+  max-height:calc(100vh - 30px);
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+}
+@media(max-width:850px){
+  body.workspace-fullscreen .shell{padding-bottom:40px!important}
+  body.workspace-fullscreen #workspace .dashboard{height:auto!important;overflow:visible!important}
+  body.workspace-fullscreen #workspace .content{min-height:0!important;height:auto!important;overflow:visible!important}
+  body.workspace-fullscreen #workspace .side{
+    max-height:calc(100dvh - 20px);
+    overflow-y:auto!important;
+  }
+  body.workspace-fullscreen #workspace .godzilla-pdv .pdv-sale-panel{
+    max-height:none!important;overflow:visible!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.workspace-fullscreen #workspace *{scroll-behavior:auto!important;transition-duration:0s!important}
+}
