@@ -1943,3 +1943,71 @@ body.workspace-fullscreen #workspace .content{min-height:0;overflow:hidden}
  box-shadow:0 0 0 3px #8b5cf61c;
 }
 #workspace .godzilla-pdv .pdv-quantity-entry:focus{border-color:#6d43dc;box-shadow:0 0 0 3px #8b5cf633}
+
+
+/* PDV claro — alinhado à referência visual aprovada (sem alterar regras de venda). */
+#workspace:has(.godzilla-pdv){--pdv-ink:#202b49;--pdv-muted:#7d88a5;--pdv-line:#dfe5fb;--pdv-surface:#fff;--pdv-soft:#f5f7ff;--pdv-purple:#7038ee;color:var(--pdv-ink)}
+#workspace:has(.godzilla-pdv) .content{background:#fff!important;border:1px solid #e0e6fb!important;box-shadow:0 10px 35px #253b7410}
+#workspace:has(.godzilla-pdv) .pdv-title{border-bottom:1px solid #d9def1!important}
+#workspace:has(.godzilla-pdv) .pdv-title h2,
+#workspace:has(.godzilla-pdv) .pdv-sale-head h2,
+#workspace:has(.godzilla-pdv) .pdv-list-head,
+#workspace:has(.godzilla-pdv) .pdv-product h3{color:#202b49!important}
+#workspace:has(.godzilla-pdv) .pdv-title p,
+#workspace:has(.godzilla-pdv) .pdv-list-head small,
+#workspace:has(.godzilla-pdv) .pdv-product p{color:#7d88a5!important}
+#workspace:has(.godzilla-pdv) .pdv-two-panels{grid-template-columns:minmax(0,1.55fr) minmax(310px,.85fr);gap:18px;align-items:start}
+#workspace:has(.godzilla-pdv) .pdv-panel{background:#fff!important;border:1px solid #e0e6fb!important;border-radius:18px;box-shadow:0 8px 25px #263a7010;padding:18px}
+#workspace:has(.godzilla-pdv) .pdv-filters input,
+#workspace:has(.godzilla-pdv) .pdv-filters select{background:#fff!important;color:#283451!important;border-color:#d7def5!important}
+#workspace:has(.godzilla-pdv) .pdv-filters input::placeholder{color:#8791ac}
+#workspace:has(.godzilla-pdv) .pdv-filters .ghost{background:#f4f6ff!important;color:#414d70!important;border-color:#dce2f8!important}
+#workspace:has(.godzilla-pdv) .pdv-filters .ghost.active{background:#e9edff!important;border-color:#8b9bff!important;color:#3446a5!important}
+#workspace:has(.godzilla-pdv) .pdv-best-sellers{background:#f7f8ff!important;border-color:#e1e6fb!important}
+#workspace:has(.godzilla-pdv) .pdv-best-sellers-title strong{color:#273453!important}
+#workspace:has(.godzilla-pdv) .pdv-best-sellers-title small{color:#7783a0!important}
+#workspace:has(.godzilla-pdv) .pdv-best-seller{background:#fff!important;color:#293653!important;border-color:#e0e5f8!important}
+#workspace:has(.godzilla-pdv) .pdv-best-seller-text small{color:#6041c9!important}
+#workspace:has(.godzilla-pdv) .pdv-best-seller-photo{background:#f0f2ff!important}
+#workspace:has(.godzilla-pdv) .pdv-products{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px}
+#workspace:has(.godzilla-pdv) .pdv-product{background:#fff!important;border:1px solid #dfe5f8!important;border-radius:14px;box-shadow:0 3px 10px #283b7210}
+#workspace:has(.godzilla-pdv) .pdv-product:hover{border-color:#a7b2ff!important;box-shadow:0 8px 20px #3447a51a}
+#workspace:has(.godzilla-pdv) .pdv-product-media{aspect-ratio:1.35;background:#f5f6ff!important}
+#workspace:has(.godzilla-pdv) .pdv-no-photo{color:#9aa5c7!important}
+#workspace:has(.godzilla-pdv) .pdv-product-info{padding:12px}
+#workspace:has(.godzilla-pdv) .pdv-product-price{color:#293c75!important;font-size:18px}
+#workspace:has(.godzilla-pdv) .pdv-product .pdv-add{background:linear-gradient(100deg,#4d6df2,#2869dc)!important;color:#fff!important;border:0!important;border-radius:9px}
+#workspace:has(.godzilla-pdv) .pdv-sale-panel{position:sticky;top:15px}
+#workspace:has(.godzilla-pdv) .pdv-sale-head .kicker{color:#7b54e8!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-head>span{color:#7141e8}
+#workspace:has(.godzilla-pdv) .pdv-sale-empty{color:#7d88a5!important;border-color:#d9e0f6!important;background:#fafbff}
+#workspace:has(.godzilla-pdv) .pdv-sale-item{background:#f8f9ff!important;border-color:#e0e5f8!important;color:#263452}
+#workspace:has(.godzilla-pdv) .pdv-sale-item small{color:#7d88a5!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-qty button{background:#edf0ff!important;color:#3e4d8b!important;border-color:#d6defb!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-qty button:last-child{background:#fff0f2!important;color:#bd3f5b!important;border-color:#f5d6de!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-total{border-top-color:#e0e5f8!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-total span{color:#687594!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-total strong{color:#263452!important}
+#workspace:has(.godzilla-pdv) .pdv-payment-label,
+#workspace:has(.godzilla-pdv) .pdv-card-kind-label{color:#34415f!important}
+#workspace:has(.godzilla-pdv) .pdv-payment-chip,
+#workspace:has(.godzilla-pdv) .pdv-card-kind{background:#f7f8ff!important;color:#475575!important;border-color:#dce2f7!important}
+#workspace:has(.godzilla-pdv) .pdv-payment-chip.selected,
+#workspace:has(.godzilla-pdv) .pdv-card-kind.selected{background:#eeeaff!important;color:#6032d5!important;border-color:#9474f6!important}
+#workspace:has(.godzilla-pdv) .pdv-calculation{background:#f2efff!important;color:#493582!important;border-color:#ded3ff!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-total strong{font-variant-numeric:tabular-nums}
+#workspace:has(.godzilla-pdv) .pdv-finish{background:linear-gradient(100deg,#7038ee,#8e35e8)!important;color:#fff!important;border:0!important;box-shadow:0 8px 20px #7138ee30}
+#workspace:has(.godzilla-pdv) .pdv-product:focus-within{outline:2px solid #a9b4ff;outline-offset:2px}
+@media(max-width:1100px){
+ #workspace:has(.godzilla-pdv) .pdv-two-panels{grid-template-columns:minmax(0,1.2fr) minmax(280px,.9fr)}
+ #workspace:has(.godzilla-pdv) .pdv-products{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+}
+@media(max-width:880px){
+ #workspace:has(.godzilla-pdv) .pdv-two-panels{grid-template-columns:minmax(0,1fr)}
+ #workspace:has(.godzilla-pdv) .pdv-sale-panel{position:static}
+}
+@media(max-width:580px){
+ #workspace:has(.godzilla-pdv) .pdv-panel{padding:12px}
+ #workspace:has(.godzilla-pdv) .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #workspace:has(.godzilla-pdv) .pdv-product-info{padding:9px}
+}
