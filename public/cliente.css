@@ -2571,3 +2571,35 @@ body.workspace-fullscreen #workspace .content{
   #workspace .sales-records-table th,#workspace .sales-records-table td{padding:10px 9px!important}
   #workspace .sales-export-actions button{flex:1 1 180px!important}
 }
+
+
+/* Corrige o botão do menu da loja em janelas estreitas: mantém o acionador visível e clicável acima do conteúdo. */
+@media(max-width:1000px){
+  #workspace .pdv-mobile-menu,
+  body.workspace-fullscreen #workspace .pdv-mobile-menu{
+    display:flex!important;
+    position:relative!important;
+    z-index:120!important;
+    width:100%!important;
+    min-height:44px!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+  }
+  #workspace .pdv-mobile-menu #sideToggle,
+  body.workspace-fullscreen #workspace .pdv-mobile-menu #sideToggle{
+    display:inline-flex!important;
+    position:relative!important;
+    z-index:121!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+    cursor:pointer!important;
+  }
+  #workspace .side{
+    z-index:130!important;
+  }
+  #workspace .side-backdrop:not(.hidden){
+    z-index:125!important;
+  }
+}
