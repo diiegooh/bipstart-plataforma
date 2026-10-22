@@ -1782,7 +1782,8 @@ async function handleSubmit(form,contractWindow=null){
       if(!cart.length)throw Error('Adicione produtos ao carrinho.');
       if(v.payment_method==='dinheiro'){
         const total=cart.reduce((a,c)=>a+c.qty*c.price,0);
-        const receivedAmount=parseMoneyInput(v.received);\n        if(!Number.isFinite(receivedAmount)||receivedAmount<0||receivedAmount+0.001<total)
+        const receivedAmount=parseMoneyInput(v.received);
+        if(!Number.isFinite(receivedAmount)||receivedAmount<0||receivedAmount+0.001<total)
           throw Error('Informe um valor recebido suficiente para finalizar a venda em dinheiro.');
       }
       const cardMethod=['credito','debito'].includes(v.payment_method);
