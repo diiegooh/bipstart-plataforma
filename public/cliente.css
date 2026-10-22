@@ -1900,3 +1900,17 @@ body.workspace-fullscreen #workspace .content{min-height:0;overflow:hidden}
  #workspace .godzilla-pdv .pdv-category-tiles{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
  #workspace .godzilla-pdv .pdv-products{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
 }
+
+/* Categorias padrão de mercado e adega: cores e ícones vindos do catálogo. */
+#workspace .godzilla-pdv .pdv-category-tile{
+ background:var(--category-bg,#e8e8ef)!important;
+ color:var(--category-fg,#45455b)!important;
+ border:1px solid color-mix(in srgb,var(--category-fg,#45455b) 14%,transparent)!important;
+}
+#workspace .godzilla-pdv .pdv-category-tile strong,
+#workspace .godzilla-pdv .pdv-category-tile span{color:var(--category-fg,#45455b)!important}
+#workspace .godzilla-pdv .pdv-category-tile.selected{
+ outline:3px solid color-mix(in srgb,var(--category-fg,#45455b) 48%,transparent);
+ outline-offset:1px;box-shadow:0 7px 20px color-mix(in srgb,var(--category-fg,#45455b) 14%,transparent);
+}
+#workspace #productForm select[name="category"]{font-size:15px}
