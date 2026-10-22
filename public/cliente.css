@@ -1597,3 +1597,73 @@ body.workspace-fullscreen .godzilla-pdv .pdv-finish{
   #workspace .side.open { transform: translateX(0) !important; visibility: visible !important; }
   #workspace .pdv-mobile-menu { display: flex !important; }
 }
+
+
+/* Refinamento de formatação: cabeçalho compacto, respiro consistente e caixa mais organizado. */
+@media (min-width: 1001px) {
+  body.workspace-fullscreen #workspace .content { padding: 18px !important; }
+  body.workspace-fullscreen #workspace .pdv-two-panels {
+    gap: 16px !important;
+    align-items: start !important;
+  }
+  body.workspace-fullscreen #workspace .pdv-sale-panel {
+    padding: 16px !important;
+    border-radius: 16px !important;
+  }
+  body.workspace-fullscreen #workspace .pdv-products {
+    gap: 12px !important;
+  }
+}
+body.workspace-fullscreen #workspace .pdv-title {
+  padding-bottom: 10px !important;
+  margin-bottom: 12px !important;
+}
+body.workspace-fullscreen #workspace .pdv-title h2 {
+  font-size: clamp(22px, 2vw, 27px) !important;
+  line-height: 1.2 !important;
+}
+body.workspace-fullscreen #workspace .pdv-category-tiles {
+  gap: 9px !important;
+  margin: 12px 0 15px !important;
+}
+body.workspace-fullscreen #workspace .pdv-list-head {
+  margin-bottom: 10px !important;
+}
+body.workspace-fullscreen #workspace .pdv-product {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-head {
+  padding-bottom: 10px !important;
+  margin-bottom: 10px !important;
+  border-bottom: 1px solid #edf0fa !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-head h2 {
+  font-size: 22px !important;
+  line-height: 1.2 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 12px 13px !important;
+  margin-top: 12px !important;
+  border-radius: 11px !important;
+  background: #f7f8ff !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total strong {
+  font-size: 22px !important;
+  font-weight: 850 !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-form {
+  margin-top: 12px !important;
+}
+@media (max-width: 700px) {
+  body.workspace-fullscreen #workspace .content { padding: 12px !important; }
+  body.workspace-fullscreen #workspace .pdv-category-tiles { gap: 8px !important; }
+  body.workspace-fullscreen #workspace .pdv-products { gap: 9px !important; }
+  body.workspace-fullscreen #workspace .pdv-sale-panel { padding: 12px !important; }
+  body.workspace-fullscreen #workspace .pdv-sale-head h2 { font-size: 20px !important; }
+  body.workspace-fullscreen #workspace .pdv-sale-total strong { font-size: 20px !important; }
+}
