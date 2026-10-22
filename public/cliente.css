@@ -2861,3 +2861,16 @@ body.workspace-fullscreen #workspace .content{
 #workspace .online-order-card .online-order-customer .online-customer-data-label,
 #workspace .online-order-card .online-order-customer::before{display:none!important;content:none!important}
 #workspace .online-order-card .online-order-status-under-items{order:7!important}
+
+/* Hard override for mobile and desktop order cards */
+#workspace article.online-order-card{display:flex!important;flex-direction:column!important}
+#workspace article.online-order-card > .online-order-top{order:1!important}
+#workspace article.online-order-card > .online-order-overview{order:2!important}
+#workspace article.online-order-card > .online-order-customer{order:3!important}
+#workspace article.online-order-card > .online-items-status-row{order:4!important}
+#workspace article.online-order-card > .online-order-total-row{order:5!important;display:flex!important}
+#workspace article.online-order-card > .online-order-actions{order:6!important;display:block!important}
+#workspace article.online-order-card > .online-order-status-under-items{order:7!important;display:block!important}
+#workspace article.online-order-card .online-customer-data-label,
+#workspace article.online-order-card .online-customer-label,
+#workspace article.online-order-card .online-order-customer:before{display:none!important;content:none!important}
