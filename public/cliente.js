@@ -1429,8 +1429,7 @@ function onlineOrderCard(order){
   '<div class="online-items-status-row"><div class="online-order-items" aria-label="Itens vendidos"><h5>Itens vendidos</h5>'+items.map(item=>
    '<div class="online-order-item"><span class="online-order-item-name"><b class="online-order-item-qty">'+esc(item.qty)+'×</b> '+esc(item.name)+'</span><strong>'+fmt(item.total)+'</strong></div>'
   ).join('')+'</div>'+
-  '<div class="online-order-payment-meta"><span class="online-status-title">Status de pagamento</span><strong>'+esc(payLabel[order.payment_method]||'A combinar')+'</strong> '+
-   '<strong class="online-state-pill'+(paymentStatus==='cancelled'?' is-cancelled':paymentStatus==='paid'?' is-done':'')+'">'+esc(paymentLabel[paymentStatus])+'</strong></div></div>'+
+  '</div>'+
   '<div class="online-order-total-row"><span>Total do pedido</span><strong class="online-order-total">'+fmt(order.total)+'</strong></div>'+
   '<section class="online-order-actions'+(awaiting?' online-order-first-response':'')+'" aria-label="Ações de pagamento">'+
    (!awaiting?'<div class="online-status-block"><span class="online-status-title">Pagamento</span><div class="online-status-controls">'+
@@ -1445,7 +1444,7 @@ function onlineOrderCard(order){
    (orderOpen?((orderNext?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+(awaiting?'':' →')+'</button>':'')+
     (!awaiting?'<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>':'') ):'<span class="online-status-end">'+(status==='cancelled'?'Pedido não aceito':'Pedido finalizado')+'</span>')+
    (orderOpen?'<button type="button" class="'+(awaiting?'button online-reject':'ghost online-cancel')+'" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar pedido')+'</button>':'')+
-  '</div></div></div>'+
+  '</div></div><div class="online-order-payment-meta"><span class="online-status-title">Status de pagamento</span><strong>'+esc(payLabel[order.payment_method]||'A combinar')+'</strong><strong class="online-state-pill'+(paymentStatus==='cancelled'?' is-cancelled':paymentStatus==='paid'?' is-done':'')+'">'+esc(paymentLabel[paymentStatus])+'</strong></div></div>'+
   '</article>';
 }
 
