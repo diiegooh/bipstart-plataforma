@@ -2834,3 +2834,9 @@ body.workspace-fullscreen #workspace .content{
 #workspace .online-order-card .online-order-payment-meta{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:6px!important;min-width:0!important}
 #workspace .online-order-card .online-order-payment-meta .online-status-title{display:block!important}
 #workspace .online-order-card .online-order-actions .online-status-block:first-child .online-status-title{display:block!important}
+
+#workspace .online-order-card .online-order-status-under-items{order:5!important;margin:10px 16px 0!important;padding:12px!important;border:1px solid #e0e2e8!important;border-radius:12px!important;background:#f8f9fc!important}
+#workspace .online-order-card .online-order-status-under-items .online-status-title{display:block!important;font-size:12px!important;font-weight:800!important;margin-bottom:8px!important}
+#workspace .online-order-card .online-order-status-under-items .online-status-controls{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+#workspace .online-order-card .online-order-status-under-items .online-status-controls button{min-height:38px!important}
+@media(max-width:650px){#workspace .online-order-card .online-order-status-under-items{margin:8px 10px 0!important}}
