@@ -2090,3 +2090,107 @@ body.workspace-fullscreen #workspace .content{min-height:0;overflow:hidden}
  #workspace .item .actions>*{flex:1}
  #workspace .button,#workspace button.button,#workspace a.button{min-height:40px}
 }
+
+
+/* Correções de acabamento do tema claro nas telas que ainda tinham estilos próprios antigos. */
+#workspace .orders-intro,
+#workspace .orders-premium,
+#workspace .online-order-notice,
+#workspace .sales-disclaimer{background:#f5f7ff!important;border-color:#dfe5f8!important;color:#465574!important}
+#workspace .orders-intro p,#workspace .orders-premium p{color:#7885a3!important}
+#workspace .online-order-stats .tile,
+#workspace .sales-period-totals .tile{background:#f8f9ff!important;border-color:#e0e6f8!important;color:#293653!important}
+#workspace .online-order-card{background:#fff!important;border:1px solid #dfe5f8!important;color:#293653!important;box-shadow:0 5px 18px #253b7410}
+#workspace .online-order-top{border-color:#e4e8f7!important;background:#fafbff}
+#workspace .online-order-top h3,#workspace .online-order-total{color:#293653!important}
+#workspace .online-order-top small,#workspace .online-order-details span,
+#workspace .online-order-fees{color:#7885a3!important}
+#workspace .online-order-details strong,#workspace .online-order-items>div,
+#workspace .online-order-item-name{color:#293653!important}
+#workspace .online-order-phone{color:#3c62c9!important}
+#workspace .online-order-address,#workspace .online-order-notes{background:#f7f8ff!important;border-color:#e0e6f8!important;color:#465574!important}
+#workspace .online-order-items{background:#f8f9ff!important;border-color:#e0e6f8!important}
+#workspace .online-order-items h5{color:#4c5e91!important}
+#workspace .online-order-items .online-order-item{border-color:#e0e6f8!important}
+#workspace .online-order-item-qty{color:#5c65b6!important}
+#workspace .online-order-items .online-order-item>strong{color:#34446d!important}
+#workspace .online-status-block{background:#f8f9ff!important;border-color:#e0e6f8!important}
+#workspace .online-status-title,#workspace .online-order-section h4,
+#workspace .online-order-actions-heading{color:#34415f!important}
+#workspace .online-state-pill{background:#eaf8f0!important;color:#18754e!important;border-color:#bce7d0!important}
+#workspace .online-state-pill.is-done{background:#e5f7f1!important;color:#147b65!important;border-color:#a9e3d4!important}
+#workspace .online-state-pill.is-cancelled{background:#fff0f2!important;color:#b53650!important;border-color:#f1c8d1!important}
+#workspace .online-status-controls .online-advance{background:#eaf0ff!important;color:#354fba!important;border:1px solid #cbd7ff!important;border-radius:9px}
+#workspace .online-status-controls .online-cancel{background:#fff0f2!important;color:#b53650!important;border:1px solid #f0cbd3!important;border-radius:9px}
+#workspace .online-status-end{color:#53617f!important}
+#workspace .online-order-dispatch{background:#eef8f2!important;color:#18764e!important;border-color:#c5e8d3!important}
+#workspace .online-order-section{border-color:#e4e8f7!important}
+#workspace .inventory-card,
+#workspace .inventory-category-card,
+#workspace .stock-summary-card{background:#fff!important;border:1px solid #dfe5f8!important;color:#293653!important;box-shadow:0 4px 15px #253b740d}
+#workspace .inventory-card-heading h3,
+#workspace .inventory-card-prices>strong,
+#workspace .inventory-category-heading strong,
+#workspace .inventory-category-card strong,
+#workspace .stock-summary-number{color:#293653!important}
+#workspace .inventory-card-heading small,
+#workspace .inventory-card-prices>small,
+#workspace .inventory-stock-meta,
+#workspace .inventory-stock-meta strong,
+#workspace .inventory-category-heading small,
+#workspace .inventory-category-card small,
+#workspace .stock-summary-label{color:#7885a3!important}
+#workspace .inventory-photo-placeholder,
+#workspace .inventory-card img,
+#workspace .stock-item img,#workspace .stock-placeholder{background:#f1f4ff!important}
+#workspace .inventory-status.ok{color:#16885b!important}
+#workspace .inventory-status.low{color:#a56812!important}
+#workspace .inventory-status.out{color:#c83f5c!important}
+#workspace .inventory-card[data-stock-state="low"],
+#workspace .inventory-card[data-stock-state="out"]{border-color:#e3d9bf!important}
+#workspace .stock-badge.ok{background:#e5f7ee!important;color:#18764e!important}
+#workspace .stock-badge.low{background:#fff4dc!important;color:#94600c!important}
+#workspace .stock-badge.out{background:#fff0f2!important;color:#b53650!important}
+#workspace .stock-row{background:#fff!important;border-color:#e0e6f8!important;color:#293653!important}
+#workspace .stock-row .actions button{background:#edf0ff!important;color:#4455a4!important;border-color:#d8dffc!important}
+#workspace .stock-summary-card.active{background:#eef0ff!important;border-color:#9ba9ff!important}
+#workspace .stock-summary-card.active .stock-summary-label{color:#4d5eb2!important}
+#workspace .stock-summary-card.active .stock-summary-number{color:#5b55cf!important}
+#workspace .inventory-category-card.active{background:#eef0ff!important;border-color:#9ba9ff!important}
+#workspace .inventory-category-card.active strong{color:#4354b5!important}
+#workspace .inventory-category-card.active small{color:#6572b2!important}
+#workspace .content:has(.inventory-kicker){background:#fff!important;border-color:#e0e6f8!important}
+#workspace .content:has(.inventory-kicker) .toolbar p{color:#7885a3!important}
+#workspace .content:has(.inventory-kicker) .data-form{background:#f8f9ff!important;border-color:#e0e6f8!important}
+#workspace .content:has(.inventory-kicker) .data-form input,
+#workspace .content:has(.inventory-kicker) .data-form select{background:#fff!important;border-color:#d6def3!important;color:#293653!important}
+#workspace .product-best-seller-option{background:#f8f9ff!important;border-color:#e0e6f8!important}
+#workspace .product-best-seller-option strong{color:#34415f!important}
+#workspace .product-best-seller-option small{color:#7885a3!important}
+#workspace .menu-price-controls{background:#f4f6ff!important;border-color:#dfe5f8!important}
+#workspace .menu-price-controls .menu-price-toggle{color:#34415f!important}
+#workspace .menu-price-controls .online-sale-price{background:#fff!important;border-color:#e0e6f8!important}
+#workspace .inventory-online-price,#workspace .inventory-online-price strong{color:#6545c4!important}
+#workspace .inventory-online-status{color:#18764e!important}
+#workspace .inventory-online-status.offline{color:#b53650!important}
+#workspace .sales-report-controls{--sales-filter-surface:#fff;--sales-filter-border:#d6def3}
+#workspace .sales-period-switch{background:#f1f3ff!important;border-color:#dce2f7!important}
+#workspace .sales-period-switch button{color:#53617f!important}
+#workspace .sales-period-switch button.active{background:#7040ed!important;color:#fff!important}
+#workspace .sales-report-controls input[type="date"]{background:#fff!important;color:#293653!important;color-scheme:light}
+#workspace .sales-report-controls>[data-sales-refresh]{background:#f1f3ff!important;color:#45527a!important;border-color:#dce2f7!important}
+#workspace .sales-period-label{color:#7885a3!important}
+#workspace .sales-day{background:#fff!important;border-color:#dfe5f8!important}
+#workspace .sales-day-heading{background:#f4f6ff!important;border-color:#e0e6f8!important}
+#workspace .sales-day-heading h3{color:#293653!important}
+#workspace .sales-day-heading small,#workspace .sales-day-summary{color:#7885a3!important}
+#workspace .sales-day-summary strong{color:#293653!important}
+#workspace .sales-table{color:#465574!important}
+#workspace .sales-table th{background:#f1f3ff!important;color:#53617f!important}
+#workspace .sales-table th,#workspace .sales-table td{border-color:#e0e6f8!important}
+#workspace .sales-table td:nth-child(2) strong{color:#293653!important}
+#workspace .sales-table td:nth-child(2) small{color:#7885a3!important}
+#workspace .sales-table td.sales-profit{color:#16885b!important}
+#workspace .sales-record-toggle{background:#edf0ff!important;color:#4455a4!important;border-color:#d8dffc!important}
+#workspace .menu-price-controls input[type=checkbox]{accent-color:#7040ed}
+#workspace .content:has(.stock-summary-grid) .toolbar h2{color:#253251!important}
