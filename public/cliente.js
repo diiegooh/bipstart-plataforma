@@ -1299,6 +1299,10 @@ function renderGodzillaPDV(){
  '<label class="pdv-category-label"><span class="sr-only">Filtrar categoria</span><select id="pdvCategory">'+categoriesHtml+'</select></label>'+
  '<button type="button" id="pdvStockToggle" class="ghost'+(pdvInStockOnly?' active':'')+'">'+
  (pdvInStockOnly?'✓ Só disponíveis':'Todos os produtos')+'</button></div>'+
+ '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
+ '<button type="button" class="pdv-category-tile pdv-category-all'+(!pdvCategory?' selected':'')+'" data-pdv-category=""><span aria-hidden="true">▦</span><strong>Todos</strong></button>'+
+ categoriesList.map((name,i)=>'<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+(['🥤','🍔','🍟','🍰'][i%4])+'</span><strong>'+esc(name)+'</strong></button>').join('')+
+ '</div>'+
  pdvBestSellers()+
  '<div class="pdv-list-head"><strong>Produtos da loja</strong><small>'+products.length+' cadastrados</small></div>'+
  '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
@@ -2229,6 +2233,8 @@ document.addEventListener('click',async e=>{
   if(e.target.closest('#pdvStockToggle')){
     pdvInStockOnly=!pdvInStockOnly;renderPage();return;
   }
+  const categoryTile=e.target.closest('[data-pdv-category]');
+  if(categoryTile){pdvCategory=categoryTile.dataset.pdvCategory||'';renderPage();return;}
   const less=e.target.closest('[data-qty-less]');
   if(less){
     const found=cart.find(c=>c.id===less.dataset.qtyLess);
