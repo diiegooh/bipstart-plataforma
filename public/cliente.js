@@ -25,6 +25,7 @@ const hiding=(id,on)=>{
 function msg(t,error=false){const box=$('toast');box.textContent=t;box.style.borderColor=error?'#e9768d':'#8052ce';box.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.add('hidden'),5500)}
 function status(t){const box=$('notice');box.textContent=t;box.classList.remove('hidden')}
 function formVal(form){return Object.fromEntries(new FormData(form).entries())}
+function parseMoneyInput(value){const raw=String(value??'').trim().replace(/\\s/g,'');if(!raw)return NaN;const normalized=raw.includes(',')?raw.replace(/\\./g,'').replace(',','.'):raw;return Number(normalized)}
 function qs(table,search={}){
   const url=new URL(cfg.supabaseUrl+'/rest/v1/'+table);
   for(const [k,v] of Object.entries(search))url.searchParams.set(k,v);
@@ -1314,7 +1315,7 @@ function renderGodzillaPDV(){
  '<div class="pdv-payment-selector"><span class="pdv-payment-label" id="pdvPaymentLabel">Forma de pagamento</span>'+
  '<div class="pdv-payment-options" role="group" aria-labelledby="pdvPaymentLabel">'+paymentButtons+'</div>'+
  '<input type="hidden" name="payment_method" id="pdvPaymentMethod" value="'+esc(pdvPayment)+'"></div>'+
- '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="number" id="pdvReceived" name="received" min="0" step="0.01" placeholder="0,00"></label>'+
+ '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="text" inputmode="decimal" autocomplete="off" id="pdvReceived" name="received" placeholder="0,00"></label>'+
  '<div class="pdv-calculation">Troco <strong id="pdvChange">'+fmt(0)+'</strong></div></div>'+
  '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'">'+
  '<span class="pdv-card-kind-label" id="pdvCardKindLabel">Tipo de cartão</span>'+
@@ -1338,7 +1339,7 @@ function updatePdvEstimates(){
  const total=cart.reduce((a,c)=>a+c.qty*c.price,0);
  const received=document.getElementById('pdvReceived');
  const change=document.getElementById('pdvChange');
- if(received&&change)change.textContent=fmt(Math.max(0,Number(received.value||0)-total));
+ if(received&&change){const amount=parseMoneyInput(received.value);change.textContent=fmt(Number.isFinite(amount)?Math.max(0,amount-total):0);}
  const fee=document.getElementById('pdvFeePercent');
  const net=document.getElementById('pdvNet');
  if(fee&&net){
@@ -1781,7 +1782,7 @@ async function handleSubmit(form,contractWindow=null){
       if(!cart.length)throw Error('Adicione produtos ao carrinho.');
       if(v.payment_method==='dinheiro'){
         const total=cart.reduce((a,c)=>a+c.qty*c.price,0);
-        if(!Number.isFinite(Number(v.received))||v.received===''||Number(v.received)+0.001<total)
+        const receivedAmount=parseMoneyInput(v.received);\n        if(!Number.isFinite(receivedAmount)||receivedAmount<0||receivedAmount+0.001<total)
           throw Error('Informe um valor recebido suficiente para finalizar a venda em dinheiro.');
       }
       const cardMethod=['credito','debito'].includes(v.payment_method);
@@ -1799,7 +1800,7 @@ async function handleSubmit(form,contractWindow=null){
           select:'product_name,quantity,unit_price',shop_id:'eq.'+shop.id,sale_id:'eq.'+data.sale_id
         }});
       }catch(error){console.warn('Detalhes da venda não disponíveis para a nota:',error.message)}
-      lastReceipt=receiptSnapshot(data,v.payment_method,v.received||'',sold,recorded);
+      lastReceipt=receiptSnapshot(data,v.payment_method,v.payment_method==='dinheiro'?String(parseMoneyInput(v.received)): '',sold,recorded);
       cart=[];
       if(receiptSettings().preview)showReceiptDialog(lastReceipt);
       msg('Venda registrada: '+fmt(data.total)+
