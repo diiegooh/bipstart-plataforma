@@ -208,3 +208,32 @@ body:not(:has(#authPanel)) .courier-delivery .courier-order-actions .courier-wha
 @media(min-width:651px) and (max-width:899px){
  body:not(:has(#authPanel)) .courier-deliveries{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important}
 }
+
+/* Contraste correto na tela Minhas entregas, inclusive quando o tema da loja é escuro. */
+body:has(#authPanel) .courier-delivery,
+body.courier-themed .courier-delivery{
+ background:#fff!important;
+ color:#202746!important;
+ border:1px solid #e0e4f2!important;
+ box-shadow:0 8px 24px rgba(35,45,85,.08)!important;
+}
+body:has(#authPanel) .courier-delivery h3,
+body:has(#authPanel) .courier-delivery p,
+body:has(#authPanel) .courier-delivery .courier-details,
+body.courier-themed .courier-delivery h3,
+body.courier-themed .courier-delivery p,
+body.courier-themed .courier-delivery .courier-details{
+ color:#303957!important;
+}
+body:has(#authPanel) .courier-delivery .status,
+body.courier-themed .courier-delivery .status{color:#7040b8!important}
+body:has(#authPanel) .courier-delivery .price,
+body.courier-themed .courier-delivery .price{color:#5130a8!important}
+body:has(#authPanel) .courier-delivery .courier-order-actions .button,
+body.courier-themed .courier-delivery .courier-order-actions .button{
+ background:#bd55ed!important;color:#fff!important;border:1px solid #bd55ed!important
+}
+body:has(#authPanel) .courier-delivery .courier-order-actions .courier-whatsapp,
+body.courier-themed .courier-delivery .courier-order-actions .courier-whatsapp{
+ background:#25d366!important;color:#102218!important;border-color:#25d366!important
+}
