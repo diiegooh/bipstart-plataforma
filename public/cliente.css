@@ -2465,3 +2465,24 @@ body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product .pdv-add,
 #workspace .courier-access-actions button{flex:1 1 auto!important;min-width:0!important}
 @media(max-width:900px){#workspace .courier-access-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:600px){#workspace .courier-access-list{grid-template-columns:minmax(0,1fr)!important}}
+
+
+/* Garante rolagem vertical pela roda do mouse no painel inteiro. */
+html:has(body.workspace-fullscreen),
+body.workspace-fullscreen,
+body.workspace-fullscreen .shell,
+body.workspace-fullscreen #workspace,
+body.workspace-fullscreen #workspace .dashboard,
+body.workspace-fullscreen #workspace .content{
+  overscroll-behavior-y:auto!important;
+}
+html:has(body.workspace-fullscreen),
+body.workspace-fullscreen{
+  overflow-y:auto!important;
+  height:auto!important;
+  max-height:none!important;
+}
+body.workspace-fullscreen #workspace .content{
+  overflow-y:visible!important;
+  touch-action:pan-y!important;
+}
