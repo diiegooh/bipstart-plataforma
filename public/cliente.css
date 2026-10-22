@@ -2743,3 +2743,41 @@ body.workspace-fullscreen #workspace .content{
  #workspace .online-order-card .online-order-overview .online-state-pill{position:static!important;max-width:50%!important}
  #workspace .online-order-card .online-status-controls button{flex:1 1 100%!important}
 }
+
+
+/* Pedidos online em três colunas compactas, com respiro entre os cards. */
+#workspace .online-order-list{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:22px!important;
+ align-items:stretch!important;
+}
+#workspace .online-order-card{
+ min-width:0!important;width:100%!important;max-width:none!important;
+ border-radius:14px!important;
+}
+#workspace .online-order-card .online-order-top{padding:14px 14px 8px!important;min-height:0!important}
+#workspace .online-order-card .online-order-top h3{font-size:20px!important;overflow-wrap:anywhere!important}
+#workspace .online-order-card .online-order-top small{font-size:11px!important}
+#workspace .online-order-card .online-order-overview{padding:0 14px 10px!important;font-size:12px!important;gap:6px!important;flex-wrap:wrap!important}
+#workspace .online-order-card .online-order-overview .online-state-pill{position:static!important;max-width:100%!important;padding:5px 9px!important;font-size:11px!important}
+#workspace .online-order-card .online-order-customer{margin:0 10px 10px!important;padding:11px!important;border-radius:11px!important}
+#workspace .online-order-card .online-order-customer h3{font-size:15px!important;overflow-wrap:anywhere!important}
+#workspace .online-order-card .online-order-customer .online-order-details,
+#workspace .online-order-card .online-order-customer .online-order-address{font-size:11px!important;overflow-wrap:anywhere!important}
+#workspace .online-order-card .online-order-items{margin:0 10px!important;padding:10px!important;border-radius:11px!important}
+#workspace .online-order-card .online-order-items h5{font-size:10px!important}
+#workspace .online-order-card .online-order-items .online-order-item{gap:5px!important}
+#workspace .online-order-card .online-order-items .online-order-item>span,
+#workspace .online-order-card .online-order-items .online-order-item>strong{font-size:11px!important;overflow-wrap:anywhere!important}
+#workspace .online-order-card .online-order-payment-meta{padding:10px 12px 0!important;font-size:11px!important;gap:5px!important}
+#workspace .online-order-card .online-state-pill{padding:5px 8px!important;font-size:10px!important}
+#workspace .online-order-card .online-order-total-row{padding:10px 12px!important;gap:5px!important}
+#workspace .online-order-card .online-order-total-row>span{font-size:14px!important}
+#workspace .online-order-card .online-order-total-row .online-order-total{font-size:21px!important}
+#workspace .online-order-card .online-order-actions{grid-template-columns:minmax(0,1fr)!important;padding:0 10px 12px!important;gap:8px!important}
+#workspace .online-order-card .online-status-block{min-width:0!important}
+#workspace .online-order-card .online-status-controls{flex-direction:column!important;align-items:stretch!important;gap:6px!important}
+#workspace .online-order-card .online-status-controls button{flex:1 1 auto!important;width:100%!important;min-width:0!important;min-height:34px!important;padding:7px 8px!important;font-size:10px!important;white-space:normal!important}
+@media(max-width:1100px){#workspace .online-order-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important}}
+@media(max-width:650px){#workspace .online-order-list{grid-template-columns:minmax(0,1fr)!important;gap:15px!important}}
