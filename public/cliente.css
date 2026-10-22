@@ -3152,3 +3152,8 @@ body.workspace-fullscreen #workspace .content{
  #workspace .online-order-formatted .online-order-items-table th,
  #workspace .online-order-formatted .online-order-items-table td{padding:8px 6px!important}
 }
+
+/* Centraliza o botão de cancelar pagamento quando não há ação de confirmação */
+#workspace .online-order-formatted .online-order-payment-actions:not(:has(button[data-payment-advance)){
+ justify-content:center!important;
+}
