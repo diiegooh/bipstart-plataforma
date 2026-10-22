@@ -1413,36 +1413,27 @@ function onlineOrderCard(order){
  const finishLabel='Finalizar pedido';
  const items=Array.isArray(order.items)?order.items:[];
  const phone=String(order.customer_phone||'').replace(/\\D/g,'');
- const phoneUri=/^\\d{10,13}$/.test(phone)?'<a class="online-order-phone" href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone);
- const contact=phone&&/^\\d{10,13}$/.test(phone)?'<a class="online-order-whatsapp" target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'" aria-label="Conversar com '+esc(order.customer_name)+' no WhatsApp" title="Conversar pelo WhatsApp"><svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true" focusable="false" fill="currentColor"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.08 0C5.5 0 .15 5.35.15 11.93c0 2.1.55 4.15 1.6 5.96L0 24l6.27-1.64a11.9 11.9 0 0 0 5.8 1.48h.01C18.66 23.84 24 18.5 24 11.92a11.85 11.85 0 0 0-3.48-8.44ZM12.08 21.8a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.72.97.99-3.63-.24-.37a9.85 9.85 0 1 1 8.37 4.62Zm5.41-7.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.49s1.07 2.89 1.22 3.09c.15.2 2.1 3.2 5.08 4.49.71.31 1.27.5 1.7.64.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35Z"/></svg></a>':'';
- return '<article class="online-order-card'+(status==='awaiting_confirmation'?' online-order-awaiting':'')+'" data-order-id="'+esc(order.id)+'">'+
-  '<header class="online-order-top"><div class="online-order-identifier">'+
-   '<span class="online-order-eyebrow">Pedido</span><h3>#'+esc(String(order.id).slice(0,8))+'</h3>'+
-   '<small>'+esc(new Date(order.created_at).toLocaleString('pt-BR'))+'</small></div></header>'+
-  '<div class="online-order-overview"><strong>'+esc(order.delivery_method==='delivery'?'Entrega':'Retirada na loja')+'</strong>'+
-   '<strong class="online-state-pill'+(status==='cancelled'?' is-cancelled':status==='fulfilled'?' is-done':'')+'">'+esc(label[status])+'</strong></div>'+
-  '<section class="online-order-section online-order-customer" aria-label="Dados do cliente">'+
-   '<span class="online-customer-data-label">Dados do cliente</span><h3>'+esc(order.customer_name)+'</h3>'+
-   '<div class="online-order-details"><strong class="online-phone-line">'+phoneUri+' '+contact+'</strong></div>'+
-   (order.delivery_method==='delivery'?'<p class="online-order-address"><strong>📍 Endereço:</strong> '+esc(order.delivery_address||'Não informado')+'</p>':'')+
-  '</section>'+
-  '<div class="online-items-status-row"><div class="online-order-items" aria-label="Itens vendidos"><h5>Itens vendidos</h5>'+items.map(item=>
-   '<div class="online-order-item"><span class="online-order-item-name"><b class="online-order-item-qty">'+esc(item.qty)+'×</b> '+esc(item.name)+'</span><strong>'+fmt(item.total)+'</strong></div>'
-  ).join('')+'</div>'+
-  '</div>'+
-  '<div class="online-order-total-row"><span>Total do pedido</span><strong class="online-order-total">'+fmt(order.total)+'</strong></div>'+
-  '<section class="online-order-actions'+(awaiting?' online-order-first-response':'')+'" aria-label="Ações de pagamento">'+
-   (!awaiting&&(typeof proAccess==='function'&&proAccess()&&order.delivery_method==='delivery'&&!['cancelled','fulfilled'].includes(status)&&!deliveries.some(d=>d.online_order_id===order.id))?
-    '<button type="button" class="ghost online-order-dispatch" data-online-delivery="'+esc(order.id)+'">🛵 Criar entrega para este pedido</button>':'')+
-   '</section>'+
-  '<div class="online-order-status-under-items"><div class="online-status-block"><span class="online-status-title">Status do pedido</span><div class="online-status-controls">'+
-   (orderOpen?((orderNext?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+(awaiting?'':' →')+'</button>':'')+
-    (!awaiting?'<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>':'') ):'<span class="online-status-end">'+(status==='cancelled'?'Pedido não aceito':'Pedido finalizado')+'</span>')+
-   (orderOpen?'<button type="button" class="'+(awaiting?'button online-reject':'ghost online-cancel')+'" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar pedido')+'</button>':'')+
-  '</div></div><div class="online-order-payment-meta"><span class="online-status-title">Status de pagamento</span><strong>'+esc(payLabel[order.payment_method]||'A combinar')+'</strong><strong class="online-state-pill'+(paymentStatus==='cancelled'?' is-cancelled':paymentStatus==='paid'?' is-done':'')+'">'+esc(paymentLabel[paymentStatus])+'</strong><div class="online-status-controls">'+(paymentNext?'<button type="button" class="button online-advance" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+' →</button>':'<span class="online-status-end">'+(paymentStatus==='cancelled'?'Pagamento cancelado':'Pagamento confirmado')+'</span>')+'<button type="button" class="ghost online-cancel" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button></div></div></div>'+
-  '</article>';
+ const phoneUri=/^\\d{10,13}$/.test(phone)?'<a href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone);
+ const contact=phone&&/^\\d{10,13}$/.test(phone)?' <a target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'">WhatsApp</a>':'';
+ return '<article class="online-order-card online-order-plain" data-order-id="'+esc(order.id)+'">'+
+ '<div>Pedido #'+esc(String(order.id).slice(0,8))+'</div>'+
+ '<div>'+esc(new Date(order.created_at).toLocaleString('pt-BR'))+'</div>'+
+ '<div>'+esc(order.delivery_method==='delivery'?'Entrega':'Retirada na loja')+' — '+esc(label[status])+'</div>'+
+ '<div>'+esc(order.customer_name)+'</div>'+
+ '<div>'+phoneUri+contact+'</div>'+
+ (order.delivery_method==='delivery'?'<div>Endereço: '+esc(order.delivery_address||'Não informado')+'</div>':'')+
+ '<div>Itens vendidos</div>'+
+ items.map(item=>'<div>'+esc(item.qty)+'× '+esc(item.name)+' — '+fmt(item.total)+'</div>').join('')+
+ '<div>Total do pedido: '+fmt(order.total)+'</div>'+
+ '<div>Pagamento: '+esc(payLabel[order.payment_method]||'A combinar')+' — '+esc(paymentLabel[paymentStatus])+'</div>'+
+ '<div>'+(paymentNext?'<button type="button" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+'</button>':'Pagamento confirmado')+
+ ' <button type="button" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button></div>'+
+ '<div>Status do pedido: '+esc(label[status])+'</div>'+
+ '<div>'+(orderOpen?(orderNext?'<button type="button" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+'</button> ':'')+
+ (!awaiting?'<button type="button" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button> ':'')+
+ '<button type="button" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar pedido')+'</button>':(status==='cancelled'?'Pedido não aceito':'Pedido finalizado'))+'</div>'+
+ '</article>';
 }
-
 function courierAccessUrl(c,origin=location.origin){
  const base=origin+'/motoboy';
  return c?.account_id||!c?.invite_code?base:base+'?convite='+encodeURIComponent(c.invite_code);
