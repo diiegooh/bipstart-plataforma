@@ -2647,3 +2647,28 @@ body.workspace-fullscreen #workspace .content{
   filter:brightness(.97)!important;
   box-shadow:0 2px 7px #263b7214!important;
 }
+
+
+/* Painel esquerdo fixo em desktop: a rolagem fica somente na área de conteúdo. */
+@media(min-width:1001px){
+  #workspace .dashboard{
+    grid-template-columns:254px minmax(0,1fr)!important;
+    align-items:start!important;
+  }
+  #workspace .side{
+    position:fixed!important;
+    top:15px!important;
+    left:max(18px,calc((100vw - 1200px)/2 + 18px))!important;
+    width:254px!important;
+    height:calc(100vh - 30px)!important;
+    min-height:0!important;
+    max-height:calc(100vh - 30px)!important;
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
+    align-self:initial!important;
+  }
+  #workspace .content{
+    grid-column:2!important;
+    min-width:0!important;
+  }
+}
