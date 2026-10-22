@@ -1296,15 +1296,10 @@ function renderGodzillaPDV(){
   '" data-card-method="'+code+'" aria-pressed="'+(pdvPayment===code)+'">'+label+'</button>'
  ).join('');
  return '<div class="godzilla-pdv">'+
- '<div class="pdv-title"><h2>PDV</h2></div>'+
+ '<div class="pdv-title"><h2>PDV</h2><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Pesquisar produtos..." value="'+esc(pdvQuery)+'" autocomplete="off"></label></div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
- '<div class="pdv-filters">'+
- '<label class="pdv-search-label"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Buscar produto ou categoria" value="'+esc(pdvQuery)+'" autocomplete="off"></label>'+
- '<label class="pdv-category-label"><span class="sr-only">Filtrar categoria</span><select id="pdvCategory">'+categoriesHtml+'</select></label>'+
- '<button type="button" id="pdvStockToggle" class="ghost'+(pdvInStockOnly?' active':'')+'">'+
- (pdvInStockOnly?'✓ Só disponíveis':'Todos os produtos')+'</button></div>'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
- '<button type="button" class="pdv-category-tile pdv-category-all'+(!pdvCategory?' selected':'')+'" data-pdv-category=""><span aria-hidden="true">▦</span><strong>Todos</strong></button>'+
+ '<button type="button" class="pdv-category-tile pdv-category-all" data-pdv-best-sellers><span aria-hidden="true">★</span><strong>Mais vendidos</strong></button>'+
  categoriesList.map((name,i)=>'<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+(['🥤','🍔','🍟','🍰'][i%4])+'</span><strong>'+esc(name)+'</strong></button>').join('')+
  '</div>'+
  pdvBestSellers()+
