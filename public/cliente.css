@@ -3039,3 +3039,38 @@ body.workspace-fullscreen #workspace .content{
   grid-template-columns:minmax(0,1fr)!important;
  }
 }
+
+
+/* Pedido online em texto simples, uma linha por informação */
+#workspace article.online-order-card.online-order-plain{
+ display:block!important;
+ height:auto!important;min-height:0!important;
+ padding:12px!important;margin:12px 0!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:transparent!important;
+}
+#workspace article.online-order-card.online-order-plain > *{
+ display:block!important;
+ order:initial!important;
+ width:auto!important;min-width:0!important;max-width:none!important;
+ height:auto!important;min-height:0!important;
+ margin:0 0 7px!important;padding:0!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:transparent!important;
+ color:inherit!important;
+}
+#workspace article.online-order-card.online-order-plain h3,
+#workspace article.online-order-card.online-order-plain h5,
+#workspace article.online-order-card.online-order-plain strong,
+#workspace article.online-order-card.online-order-plain span{
+ font-size:inherit!important;font-weight:400!important;
+}
+#workspace article.online-order-card.online-order-plain .online-state-pill,
+#workspace article.online-order-card.online-order-plain button{
+ display:inline!important;
+ width:auto!important;min-height:0!important;
+ padding:0!important;margin:0 6px 0 0!important;
+ border:0!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;
+ color:inherit!important;font:inherit!important;text-transform:none!important;
+}
