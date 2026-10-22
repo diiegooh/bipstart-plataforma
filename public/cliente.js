@@ -1004,9 +1004,42 @@ function productGrid(selected='all',stockMode='all'){
  return visible.length?'<div class="inventory-grid compact">'+visible.map(productCard).join('')+'</div>':
   empty(emptyMessage);
 }
+const defaultProductCategories=[
+ {name:'Cervejas',icon:'🍺',color:'#f6d365',text:'#593b00',group:'adega'},
+ {name:'Destilados',icon:'🥃',color:'#d9c2ff',text:'#43216b',group:'adega'},
+ {name:'Vinhos',icon:'🍷',color:'#f7c1d2',text:'#741d3b',group:'adega'},
+ {name:'Espumantes',icon:'🥂',color:'#ffe7a3',text:'#684600',group:'adega'},
+ {name:'Bebidas',icon:'🥤',color:'#c6e7ff',text:'#17466b',group:'ambos'},
+ {name:'Energéticos',icon:'⚡',color:'#d6f5a8',text:'#31520c',group:'adega'},
+ {name:'Água e gelo',icon:'🧊',color:'#c9f2f4',text:'#15575d',group:'ambos'},
+ {name:'Drinks prontos',icon:'🍹',color:'#ffd6b0',text:'#773b12',group:'adega'},
+ {name:'Tabacaria',icon:'💨',color:'#e3d8ca',text:'#4e3b2b',group:'adega'},
+ {name:'Snacks e petiscos',icon:'🥨',color:'#ffe0bd',text:'#794414',group:'ambos'},
+ {name:'Mercearia',icon:'🛒',color:'#c9e8bd',text:'#28512a',group:'mercado'},
+ {name:'Hortifruti',icon:'🥑',color:'#c9efc4',text:'#225c2c',group:'mercado'},
+ {name:'Padaria',icon:'🥖',color:'#f5d8a8',text:'#68421b',group:'mercado'},
+ {name:'Açougue',icon:'🥩',color:'#f4c2bd',text:'#7a2525',group:'mercado'},
+ {name:'Laticínios',icon:'🧀',color:'#fff0a8',text:'#66500b',group:'mercado'},
+ {name:'Congelados',icon:'🧊',color:'#cde4ff',text:'#244d80',group:'mercado'},
+ {name:'Limpeza',icon:'🧽',color:'#c4f1e7',text:'#155c4d',group:'mercado'},
+ {name:'Higiene e beleza',icon:'🧴',color:'#ead5ff',text:'#5b2a80',group:'mercado'},
+ {name:'Bebês',icon:'🍼',color:'#ffd9e8',text:'#813d5b',group:'mercado'},
+ {name:'Pet shop',icon:'🐾',color:'#e5d8c9',text:'#59432d',group:'mercado'},
+ {name:'Doces e chocolates',icon:'🍫',color:'#e8c9b4',text:'#60351d',group:'ambos'},
+ {name:'Enlatados e conservas',icon:'🥫',color:'#ffdbb8',text:'#7b4119',group:'mercado'},
+ {name:'Massas e grãos',icon:'🍝',color:'#f7e0a7',text:'#665017',group:'mercado'},
+ {name:'Molhos e temperos',icon:'🧂',color:'#e4dfc9',text:'#514a2c',group:'mercado'},
+ {name:'Utilidades',icon:'🧺',color:'#d9defb',text:'#3b427b',group:'mercado'},
+ {name:'Outros',icon:'📦',color:'#e8e8ef',text:'#45455b',group:'ambos'}
+];
+const productCategoryStyle=(name,index=0)=>{
+ const item=defaultProductCategories.find(c=>c.name.toLocaleLowerCase('pt-BR')===String(name||'').toLocaleLowerCase('pt-BR'));
+ const fallback=[['#d9ccff','#493276','🏷️'],['#cce9ff','#1e4b70','📦'],['#d5f0d1','#2b5428','🛒'],['#ffe0bf','#784719','🥨']][index%4];
+ return item?{color:item.color,text:item.text,icon:item.icon}:{color:fallback[0],text:fallback[1],icon:fallback[2]};
+};
 function categoryOptions(selected){
-  const names=[...new Set(['Geral',...categories.filter(c=>categoryKey(c.name)!=='todos').map(c=>c.name),...products.map(p=>p.category||'Geral')])];
-  return names.map(name=>'<option value="'+esc(name)+'"'+(name===selected?' selected':'')+'>'+esc(name)+'</option>').join('');
+  const names=[...new Set([...defaultProductCategories.map(c=>c.name),'Geral',...categories.filter(c=>categoryKey(c.name)!=='todos').map(c=>c.name),...products.map(p=>p.category||'Geral')])];
+  return names.map(name=>{const style=productCategoryStyle(name);return '<option value="'+esc(name)+'"'+(name===selected?' selected':'')+'>'+style.icon+' '+esc(name)+'</option>';}).join('');
 }
 function cardapioLogoEditor(){
  if(!proAccess())return '';
@@ -1300,7 +1333,7 @@ function renderGodzillaPDV(){
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
  '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong>Mais vendidos</strong></button>'+
- categoriesList.map((name,i)=>'<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+(['🥤','🍔','🍟','🍰'][i%4])+'</span><strong>'+esc(name)+'</strong></button>').join('')+
+ categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong>'+esc(name)+'</strong></button>';}).join('')+
  '</div>'+
  (pdvShowBestSellers?pdvBestSellers():'')+
  '<div class="pdv-list-head"><strong>Produtos da loja</strong><small>'+products.length+' cadastrados</small></div>'+
