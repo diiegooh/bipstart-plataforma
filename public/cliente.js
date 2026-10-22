@@ -1432,13 +1432,13 @@ function onlineOrderCard(order){
   ).join('')+'</div>'+
   '<div class="online-order-payment-meta"><span class="online-status-title">Status de pagamento</span><strong>'+esc(payLabel[order.payment_method]||'A combinar')+'</strong> '+
    '<strong class="online-state-pill'+(paymentStatus==='cancelled'?' is-cancelled':paymentStatus==='paid'?' is-done':'')+'">'+esc(paymentLabel[paymentStatus])+'</strong></div></div>'+
+  '<div class="online-order-status-under-items"><div class="online-status-block"><span class="online-status-title">Status do pedido</span><div class="online-status-controls">'+
+   (orderOpen?((orderNext?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+(awaiting?'':' →')+'</button>':'')+
+    (!awaiting?'<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>':'') ):'<span class="online-status-end">'+(status==='cancelled'?'Pedido não aceito':'Pedido finalizado')+'</span>')+
+   (orderOpen?'<button type="button" class="'+(awaiting?'button online-reject':'ghost online-cancel')+'" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar pedido')+'</button>':'')+
+  '</div></div></div>'+
   '<div class="online-order-total-row"><span>Total do pedido</span><strong class="online-order-total">'+fmt(order.total)+'</strong></div>'+
-  '<section class="online-order-actions'+(awaiting?' online-order-first-response':'')+'" aria-label="Ações do pedido">'+
-   '<div class="online-status-block"><span class="online-status-title">Status do pedido</span><div class="online-status-controls">'+
-    (orderOpen?((orderNext?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+(awaiting?'':' →')+'</button>':'')+
-     (!awaiting?'<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>':'') ):'<span class="online-status-end">'+(status==='cancelled'?'Pedido não aceito':'Pedido finalizado')+'</span>')+
-    (orderOpen?'<button type="button" class="'+(awaiting?'button online-reject':'ghost online-cancel')+'" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar pedido')+'</button>':'')+
-   '</div></div>'+
+  '<section class="online-order-actions'+(awaiting?' online-order-first-response':'')+'" aria-label="Ações de pagamento">'+
    (!awaiting?'<div class="online-status-block"><span class="online-status-title">Pagamento</span><div class="online-status-controls">'+
     (paymentNext?'<button type="button" class="button online-advance" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+' →</button>':
      '<span class="online-status-end">'+(paymentStatus==='cancelled'?'Pagamento cancelado':'Pagamento confirmado')+'</span>')+
