@@ -7,7 +7,7 @@ let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSc
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
-let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99';
+let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99',pdvCheckoutOpen=false;
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
@@ -1074,6 +1074,8 @@ function cardapioEditor(){
 /* Comprovante não fiscal: preferências locais isoladas por loja e impressão sem credenciais. */
 let lastReceipt=null;
 const receiptPaperOptions=['58','80','a4'];
+function floatingSaleKey(){return 'bipstart_pdv_floating_sale_v1:'+(shop?.id||'sem-loja')}
+function floatingSaleEnabled(){try{return localStorage.getItem(floatingSaleKey())==='true'}catch{return false}}
 function receiptSettingsKey(){
  return 'bipstart_receipt_settings_v1:'+(shop?.id||'sem-loja');
 }
@@ -1266,6 +1268,7 @@ function pdvProductCards(){
  }).join(''):'<div class="empty pdv-empty">Nenhum produto corresponde à busca. Cadastre produtos ou altere os filtros.</div>';
 }
 function renderGodzillaPDV(){
+ const floatingSale=floatingSaleEnabled();
  const sum=cart.reduce((a,c)=>a+c.qty*c.price,0);
  const count=cart.reduce((a,c)=>a+c.qty,0);
  const categoriesList=[...new Set(products.map(p=>String(p.category||'Geral')))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
@@ -1307,7 +1310,7 @@ function renderGodzillaPDV(){
  pdvBestSellers()+
  '<div class="pdv-list-head"><strong>Produtos da loja</strong><small>'+products.length+' cadastrados</small></div>'+
  '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
- '</section><aside class="pdv-panel pdv-sale-panel" aria-label="Venda atual">'+
+ '</section><div class="pdv-floating-backdrop'+(floatingSale&&pdvCheckoutOpen?' open':'')+'" data-floating-sale-close></div><aside class="pdv-panel pdv-sale-panel'+(floatingSale?' pdv-sale-panel-floating':'')+(floatingSale&&pdvCheckoutOpen?' is-open':'')+'" aria-label="Venda atual">'+
  '<div class="pdv-sale-head"><div><span class="kicker">CAIXA</span><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
  '<div class="pdv-sale-list">'+(cartItems||'<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>')+'</div>'+
  '<div class="pdv-sale-total"><span>'+count+' item(ns) · Total</span><strong>'+fmt(sum)+'</strong></div>'+
@@ -1327,7 +1330,7 @@ function renderGodzillaPDV(){
  '<button type="submit" class="button pdv-finish" '+(!cart.length?'disabled':'')+'>Finalizar venda ↗</button>'+
  '</form>'+
  ((typeof lastReceipt!=='undefined'&&lastReceipt?.shopId===shop?.id)?'<button class="ghost pdv-last-receipt" type="button" data-receipt-last>🧾 Reimprimir último comprovante</button>':'')+
- '</aside></div></div>';
+ '</aside></div>'+(floatingSale?'<button type="button" class="pdv-floating-sale-button" data-floating-sale-toggle aria-expanded="'+(pdvCheckoutOpen?'true':'false')+'"><span>🛒 Ver venda</span><strong>'+fmt(sum)+'</strong></button>':'')+'</div>';
 }
 function selectPdvPayment(method){
  if(method==='cartao')pdvPayment=['credito','debito'].includes(pdvPayment)?pdvPayment:'credito';
@@ -1520,7 +1523,7 @@ function renderPage(){
        +'<fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +logoSection+'</div>':'')
-      +(isMenu?cardapioLayoutSettings()+receiptSettingsPanel()+categoryImagesSettings():'')+
+      +(isMenu?'<section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+cardapioLayoutSettings()+receiptSettingsPanel()+categoryImagesSettings():'')+
       '<button type="submit" class="button settings-save-button">Salvar</button></form></div>';
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
@@ -1989,6 +1992,11 @@ document.addEventListener('input',e=>{
  }
 });
 document.addEventListener('change',e=>{
+ if(e.target.id==='floatingSaleToggle'){
+  try{localStorage.setItem(floatingSaleKey(),e.target.checked?'true':'false');pdvCheckoutOpen=false;renderPage();msg(e.target.checked?'Botão flutuante ativado.':'Botão flutuante desativado.');}
+  catch{msg('Não foi possível salvar a configuração neste navegador.',true);}
+  return;
+ }
  if(e.target.id==='pdvCategory'){pdvCategory=e.target.value;const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();}
 });
 document.addEventListener('change',e=>{
@@ -2033,6 +2041,8 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
+  if(e.target.closest('[data-floating-sale-toggle]')){pdvCheckoutOpen=!pdvCheckoutOpen;renderPage();return;}
+  if(e.target.closest('[data-floating-sale-close]')){pdvCheckoutOpen=false;renderPage();return;}
   const paymentButton=e.target.closest('[data-payment-option]');
   if(paymentButton){
     if(tab==='caixa'&&selectPdvPayment(paymentButton.dataset.paymentOption))renderPage();
