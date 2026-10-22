@@ -1404,3 +1404,26 @@ body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-card
 body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-calculation{
  background:#fff !important;color:#292b4b !important;
 }
+
+/* Ajuste de contraste final observado na tela de homologação. */
+body.workspace-fullscreen #workspace .pdv-sale-total > span,
+body.workspace-fullscreen #workspace .pdv-payment-label,
+body.workspace-fullscreen #workspace #pdvPaymentLabel,
+body.workspace-fullscreen #workspace .pdv-payment-selector > span{
+ color:#414463 !important;
+ opacity:1 !important;
+ font-weight:600 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total{
+ color:#414463 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total strong{
+ color:#5146dc !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-selector{
+ background:#fff !important;
+ color:#292b4b !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form{
+ color:#292b4b !important;
+}
