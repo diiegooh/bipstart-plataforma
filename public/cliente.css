@@ -2454,3 +2454,14 @@ body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product .pdv-add,
  #workspace .restock-item>div:first-child{grid-column:1/-1;border-bottom:1px solid #e0e6f8!important;padding-bottom:8px!important}
  #workspace .restock-total{align-items:flex-start!important;text-align:left!important}
 }
+
+
+/* Motoboys cadastrados: três cards por fileira em telas maiores. */
+#workspace .courier-access-list{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;align-items:stretch!important}
+#workspace .courier-access-item{min-width:0!important;display:flex!important;flex-direction:column!important;justify-content:space-between!important;gap:14px!important;padding:15px!important;box-sizing:border-box!important}
+#workspace .courier-access-info{min-width:0!important}
+#workspace .courier-access-url{overflow-wrap:anywhere!important;word-break:break-word!important}
+#workspace .courier-access-actions{display:flex!important;flex-wrap:wrap!important;gap:7px!important}
+#workspace .courier-access-actions button{flex:1 1 auto!important;min-width:0!important}
+@media(max-width:900px){#workspace .courier-access-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:600px){#workspace .courier-access-list{grid-template-columns:minmax(0,1fr)!important}}
