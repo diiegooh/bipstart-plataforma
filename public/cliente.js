@@ -2237,9 +2237,7 @@ document.addEventListener('click',async e=>{
   if(e.target.closest('#sideToggle')){toggleSideMenu();return}
   if(e.target.closest('#sideBackdrop')){closeSideMenu();return}
   if(e.target.closest('#sideLogout')){closeSideMenu();$('logout').click();return}
-  if(e.target.closest('#pdvStockToggle')){
-    pdvInStockOnly=!pdvInStockOnly;renderPage();return;
-  }
+  if(e.target.closest('[data-pdv-best-sellers]')){const section=document.querySelector('.pdv-best-sellers');section?.scrollIntoView({behavior:'smooth',block:'nearest'});return;}
   const categoryTile=e.target.closest('[data-pdv-category]');
   if(categoryTile){pdvCategory=categoryTile.dataset.pdvCategory||'';renderPage();return;}
   const less=e.target.closest('[data-qty-less]');
