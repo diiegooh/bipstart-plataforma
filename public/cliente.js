@@ -1495,16 +1495,11 @@ function renderPage(){
     content=heading('Motoboys','Cadastre entregadores e defina o login pelo telefone e a senha individual.','<button class="button" data-new="courier">+ Novo motoboy</button>');
     content+='<p class="muted">O telefone cadastrado será usado para entrar no aplicativo do motoboy. Escolha uma senha no cadastro e compartilhe o link de login. O acesso é somente por usuário e senha cadastrados pelo responsável.</p>';
     content+=showForm?.kind==='courier'?courierForm(showForm.value):'';
-    content+=couriers.length?'<div class="stack">'+couriers.map(c=>{
+    content+=couriers.length?'<div class="courier-access-list">'+couriers.map(c=>{
       const link=location.origin+'/motoboy';
-      const pending=!c.account_id,managed=c.account_id&&c.login_managed;
-      return '<div class="item courier-access-item"><div class="courier-access-info"><strong>'+esc(c.name)+'</strong><small>'+esc(c.phone||'Sem telefone')+
-        ' • '+(managed?'Login por telefone':c.account_id?'Conta antiga — atualize o cadastro':'Aguardando criação do login')+
-        ' • '+(c.active?'Ativo':'Desativado')+'</small>'+
+      return '<div class="item courier-access-item"><div class="courier-access-info"><strong>'+esc(c.name)+'</strong><small>'+esc(c.phone||'Sem telefone')+'</small>'+
         '<p class="courier-access-label">'+'Link de login do motoboy:'+'</p>'+
         '<a class="courier-access-url" target="_blank" rel="noopener noreferrer" href="'+esc(link)+'">'+esc(link)+'</a>'+
-        (managed?'<small>Usuário: '+esc(c.phone)+'. A senha foi definida no cadastro e pode ser alterada em Editar.</small>':
-         pending?'<small>Edite o motoboy para definir uma senha e ativar o login pelo telefone.</small>':'')+
         '</div><div class="actions courier-access-actions">'+
          '<button type="button" class="button" data-share-courier="'+esc(link)+'" data-courier-name="'+esc(c.name)+'">Compartilhar link</button>'+
          '<button type="button" class="ghost" data-copy-invite="'+esc(link)+'">Copiar link</button>'+
