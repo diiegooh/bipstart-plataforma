@@ -1366,3 +1366,41 @@ body.workspace-fullscreen #workspace .pdv-payment-chip,
 body.workspace-fullscreen #workspace .pdv-card-kind{background:#f5f6ff !important;color:#555879 !important;border:1px solid #e2e5f5 !important}
 body.workspace-fullscreen #workspace .pdv-payment-chip.selected,
 body.workspace-fullscreen #workspace .pdv-card-kind.selected{background:#ecebff !important;color:#5140cb !important;border-color:#bdb8ff !important}
+
+/* Ajuste final: neutralizar componentes escuros aninhados no formulário do PDV. */
+body.workspace-fullscreen #workspace .pdv-best-sellers,
+body.workspace-fullscreen #workspace .pdv-best-sellers *:not(button),
+body.workspace-fullscreen #workspace .pdv-payment-form,
+body.workspace-fullscreen #workspace .pdv-payment-form > div,
+body.workspace-fullscreen #workspace .pdv-payment-form .pdv-payment-selector{
+ background-color:transparent !important;
+ color:#292b4b !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers{
+ background:#f7f8ff !important;border:1px solid #e1e5f4 !important;border-radius:13px !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers button{
+ background:#fff !important;color:#5146dc !important;border:1px solid #e1e5f4 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form{
+ background:#fff !important;color:#292b4b !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form > div:not(.hidden){
+ background:#fff !important;color:#292b4b !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-payment-selector{
+ background:#fff !important;color:#292b4b !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-payment-options{
+ background:transparent !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-finish{
+ background:linear-gradient(100deg,#4f46e5,#8b35e8) !important;color:#fff !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-payment-chip.selected{
+ background:#ecebff !important;color:#5140cb !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-card-kinds,
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-calculation{
+ background:#fff !important;color:#292b4b !important;
+}
