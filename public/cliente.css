@@ -3157,3 +3157,30 @@ body.workspace-fullscreen #workspace .content{
 #workspace .online-order-formatted .online-order-payment-actions:not(:has(button[data-payment-advance)){
  justify-content:center!important;
 }
+
+
+/* Texto justificado em todo o card e ações rápidas compactas na mesma linha */
+#workspace .online-order-formatted,
+#workspace .online-order-formatted .online-order-head,
+#workspace .online-order-formatted .online-order-section,
+#workspace .online-order-formatted .online-order-section p,
+#workspace .online-order-formatted .online-order-head div{
+ text-align:justify!important;
+}
+#workspace .online-order-formatted .online-order-quick-actions{
+ display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+ align-items:center!important;justify-content:flex-start!important;gap:6px!important;
+ width:100%!important;
+}
+#workspace .online-order-formatted .online-order-quick-actions button{
+ flex:0 1 auto!important;width:auto!important;min-width:0!important;
+ min-height:30px!important;padding:6px 9px!important;margin:0!important;
+ font-size:11px!important;line-height:1.2!important;white-space:nowrap!important;
+ border-radius:6px!important;
+}
+@media(max-width:480px){
+ #workspace .online-order-formatted .online-order-quick-actions{gap:4px!important}
+ #workspace .online-order-formatted .online-order-quick-actions button{
+  padding:6px 5px!important;font-size:10px!important;white-space:normal!important;
+ }
+}
