@@ -1510,3 +1510,31 @@ body.workspace-fullscreen .godzilla-pdv .pdv-finish{
  body.workspace-fullscreen .godzilla-pdv .pdv-product-media img{height:105px;min-height:105px}
  body.workspace-fullscreen .godzilla-pdv .pdv-product-info{padding:8px}
 }
+
+/* Em desktop, manter a navegação lateral visível como no layout de referência. */
+@media(min-width:1001px){
+ body.workspace-fullscreen #workspace .dashboard{
+  display:grid!important;grid-template-columns:205px minmax(0,1fr)!important;gap:16px!important;align-items:start!important;
+ }
+ body.workspace-fullscreen #workspace .side{
+  display:flex!important;position:sticky!important;top:14px!important;align-self:start!important;
+  height:calc(100vh - 28px)!important;max-height:900px!important;overflow-y:auto!important;
+  border-radius:16px!important;padding:14px 10px!important;
+ }
+ body.workspace-fullscreen #workspace .content{
+  min-width:0!important;padding:20px!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-mobile-menu{display:none!important}
+ body.workspace-fullscreen #workspace .side nav{display:grid!important;gap:5px!important}
+ body.workspace-fullscreen #workspace .side nav a,
+ body.workspace-fullscreen #workspace .side nav button{
+  display:flex!important;align-items:center!important;gap:9px!important;
+  width:100%!important;text-align:left!important;padding:10px 9px!important;
+  font-size:13px!important;border-radius:10px!important;
+ }
+}
+@media(max-width:1000px){
+ body.workspace-fullscreen #workspace .dashboard{grid-template-columns:minmax(0,1fr)!important}
+ body.workspace-fullscreen #workspace .side{display:none!important}
+ body.workspace-fullscreen #workspace .pdv-mobile-menu{display:flex!important}
+}
