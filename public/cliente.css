@@ -1803,3 +1803,55 @@ body.workspace-fullscreen #workspace .pdv-payment-form .pdv-finish,
   body.workspace-fullscreen #workspace #pdvCashFields .pdv-calculation,
   #workspace #pdvCashFields .pdv-calculation { padding: 7px 9px !important; }
 }
+
+/* Botão flutuante de venda: total sempre visível e checkout expansível. */
+.pdv-floating-sale-button{display:none}
+.pdv-floating-backdrop{display:none}
+@media(min-width:701px){
+ body.workspace-fullscreen #workspace .pdv-sale-panel-floating,
+ #workspace .pdv-sale-panel-floating{display:none!important}
+ body.workspace-fullscreen #workspace .pdv-sale-panel-floating.is-open,
+ #workspace .pdv-sale-panel-floating.is-open{
+  display:block!important;position:fixed!important;z-index:1002!important;
+  right:24px!important;bottom:90px!important;top:auto!important;
+  width:min(540px,calc(100vw - 48px))!important;max-height:calc(100vh - 130px)!important;
+  overflow-y:auto!important;box-shadow:0 22px 70px #17152d38!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-floating-sale-button,
+ #workspace .pdv-floating-sale-button{
+  display:flex;position:fixed;z-index:1004;right:26px;bottom:24px;
+  align-items:center;justify-content:space-between;gap:28px;
+  min-width:260px;padding:15px 20px;border:0;border-radius:16px;
+  color:#fff;background:linear-gradient(105deg,#4f46e5,#8b35e8);
+  box-shadow:0 12px 30px #5146dc40;font-weight:800;cursor:pointer;
+ }
+ body.workspace-fullscreen #workspace .pdv-floating-sale-button strong,
+ #workspace .pdv-floating-sale-button strong{font-size:20px;color:#fff;white-space:nowrap}
+ body.workspace-fullscreen #workspace .pdv-floating-backdrop.open,
+ #workspace .pdv-floating-backdrop.open{
+  display:block;position:fixed;inset:0;z-index:1001;background:#17152d55;
+ }
+}
+@media(max-width:700px){
+ body.workspace-fullscreen #workspace .pdv-sale-panel-floating,
+ #workspace .pdv-sale-panel-floating{display:none!important}
+ body.workspace-fullscreen #workspace .pdv-sale-panel-floating.is-open,
+ #workspace .pdv-sale-panel-floating.is-open{
+  display:block!important;position:fixed!important;z-index:1002!important;
+  left:12px!important;right:12px!important;bottom:82px!important;top:auto!important;
+  width:auto!important;max-height:calc(100dvh - 105px)!important;overflow-y:auto!important;
+  box-shadow:0 22px 70px #17152d38!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-floating-sale-button,
+ #workspace .pdv-floating-sale-button{
+  display:flex;position:fixed;z-index:1004;left:12px;right:12px;bottom:12px;
+  align-items:center;justify-content:space-between;gap:18px;
+  padding:14px 17px;border:0;border-radius:14px;color:#fff;
+  background:linear-gradient(105deg,#4f46e5,#8b35e8);
+  box-shadow:0 10px 26px #5146dc40;font-weight:800;cursor:pointer;
+ }
+ body.workspace-fullscreen #workspace .pdv-floating-sale-button strong,
+ #workspace .pdv-floating-sale-button strong{font-size:19px;color:#fff;white-space:nowrap}
+ body.workspace-fullscreen #workspace .pdv-floating-backdrop.open,
+ #workspace .pdv-floating-backdrop.open{display:block;position:fixed;inset:0;z-index:1001;background:#17152d55}
+}
