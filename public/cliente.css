@@ -190,8 +190,10 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 @media(max-width:390px){#workspace .pdv-payment-options{gap:5px}#workspace .pdv-payment-chip{font-size:12px;padding:8px 3px;min-height:44px}}
 
 .pdv-payment-form select,.pdv-payment-form input{margin-top:7px}
-.pdv-calculation{display:flex;justify-content:space-between;gap:12px;color:#ceb7e0;margin:10px 0}
-.pdv-calculation strong{color:#fff}
+.pdv-calculation{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#f3e8ff;background:#21142f;border:1px solid #8050a8;border-radius:10px;padding:11px 13px;margin:10px 0;font-weight:750}
+.pdv-calculation strong{color:#86efac;background:#123522;border:1px solid #237447;border-radius:8px;padding:6px 10px;font-size:16px;font-weight:900;white-space:nowrap}
+#workspace #pdvCashFields .pdv-calculation{color:#fff;background:#21142f;border-color:#a855f7}
+#workspace #pdvCashFields #pdvChange{color:#86efac;background:#123522;border-color:#22a05a;min-width:100px;text-align:center;box-shadow:0 0 0 2px #123522}
 .pdv-finish{width:100%;margin-top:9px}
 @media(min-width:1250px){#workspace .dashboard{grid-template-columns:245px minmax(0,1fr)}#workspace .side{border-radius:23px}#workspace .content{border-radius:23px}#workspace:has(.godzilla-pdv) .side{min-height:450px}}
 @media(max-width:1180px){.pdv-products{grid-template-columns:repeat(2,minmax(0,1fr))}.pdv-two-panels{grid-template-columns:minmax(0,1fr) minmax(280px,.75fr)}}
