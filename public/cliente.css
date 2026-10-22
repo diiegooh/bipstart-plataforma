@@ -2603,3 +2603,47 @@ body.workspace-fullscreen #workspace .content{
     z-index:125!important;
   }
 }
+
+
+/* Refinamento visual dos cards de motoboy sem alterar dimensões, espaçamentos ou grade. */
+#workspace .courier-access-item{
+  background:linear-gradient(145deg,#fff 0%,#f8f9ff 100%)!important;
+  border:1px solid #dfe5f5!important;
+  border-radius:14px!important;
+  box-shadow:0 4px 14px #263b720d!important;
+  color:#293653!important;
+  transition:border-color .18s ease,box-shadow .18s ease!important;
+}
+#workspace .courier-access-item:hover{
+  border-color:#b9a7f5!important;
+  box-shadow:0 7px 18px #5140a014!important;
+}
+#workspace .courier-access-info>strong{
+  color:#253251!important;
+  letter-spacing:-.015em!important;
+}
+#workspace .courier-access-info>small{
+  color:#687694!important;
+}
+#workspace .courier-access-label{
+  color:#687694!important;
+  font-weight:750!important;
+}
+#workspace .courier-access-url{
+  color:#6543c2!important;
+  text-decoration:none!important;
+  text-underline-offset:3px!important;
+}
+#workspace .courier-access-url:hover{
+  color:#4d2da8!important;
+  text-decoration:underline!important;
+}
+#workspace .courier-access-actions button{
+  border-radius:9px!important;
+  font-weight:750!important;
+  transition:filter .15s ease,box-shadow .15s ease!important;
+}
+#workspace .courier-access-actions button:hover{
+  filter:brightness(.97)!important;
+  box-shadow:0 2px 7px #263b7214!important;
+}
