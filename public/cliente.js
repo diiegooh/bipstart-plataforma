@@ -1410,29 +1410,22 @@ function onlineOrderCard(order){
  const orderNext=nextOnlineOrderStep(status,order.delivery_method),paymentNext=nextOnlinePaymentStep(paymentStatus);
  const orderOpen=status!=='cancelled'&&status!=='fulfilled';
  const awaiting=status==='awaiting_confirmation';
- const finishLabel='Finalizar pedido';
  const items=Array.isArray(order.items)?order.items:[];
  const phone=String(order.customer_phone||'').replace(/\\D/g,'');
- const phoneUri=/^\\d{10,13}$/.test(phone)?'<a href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone);
- const contact=phone&&/^\\d{10,13}$/.test(phone)?' <a target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'">WhatsApp</a>':'';
- return '<article class="online-order-card online-order-plain" data-order-id="'+esc(order.id)+'">'+
- '<div>Pedido #'+esc(String(order.id).slice(0,8))+'</div>'+
- '<div>'+esc(new Date(order.created_at).toLocaleString('pt-BR'))+'</div>'+
- '<div>'+esc(order.delivery_method==='delivery'?'Entrega':'Retirada na loja')+' — '+esc(label[status])+'</div>'+
- '<div>'+esc(order.customer_name)+'</div>'+
- '<div>'+phoneUri+contact+'</div>'+
- (order.delivery_method==='delivery'?'<div>Endereço: '+esc(order.delivery_address||'Não informado')+'</div>':'')+
- '<div>Itens vendidos</div>'+
- items.map(item=>'<div>'+esc(item.qty)+'× '+esc(item.name)+' — '+fmt(item.total)+'</div>').join('')+
- '<div>Total do pedido: '+fmt(order.total)+'</div>'+
- '<div>Pagamento: '+esc(payLabel[order.payment_method]||'A combinar')+' — '+esc(paymentLabel[paymentStatus])+'</div>'+
- '<div>'+(paymentNext?'<button type="button" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+'</button>':'Pagamento confirmado')+
- ' <button type="button" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button></div>'+
- '<div>Status do pedido: '+esc(label[status])+'</div>'+
- '<div>'+(orderOpen?(orderNext?'<button type="button" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+'</button> ':'')+
- (!awaiting?'<button type="button" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button> ':'')+
- '<button type="button" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar pedido')+'</button>':(status==='cancelled'?'Pedido não aceito':'Pedido finalizado'))+'</div>'+
- '</article>';
+ const phoneValid=/^\\d{10,13}$/.test(phone);
+ const phoneUri=phoneValid?'<a href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone||'Não informado');
+ const contact=phoneValid?' <a target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'">WhatsApp</a>':'';
+ const delivery=order.delivery_method==='delivery';
+ const date=new Date(order.created_at).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'medium'});
+ const itemRows=items.map(item=>'<tr><td>'+esc(item.qty)+'x</td><td>'+esc(item.name)+'</td><td>'+fmt(Number(item.total||0)/Math.max(Number(item.qty)||1,1))+'</td><td>'+fmt(item.total)+'</td></tr>').join('');
+ return '<article class="online-order-card online-order-formatted" data-order-id="'+esc(order.id)+'">'+
+ '<header class="online-order-head"><h3>📦 PEDIDO #'+esc(String(order.id).slice(0,8))+'</h3><div><b>Data/Hora:</b> '+esc(date)+'</div><div><b>Tipo de Entrega:</b> '+(delivery?'🚚 Entrega':'🏬 Retirada na loja')+'</div><div><b>Status do Pedido:</b> <span class="online-order-status status-'+esc(status)+'">'+(status==='confirmed'?'🟢 ':status==='cancelled'?'🔴 ':'🟡 ')+esc(label[status])+'</span></div></header>'+
+ '<section class="online-order-section"><h4>👤 Dados do Cliente</h4><p><b>Nome:</b> '+esc(order.customer_name||'Não informado')+'</p><p><b>Telefone:</b> '+phoneUri+contact+'</p>'+(delivery?'<p><b>Endereço:</b> '+esc(order.delivery_address||'Não informado')+'</p>':'')+'</section>'+
+ '<section class="online-order-section"><h4>🛒 Itens do Pedido</h4><div class="online-order-table-wrap"><table class="online-order-items-table"><thead><tr><th>Qtd</th><th>Item</th><th>Valor Unitário</th><th>Total</th></tr></thead><tbody>'+itemRows+'</tbody></table></div></section>'+
+ '<section class="online-order-section online-order-payment"><h4>💳 Pagamento</h4><p><b>Forma de Pagamento:</b> '+esc(payLabel[order.payment_method]||'A combinar')+'</p><p><b>Status do Pagamento:</b> '+(paymentStatus==='paid'?'✅ ':'')+esc(paymentLabel[paymentStatus])+'</p><p class="online-order-total"><b>Total do Pedido: '+fmt(order.total)+'</b></p><div class="online-order-payment-actions">'+(paymentNext?'<button type="button" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+'</button>':'')+' <button type="button" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button></div></section>'+
+ '<section class="online-order-section online-order-quick"><h4>⚙️ Ações Rápidas</h4><div class="online-order-quick-actions">'+
+ (orderOpen?(orderNext?'<button type="button" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+'</button>':'')+(!awaiting?'<button type="button" data-order-finish="'+esc(order.id)+'">Finalizar Pedido</button>':'')+'<button type="button" class="online-order-danger" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar Pedido')+'</button>':(status==='cancelled'?'Pedido não aceito':'Pedido finalizado'))+
+ '</div></section></article>';
 }
 function courierAccessUrl(c,origin=location.origin){
  const base=origin+'/motoboy';
