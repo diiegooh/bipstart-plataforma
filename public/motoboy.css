@@ -194,3 +194,17 @@ body:not(:has(#authPanel)) .courier-delivery .courier-order-actions .courier-wha
 @media(max-width:650px){
  body:not(:has(#authPanel)) .courier-delivery .courier-order-actions{grid-template-columns:1fr!important}
 }
+
+
+/* Lista de entregas em duas colunas em telas maiores. */
+@media(min-width:900px){
+ body:not(:has(#authPanel)) .courier-wrap{max-width:1400px!important}
+ body:not(:has(#authPanel)) .courier-deliveries{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:22px!important;align-items:stretch!important;
+ }
+ body:not(:has(#authPanel)) .courier-delivery{height:100%;box-sizing:border-box!important}
+}
+@media(min-width:651px) and (max-width:899px){
+ body:not(:has(#authPanel)) .courier-deliveries{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important}
+}
