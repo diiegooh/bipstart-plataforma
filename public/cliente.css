@@ -2849,3 +2849,10 @@ body.workspace-fullscreen #workspace .content{
 #workspace .online-order-card .online-order-status-under-items{order:8!important}
 #workspace .online-order-card .online-order-actions{order:7!important}
 #workspace .online-order-card .online-customer-label{display:none!important}
+
+/* Final order card layout: order status is the last block */
+#workspace .online-order-card .online-order-total-row{order:5!important}
+#workspace .online-order-card .online-order-actions{order:6!important}
+#workspace .online-order-card .online-order-status-under-items{order:7!important;display:block!important}
+#workspace .online-order-card .online-order-customer .online-customer-data-label{display:none!important}
+#workspace .online-order-card .online-order-customer h3{margin-top:0!important}
