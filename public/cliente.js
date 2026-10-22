@@ -8,6 +8,8 @@ const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99',pdvCheckoutOpen=false,pdvShowBestSellers=false;
+const pdvProductClickCounts=new Map();
+let pdvQuantityEntryProductId=null;
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
@@ -1291,10 +1293,11 @@ function pdvProductCards(){
   const count=cart.find(c=>c.id===p.id)?.qty||0;
   const soldOut=Number(p.stock)<=count;
   const photo=p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="pdv-no-photo" aria-hidden="true">▣</div>';
-  return '<button type="button" class="pdv-product pdv-product-clickable" data-cart="'+esc(p.id)+'" '+(soldOut?'disabled':'')+' aria-label="'+esc((soldOut?'Sem estoque: ':'Adicionar ao carrinho: ')+p.name+' — '+fmt(p.price))+'">'+
+  const quantityField=pdvQuantityEntryProductId===p.id?'<input class="pdv-quantity-entry" data-pdv-quantity="'+esc(p.id)+'" type="number" min="1" step="1" inputmode="numeric" aria-label="Quantidade de '+esc(p.name)+'" autocomplete="off">':'';
+  return '<div class="pdv-product-wrap"><button type="button" class="pdv-product pdv-product-clickable" data-cart="'+esc(p.id)+'" '+(soldOut?'disabled':'')+' aria-label="'+esc((soldOut?'Sem estoque: ':'Adicionar ao carrinho: ')+p.name+' — '+fmt(p.price))+'">'+
    '<span class="pdv-product-media">'+photo+'</span>'+
    '<span class="pdv-product-info"><strong class="pdv-product-name">'+esc(p.name)+'</strong>'+
-   '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button>';
+   '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button>'+quantityField+'</div>';
  }).join(''):'<div class="empty pdv-empty">Nenhum produto corresponde à busca. Cadastre produtos ou altere os filtros.</div>';
 }
 function renderGodzillaPDV(){
@@ -2388,8 +2391,45 @@ document.addEventListener('click',async e=>{
    catch(err){msg(err.message||'Não foi possível adicionar o produto.',true)}
    return
   }
-  const c=e.target.closest('[data-cart]');if(c){const p=products.find(p=>p.id===c.dataset.cart);if(!p)return;const old=cart.find(x=>x.id===p.id);if((old?.qty||0)>=p.stock)return msg('Estoque insuficiente',true);if(old)old.qty++;else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});renderPage();return}
+  const c=e.target.closest('[data-cart]');if(c){
+    const p=products.find(p=>p.id===c.dataset.cart);if(!p)return;
+    const old=cart.find(x=>x.id===p.id);
+    if((old?.qty||0)>=p.stock)return msg('Estoque insuficiente',true);
+    const clicks=(pdvProductClickCounts.get(p.id)||0)+1;
+    pdvProductClickCounts.set(p.id,clicks);
+    if(clicks>=4){
+      pdvQuantityEntryProductId=p.id;
+      renderPage();
+      const input=document.querySelector('[data-pdv-quantity="'+CSS.escape(p.id)+'"]');
+      if(input)input.focus();
+      return;
+    }
+    if(old)old.qty++;else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
+    renderPage();return
+  }
   const rm=e.target.closest('[data-remove]');if(rm){cart=cart.filter(x=>x.id!==rm.dataset.remove);renderPage()}
+});
+document.addEventListener('keydown',e=>{
+ const input=e.target.closest('[data-pdv-quantity]');
+ if(!input||e.key!=='Enter')return;
+ e.preventDefault();
+ const productId=input.dataset.pdvQuantity;
+ const p=products.find(item=>item.id===productId);
+ const quantity=Number(input.value);
+ const old=cart.find(item=>item.id===productId);
+ if(!p){pdvQuantityEntryProductId=null;renderPage();return}
+ if(!Number.isInteger(quantity)||quantity<1){
+   pdvQuantityEntryProductId=null;renderPage();return;
+ }
+ if((old?.qty||0)+quantity>Number(p.stock)){
+   msg('Quantidade maior que o estoque disponível.',true);
+   input.value='';input.focus();return;
+ }
+ if(old)old.qty+=quantity;
+ else cart.push({id:p.id,name:p.name,qty:quantity,price:Number(p.price)});
+ pdvProductClickCounts.set(productId,0);
+ pdvQuantityEntryProductId=null;
+ renderPage();
 });
 // Validação instantânea antes de enviar o cadastro para o Supabase.
 $('signupForm').addEventListener('input',()=>{
