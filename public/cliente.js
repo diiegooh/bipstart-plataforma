@@ -1291,13 +1291,10 @@ function pdvProductCards(){
   const count=cart.find(c=>c.id===p.id)?.qty||0;
   const soldOut=Number(p.stock)<=count;
   const photo=p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="pdv-no-photo" aria-hidden="true">▣</div>';
-  return '<article class="pdv-product">'+
-   '<div class="pdv-product-media">'+photo+'</div>'+
-   '<div class="pdv-product-info"><h3>'+esc(p.name)+'</h3>'+
-   '<p>'+esc(p.category||'Geral')+' · Estoque: '+esc(p.stock)+'</p>'+
-   '<strong class="pdv-product-price">'+fmt(p.price)+'</strong>'+
-   '<button type="button" class="button pdv-add" data-cart="'+esc(p.id)+'" '+(soldOut?'disabled':'')+'>'+
-   (soldOut?'Sem estoque':'+ Adicionar')+'</button></div></article>';
+  return '<button type="button" class="pdv-product pdv-product-clickable" data-cart="'+esc(p.id)+'" '+(soldOut?'disabled':'')+' aria-label="'+esc((soldOut?'Sem estoque: ':'Adicionar ao carrinho: ')+p.name+' — '+fmt(p.price))+'">'+
+   '<span class="pdv-product-media">'+photo+'</span>'+
+   '<span class="pdv-product-info"><strong class="pdv-product-name">'+esc(p.name)+'</strong>'+
+   '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button>';
  }).join(''):'<div class="empty pdv-empty">Nenhum produto corresponde à busca. Cadastre produtos ou altere os filtros.</div>';
 }
 function renderGodzillaPDV(){
