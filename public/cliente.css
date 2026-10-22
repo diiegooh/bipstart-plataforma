@@ -1740,3 +1740,66 @@ body.workspace-fullscreen #workspace .pdv-payment-form .pdv-finish,
   color: #fff !important;
   box-shadow: 0 6px 15px #6049df2b !important;
 }
+
+
+/* Caixa: contraste acessível para o troco e espaçamento mais compacto. */
+body.workspace-fullscreen #workspace #pdvCashFields #pdvChange,
+#workspace #pdvCashFields #pdvChange {
+  color: #16834a !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  font-weight: 850 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel,
+#workspace .pdv-sale-panel {
+  padding: 13px !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-head,
+#workspace .pdv-sale-head {
+  margin-bottom: 8px !important;
+  padding-bottom: 8px !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-item,
+#workspace .pdv-sale-item {
+  padding: 10px 11px !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total,
+#workspace .pdv-sale-total {
+  margin-top: 9px !important;
+  padding: 10px 12px !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-form,
+#workspace .pdv-payment-form {
+  margin-top: 9px !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-options,
+#workspace .pdv-payment-options {
+  gap: 7px !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-chip,
+#workspace .pdv-payment-chip {
+  min-height: 44px !important;
+}
+body.workspace-fullscreen #workspace #pdvCashFields,
+#workspace #pdvCashFields {
+  margin-top: 8px !important;
+  gap: 8px !important;
+}
+body.workspace-fullscreen #workspace #pdvCashFields .pdv-calculation,
+#workspace #pdvCashFields .pdv-calculation {
+  margin: 7px 0 !important;
+  padding: 8px 11px !important;
+  min-height: 48px !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-form .pdv-finish,
+#workspace .pdv-payment-form .pdv-finish {
+  margin-top: 8px !important;
+  min-height: 46px !important;
+}
+@media (max-width: 700px) {
+  body.workspace-fullscreen #workspace .pdv-sale-panel,
+  #workspace .pdv-sale-panel { padding: 11px !important; }
+  body.workspace-fullscreen #workspace #pdvCashFields .pdv-calculation,
+  #workspace #pdvCashFields .pdv-calculation { padding: 7px 9px !important; }
+}
