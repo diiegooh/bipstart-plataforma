@@ -1,0 +1,41 @@
+/* Homologação: Configurações da loja alinhadas ao tema claro lilás do PDV. */
+#workspace .content{background:#fff;border-color:#e4e2f5;color:#252746}
+#workspace .content h1,#workspace .content h2,#workspace .content h3,
+#workspace .content label,#workspace .content strong{color:#252746}
+#workspace .content .muted,#workspace .content small{color:#686b89}
+#workspace #settingsForm .data-form,
+#workspace #settingsForm fieldset,
+#workspace #settingsForm .menu-logo-settings,
+#workspace #settingsForm .menu-layout-settings,
+#workspace #settingsForm .category-image-settings,
+#workspace #settingsForm .receipt-settings-panel{
+ background:#f8f7ff!important;
+ color:#252746!important;
+ border:1px solid #e2ddfa!important;
+ border-radius:16px;
+ box-shadow:0 4px 16px rgba(72,55,145,.06);
+}
+#workspace #settingsForm .data-form *,
+#workspace #settingsForm .menu-logo-settings *,
+#workspace #settingsForm .menu-layout-settings *,
+#workspace #settingsForm .category-image-settings *,
+#workspace #settingsForm .receipt-settings-panel *{color:inherit}
+#workspace #settingsForm input:not([type=color]):not([type=checkbox]):not([type=radio]),
+#workspace #settingsForm select,
+#workspace #settingsForm textarea{
+ background:#fff!important;color:#252746!important;border:1px solid #d7d3eb!important;
+ border-radius:10px;
+}
+#workspace #settingsForm input::placeholder,
+#workspace #settingsForm textarea::placeholder{color:#888aa2!important}
+#workspace #settingsForm input:focus,
+#workspace #settingsForm select:focus,
+#workspace #settingsForm textarea:focus{outline:2px solid #b9a6ff;outline-offset:1px;border-color:#8c70ed!important}
+#workspace #settingsForm input[type=color][name=brand_color]{background:#fff!important;border:1px solid #d7d3eb!important}
+#workspace #settingsForm .button,
+#workspace #settingsForm button:not(.ghost){background:#8056e8;color:#fff!important;border-color:#8056e8}
+#workspace #settingsForm .ghost{background:#fff;color:#51417f!important;border:1px solid #d7d3eb}
+#workspace #settingsForm .settings-save-button{background:#8056e8!important;color:#fff!important}
+#workspace .content .pill{background:#eee9ff;color:#6242bd}
+#workspace .content .warn{background:#fff7e9;color:#80551d;border-color:#f0d7a8}
+#workspace .content .empty{color:#686b89;border-color:#d7d3eb}
