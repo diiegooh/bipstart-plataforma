@@ -2819,3 +2819,18 @@ body.workspace-fullscreen #workspace .content{
  #workspace .online-order-card .online-items-status-row{grid-template-columns:minmax(0,1fr)!important;gap:8px!important;margin:0 10px!important}
  #workspace .online-order-card .online-order-status-side{padding:10px!important}
 }
+
+/* Ordem visual explícita dos dados em cada pedido online */
+#workspace .online-order-card .online-order-top{order:1}
+#workspace .online-order-card .online-order-overview{order:2}
+#workspace .online-order-card .online-order-customer{order:3}
+#workspace .online-order-card .online-items-status-row{order:4}
+#workspace .online-order-card .online-order-total-row{order:5}
+#workspace .online-order-card .online-order-actions{order:6}
+#workspace .online-order-card{display:flex!important;flex-direction:column!important}
+#workspace .online-order-card .online-customer-label,
+#workspace .online-order-card .online-customer-data-label{display:block!important;font-size:11px!important;font-weight:800!important;letter-spacing:.04em!important;text-transform:uppercase!important;color:#626b7d!important;margin-bottom:4px!important}
+#workspace .online-order-card .online-customer-data-label{margin-top:9px!important}
+#workspace .online-order-card .online-order-payment-meta{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:6px!important;min-width:0!important}
+#workspace .online-order-card .online-order-payment-meta .online-status-title{display:block!important}
+#workspace .online-order-card .online-order-actions .online-status-block:first-child .online-status-title{display:block!important}
