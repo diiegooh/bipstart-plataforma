@@ -2276,3 +2276,35 @@ body.workspace-fullscreen #workspace .godzilla-pdv .pdv-sale-panel{
 @media(prefers-reduced-motion:reduce){
   body.workspace-fullscreen #workspace *{scroll-behavior:auto!important;transition-duration:0s!important}
 }
+
+
+/* Compactar cartões de pedidos online: menos padding e intervalos, mantendo legibilidade. */
+#workspace .online-order-card{border-radius:12px!important;box-shadow:0 3px 12px #253b740b!important}
+#workspace .online-order-top{padding:12px 15px 10px!important;gap:8px!important}
+#workspace .online-order-top h3{font-size:20px!important;line-height:1.2!important}
+#workspace .online-order-top small{font-size:11px!important}
+#workspace .online-order-section{padding:11px 15px!important}
+#workspace .online-order-section h4,
+#workspace .online-order-actions-heading{margin-bottom:8px!important;font-size:12px!important}
+#workspace .online-order-overview{padding-top:10px!important;padding-bottom:10px!important}
+#workspace .online-order-details{gap:7px 12px!important}
+#workspace .online-order-details>div{gap:2px!important}
+#workspace .online-order-items{padding:8px 0 0!important;gap:4px!important}
+#workspace .online-order-items h5{margin-bottom:5px!important}
+#workspace .online-order-items .online-order-item{padding:4px 0!important;gap:7px!important}
+#workspace .online-order-items .online-order-item>span,
+#workspace .online-order-items .online-order-item>strong{font-size:12px!important;line-height:1.3!important}
+#workspace .online-order-total-row{padding-top:8px!important;padding-bottom:8px!important}
+#workspace .online-order-actions{gap:8px!important;padding:11px 15px 13px!important}
+#workspace .online-status-block{padding:9px!important;gap:6px!important;border-radius:9px!important}
+#workspace .online-status-controls{gap:6px!important}
+#workspace .online-order-card .button,
+#workspace .online-order-card button{min-height:34px!important;padding:7px 10px!important;font-size:12px!important}
+#workspace .online-order-stats{gap:10px!important;margin:10px 0!important}
+#workspace .online-order-stats .tile{padding:11px!important}
+@media(max-width:700px){
+ #workspace .online-order-top{padding:11px 12px!important}
+ #workspace .online-order-section{padding:10px 12px!important}
+ #workspace .online-order-actions{padding:10px 12px 12px!important}
+ #workspace .online-order-card{gap:0!important}
+}
