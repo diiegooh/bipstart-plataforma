@@ -2856,3 +2856,8 @@ body.workspace-fullscreen #workspace .content{
 #workspace .online-order-card .online-order-status-under-items{order:7!important;display:block!important}
 #workspace .online-order-card .online-order-customer .online-customer-data-label{display:none!important}
 #workspace .online-order-card .online-order-customer h3{margin-top:0!important}
+
+#workspace .online-order-card .online-order-customer .online-customer-label,
+#workspace .online-order-card .online-order-customer .online-customer-data-label,
+#workspace .online-order-card .online-order-customer::before{display:none!important;content:none!important}
+#workspace .online-order-card .online-order-status-under-items{order:7!important}
