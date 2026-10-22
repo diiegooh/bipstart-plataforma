@@ -1492,7 +1492,7 @@ function renderPage(){
   }else if(tab==='vendas'){
     content=renderSalesReport();
   }else if(tab==='motoboys'){
-    content=heading('Motoboys • Plano Premium','Cadastre entregadores e defina o login pelo telefone e a senha individual.','<button class="button" data-new="courier">+ Novo motoboy</button>');
+    content=heading('Motoboys','Cadastre entregadores e defina o login pelo telefone e a senha individual.','<button class="button" data-new="courier">+ Novo motoboy</button>');
     content+='<p class="muted">O telefone cadastrado será usado para entrar no aplicativo do motoboy. Escolha uma senha no cadastro e compartilhe o link de login. O acesso é somente por usuário e senha cadastrados pelo responsável.</p>';
     content+=showForm?.kind==='courier'?courierForm(showForm.value):'';
     content+=couriers.length?'<div class="stack">'+couriers.map(c=>{
