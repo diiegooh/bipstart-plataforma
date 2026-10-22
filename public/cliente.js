@@ -1440,12 +1440,13 @@ function onlineOrderCard(order){
    '</div></div>':'')+
    (!awaiting&&(typeof proAccess==='function'&&proAccess()&&order.delivery_method==='delivery'&&!['cancelled','fulfilled'].includes(status)&&!deliveries.some(d=>d.online_order_id===order.id))?
     '<button type="button" class="ghost online-order-dispatch" data-online-delivery="'+esc(order.id)+'">🛵 Criar entrega para este pedido</button>':'')+
+   '</section>'+
   '<div class="online-order-status-under-items"><div class="online-status-block"><span class="online-status-title">Status do pedido</span><div class="online-status-controls">'+
    (orderOpen?((orderNext?'<button type="button" class="button online-advance" data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+(awaiting?'':' →')+'</button>':'')+
     (!awaiting?'<button type="button" class="button online-manual-finish" data-order-finish="'+esc(order.id)+'">'+esc(finishLabel)+'</button>':'') ):'<span class="online-status-end">'+(status==='cancelled'?'Pedido não aceito':'Pedido finalizado')+'</span>')+
    (orderOpen?'<button type="button" class="'+(awaiting?'button online-reject':'ghost online-cancel')+'" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar pedido')+'</button>':'')+
   '</div></div></div>'+
-  '</section></article>';
+  '</article>';
 }
 
 function courierAccessUrl(c,origin=location.origin){
