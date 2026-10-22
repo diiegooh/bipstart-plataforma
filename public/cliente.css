@@ -1317,3 +1317,52 @@ body.workspace-fullscreen .godzilla-pdv .pdv-finish{width:100%;background:linear
 body.workspace-fullscreen .godzilla-pdv .pdv-sale-empty{color:#898da6;background:#f8f9ff;border:1px dashed #dce1f2;border-radius:11px;padding:20px;text-align:center}
 @media(max-width:1000px){body.workspace-fullscreen .godzilla-pdv .pdv-two-panels{grid-template-columns:minmax(0,1fr)}body.workspace-fullscreen .godzilla-pdv .pdv-sale-panel{position:static}}
 @media(max-width:650px){body.workspace-fullscreen .content{padding:12px}body.workspace-fullscreen .godzilla-pdv .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr))}body.workspace-fullscreen .godzilla-pdv .pdv-filters{grid-template-columns:1fr}body.workspace-fullscreen .godzilla-pdv .pdv-filters button{grid-column:auto}}
+
+
+/* Correção de prioridade: o tema escuro legado do workspace não deve sobrescrever o PDV claro da homologação. */
+body.workspace-fullscreen #workspace .side,
+body.workspace-fullscreen #workspace .content{
+ background:#fff !important;
+ color:#252642 !important;
+ border:1px solid #e5e8f5 !important;
+ box-shadow:0 8px 26px #263b7a0b !important;
+}
+body.workspace-fullscreen #workspace .side{padding:14px !important}
+body.workspace-fullscreen #workspace .side nav button,
+body.workspace-fullscreen #workspace .side nav a{color:#626580 !important;background:transparent !important;border-color:transparent !important}
+body.workspace-fullscreen #workspace .side nav button.active,
+body.workspace-fullscreen #workspace .side nav a.active{background:#edf0ff !important;color:#3c46b5 !important;border-color:#e3e7ff !important}
+body.workspace-fullscreen #workspace .pdv-panel{
+ background:#fff !important;color:#292b4b !important;border:1px solid #e3e7f5 !important;
+ box-shadow:0 8px 24px #283c7c0a !important;
+}
+body.workspace-fullscreen #workspace .pdv-title h2,
+body.workspace-fullscreen #workspace .pdv-sale-head h2,
+body.workspace-fullscreen #workspace .pdv-list-head,
+body.workspace-fullscreen #workspace .pdv-product h3,
+body.workspace-fullscreen #workspace .pdv-product-info,
+body.workspace-fullscreen #workspace .pdv-sale-product,
+body.workspace-fullscreen #workspace .pdv-payment-form label{color:#292b4b !important}
+body.workspace-fullscreen #workspace .pdv-product{
+ background:#fff !important;color:#292b4b !important;border:1px solid #e0e5f4 !important;
+ box-shadow:0 3px 10px #2b397008 !important;
+}
+body.workspace-fullscreen #workspace .pdv-product-media{background:#f7f8ff !important}
+body.workspace-fullscreen #workspace .pdv-product .pdv-add,
+body.workspace-fullscreen #workspace .pdv-finish{
+ background:linear-gradient(100deg,#4f46e5,#8b35e8) !important;color:#fff !important;border:0 !important;
+}
+body.workspace-fullscreen #workspace .pdv-filters input,
+body.workspace-fullscreen #workspace .pdv-filters select,
+body.workspace-fullscreen #workspace .pdv-payment-form input{
+ background:#f8f9ff !important;color:#30314e !important;border:1px solid #e1e5f4 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-item,
+body.workspace-fullscreen #workspace .pdv-sale-empty{
+ background:#f8f9ff !important;color:#333550 !important;border:1px solid #e6e9f7 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total{color:#292b4b !important}
+body.workspace-fullscreen #workspace .pdv-payment-chip,
+body.workspace-fullscreen #workspace .pdv-card-kind{background:#f5f6ff !important;color:#555879 !important;border:1px solid #e2e5f5 !important}
+body.workspace-fullscreen #workspace .pdv-payment-chip.selected,
+body.workspace-fullscreen #workspace .pdv-card-kind.selected{background:#ecebff !important;color:#5140cb !important;border-color:#bdb8ff !important}
