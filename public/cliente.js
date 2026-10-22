@@ -141,6 +141,9 @@ function consumeAuthRedirect(){
   return params.get('type');
 }
 async function begin(){
+  // Clear visual state left by the legacy PDV before restoring the current workspace.
+  document.body.classList.remove('workspace-fullscreen','sidebar-open','receipt-open','include-products');
+  ['workspace','auth','setup','createShop','resetPass','accessGate'].forEach(id=>{const el=$(id);if(el)el.classList.add('hidden')});
   try{cfg=await fetch('/api/public-config',{cache:'no-store'}).then(r=>r.json());}catch{}
   if(!cfg?.enabled){hideAll();hiding('setup',true);return}
   setupSignupCaptcha();
