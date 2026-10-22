@@ -2807,3 +2807,15 @@ body.workspace-fullscreen #workspace .content{
  #workspace .online-order-card .online-order-actions .online-status-controls{flex-wrap:wrap!important}
  #workspace .online-order-card .online-status-controls button{flex:1 1 calc(50% - 8px)!important}
 }
+
+/* Status do pedido ao lado dos itens vendidos */
+#workspace .online-order-card .online-items-status-row{display:grid!important;grid-template-columns:minmax(0,1.4fr) minmax(190px,1fr)!important;align-items:stretch!important;gap:12px!important;margin:0 16px!important}
+#workspace .online-order-card .online-items-status-row .online-order-items{margin:0!important;min-width:0!important}
+#workspace .online-order-card .online-order-status-side{display:flex!important;flex-direction:column!important;justify-content:center!important;min-width:0!important;padding:12px!important;border:1px solid #e0e2e8!important;border-radius:14px!important;background:#f8f9fc!important}
+#workspace .online-order-card .online-order-status-side .online-status-title{display:block!important;font-size:12px!important;font-weight:800!important;color:#34394a!important}
+#workspace .online-order-card .online-order-status-side .online-status-controls{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important}
+#workspace .online-order-card .online-order-status-side .online-status-controls button{width:100%!important;min-width:0!important;flex:1 1 auto!important;min-height:38px!important;font-size:12px!important}
+@media(max-width:650px){
+ #workspace .online-order-card .online-items-status-row{grid-template-columns:minmax(0,1fr)!important;gap:8px!important;margin:0 10px!important}
+ #workspace .online-order-card .online-order-status-side{padding:10px!important}
+}
