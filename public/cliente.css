@@ -2781,3 +2781,29 @@ body.workspace-fullscreen #workspace .content{
 #workspace .online-order-card .online-status-controls button{flex:1 1 auto!important;width:100%!important;min-width:0!important;min-height:34px!important;padding:7px 8px!important;font-size:10px!important;white-space:normal!important}
 @media(max-width:1100px){#workspace .online-order-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important}}
 @media(max-width:650px){#workspace .online-order-list{grid-template-columns:minmax(0,1fr)!important;gap:15px!important}}
+
+
+/* Pedidos online: cabeçalho central, status lado a lado e ações compactas. */
+#workspace .online-order-card .online-order-top{justify-content:center!important;text-align:center!important;padding:16px 14px 5px!important;border:0!important;min-height:0!important}
+#workspace .online-order-card .online-order-identifier{width:100%!important;text-align:center!important}
+#workspace .online-order-card .online-order-top h3{font-size:22px!important;margin:0!important;color:#25294f!important}
+#workspace .online-order-card .online-order-top small{display:block!important;margin-top:5px!important;font-size:12px!important;color:#737887!important}
+#workspace .online-order-card .online-order-overview{display:flex!important;justify-content:center!important;align-items:center!important;flex-wrap:wrap!important;gap:8px!important;padding:7px 12px 14px!important;border:0!important}
+#workspace .online-order-card .online-order-overview>strong:first-child{font-size:11px!important;color:#60677b!important}
+#workspace .online-order-card .online-order-overview .online-state-pill{position:static!important;max-width:100%!important;font-size:11px!important}
+#workspace .online-order-card .online-order-customer{margin-bottom:12px!important}
+#workspace .online-order-card .online-order-items{margin-bottom:0!important}
+#workspace .online-order-card .online-order-payment-meta{display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:7px!important;padding:10px 12px 0!important;border:0!important}
+#workspace .online-order-card .online-order-total-row{border:0!important;border-top:0!important;margin-top:0!important;padding:12px 12px 13px!important;display:flex!important;align-items:baseline!important;justify-content:space-between!important}
+#workspace .online-order-card .online-order-actions{border:0!important;border-top:0!important;margin:0!important;padding:0 10px 12px!important;display:flex!important;flex-direction:column!important;gap:8px!important}
+#workspace .online-order-card .online-order-actions .online-status-block{display:block!important;min-width:0!important}
+#workspace .online-order-card .online-order-actions .online-status-title{display:none!important}
+#workspace .online-order-card .online-order-actions .online-status-controls{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:stretch!important;gap:8px!important;width:100%!important}
+#workspace .online-order-card .online-status-controls button{flex:1 1 0!important;width:auto!important;min-width:0!important;min-height:36px!important;padding:8px 6px!important;font-size:10px!important;white-space:normal!important;line-height:1.25!important}
+#workspace .online-order-card .online-status-controls .online-manual-finish{display:none!important}
+#workspace .online-order-card .online-status-end{display:inline-flex!important;align-items:center!important;min-height:30px!important;font-size:11px!important;color:#4f5870!important}
+#workspace .online-order-card .online-order-actions .online-order-dispatch{width:100%!important}
+@media(max-width:650px){
+ #workspace .online-order-card .online-order-actions .online-status-controls{flex-wrap:wrap!important}
+ #workspace .online-order-card .online-status-controls button{flex:1 1 calc(50% - 8px)!important}
+}
