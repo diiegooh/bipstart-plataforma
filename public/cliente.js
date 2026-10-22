@@ -1422,7 +1422,8 @@ function onlineOrderCard(order){
   '<div class="online-order-overview"><strong>'+esc(order.delivery_method==='delivery'?'Entrega':'Retirada na loja')+'</strong>'+
    '<strong class="online-state-pill'+(status==='cancelled'?' is-cancelled':status==='fulfilled'?' is-done':'')+'">'+esc(label[status])+'</strong></div>'+
   '<section class="online-order-section online-order-customer" aria-label="Dados do cliente">'+
-   '<h3>'+esc(order.customer_name)+'</h3>'+
+   '<span class="online-customer-label">Cliente</span><h3>'+esc(order.customer_name)+'</h3>'+
+   '<span class="online-customer-data-label">Dados do cliente</span>'+
    '<div class="online-order-details"><strong class="online-phone-line">'+phoneUri+' '+contact+'</strong></div>'+
    (order.delivery_method==='delivery'?'<p class="online-order-address"><strong>📍 Endereço:</strong> '+esc(order.delivery_address||'Não informado')+'</p>':'')+
   '</section>'+
