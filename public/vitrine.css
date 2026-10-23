@@ -1088,3 +1088,9 @@ body.round-menu{
  .round-menu .store-header .store-logo-custom{flex-basis:42px!important;width:42px!important;height:42px!important}
  .round-menu .store-header .header-title h1{font-size:clamp(15px,4vw,21px)!important}
 }
+
+
+/* Ajuste final do cabeçalho e do painel de opções */
+.round-menu .store-header .header-title h1{display:block!important;visibility:visible!important;opacity:1!important}
+.round-menu .store-options-panel{position:absolute!important;top:76px!important;right:12px!important;left:auto!important;z-index:20!important;width:min(360px,calc(100vw - 24px))!important}
+.round-menu .store-options-panel.hidden{display:none!important}
