@@ -1160,3 +1160,20 @@ body.round-menu{
  .round-menu .onlinecart .cart-item-detail{font-size:13px!important;color:#4f456d!important}
  .round-menu .onlinecart label{color:#51466f!important}
 }
+
+
+/* Botão de retorno à loja no topo do checkout */
+.round-menu .cart-header-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;flex:0 0 auto!important}
+.round-menu .return-store-btn{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:38px!important;padding:8px 12px!important;border:1px solid #d7ccfa!important;
+ border-radius:999px!important;background:#f2edff!important;color:#4f22b8!important;
+ font-size:13px!important;font-weight:800!important;white-space:nowrap!important;cursor:pointer!important;
+}
+.round-menu .return-store-btn:focus-visible{outline:2px solid #7138f4!important;outline-offset:2px!important}
+@media(max-width:420px){
+ .round-menu .onlinecart .modalhead{align-items:center!important;gap:6px!important}
+ .round-menu .cart-header-actions{gap:4px!important}
+ .round-menu .return-store-btn{font-size:12px!important;padding:7px 9px!important;min-height:35px!important}
+ .round-menu .onlinecart .modalhead h2{font-size:23px!important}
+}
