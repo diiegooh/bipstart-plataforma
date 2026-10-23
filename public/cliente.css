@@ -3363,3 +3363,41 @@ body.workspace-fullscreen #workspace .content{
 #page .menu-settings textarea {background:#fff!important;color:#111827!important;border-color:#cbd5e1!important}
 #page .menu-category-line {background:#f8fafc!important;color:#202938!important;border-color:#d5dce5!important}
 #page .menu-category-line small {color:#475569!important}
+
+
+/* Correção global dos cards internos de Configurações — sem depender do #workspace */
+#settingsForm .menu-settings .menu-payments,
+#settingsForm .menu-settings .menu-logo-editor,
+#settingsForm .menu-settings .menu-layout-settings,
+#settingsForm .menu-settings .receipt-settings-panel,
+#settingsForm .menu-settings .category-image-settings,
+#settingsForm .menu-settings .category-image-setting-row,
+#settingsForm .menu-settings .menu-editor-panel,
+#settingsForm .menu-settings .menu-layout-subtitle,
+#settingsForm .menu-settings .menu-layout-fields,
+#settingsForm .menu-settings .menu-logo-editor form,
+#settingsForm .menu-settings .category-image-settings-list,
+#settingsForm .menu-settings .category-image-settings-list > *,
+#settingsForm .menu-settings .receipt-settings-fields,
+#settingsForm .menu-settings .menu-logo-editor-heading,
+#settingsForm .menu-settings .menu-category-list,
+#settingsForm .menu-settings .menu-price-controls,
+#settingsForm .menu-settings .online-sale-price {
+  background:#fff!important;background-image:none!important;color:#1f2937!important;
+  border-color:#d1d5db!important;box-shadow:none!important;
+}
+#settingsForm .menu-settings .menu-payments *,
+#settingsForm .menu-settings .menu-logo-editor *,
+#settingsForm .menu-settings .menu-layout-settings *,
+#settingsForm .menu-settings .receipt-settings-panel *,
+#settingsForm .menu-settings .category-image-settings *,
+#settingsForm .menu-settings .category-image-setting-row *,
+#settingsForm .menu-settings .menu-editor-panel * { color:#1f2937!important; }
+#settingsForm .menu-settings input:not([type=checkbox]):not([type=radio]):not([type=color]),
+#settingsForm .menu-settings select,
+#settingsForm .menu-settings textarea,
+#settingsForm .menu-settings input[type=file] {
+ background:#fff!important;background-image:none!important;color:#111827!important;border-color:#cbd5e1!important;
+}
+#settingsForm .menu-settings input[type=checkbox],#settingsForm .menu-settings input[type=radio]{accent-color:#6d28d9!important}
+#settingsForm .menu-settings button:not(.button),#settingsForm .menu-settings .category-image-actions button {background:#f3f4f6!important;color:#1f2937!important;border-color:#d1d5db!important}
