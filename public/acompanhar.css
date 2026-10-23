@@ -12,3 +12,10 @@
 
 
 .tracking-cancelled-message{margin:12px 0;padding:16px;border:1px solid #dc6576;border-radius:12px;background:#3b1720;color:#ffe1e5;font-weight:750;line-height:1.5;text-align:center}
+
+
+/* Cabeçalho de acompanhamento com a marca da loja, sem subtítulo */
+.brand-head{gap:12px;margin-bottom:24px}
+.brand-head strong{font-size:clamp(22px,4vw,28px);font-weight:850;line-height:1.2;color:#fff;overflow-wrap:anywhere}
+.brand-mark{background:linear-gradient(135deg,#a66bff,#7138f4);color:#fff;border-radius:14px;box-shadow:0 5px 18px #7138f433}
+@media(max-width:420px){.brand-head{margin-bottom:18px}.brand-head strong{font-size:23px}}
