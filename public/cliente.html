@@ -9,7 +9,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=100">
+<link rel="stylesheet" href="/cliente.css?v=101">
 <link rel="stylesheet" href="/cliente-area.css?v=2">
 <link rel="stylesheet" href="/login.css?v=3">
 <style id="bipstart-login-theme">
@@ -64,9 +64,76 @@ body.day-mode .auth-card .switch button{color:#746785!important}
 body.day-mode .auth-card .switch button.selected{background:#7044d6!important;color:#fff!important}
 body.day-mode .product-card,body.day-mode .order-card,body.day-mode .sale-card,body.day-mode .list-card{background:#fff!important;color:#2b2140!important;border-color:#e1d8ed!important}
 @media(max-width:600px){.theme-toggle{font-size:12px;padding:8px 10px}.top{flex-wrap:wrap}.top nav{margin-left:auto}}
+
+/* Correção do tema claro: cobre componentes com fundos definidos diretamente no CSS base. */
+body.day-mode #workspace .content,
+body.day-mode #workspace .side,
+body.day-mode #workspace .pdv-panel,
+body.day-mode #workspace .menu-editor-panel,
+body.day-mode #workspace .category-image-settings,
+body.day-mode #workspace .data-form,
+body.day-mode #workspace .cart,
+body.day-mode #workspace .item,
+body.day-mode #workspace .tile,
+body.day-mode #workspace .empty,
+body.day-mode #workspace .menu-category-line,
+body.day-mode #workspace .category-image-setting-row,
+body.day-mode #workspace .pdv-best-sellers,
+body.day-mode #workspace .pdv-best-seller,
+body.day-mode #workspace .product-best-seller-option,
+body.day-mode #workspace .menu-editor-meta button,
+body.day-mode #workspace .menu-editor-items .item,
+body.day-mode #workspace .cart .item,
+body.day-mode #workspace .receipt-dialog,
+body.day-mode #workspace .modal,
+body.day-mode #workspace .panel {
+  background:#fff!important;
+  background-image:none!important;
+  color:#2b2140!important;
+  border-color:#ded6ea!important;
+  box-shadow:0 6px 22px #33204d0a!important;
+}
+body.day-mode #workspace .content *,
+body.day-mode #workspace .side *,
+body.day-mode #workspace .pdv-panel *,
+body.day-mode #workspace .menu-editor-panel *,
+body.day-mode #workspace .data-form *,
+body.day-mode #workspace .item *,
+body.day-mode #workspace .tile *,
+body.day-mode #workspace .cart *,
+body.day-mode #workspace .menu-category-line *,
+body.day-mode #workspace .category-image-setting-row * { color:inherit; }
+body.day-mode #workspace .muted,
+body.day-mode #workspace small,
+body.day-mode #workspace .side nav button,
+body.day-mode #workspace .side button:not(.active):not(.theme-toggle) { color:#71677f!important; }
+body.day-mode #workspace .side button.active,
+body.day-mode #workspace .nav-item.active,
+body.day-mode #workspace #nav button.active { background:#eee6ff!important;color:#5b3ca0!important;border-color:#d8c8f4!important; }
+body.day-mode #workspace .button,
+body.day-mode #workspace button.button { background:#7044d6!important;background-image:none!important;color:#fff!important;border-color:#7044d6!important; }
+body.day-mode #workspace .ghost,
+body.day-mode #workspace .side-action,
+body.day-mode #workspace .side-toggle,
+body.day-mode #workspace .item button { background:#f5f0fc!important;color:#55378d!important;border-color:#ddd0f0!important; }
+body.day-mode #workspace input:not([type=checkbox]):not([type=radio]),
+body.day-mode #workspace select,
+body.day-mode #workspace textarea { background:#fff!important;color:#2b2140!important;border-color:#d7cce5!important; }
+body.day-mode #workspace input::placeholder,
+body.day-mode #workspace textarea::placeholder { color:#91869f!important; }
+body.day-mode #workspace .price,
+body.day-mode #workspace .pill,
+body.day-mode #workspace .pdv-title p,
+body.day-mode #workspace .pdv-best-sellers-title strong,
+body.day-mode #workspace .pdv-best-sellers-title small,
+body.day-mode #workspace .pdv-best-seller-text small,
+body.day-mode #workspace .product-best-seller-option strong,
+body.day-mode #workspace .product-best-seller-option small { color:#5b3ca0!important; }
+body.day-mode #workspace .side-actions-row .theme-toggle { background:#f0e9ff!important;color:#5b3ca0!important;border-color:#d8c8f4!important; }
+
 </style>
 <script id="bipstart-theme-controller">
-(()=>{const key='bipstart_theme_mode';const apply=mode=>{document.body.classList.toggle('day-mode',mode==='day');const b=document.getElementById('themeToggle');if(b){b.textContent=mode==='day'?'🌙 Modo noite':'☀️ Modo dia';b.setAttribute('aria-pressed',String(mode==='day'));b.title=mode==='day'?'Mudar para modo noite':'Mudar para modo dia';}};let mode='night';try{mode=localStorage.getItem(key)==='day'?'day':'night'}catch{};document.addEventListener('DOMContentLoaded',()=>apply(mode));document.addEventListener('click',e=>{const b=e.target.closest('#themeToggle');if(!b)return;mode=mode==='day'?'night':'day';try{localStorage.setItem(key,mode)}catch{};apply(mode)});})();
+(()=>{const key='bipstart_theme_mode';let mode='night';const apply=()=>{document.body.classList.toggle('day-mode',mode==='day');const b=document.getElementById('themeToggle');if(b){b.textContent=mode==='day'?'🌙 Modo noite':'☀️ Modo dia';b.setAttribute('aria-pressed',String(mode==='day'));b.title=mode==='day'?'Mudar para modo noite':'Mudar para modo dia';}};try{mode=localStorage.getItem(key)==='day'?'day':'night'}catch{};const init=()=>{apply();const b=document.getElementById('themeToggle');if(b&&!b.dataset.themeReady){b.dataset.themeReady='1';b.addEventListener('click',()=>{mode=mode==='day'?'night':'day';try{localStorage.setItem(key,mode)}catch{};apply();});}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();})();
 </script>
 </head>
 <body>
