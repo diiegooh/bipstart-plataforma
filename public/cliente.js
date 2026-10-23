@@ -1525,7 +1525,20 @@ async function confirmStockImport(){
   const key=r.name.trim().toLocaleLowerCase('pt-BR')+'|'+r.category.trim().toLocaleLowerCase('pt-BR');
   if(existing.has(key)||seen.has(key))continue;
   seen.add(key);
-  toInsert.push({shop_id:shop.id,name:r.name,category:r.category,price:r.price,cost:r.cost,stock:r.stock,min_stock:r.min_stock,image_path:r.image_path,is_best_seller:false,online_enabled:false,menu_price_enabled:false,menu_price:null});
+  let image_path=null;
+  if(r.image_path){
+   try{
+    const imageResponse=await fetch(r.image_path);
+    if(imageResponse.ok){
+     const blob=await imageResponse.blob();
+     if(['image/jpeg','image/png','image/webp'].includes(blob.type)&&blob.size<=5*1024*1024){
+      const file=new File([blob],(r.name||'produto').replace(/[^a-z0-9_-]/gi,'_')+'.'+({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[blob.type]),{type:blob.type});
+      image_path=await uploadImage(file);
+     }
+    }
+   }catch(error){console.warn('Foto não importada para '+r.name+':',error.message);}
+  }
+  toInsert.push({shop_id:shop.id,name:r.name,category:r.category,price:r.price,cost:r.cost,stock:r.stock,min_stock:r.min_stock,image_path,is_best_seller:false,online_enabled:false,menu_price_enabled:false,menu_price:null});
  }
  if(!toInsert.length)throw Error('Todos os produtos válidos já existem nesta loja. Nenhum item foi duplicado.');
  stockImportBusy=true;renderPage();
