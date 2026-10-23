@@ -3184,3 +3184,20 @@ body.workspace-fullscreen #workspace .content{
   padding:6px 5px!important;font-size:10px!important;white-space:normal!important;
  }
 }
+
+
+/* Meu plano: fundo branco e contraste legível */
+#workspace .plan-management{
+ background:#fff!important;
+ border:1px solid #e2e8f0!important;
+ color:#1f2937!important;
+ box-shadow:0 2px 8px rgba(15,23,42,.05)!important;
+}
+#workspace .plan-management h3,
+#workspace .plan-management p,
+#workspace .plan-management p strong{
+ color:#1f2937!important;
+}
+#workspace .plan-management .plan-management-pending{
+ color:#166534!important;
+}
