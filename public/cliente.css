@@ -3462,3 +3462,109 @@ body.workspace-fullscreen #workspace .content{
 #settingsForm input[type="radio"] {
   accent-color: #6d28d9 !important;
 }
+
+
+/* Homologação: atualizar login/cadastro para a identidade branca e lilás da BipStart. */
+body:has(#auth:not(.hidden)){
+  background:
+    radial-gradient(ellipse at 14% 15%,rgba(139,92,246,.12),transparent 36%),
+    linear-gradient(135deg,#f8f7ff 0%,#f1edff 52%,#fbfaff 100%) !important;
+  color:#252746 !important;
+}
+body:has(#auth:not(.hidden)) .topbar{
+  background:rgba(255,255,255,.92)!important;
+  border-bottom:1px solid #e8e2fb!important;
+  box-shadow:0 4px 22px rgba(64,43,120,.06)!important;
+  backdrop-filter:blur(12px);
+}
+body:has(#auth:not(.hidden)) .topbar a,
+body:has(#auth:not(.hidden)) .topbar button{color:#5141a5!important}
+body:has(#auth:not(.hidden)) .shell{max-width:1240px!important;padding:44px 26px 64px!important}
+body:has(#auth:not(.hidden)) .auth-grid{
+  grid-template-columns:minmax(0,1fr) minmax(390px,470px)!important;
+  gap:clamp(34px,6vw,88px)!important;
+  margin-top:clamp(24px,5vh,64px)!important;
+  align-items:center!important;
+}
+body:has(#auth:not(.hidden)) .auth-copy{max-width:650px!important}
+body:has(#auth:not(.hidden)) .auth-copy .kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 12px;border:1px solid #e2d8ff;border-radius:999px;
+  background:#fff;color:#7650d8!important;font-size:11px;letter-spacing:.13em;
+}
+body:has(#auth:not(.hidden)) .auth-copy h1{
+  margin:18px 0 18px!important;color:#242344!important;
+  font-size:clamp(38px,4.2vw,58px)!important;line-height:1.08!important;
+  letter-spacing:-.045em!important;font-weight:850!important;
+}
+body:has(#auth:not(.hidden)) .auth-copy em{color:#8054e8!important}
+body:has(#auth:not(.hidden)) .auth-copy p{
+  color:#555777!important;font-size:17px!important;line-height:1.75!important;
+  max-width:590px;
+}
+body:has(#auth:not(.hidden)) .auth-copy p.muted{color:#777895!important;font-size:15px!important}
+body:has(#auth:not(.hidden)) .auth-card{
+  box-sizing:border-box;width:100%!important;max-width:470px!important;
+  padding:30px!important;border:1px solid #e4dcfa!important;border-radius:24px!important;
+  background:rgba(255,255,255,.94)!important;
+  box-shadow:0 24px 70px rgba(77,54,145,.13)!important;
+  color:#292747!important;
+}
+body:has(#auth:not(.hidden)) .switch{
+  background:#f1edfc!important;border:1px solid #e8e0fb!important;
+  border-radius:13px!important;padding:5px!important;margin-bottom:26px!important;
+}
+body:has(#auth:not(.hidden)) .switch button{
+  min-height:46px!important;color:#696184!important;font-weight:750!important;
+  border-radius:10px!important;transition:background .15s,color .15s,box-shadow .15s;
+}
+body:has(#auth:not(.hidden)) .switch button.selected{
+  background:linear-gradient(110deg,#6840d7,#8b5cf6)!important;color:#fff!important;
+  box-shadow:0 5px 14px rgba(108,64,215,.24)!important;
+}
+body:has(#auth:not(.hidden)) #loginForm h2,
+body:has(#auth:not(.hidden)) #signupForm h2{
+  color:#282544!important;font-size:25px!important;letter-spacing:-.025em!important;
+  margin:0 0 22px!important;
+}
+body:has(#auth:not(.hidden)) #loginForm label,
+body:has(#auth:not(.hidden)) #signupForm label{
+  display:block;color:#454260!important;font-weight:750!important;font-size:13px!important;
+  margin:0 0 16px!important;
+}
+body:has(#auth:not(.hidden)) #loginForm input,
+body:has(#auth:not(.hidden)) #signupForm input{
+  display:block;box-sizing:border-box;width:100%!important;min-height:49px!important;
+  margin-top:8px!important;padding:12px 14px!important;border:1px solid #dcd5ef!important;
+  border-radius:11px!important;background:#fbfaff!important;color:#24233f!important;
+  font-size:15px!important;box-shadow:inset 0 1px 2px rgba(35,25,70,.025)!important;
+}
+body:has(#auth:not(.hidden)) #loginForm input:focus,
+body:has(#auth:not(.hidden)) #signupForm input:focus{
+  outline:none!important;border-color:#9875ef!important;background:#fff!important;
+  box-shadow:0 0 0 4px rgba(139,92,246,.13)!important;
+}
+body:has(#auth:not(.hidden)) #loginForm .button,
+body:has(#auth:not(.hidden)) #signupForm .button{
+  min-height:48px!important;padding:12px 21px!important;border:0!important;
+  border-radius:11px!important;background:linear-gradient(110deg,#6840d7,#8b5cf6)!important;
+  color:#fff!important;font-weight:800!important;box-shadow:0 8px 18px rgba(108,64,215,.2)!important;
+}
+body:has(#auth:not(.hidden)) #loginForm .text-button,
+body:has(#auth:not(.hidden)) #signupForm .text-button{
+  color:#7650d8!important;font-weight:700!important;
+}
+body:has(#auth:not(.hidden)) #loginForm .muted,
+body:has(#auth:not(.hidden)) #signupForm .muted{color:#77758f!important}
+@media(max-width:850px){
+ body:has(#auth:not(.hidden)) .shell{padding:24px 16px 44px!important}
+ body:has(#auth:not(.hidden)) .auth-grid{grid-template-columns:minmax(0,1fr)!important;gap:24px!important;margin-top:12px!important}
+ body:has(#auth:not(.hidden)) .auth-copy h1{font-size:clamp(34px,8vw,46px)!important}
+ body:has(#auth:not(.hidden)) .auth-copy p{font-size:15px!important}
+ body:has(#auth:not(.hidden)) .auth-card{max-width:560px!important;margin:0 auto;padding:23px!important}
+}
+@media(max-width:430px){
+ body:has(#auth:not(.hidden)) .auth-card{padding:18px!important;border-radius:18px!important}
+ body:has(#auth:not(.hidden)) #loginForm h2,
+ body:has(#auth:not(.hidden)) #signupForm h2{font-size:22px!important}
+}
