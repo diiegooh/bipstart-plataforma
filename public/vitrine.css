@@ -1177,3 +1177,40 @@ body.round-menu{
  .round-menu .return-store-btn{font-size:12px!important;padding:7px 9px!important;min-height:35px!important}
  .round-menu .onlinecart .modalhead h2{font-size:23px!important}
 }
+
+
+/* Cabeçalho do cardápio: nome centralizado e um pouco mais abaixo */
+.round-menu .store-header{
+ position:relative!important;display:flex!important;align-items:center!important;
+ justify-content:space-between!important;min-height:92px!important;height:auto!important;
+ padding:12px 16px!important;
+}
+.round-menu .store-header .header-title{
+ position:static!important;display:block!important;flex:1 1 auto!important;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ height:100%!important;text-align:center!important;
+}
+.round-menu .store-header .header-title h1{
+ position:absolute!important;left:50%!important;top:50%!important;
+ transform:translate(-50%,-35%)!important;
+ width:calc(100% - 150px)!important;max-width:620px!important;
+ margin:12px 0 0!important;padding:0!important;text-align:center!important;
+ font-size:clamp(22px,4vw,32px)!important;line-height:1.15!important;
+}
+.round-menu .store-header .menu-hero-logo-card{
+ position:absolute!important;left:16px!important;top:50%!important;
+ transform:translateY(-50%)!important;order:initial!important;
+}
+.round-menu .store-header .store-options-button{
+ position:absolute!important;right:16px!important;top:50%!important;
+ transform:translateY(-50%)!important;grid-column:auto!important;grid-row:auto!important;
+}
+@media(max-width:650px){
+ .round-menu .store-header{min-height:84px!important;padding:10px 12px!important}
+ .round-menu .store-header .menu-hero-logo-card{left:12px!important}
+ .round-menu .store-header .store-options-button{right:12px!important}
+ .round-menu .store-header .header-title h1{
+  width:calc(100% - 132px)!important;transform:translate(-50%,-25%)!important;
+  margin:12px 0 0!important;font-size:clamp(19px,5vw,26px)!important;
+ }
+}
