@@ -314,6 +314,7 @@ $('category').addEventListener('change',renderProducts);
 $('shipping').addEventListener('change',renderCart);
 $('openCart').addEventListener('click',openCart);
 $('closeCart').addEventListener('click',closeCart);
+$('returnToStore').addEventListener('click',()=>{closeCart();window.scrollTo({top:0,behavior:'smooth'});});
 $('cartBackdrop').addEventListener('click',closeCart);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('cartDrawer').classList.contains('show'))closeCart();});
 $('showAll').addEventListener('click',()=>{$('search').value='';filterCategory('');});
