@@ -28,7 +28,7 @@ const hiding=(id,on)=>{
 function msg(t,error=false){const box=$('toast');box.textContent=t;box.style.borderColor=error?'#e9768d':'#8052ce';box.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.add('hidden'),5500)}
 function status(t){const box=$('notice');box.textContent=t;box.classList.remove('hidden')}
 function formVal(form){return Object.fromEntries(new FormData(form).entries())}
-function parseMoneyInput(value){const raw=String(value??'').trim().replace(/\s/g,'');if(!raw)return NaN;const normalized=raw.includes(',')?raw.replace(/\\./g,'').replace(',','.'):raw;return Number(normalized)}
+function parseMoneyInput(value){const raw=String(value??'').trim().replace(/\s/g,'');if(!raw)return NaN;const normalized=raw.includes(',')?raw.replace(/\./g,'').replace(',','.'):raw;return Number(normalized)}
 function qs(table,search={}){
   const url=new URL(cfg.supabaseUrl+'/rest/v1/'+table);
   for(const [k,v] of Object.entries(search))url.searchParams.set(k,v);
@@ -1447,7 +1447,7 @@ function importHeaderKey(value){
 function importNumber(value,defaultValue=0){
  if(value===null||value===undefined||String(value).trim()==='')return defaultValue;
  if(typeof value==='number')return value;
- let v=String(value).trim().replace(/\\s/g,'');
+ let v=String(value).trim().replace(/\s/g,'');
  if(v.includes(','))v=v.replace(/\\./g,'').replace(',','.');
  const n=Number(v);return Number.isFinite(n)?n:NaN;
 }
@@ -1509,7 +1509,7 @@ function parseDelimitedImport(text,delimiter){
   if(ch==='"'&&quoted&&text[i+1]==='"'){cell+='"';i++;}
   else if(ch==='"')quoted=!quoted;
   else if(ch===delimiter&&!quoted){row.push(cell.trim());cell='';}
-  else if((ch==='\n'||ch==='\r')&&!quoted){if(ch==='\\r'&&text[i+1]==='\n')i++;row.push(cell.trim());if(row.some(v=>v!==''))rows.push(row);row=[];cell='';}
+  else if((ch==='\n'||ch==='\r')&&!quoted){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cell.trim());if(row.some(v=>v!==''))rows.push(row);row=[];cell='';}
   else cell+=ch;
  }
  if(cell!==''||row.length){row.push(cell.trim());if(row.some(v=>v!==''))rows.push(row);}
