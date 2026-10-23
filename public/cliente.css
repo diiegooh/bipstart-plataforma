@@ -3401,3 +3401,64 @@ body.workspace-fullscreen #workspace .content{
 }
 #settingsForm .menu-settings input[type=checkbox],#settingsForm .menu-settings input[type=radio]{accent-color:#6d28d9!important}
 #settingsForm .menu-settings button:not(.button),#settingsForm .menu-settings .category-image-actions button {background:#f3f4f6!important;color:#1f2937!important;border-color:#d1d5db!important}
+
+
+/* Ajuste definitivo: cards de Configurações da loja, independente do nível no formulário */
+#settingsForm .menu-settings,
+#settingsForm .menu-payments,
+#settingsForm .menu-logo-settings,
+#settingsForm .menu-logo-editor,
+#settingsForm .menu-layout-settings,
+#settingsForm .receipt-settings-panel,
+#settingsForm .category-image-settings,
+#settingsForm .category-image-setting-row,
+#settingsForm .category-image-settings-list,
+#settingsForm .menu-editor-panel,
+#settingsForm .menu-layout-fields,
+#settingsForm .menu-layout-subtitle,
+#settingsForm .receipt-settings-fields,
+#settingsForm .menu-price-controls,
+#settingsForm .online-sale-price,
+#settingsForm .menu-category-list,
+#settingsForm .menu-category-line,
+#settingsForm .category-image-setting-info {
+  background: #fff !important;
+  background-color: #fff !important;
+  background-image: none !important;
+  color: #1f2937 !important;
+  border-color: #d1d5db !important;
+  box-shadow: none !important;
+}
+#settingsForm .menu-settings *,
+#settingsForm .menu-payments *,
+#settingsForm .menu-logo-settings *,
+#settingsForm .menu-logo-editor *,
+#settingsForm .menu-layout-settings *,
+#settingsForm .receipt-settings-panel *,
+#settingsForm .category-image-settings *,
+#settingsForm .category-image-setting-row *,
+#settingsForm .category-image-settings-list *,
+#settingsForm .menu-editor-panel *,
+#settingsForm .menu-price-controls *,
+#settingsForm .online-sale-price *,
+#settingsForm .menu-category-list *,
+#settingsForm .menu-category-line * {
+  color: #1f2937 !important;
+}
+#settingsForm input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+#settingsForm select,
+#settingsForm textarea {
+  background-color: #fff !important;
+  color: #111827 !important;
+  border-color: #cbd5e1 !important;
+}
+#settingsForm .menu-settings button,
+#settingsForm .category-image-actions button,
+#settingsForm .menu-editor-panel .button,
+#settingsForm .settings-save-button {
+  color: #fff !important;
+}
+#settingsForm input[type="checkbox"],
+#settingsForm input[type="radio"] {
+  accent-color: #6d28d9 !important;
+}
