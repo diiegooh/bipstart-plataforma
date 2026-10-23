@@ -1214,3 +1214,28 @@ body.round-menu{
   margin:12px 0 0!important;font-size:clamp(19px,5vw,26px)!important;
  }
 }
+
+
+/* Cabeçalho compacto: barra com altura rente à logo */
+.round-menu .store-header{
+ min-height:66px!important;height:66px!important;
+ padding:4px 16px!important;
+}
+.round-menu .store-header .menu-hero-logo-card{
+ width:54px!important;height:54px!important;left:12px!important;
+}
+.round-menu .store-header .store-logo,
+.round-menu .store-header .store-logo-custom{
+ width:54px!important;height:54px!important;
+}
+.round-menu .store-header .header-title h1{
+ margin:4px 0 0!important;
+}
+@media(max-width:650px){
+ .round-menu .store-header{min-height:60px!important;height:60px!important;padding:3px 12px!important}
+ .round-menu .store-header .menu-hero-logo-card{width:48px!important;height:48px!important;left:8px!important}
+ .round-menu .store-header .store-logo,
+ .round-menu .store-header .store-logo-custom{width:48px!important;height:48px!important}
+ .round-menu .store-header .store-options-button{right:8px!important}
+ .round-menu .store-header .header-title h1{margin:4px 0 0!important}
+}
