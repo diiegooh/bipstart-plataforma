@@ -33,9 +33,44 @@ body:has(#auth:not(.hidden)) .auth-card .button{background:#7044d6!important;col
 body:has(#auth:not(.hidden)) .auth-card .text-button{color:#7044d6!important}
 @media(max-width:800px){body:has(#auth:not(.hidden)) #auth{grid-template-columns:1fr!important;gap:28px!important}body:has(#auth:not(.hidden)) .shell{padding:30px 16px!important}body:has(#auth:not(.hidden)) .auth-card{padding:22px!important}}
 </style>
+
+<style id="bipstart-day-night-theme">
+.theme-toggle{border:1px solid #6d5292;background:#211437;color:#f6f2ff;border-radius:999px;padding:9px 13px;font-weight:750;white-space:nowrap}
+body.day-mode{--bg:#f5f3fa;--panel:#fff;--panel2:#eee8f8;--line:#ded6ea;--accent:#7044d6;--text:#2b2140;--muted:#71677f;--ok:#13865e;--danger:#c63755;background:#f5f3fa!important;color:#2b2140!important}
+body.day-mode .top{background:#fff!important;border-color:#e3dcec!important;color:#2b2140!important}
+body.day-mode .top nav a,body.day-mode .brand{color:#5b3ca0!important}
+body.day-mode .theme-toggle{background:#f0e9ff;color:#5b3ca0;border-color:#d8c8f4}
+body.day-mode .side{background:#fff!important;color:#2b2140!important;border-color:#e1d8ed!important}
+body.day-mode .side-store,body.day-mode .side-actions{border-color:#e1d8ed!important}
+body.day-mode .content,body.day-mode .dashboard,body.day-mode .shell{color:#2b2140}
+body.day-mode .card,body.day-mode .auth-card,body.day-mode .receipt-dialog,body.day-mode .modal,.day-mode .panel,.day-mode .stat-card{background:#fff!important;color:#2b2140!important;border-color:#e1d8ed!important;box-shadow:0 8px 26px #33204d0b!important}
+body.day-mode .card *,body.day-mode .side *,body.day-mode .content *,body.day-mode .receipt-dialog *{--text:#2b2140}
+body.day-mode h1,body.day-mode h2,body.day-mode h3,body.day-mode label,body.day-mode strong,body.day-mode legend,body.day-mode .muted,body.day-mode p,body.day-mode .small{color:inherit}
+body.day-mode .muted,body.day-mode .small{color:#71677f!important}
+body.day-mode input:not([type=checkbox]):not([type=radio]),body.day-mode select,body.day-mode textarea{background:#fff!important;color:#2b2140!important;border-color:#d7cce5!important}
+body.day-mode input::placeholder,body.day-mode textarea::placeholder{color:#91869f!important}
+body.day-mode table,body.day-mode thead,body.day-mode tbody,body.day-mode tr,body.day-mode td,body.day-mode th{color:#2b2140}
+body.day-mode th,body.day-mode td{border-color:#e5deee!important}
+body.day-mode .ghost,body.day-mode .side-action,body.day-mode .side-toggle{background:#f5f0fc!important;color:#55378d!important;border-color:#ddd0f0!important}
+body.day-mode .nav-item,body.day-mode #nav button{color:#554568}
+body.day-mode .nav-item.active,body.day-mode #nav button.active{background:#eee6ff!important;color:#5b3ca0!important}
+body.day-mode .button,body.day-mode button.button{background:#7044d6!important;color:#fff!important;border-color:#7044d6!important}
+body.day-mode .notice,body.day-mode .toast{background:#fff!important;color:#2b2140!important;border-color:#d7c8ee!important}
+body.day-mode .receipt-overlay,body.day-mode .modal-overlay{background:#251a3a80!important}
+body.day-mode .auth-copy h1,body.day-mode .auth-card h2,body.day-mode .auth-card label{color:#2b2140!important}
+body.day-mode .auth-card input:not([type=checkbox]):not([type=radio]){background:#fff!important;color:#2b2140!important}
+body.day-mode .auth-card .switch{background:#f4f0fb!important}
+body.day-mode .auth-card .switch button{color:#746785!important}
+body.day-mode .auth-card .switch button.selected{background:#7044d6!important;color:#fff!important}
+body.day-mode .product-card,body.day-mode .order-card,body.day-mode .sale-card,body.day-mode .list-card{background:#fff!important;color:#2b2140!important;border-color:#e1d8ed!important}
+@media(max-width:600px){.theme-toggle{font-size:12px;padding:8px 10px}.top{flex-wrap:wrap}.top nav{margin-left:auto}}
+</style>
+<script id="bipstart-theme-controller">
+(()=>{const key='bipstart_theme_mode';const apply=mode=>{document.body.classList.toggle('day-mode',mode==='day');const b=document.getElementById('themeToggle');if(b){b.textContent=mode==='day'?'🌙 Modo noite':'☀️ Modo dia';b.setAttribute('aria-pressed',String(mode==='day'));b.title=mode==='day'?'Mudar para modo noite':'Mudar para modo dia';}};let mode='night';try{mode=localStorage.getItem(key)==='day'?'day':'night'}catch{};apply(mode);document.addEventListener('click',e=>{const b=e.target.closest('#themeToggle');if(!b)return;mode=mode==='day'?'night':'day';try{localStorage.setItem(key,mode)}catch{};apply(mode)});})();
+</script>
 </head>
 <body>
-<header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
+<header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><button type="button" id="themeToggle" class="theme-toggle" aria-pressed="false" title="Alternar entre modo dia e noite">☀️ Modo dia</button><button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
 <main class="shell">
   <div id="notice" class="notice hidden" role="alert"></div>
   <section id="setup" class="card central hidden">
