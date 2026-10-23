@@ -188,7 +188,7 @@ function renderCart(){
   const item=products.find(x=>x.id===id);
   if(!item)continue;
   count+=qty;
-  lines.push('<div class="cartline"><div><b>'+esc(item.name)+'</b><div class="muted">'+qty+' × '+money(item.price)+'</div></div>'+
+  lines.push('<div class="cartline"><div class="cartline-info"><div class="cartline-title"><b>'+esc(item.name)+'</b><span class="cart-item-detail">'+qty+' × '+money(item.price)+'</span></div></div>'+
    '<div class="qty-group"><button type="button" class="btn alt" data-dec="'+esc(id)+'" aria-label="Diminuir '+esc(item.name)+'">−</button>'+
    '<strong>'+qty+'</strong><button type="button" class="btn alt" data-inc="'+esc(id)+'"'+(item.in_stock===false?' disabled aria-disabled="true"':'')+' aria-label="Aumentar '+esc(item.name)+'">+</button></div></div>');
  }
