@@ -10,6 +10,7 @@ let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99',pdvCheckoutOpen=false,pdvShowBestSellers=false;
 const pdvProductClickCounts=new Map();
 let pdvQuantityEntryProductId=null;
+let stockImportRows=[],stockImportFileName='',stockImportBusy=false;
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
 const storageKey='bipstart_customer_session';
@@ -1431,6 +1432,119 @@ function courierAccessUrl(c,origin=location.origin){
  const base=origin+'/motoboy';
  return c?.account_id||!c?.invite_code?base:base+'?convite='+encodeURIComponent(c.invite_code);
 }
+function stockImportPanel(){
+ if(!stockImportRows.length&&!stockImportFileName)return '';
+ const preview=stockImportRows.slice(0,8);
+ return '<section class="card stock-import-panel"><h3>Importar estoque</h3><p>Arquivo: <strong>'+esc(stockImportFileName)+'</strong> · '+stockImportRows.length+' linha(s) reconhecida(s).</p>'+
+ '<p>Colunas aceitas: nome, categoria, preço/preco, custo, estoque/quantidade, estoque mínimo e imagem_url. Linhas sem nome ou com valores inválidos serão ignoradas.</p>'+
+ (preview.length?'<div class="table-wrap"><table><thead><tr><th>Produto</th><th>Categoria</th><th>Venda</th><th>Estoque</th><th>Imagem</th></tr></thead><tbody>'+preview.map(r=>'<tr><td>'+esc(r.name||'—')+'</td><td>'+esc(r.category||'Geral')+'</td><td>'+esc(Number.isFinite(r.price)?fmt(r.price):'Inválido')+'</td><td>'+esc(Number.isFinite(r.stock)?r.stock:'Inválido')+'</td><td>'+ (r.image_path?'<a href="'+esc(r.image_path)+'" target="_blank" rel="noopener">Ver</a>':'—')+'</td></tr>').join('')+'</tbody></table></div>':'')+
+ '<p class="muted small">Prévia das primeiras 8 linhas. Produtos com mesmo nome e categoria já existentes serão ignorados. Fotos só são importadas quando a planilha contém uma URL pública na coluna imagem_url/foto_url.</p>'+
+ '<button type="button" class="button" data-stock-import-confirm '+(stockImportBusy||!stockImportRows.some(r=>r.valid)?'disabled':'')+'>'+ (stockImportBusy?'Importando…':'Confirmar importação')+'</button> <button type="button" class="ghost" data-stock-import-cancel '+(stockImportBusy?'disabled':'')+'>Cancelar</button></section>';
+}
+function importHeaderKey(value){
+ return String(value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+}
+function importNumber(value,defaultValue=0){
+ if(value===null||value===undefined||String(value).trim()==='')return defaultValue;
+ if(typeof value==='number')return value;
+ let v=String(value).trim().replace(/\\s/g,'');
+ if(v.includes(','))v=v.replace(/\\./g,'').replace(',','.');
+ const n=Number(v);return Number.isFinite(n)?n:NaN;
+}
+function parseImportRows(rows){
+ const aliases={
+  name:['nome','produto','name','item','descricao','descricaoproduto'],
+  category:['categoria','category','grupo','departamento','secao'],
+  price:['preco','precovenda','venda','precounitario','price','valorvenda'],
+  cost:['custo','precocusto','cost','valorcusto'],
+  stock:['estoque','quantidade','saldo','qtd','stock','quantidadeestoque'],
+  min_stock:['estoqueminimo','minimo','estoquemin','minstock','estoqueminimoquantidade'],
+  image_path:['imagemurl','fotourl','imageurl','imagem','foto','imagepath','urlimagem']
+ };
+ if(!rows.length)return [];
+ const headers=rows[0].map(importHeaderKey);
+ const findIndex=keys=>headers.findIndex(h=>keys.includes(h));
+ const idx=Object.fromEntries(Object.entries(aliases).map(([k,v])=>[k,findIndex(v)]));
+ if(idx.name<0||idx.price<0)throw Error('A planilha precisa ter pelo menos as colunas Nome e Preço de venda.');
+ return rows.slice(1).map(cells=>{
+  const get=k=>idx[k]>=0?cells[idx[k]]:'';
+  const name=String(get('name')??'').trim(),price=importNumber(get('price'),NaN),cost=importNumber(get('cost'),0),stock=importNumber(get('stock'),0),min_stock=importNumber(get('min_stock'),5);
+  const category=String(get('category')||'Geral').trim().slice(0,65)||'Geral';
+  const image=String(get('image_path')||'').trim();
+  let image_path=null;
+  try{if(image){const u=new URL(image);if(['https:','http:'].includes(u.protocol))image_path=u.href;}}catch{}
+  const valid=!!name&&name.length<=160&&Number.isFinite(price)&&price>=0&&Number.isFinite(cost)&&cost>=0&&Number.isInteger(stock)&&stock>=0&&Number.isInteger(min_stock)&&min_stock>=0;
+  return {name,category,price,cost,stock,min_stock,image_path,valid};
+ }).filter(r=>r.name||Number.isFinite(r.price));
+}
+async function loadStockImportFile(file){
+ if(!file)return;
+ if(file.size>15*1024*1024)throw Error('O arquivo deve ter até 15 MB.');
+ const ext=file.name.split('.').pop().toLowerCase();
+ let rows;
+ if(ext==='csv'||ext==='txt'){
+  const text=await file.text();
+  const first=text.split(/\\r?\\n/,1)[0]||'';
+  const delimiter=(first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length?';':',';
+  rows=parseDelimitedImport(text,delimiter);
+ }else if(ext==='xlsx'||ext==='xls'){
+  if(!window.XLSX){
+   await new Promise((resolve,reject)=>{
+    const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';script.onload=resolve;script.onerror=()=>reject(Error('Não foi possível carregar o leitor de Excel. Tente exportar a planilha como CSV.'));
+    document.head.append(script);
+   });
+  }
+  const buffer=await file.arrayBuffer(),book=window.XLSX.read(buffer,{type:'array'}),sheet=book.Sheets[book.SheetNames[0]];
+  rows=window.XLSX.utils.sheet_to_json(sheet,{header:1,defval:'',raw:false});
+ }else throw Error('Escolha um arquivo Excel (.xlsx/.xls) ou CSV (.csv).');
+ stockImportRows=parseImportRows(rows);
+ stockImportFileName=file.name;
+ if(!stockImportRows.length)throw Error('Não encontrei linhas de produtos. Confira o cabeçalho e o conteúdo da planilha.');
+ renderPage();
+}
+function parseDelimitedImport(text,delimiter){
+ const rows=[];let row=[],cell='',quoted=false;
+ for(let i=0;i<text.length;i++){
+  const ch=text[i];
+  if(ch==='"'&&quoted&&text[i+1]==='"'){cell+='"';i++;}
+  else if(ch==='"')quoted=!quoted;
+  else if(ch===delimiter&&!quoted){row.push(cell.trim());cell='';}
+  else if((ch==='\\n'||ch==='\\r')&&!quoted){if(ch==='\\r'&&text[i+1]==='\\n')i++;row.push(cell.trim());if(row.some(v=>v!==''))rows.push(row);row=[];cell='';}
+  else cell+=ch;
+ }
+ if(cell!==''||row.length){row.push(cell.trim());if(row.some(v=>v!==''))rows.push(row);}
+ return rows;
+}
+async function confirmStockImport(){
+ if(stockImportBusy)return;
+ const valid=stockImportRows.filter(r=>r.valid);
+ if(!valid.length)throw Error('Não há produtos válidos para importar.');
+ const existing=new Set(products.map(p=>String(p.name||'').trim().toLocaleLowerCase('pt-BR')+'|'+String(p.category||'Geral').trim().toLocaleLowerCase('pt-BR')));
+ const seen=new Set(),toInsert=[];
+ for(const r of valid){
+  const key=r.name.trim().toLocaleLowerCase('pt-BR')+'|'+r.category.trim().toLocaleLowerCase('pt-BR');
+  if(existing.has(key)||seen.has(key))continue;
+  seen.add(key);
+  toInsert.push({shop_id:shop.id,name:r.name,category:r.category,price:r.price,cost:r.cost,stock:r.stock,min_stock:r.min_stock,image_path:r.image_path,is_best_seller:false,online_enabled:false,menu_price_enabled:false,menu_price:null});
+ }
+ if(!toInsert.length)throw Error('Todos os produtos válidos já existem nesta loja. Nenhum item foi duplicado.');
+ stockImportBusy=true;renderPage();
+ let inserted=0;
+ try{
+  for(let i=0;i<toInsert.length;i+=100){
+   const batch=toInsert.slice(i,i+100);
+   await rest('shop_products',{method:'POST',body:batch});
+   inserted+=batch.length;
+  }
+  stockImportRows=[];stockImportFileName='';
+  await reloadData();renderPage();
+  msg('Importação concluída: '+inserted+' produto(s) adicionados. '+(valid.length-inserted)+' ignorado(s) por duplicidade ou dados inválidos.');
+ }catch(error){
+  await reloadData().catch(()=>{});
+  renderPage();
+  throw Error('A importação parou após '+inserted+' produto(s). '+error.message+' Você pode importar novamente; os itens já criados serão identificados como duplicados.');
+ }finally{stockImportBusy=false;renderPage();}
+}
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
   if(!pages().some(([key])=>key===tab))tab='resumo';
@@ -1445,7 +1559,8 @@ function renderPage(){
     content=cardapioEditor();
   }else if(tab==='produtos'){
     content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','',
-      '<button type="button" class="button" data-new="product">+ Novo produto</button>');
+      '<button type="button" class="ghost" data-stock-import-open>Importar Excel/CSV</button> <button type="button" class="button" data-new="product">+ Novo produto</button>');
+    content+=stockImportPanel();
     content+=stockSummaryCards();
     if(selectedStockPanel==='restock')content+=renderRestockList();
     if(selectedStockPanel==='all'){
@@ -2329,6 +2444,16 @@ document.addEventListener('click',async e=>{
    return;
   }
   const pasteArea=e.target.closest('[data-image-paste]');if(pasteArea){pasteArea.focus();return}
+  const importOpen=e.target.closest('[data-stock-import-open]');
+  if(importOpen){
+    const input=document.createElement('input');input.type='file';input.accept='.xlsx,.xls,.csv,.txt';input.hidden=true;
+    input.onchange=async()=>{try{await loadStockImportFile(input.files?.[0]);}catch(error){msg(error.message||'Não foi possível ler o arquivo.',true);stockImportRows=[];stockImportFileName='';renderPage();}finally{input.remove();}};
+    document.body.append(input);input.click();return;
+  }
+  if(e.target.closest('[data-stock-import-cancel]')){if(stockImportBusy)return;stockImportRows=[];stockImportFileName='';renderPage();return;}
+  if(e.target.closest('[data-stock-import-confirm]')){
+    try{await confirmStockImport();}catch(error){msg(error.message||'Falha na importação.',true);}return;
+  }
   const stockSummary=e.target.closest('[data-stock-summary]');
   if(stockSummary&&tab==='produtos'){
     const choice=stockSummary.dataset.stockSummary;
