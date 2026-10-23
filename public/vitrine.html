@@ -9,11 +9,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vitrine.css?v=40">
+  <link rel="stylesheet" href="/vitrine.css?v=41">
 </head>
 <body class="delivery-page">
 <div class="delivery-app">
-  <header class="store-header">\n  <button id="openStoreOptions" class="store-options-button" type="button" aria-label="Abrir opções da loja" aria-expanded="false">☰</button>
+  <header class="store-header">
+  <button id="openStoreOptions" class="store-options-button" type="button" aria-label="Abrir opções da loja" aria-expanded="false">☰</button>
     <div class="header-title">
       <h1 id="storeName">Sua loja</h1>
       <div class="menu-hero-logo-card">
@@ -23,10 +24,13 @@
     </div>
   </header>
   <div id="error" class="summary error-message hidden" role="alert"></div>
-  <aside id="storeOptions" class="store-options-panel hidden" aria-label="Opções da loja" aria-hidden="true">\n    <div class="store-options-head"><strong>Informações da loja</strong><button id="closeStoreOptions" type="button" aria-label="Fechar opções">×</button></div>\n    <section class="location-row" aria-label="Retirada e funcionamento da loja">
+  <aside id="storeOptions" class="store-options-panel hidden" aria-label="Opções da loja" aria-hidden="true">
+    <div class="store-options-head"><strong>Informações da loja</strong><button id="closeStoreOptions" type="button" aria-label="Fechar opções">×</button></div>
+    <section class="location-row" aria-label="Retirada e funcionamento da loja">
     <div class="location-card"><span class="location-pin" aria-hidden="true">●</span><span class="location-details"><small>Endereço para retirada</small><b id="storeLocation">Consulte a loja</b></span><a id="locationLink" class="location-map hidden" href="#" target="_blank" rel="noopener noreferrer" aria-label="Ver endereço no mapa">↗</a></div>
     <div class="hours-card"><span class="hours-icon" aria-hidden="true">◷</span><span class="hours-details"><small>Horário de funcionamento</small><b id="openingHours">Consulte a loja</b></span></div>
   </section>
+  </aside>
   <section class="category-strip" id="quickCategories" aria-label="Categorias do cardápio"></section>
   <section class="combo-banner hidden" id="comboBanner">
     <div><small>ENCONTRE SEUS FAVORITOS</small><h2>VEJA NOSSOS<br><strong>COMBOS</strong></h2><button id="seeCombos" type="button">VER COMBOS <span>›</span></button></div>
