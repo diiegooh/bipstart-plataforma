@@ -1,125 +1,111 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#08050f" />
-  <meta name="color-scheme" content="dark" />
-  <link rel="icon" type="image/png" href="/bipstart-marca-icon.png" />
-  <link rel="canonical" href="https://bipstart.shop/" />
-  <meta name="description" content="BipStart: PDV, estoque, vendas e cardápio online em uma única solução para organizar seu comércio e ajudar seu negócio a crescer." />
-  <title>BipStart | Gestão comercial para o seu negócio</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f5ff">
+  <meta name="description" content="BipStart: organize vendas, estoque e pedidos em um só lugar. Conheça os planos Básico e Premium.">
+  <link rel="icon" type="image/png" href="/bipstart-marca-icon.png">
+  <link rel="canonical" href="https://bipstart.shop/">
+  <title>BipStart | Gestão simples para seu comércio</title>
   <link rel="stylesheet" href="/style.css?v=10">
+  <link rel="stylesheet" href="/landing.css?v=1">
 </head>
-<body>
+<body class="landing-page">
   <div id="toast" class="toast" aria-live="polite"></div>
-  <header class="site-header" id="top">
-    <div class="topbar container">
-      <a class="brand brand-image" href="#inicio" aria-label="BipStart - início"><img class="brand-icon" src="/bipstart-marca-icon.png" alt="" /><img class="brand-word" src="/bipstart-marca-nome.png" alt="BipStart" /></a>
-      <nav class="nav-links" aria-label="Navegação principal"><a href="#inicio">Início</a><a href="#solucoes">Modelos</a><a href="#planos">Planos</a><a href="#funciona">Como funciona</a><a href="#duvidas">Dúvidas</a></nav>
-      <a class="mobile-login" href="/cliente" aria-label="Entrar na conta da loja">Entrar</a>
-      <button class="button button-primary nav-dashboard" id="dashboardHeader">✦ Teste grátis de 7 dias <span>↗</span></button>
+  <header class="bs-header" id="top">
+    <div class="bs-container bs-nav">
+      <a class="bs-brand" href="#inicio" aria-label="BipStart início"><img src="/bipstart-marca-icon.png" alt=""><img class="bs-wordmark" src="/bipstart-marca-nome.png" alt="BipStart"></a>
+      <button class="bs-menu-toggle" id="bsMenuToggle" aria-expanded="false" aria-controls="bsNavLinks" aria-label="Abrir menu">☰</button>
+      <nav class="bs-nav-links" id="bsNavLinks" aria-label="Navegação principal">
+        <a href="#recursos">Recursos</a><a href="#planos">Planos</a><a href="#passos">Como funciona</a><a href="#duvidas">Dúvidas</a>
+        <a class="bs-login" href="/cliente">Entrar</a>
+        <button class="bs-button bs-button-primary" id="dashboardHeader">Começar grátis <span>↗</span></button>
+      </nav>
     </div>
   </header>
 
   <main id="marketing">
-    <section class="hero container" id="inicio">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="ping"></span> ✦ Soluções digitais para o seu negócio</div>
-        <h1>Seu comércio mais organizado,<br /><span>mais lucrativo.</span></h1>
-        <p>PDV, estoque e cardápio online em uma única solução. Menos complicação no dia a dia e mais tempo para fazer seu negócio crescer.</p>
-        <div class="hero-actions"><button class="button button-primary" data-action="trial">Experimentar por 7 dias <span>↗</span></button><a class="button button-ghost" href="#planos">Conhecer os planos <span>↓</span></a></div>
-        <div class="hero-meta"><div class="avatars"><b>PDV</b><b>WEB</b><b>🛵</b></div><span>PDV, estoque e vendas para quem empreende.</span></div>
+    <section class="bs-hero" id="inicio">
+      <div class="bs-container bs-hero-grid">
+        <div class="bs-hero-copy">
+          <div class="bs-eyebrow"><span></span> TECNOLOGIA QUE TRABALHA COM VOCÊ</div>
+          <h1>Seu comércio mais organizado. <em>Seu dia mais leve.</em></h1>
+          <p>Controle vendas, estoque e pedidos sem complicação. A BipStart reúne as ferramentas essenciais para você cuidar melhor do seu negócio.</p>
+          <div class="bs-hero-actions"><button class="bs-button bs-button-primary" data-action="trial">Experimente grátis por 7 dias <span>↗</span></button><a class="bs-button bs-button-secondary" href="#planos">Ver planos</a></div>
+          <div class="bs-proof"><div class="bs-proof-icons"><span>✓</span><span>↗</span><span>◎</span></div><p>Feito para pequenos negócios e quem empreende todos os dias.</p></div>
+        </div>
+        <div class="bs-dashboard-art" aria-label="Ilustração demonstrativa do painel BipStart">
+          <div class="bs-art-orbit bs-orbit-one"></div><div class="bs-art-orbit bs-orbit-two"></div>
+          <div class="bs-dashboard-card">
+            <div class="bs-dash-top"><div class="bs-dash-logo"><b>b</b><span>BipStart</span></div><span class="bs-live"><i></i> Sua loja</span></div>
+            <div class="bs-dash-greeting"><small>VISÃO GERAL</small><h3>Bom dia! 👋</h3><p>Acompanhe o movimento da sua loja.</p></div>
+            <div class="bs-metrics"><div><span>Vendas do dia</span><b>R$ 1.280,00</b><small>↗ em movimento</small></div><div><span>Pedidos</span><b>24</b><small>hoje</small></div></div>
+            <div class="bs-chart-card"><div class="bs-chart-head"><b>Resumo de vendas</b><span>Últimos 7 dias</span></div><div class="bs-chart"><i style="height:34%"></i><i style="height:48%"></i><i style="height:41%"></i><i style="height:64%"></i><i style="height:55%"></i><i style="height:76%"></i><i style="height:94%"></i></div><div class="bs-chart-days"><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span><span>DOM</span></div></div>
+          </div>
+          <div class="bs-float-note bs-note-stock"><span>▦</span><div><b>Estoque organizado</b><small>Seus produtos em dia</small></div><strong>✓</strong></div>
+          <div class="bs-float-note bs-note-sales"><span>↗</span><div><b>Mais controle</b><small>Menos trabalho manual</small></div></div>
+        </div>
       </div>
-      <div class="hero-visual" aria-label="Prévia ilustrativa de um painel de controle e cardápio da BipStart">
-        <div class="visual-glow"></div>
-        <div class="preview-window"><div class="window-toolbar"><div class="dots"><i></i><i></i><i></i></div><span>painel.bipstart</span><span class="secure">● online</span></div><div class="window-layout"><aside class="preview-side"><div class="tiny-logo">b↗</div><div class="line active">▤ <span>Visão geral</span></div><div class="line">▣ <span>Vendas</span></div><div class="line">▦ <span>Produtos</span></div><div class="line">▣ <span>Cardápio</span></div><div class="line">◉ <span>Delivery</span></div></aside><div class="preview-main"><span class="preview-kicker">PAINEL DO SEU NEGÓCIO</span><h3>Seu negócio em movimento.</h3><div class="preview-stats"><div><span>Vendas hoje</span><b>R$ 1.280,00</b><small>↗ +18,2%</small></div><div><span>Pedidos</span><b>24</b><small>↗ +12%</small></div><div><span>Itens no estoque</span><b>186</b><small>Organizado</small></div></div><div class="preview-chart"><div class="chart-title">Crescimento de vendas <span>Últimos 7 dias</span></div><div class="bars"><i style="height:32%"></i><i style="height:45%"></i><i style="height:51%"></i><i style="height:40%"></i><i style="height:68%"></i><i style="height:61%"></i><i style="height:91%"></i></div></div></div></div></div>
-        <div class="preview-phone"><div class="phone-camera"></div><div class="phone-top">Sua Loja <span>☰</span></div><div class="phone-heading">Nosso cardápio</div><div class="phone-tabs">Todos&nbsp;&nbsp; Lanches&nbsp;&nbsp; Bebidas</div><div class="phone-menu-item"><span>🍔</span><div><b>Hambúrguer</b><small>R$ 24,90</small></div><i>+</i></div><div class="phone-menu-item"><span>🍟</span><div><b>Batata frita</b><small>R$ 12,90</small></div><i>+</i></div><div class="phone-menu-item"><span>🥤</span><div><b>Refrigerante</b><small>R$ 8,90</small></div><i>+</i></div></div><div class="float-tag float-left">✦ <span>Seu negócio,<br/><b>sua identidade.</b></span></div><div class="hero-trial-badge"><b>✦ TESTE GRÁTIS</b><strong>7 DIAS</strong><span>Conheça nossos modelos<br/>em uma demonstração.</span></div>
+      <div class="bs-container bs-trust-row"><span>UMA SOLUÇÃO PARA A ROTINA REAL</span><b>Mercados</b><b>Mercearias</b><b>Lanchonetes</b><b>Restaurantes</b><b>Adegas e delivery</b></div>
+    </section>
+
+    <section class="bs-section bs-features" id="recursos">
+      <div class="bs-container">
+        <div class="bs-section-heading"><div><span class="bs-kicker">TUDO CONECTADO</span><h2>Menos tarefas repetidas.<br><em>Mais tempo para crescer.</em></h2></div><p>Ferramentas simples para deixar a operação mais organizada, do caixa ao pedido online.</p></div>
+        <div class="bs-feature-grid">
+          <article class="bs-feature-card bs-feature-main"><div class="bs-feature-icon">▤</div><span class="bs-feature-tag">ESSENCIAL</span><h3>PDV e controle de estoque</h3><p>Cadastre seus produtos, registre vendas e acompanhe quantidades em um fluxo fácil de usar.</p><div class="bs-mini-panel"><div class="bs-mini-panel-head"><b>Movimento da loja</b><span>Hoje</span></div><div class="bs-mini-row"><span class="bs-mini-symbol">▦</span><span><b>Produtos cadastrados</b><small>Estoque e preços organizados</small></span><strong>→</strong></div><div class="bs-mini-row"><span class="bs-mini-symbol">✓</span><span><b>Venda registrada</b><small>Histórico para consultar depois</small></span><strong>✓</strong></div></div></article>
+          <article class="bs-feature-card bs-feature-menu"><div class="bs-feature-icon">▣</div><span class="bs-feature-tag">PREMIUM</span><h3>Cardápio online e pedidos</h3><p>Apresente seus produtos com fotos e preços, receba pedidos e encaminhe as informações pelo WhatsApp.</p><div class="bs-menu-preview"><div class="bs-menu-preview-head"><span>☰</span><b>Cardápio da loja</b><span>⌕</span></div><div class="bs-menu-product"><span class="bs-food-emoji">🍔</span><span><b>Combo da casa</b><small>Hambúrguer + acompanhamento</small><strong>R$ 24,90</strong></span><i>+</i></div><div class="bs-menu-product"><span class="bs-food-emoji">🥤</span><span><b>Bebidas geladas</b><small>Opções para acompanhar</small><strong>R$ 8,90</strong></span><i>+</i></div><div class="bs-menu-checkout">Ver carrinho <b>Continuar ↗</b></div></div></article>
+          <article class="bs-feature-card bs-feature-personal"><div class="bs-feature-icon">✳</div><span class="bs-feature-tag">NO PREMIUM</span><h3>Uma loja com a sua identidade</h3><p>Personalize o cardápio com sua marca e cores e organize a operação de entregas com motoboys.</p><div class="bs-brand-preview"><div class="bs-brand-circle">S</div><div><small>SEU COMÉRCIO</small><b>Uma marca que é sua.</b><span>Logo e cores personalizadas</span></div><span class="bs-check">✓</span></div></article>
+        </div>
       </div>
     </section>
 
-    <div class="social-strip"><div class="container strip-content"><span>FEITO PARA QUEM EMPREENDE</span><b>✦ Comércio em geral</b><b>✦ Mercados e mercearias</b><b>✦ Restaurantes e adegas</b><b>✦ Delivery próprio</b></div></div>
-
-    <section class="section container" id="solucoes"><div class="section-head"><div><span class="section-label">ESCOLHA O QUE COMBINA COM VOCÊ</span><h2>Um ponto de partida.<br/><span>Infinitas possibilidades.</span></h2></div><p>O Básico inclui PDV com estoque e vendas. O Premium libera também cardápio online, pedidos, motoboys e personalização.</p></div>
-      <div class="solution-grid">
-        <article class="solution-card purple">
-          <div class="solution-icon" aria-hidden="true">▦</div>
-          <div class="solution-card-copy"><h3>PDV + Estoque</h3><p>Cadastre produtos, controle quantidades e registre vendas.</p></div>
-          <div class="solution-mini-grid" aria-label="Exemplos dos recursos do PDV">
-            <div class="solution-mini-card">
-              <span class="mini-badge">🛒 PDV</span>
-              <div class="mini-illustration mini-sale" aria-hidden="true"><span>Venda #1024</span><strong>R$ 45,00</strong><i>✓ Venda finalizada</i></div>
-              <strong>Venda rápida</strong>
-              <small>Adicione produtos e finalize no caixa em poucos cliques.</small>
-            </div>
-            <div class="solution-mini-card">
-              <span class="mini-badge">📦 ESTOQUE</span>
-              <div class="mini-illustration mini-stock" aria-hidden="true"><span>Estoque atual</span><div class="mini-stock-bar"><i></i></div><b>4 de 10 un.</b></div>
-              <strong>Controle automático</strong>
-              <small>As vendas atualizam o estoque e sinalizam itens em baixa.</small>
-            </div>
-            <div class="solution-mini-card">
-              <span class="mini-badge">📊 VENDAS</span>
-              <div class="mini-illustration mini-report" aria-hidden="true"><span>Lucro bruto do dia</span><strong>R$ 128,50</strong><div class="mini-bars"><i></i><i></i><i></i><i></i><i></i></div></div>
-              <strong>Resumo de vendas</strong>
-              <small>Acompanhe pagamentos e lucro por período.</small>
-            </div>
-          </div>
-          <button class="text-link" data-model="pdv">Experimentar PDV ↗</button>
-        </article>
-        <article class="solution-card orange">
-          <div class="solution-icon" aria-hidden="true">▣</div>
-          <div class="solution-card-copy"><h3>Cardápio online</h3><p>Categorias, fotos, preços e pedidos via WhatsApp integrados ao mesmo catálogo.</p></div>
-          <div class="solution-mini-grid" aria-label="Exemplos dos recursos do cardápio digital">
-            <div class="solution-mini-card">
-              <span class="mini-badge">🍔 CARDÁPIO</span>
-              <div class="mini-illustration mini-product" aria-hidden="true"><span>🍔</span><div><b>Combo especial</b><strong>R$ 24,90</strong></div></div>
-              <strong>Produtos organizados</strong>
-              <small>Mostre categorias, fotos e preços para seus clientes.</small>
-            </div>
-            <div class="solution-mini-card">
-              <span class="mini-badge">🛍️ CARRINHO</span>
-              <div class="mini-illustration mini-cart" aria-hidden="true"><span>2 itens no carrinho</span><strong>R$ 39,90</strong><i>Revisar pedido →</i></div>
-              <strong>Carrinho de compras</strong>
-              <small>O cliente escolhe produtos e confere o total.</small>
-            </div>
-            <div class="solution-mini-card">
-              <span class="mini-badge">💬 PEDIDOS</span>
-              <div class="mini-illustration mini-whatsapp" aria-hidden="true"><span>Pedido online</span><strong>✓ Registrado</strong><i>Enviar pelo WhatsApp ↗</i></div>
-              <strong>Pedido via WhatsApp</strong>
-              <small>O pedido é registrado e encaminhado para confirmação com a loja.</small>
-            </div>
-          </div>
-          <button class="text-link" data-model="pdv">Experimentar cardápio ↗</button>
-        </article>
+    <section class="bs-section bs-pricing" id="planos"><div class="bs-container">
+      <div class="bs-section-heading bs-pricing-heading"><div><span class="bs-kicker">PLANOS DIRETOS AO PONTO</span><h2>Comece do seu jeito.<br><em>Evolua no seu ritmo.</em></h2></div><p>Escolha o plano para o momento do seu negócio. Você pode conhecer a experiência antes de contratar.</p></div>
+      <div class="bs-plans">
+        <article class="bs-plan"><div class="bs-plan-label">01 <span>ESSENCIAL</span></div><h3>Básico</h3><p class="bs-plan-desc">O necessário para organizar sua loja.</p><div class="bs-price"><strong>R$ 29,90</strong><span>pagamento único</span></div><div class="bs-plan-rule"></div><ul><li>PDV para registrar vendas</li><li>Cadastro e controle de produtos</li><li>Estoque integrado às vendas</li><li>Histórico de vendas</li><li>Identidade visual padrão BipStart</li></ul><button class="bs-button bs-button-secondary bs-plan-button" data-plan="1">Escolher Básico <span>↗</span></button></article>
+        <article class="bs-plan bs-plan-highlight"><div class="bs-plan-ribbon">MAIS COMPLETO ✦</div><div class="bs-plan-label">02 <span>PARA CRESCER</span></div><h3>Premium</h3><p class="bs-plan-desc">Mais recursos para vender e entregar.</p><div class="bs-price"><strong>R$ 79,90</strong><span>por mês</span></div><div class="bs-plan-rule"></div><ul><li><b>Tudo do plano Básico</b></li><li>Cardápio online com carrinho e pedidos</li><li>Pedidos encaminhados pelo WhatsApp</li><li>Sistema integrado de motoboys particulares</li><li>Logo e cores personalizadas</li><li>Suporte mensal para sua operação</li></ul><button class="bs-button bs-button-primary bs-plan-button" data-plan="3">Escolher Premium <span>↗</span></button></article>
       </div>
-    </section>
-
-    <section class="section pricing-section"><div class="container"><div class="pricing-title" id="planos"><span class="section-label">PLANOS SEM COMPLICAÇÃO</span><h2>Um plano para cada ideia.<br/><span>Seu próximo passo começa aqui.</span></h2><p>Escolha a solução ideal para o seu comércio e experimente os modelos antes de contratar.</p></div>
-      <div class="plans plans-two">
-        <article class="plan"><div class="plan-top"><span class="plan-index">01 / ESSENCIAL</span><h3>Plano Básico</h3><p>PDV, produtos e estoque para a sua loja.</p><div class="price">R$ <strong>29,90</strong></div><small>pagamento único</small></div><div class="plan-divider"></div><ul><li><strong>PDV com controle de estoque</strong></li><li><strong>Cadastro de produtos</strong> integrado ao PDV</li><li>Produtos, custos, preços e vendas integrados</li><li>Histórico de vendas e controle de estoque</li><li>Identidade visual padrão BipStart</li></ul><button class="button button-primary button-plan-select" data-plan="1">Escolher Básico ↗</button></article>
-        <article class="plan featured plan-pro"><div class="popular">✦ MAIS COMPLETO</div><div class="plan-top"><span class="plan-index">02 / PREMIUM</span><h3>Plano Premium</h3><p>Delivery, sua identidade e suporte.</p><div class="price">R$ <strong>79,90</strong><em>/mês</em></div><small>assinatura mensal, ativação manual</small></div><div class="plan-divider"></div><ul><li><strong>Todos os recursos do Básico</strong></li><li><strong>Cardápio online</strong> com pedidos e carrinho via WhatsApp</li><li><strong>Sistema integrado de motoboys particulares</strong></li><li>Inserir sua logo e mudar a cor do cardápio</li><li>Adaptações conforme as necessidades do seu negócio, sem custo adicional</li><li>Suporte mensal para sua operação</li></ul><button class="button button-primary button-plan-select" data-plan="3">Escolher Premium ↗</button></article>
-      </div><p class="price-note">* Crie sua conta para testar por 7 dias. Contratação e renovação via WhatsApp com liberação manual. Solicite adaptações para sua operação sem custos adicionais.</p></div></section>
-
-    <section class="section container features-section" id="funciona"><div class="section-head"><div><span class="section-label">SEM COMPLICAÇÃO</span><h2>Da sua ideia<br/><span>para a sua tela.</span></h2></div></div><div class="steps"><div><span class="step-num">01</span><h3>Escolha seu plano</h3><p>Ambos incluem PDV e estoque. O cardápio online é exclusivo do Premium.</p></div><div><span class="step-num">02</span><h3>Teste o sistema</h3><p>Confirme seu e-mail e experimente por 7 dias.</p></div><div><span class="step-num">03</span><h3>Personalize e evolua</h3><p>No Premium você muda logo, cores e gerencia motoboys.</p></div></div></section>
-    <section class="faq-section section container" id="duvidas"><div class="section-head"><div><span class="section-label">PERGUNTAS FREQUENTES</span><h2>Dúvidas? <span>A gente explica.</span></h2></div></div><div class="faq-list">
-      <details><summary>O Básico inclui PDV e cardápio online?</summary><p>O Básico inclui PDV com produtos, estoque e vendas. O cardápio online e os pedidos pelo cardápio são exclusivos do Premium, usando os mesmos produtos cadastrados.</p></details><details><summary>Se eu mudar do Básico para o Premium, perco meus produtos?</summary><p>Não. Sua loja usa a mesma conta e o mesmo banco de dados nos dois planos. Produtos, estoque, configurações, vendas e pedidos ficam salvos. No Premium, você libera também os motoboys após a confirmação da contratação.</p></details>
-      <details><summary>Como funciona o teste grátis?</summary><p>Cadastre sua loja, confirme o e-mail e experimente por 7 dias. A ativação de planos pagos acontece manualmente pelo WhatsApp.</p></details>
-      <details><summary>O que inclui o Premium?</summary><p>Além do Básico, sistema integrado de motoboys particulares, sua logo, cores personalizadas, suporte mensal e adaptações conforme suas necessidades. Os pedidos recebidos pelo WhatsApp, depois de cadastrados na fila de entregas, são oferecidos diretamente aos seus motoboys.</p></details>
-      <details><summary>As mudanças estão incluídas sem limite?</summary><p>Você poderá solicitar mudanças conforme seu negócio. Sem nenhum custo.</p></details>
-      <details><summary>A BipStart recebe pagamentos da loja?</summary><p>Não. Por questões de segurança, os pagamentos são realizados diretamente na sua loja física ou combinados pelo WhatsApp. A BipStart não recebe pagamentos das vendas.</p></details>
+      <p class="bs-pricing-note">Crie sua conta para testar por 7 dias. A contratação e a renovação são combinadas pelo WhatsApp, com liberação manual.</p>
     </div></section>
-    <section class="container cta-band"><div><span class="section-label">O PRÓXIMO PASSO COMEÇA AQUI</span><h2>Sua ideia merece sair do papel.</h2><p>Experimente os modelos sem compromisso e descubra como a BipStart pode ajudar seu negócio.</p></div><button class="button button-light" data-action="trial">Testar por 7 dias <span>↗</span></button></section>
+
+    <section class="bs-section bs-how" id="passos"><div class="bs-container"><div class="bs-section-heading"><div><span class="bs-kicker">É MAIS SIMPLES DO QUE PARECE</span><h2>Três passos para <em>começar.</em></h2></div></div><div class="bs-steps"><article><span>01</span><h3>Escolha seu plano</h3><p>Comece com PDV e estoque ou escolha o Premium com cardápio online.</p></article><article><span>02</span><h3>Crie sua conta</h3><p>Cadastre os dados da sua loja e confirme seu e-mail para começar.</p></article><article><span>03</span><h3>Teste na prática</h3><p>Explore a demonstração por 7 dias e veja como encaixa na sua rotina.</p></article></div></div></section>
+
+    <section class="bs-section bs-faq" id="duvidas"><div class="bs-container bs-faq-layout"><div class="bs-faq-intro"><span class="bs-kicker">DÚVIDAS FREQUENTES</span><h2>Quer saber mais?<br><em>Estamos aqui.</em></h2><p>Veja respostas rápidas sobre os recursos e os planos BipStart.</p><a href="https://wa.me/" target="_blank" rel="noopener" class="bs-text-link">Fale com a gente ↗</a></div><div class="bs-faq-list">
+      <details><summary>O plano Básico tem cardápio online?</summary><p>Não. O Básico inclui PDV, cadastro de produtos, estoque e vendas. O cardápio online e os pedidos são recursos do Premium.</p></details>
+      <details><summary>Posso mudar do Básico para o Premium?</summary><p>Sim. A proposta é usar sua conta e evoluir para os recursos Premium quando fizer sentido para o seu negócio.</p></details>
+      <details><summary>Como funciona o teste grátis?</summary><p>Crie sua conta e experimente por 7 dias. A contratação de um plano pago é combinada separadamente pelo WhatsApp.</p></details>
+      <details><summary>O Premium permite personalizar minha loja?</summary><p>Sim. O Premium inclui personalização de logo e cores do cardápio, além dos recursos adicionais descritos no plano.</p></details>
+      <details><summary>A BipStart processa os pagamentos das minhas vendas?</summary><p>Não. Os pagamentos das vendas são combinados e recebidos diretamente pela sua loja. Esta experiência demonstrativa não processa pagamentos.</p></details>
+    </div></div></section>
+
+    <section class="bs-final-cta"><div class="bs-container bs-final-cta-inner"><div><span class="bs-kicker">SUA PRÓXIMA ETAPA COMEÇA AQUI</span><h2>Mais organização para<br><em>o negócio que você constrói.</em></h2><p>Conheça a BipStart e teste os recursos sem compromisso.</p></div><button class="bs-button bs-button-light" data-action="trial">Começar teste grátis <span>↗</span></button></div></section>
   </main>
 
   <main id="workspace" class="workspace hidden" aria-label="Painel de demonstração">
-    <aside class="workspace-sidebar"><a class="brand brand-image ws-brand" href="#inicio" aria-label="Voltar ao site BipStart"><img class="brand-icon" src="/bipstart-marca-icon.png" alt="" /><img class="brand-word" src="/bipstart-marca-nome.png" alt="BipStart" /></a><div class="ws-client"><span class="ws-avatar" id="wsAvatar">B</span><span><b id="wsBusinessName">Meu negócio</b><small id="wsPlan">Demonstração</small></span></div><div class="ws-side-label">MEU SISTEMA</div><nav class="ws-nav" id="wsNav"></nav><div class="ws-sidebar-bottom"><div class="trial-banner"><span>◷ Período de teste</span><b id="trialDays">7 dias restantes</b><small>Dados locais, sem cobrança.</small></div><button id="backHome" class="button button-outline full">← Voltar ao site</button></div></aside>
+    <aside class="workspace-sidebar"><a class="brand brand-image ws-brand" href="#inicio" aria-label="Voltar ao site BipStart"><img class="brand-icon" src="/bipstart-marca-icon.png" alt=""><img class="brand-word" src="/bipstart-marca-nome.png" alt="BipStart"></a><div class="ws-client"><span class="ws-avatar" id="wsAvatar">B</span><span><b id="wsBusinessName">Meu negócio</b><small id="wsPlan">Demonstração</small></span></div><div class="ws-side-label">MEU SISTEMA</div><nav class="ws-nav" id="wsNav"></nav><div class="ws-sidebar-bottom"><div class="trial-banner"><span>◷ Período de teste</span><b id="trialDays">7 dias restantes</b><small>Dados locais, sem cobrança.</small></div><button id="backHome" class="button button-outline full">← Voltar ao site</button></div></aside>
     <div class="workspace-content"><header class="ws-topbar"><div class="ws-breadcrumb" id="wsBreadcrumb">Meu painel / Visão geral</div><div class="ws-actions"><span class="demo-pill">● Ambiente demonstrativo</span><button id="exportData" class="small-button" title="Exportar dados locais">↓ Exportar</button><button id="switchModel" class="small-button">Ver planos</button></div></header><div class="ws-body" id="wsBody"></div></div>
   </main>
-
-  <footer class="footer" id="footer"><div class="container footer-inner"><a class="brand brand-image" href="#inicio" aria-label="BipStart - início"><img class="brand-icon" src="/bipstart-marca-icon.png" alt="" /><img class="brand-word" src="/bipstart-marca-nome.png" alt="BipStart" /></a><p>Gestão comercial para pequenos negócios.</p><small>© <span id="year"></span> BipStart · Experiência demonstrativa. Nenhum pagamento é processado nesta versão.</small></div></footer>
-
+  <footer class="bs-footer" id="footer"><div class="bs-container bs-footer-inner"><a class="bs-brand" href="#inicio"><img src="/bipstart-marca-icon.png" alt=""><img class="bs-wordmark" src="/bipstart-marca-nome.png" alt="BipStart"></a><p>Gestão comercial simples para quem empreende.</p><small>© <span id="year"></span> BipStart · Ambiente demonstrativo. Nenhum pagamento é processado nesta versão.</small></div></footer>
   <div class="modal-overlay hidden" id="modal" role="presentation"><div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="modal-close" id="closeModal" aria-label="Fechar">×</button><div id="modalContent"></div></div></div>
   <script src="/app.js?v=5" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const toggle = document.getElementById('bsMenuToggle');
+      const nav = document.getElementById('bsNavLinks');
+      if (toggle && nav) {
+        toggle.addEventListener('click', function () {
+          const opened = nav.classList.toggle('is-open');
+          toggle.setAttribute('aria-expanded', String(opened));
+          toggle.setAttribute('aria-label', opened ? 'Fechar menu' : 'Abrir menu');
+        });
+        nav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+          nav.classList.remove('is-open');
+          toggle.setAttribute('aria-expanded', 'false');
+        }));
+      }
+    });
+  </script>
 </body>
 </html>
