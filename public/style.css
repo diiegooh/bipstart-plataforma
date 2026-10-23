@@ -388,3 +388,36 @@ html,body{max-width:100%;overflow-x:clip}
  #solucoes .solution-mini-grid{gap:9px}
  #solucoes .mini-illustration{height:73px}
 }
+
+
+/* Landing BipStart: alinhamento visual com a referência enviada */
+:root{
+  --bg:#10071f;
+  --panel:#211333;
+  --panel2:#2b1948;
+  --text:#ffffff;
+  --muted:#c7b9da;
+  --accent:#cb9cff;
+  --accent2:#9255f5;
+}
+body{
+  background:
+    radial-gradient(circle at 80% 5%,rgba(118,35,210,.25),transparent 28rem),
+    var(--bg);
+}
+.site-header{background:rgba(16,7,31,.88);border-bottom-color:rgba(255,255,255,.12)}
+.button-primary{background:linear-gradient(105deg,#9255f5,#b987ff);color:#fff}
+.button-primary:hover{box-shadow:0 12px 30px rgba(146,85,245,.28)}
+.hero h1 span,.section h2 span,.cta-band h2 span{color:#cb9cff}
+.eyebrow,.section-label{color:#cb9cff}
+.preview-window,.solution-card,.plan,.faq-list details{
+  border-color:rgba(203,156,255,.2);
+}
+.solution-card{background:linear-gradient(145deg,#2b1948,#211333)}
+.plan.featured{background:linear-gradient(145deg,#3d2068,#221338);border-color:rgba(203,156,255,.5)}
+.cta-band{background:linear-gradient(120deg,#311554,#25143b)}
+.footer{background:#0b0515}
+@media(max-width:830px){
+  .hero h1{letter-spacing:-1.8px}
+  .hero-visual{padding-top:10px}
+}
