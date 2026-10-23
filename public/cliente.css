@@ -3316,3 +3316,50 @@ body.workspace-fullscreen #workspace .content{
 }
 #workspace .data-form:has(#settingsForm) #settingsForm input[type=checkbox],
 #workspace .data-form:has(#settingsForm) #settingsForm input[type=radio]{accent-color:#6d28d9!important}
+
+
+/* Configurações do cardápio: tema claro aplicado aos nomes reais dos cards */
+#page .category-image-settings,
+#page .category-image-setting-row,
+#page .menu-editor-panel,
+#page .menu-editor-meta button,
+#page .menu-layout-settings,
+#page .menu-logo-editor,
+#page .receipt-settings-panel,
+#page .menu-payments,
+#page .menu-settings,
+#page .menu-settings > section,
+#page .menu-settings > fieldset,
+#page .menu-settings .menu-price-controls,
+#page .menu-settings .menu-price-controls .online-sale-price {
+ background:#ffffff!important;background-image:none!important;color:#202938!important;
+ border-color:#d5dce5!important;box-shadow:none!important;
+}
+#page .category-image-settings h3,
+#page .category-image-settings p,
+#page .category-image-setting-row *,
+#page .menu-editor-panel h3,
+#page .menu-editor-panel p,
+#page .menu-editor-panel label,
+#page .menu-editor-panel legend,
+#page .menu-editor-panel small,
+#page .menu-editor-panel strong,
+#page .menu-editor-meta button,
+#page .menu-editor-meta button small,
+#page .menu-editor-meta button strong,
+#page .receipt-settings-panel *,
+#page .menu-layout-settings *,
+#page .menu-logo-editor *,
+#page .menu-payments * {color:#202938!important}
+#page .category-image-actions button,
+#page .category-image-file,
+#page .menu-editor-panel .button,
+#page .menu-settings .button {color:#fff!important}
+#page .menu-editor-panel input:not([type=checkbox]):not([type=radio]):not([type=color]),
+#page .menu-editor-panel select,
+#page .menu-editor-panel textarea,
+#page .menu-settings input:not([type=checkbox]):not([type=radio]):not([type=color]),
+#page .menu-settings select,
+#page .menu-settings textarea {background:#fff!important;color:#111827!important;border-color:#cbd5e1!important}
+#page .menu-category-line {background:#f8fafc!important;color:#202938!important;border-color:#d5dce5!important}
+#page .menu-category-line small {color:#475569!important}
