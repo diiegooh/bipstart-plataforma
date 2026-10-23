@@ -110,6 +110,18 @@ function drawPage(){
  renderProducts();
  renderCart();
 }
+function setStoreOptions(open){
+ const panel=$('storeOptions'),button=$('openStoreOptions');
+ panel.classList.toggle('hidden',!open);
+ panel.setAttribute('aria-hidden',String(!open));
+ button.setAttribute('aria-expanded',String(open));
+}
+$('openStoreOptions').addEventListener('click',()=>setStoreOptions($('storeOptions').classList.contains('hidden')));
+$('closeStoreOptions').addEventListener('click',()=>setStoreOptions(false));
+document.addEventListener('click',event=>{
+ if(!$('storeOptions').classList.contains('hidden')&&!event.target.closest('#storeOptions')&&!event.target.closest('#openStoreOptions'))setStoreOptions(false);
+});
+document.addEventListener('keydown',event=>{if(event.key==='Escape')setStoreOptions(false);});
 $('storeLogo').addEventListener('error',()=>{
  const img=$('storeLogo');
  if(!img.src.endsWith('/bipstart-marca-icon.png')){
