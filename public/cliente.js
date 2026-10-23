@@ -1559,7 +1559,7 @@ function renderPage(){
     content=cardapioEditor();
   }else if(tab==='produtos'){
     content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','',
-      '<button type="button" class="ghost" data-stock-import-open>Importar Excel/CSV</button> <button type="button" class="button" data-new="product">+ Novo produto</button>');
+      '<button type="button" class="ghost" data-stock-import-template>Baixar planilha modelo</button> <button type="button" class="ghost" data-stock-import-open>Importar Excel/CSV</button> <button type="button" class="button" data-new="product">+ Novo produto</button>');
     content+=stockImportPanel();
     content+=stockSummaryCards();
     if(selectedStockPanel==='restock')content+=renderRestockList();
