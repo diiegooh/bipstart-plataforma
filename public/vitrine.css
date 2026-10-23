@@ -944,3 +944,64 @@ body.round-menu{
 @media(min-width:700px){
  .round-menu .category-strip{justify-content:flex-start!important;padding-left:0!important;padding-right:0!important}
 }
+
+
+/* Cards de produto conforme a referência: foto superior, texto compacto e preço + ação */
+.round-menu .delivery-grid{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ align-items:stretch!important;gap:12px!important;
+}
+.round-menu .round-product{
+ display:flex!important;flex-direction:column!important;align-self:stretch!important;
+ min-width:0!important;padding:0!important;overflow:hidden!important;
+ border:1px solid #ece8ff!important;border-radius:15px!important;
+ background:#fff!important;box-shadow:0 4px 12px #28127c10!important;
+}
+.round-menu .round-product .round-product-image{
+ display:block!important;width:100%!important;height:auto!important;aspect-ratio:1.12/1!important;
+ flex:0 0 auto!important;object-fit:cover!important;object-position:center!important;
+ margin:0!important;border:0!important;border-radius:0!important;background:#f0edff!important;
+}
+.round-menu .round-product .round-product-body{
+ display:flex!important;flex:1!important;flex-direction:column!important;align-items:stretch!important;
+ min-width:0!important;gap:0!important;padding:10px!important;background:#fff!important;
+}
+.round-menu .round-product h3{
+ display:-webkit-box!important;min-height:0!important;margin:0 0 5px!important;padding:0!important;
+ overflow:hidden!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;
+ color:#21166d!important;font-size:13px!important;font-weight:750!important;line-height:1.3!important;
+}
+.round-menu .round-product .round-product-description{
+ display:-webkit-box!important;margin:0 0 9px!important;padding:0!important;
+ overflow:hidden!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;
+ color:#77729b!important;font-size:11px!important;line-height:1.35!important;
+}
+.round-menu .round-product .round-product-price-row,
+.round-menu .round-product .product-price-row{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:6px!important;margin-top:auto!important;padding-top:3px!important;
+}
+.round-menu .round-product .round-product-price{
+ display:block!important;margin:0!important;color:#21166d!important;
+ font-size:12px!important;font-weight:800!important;line-height:1.2!important;white-space:nowrap!important;
+}
+.round-menu .round-product .round-add{
+ display:grid!important;place-items:center!important;flex:0 0 30px!important;
+ width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
+ margin:0 0 0 auto!important;padding:0!important;border:0!important;border-radius:50%!important;
+ background:linear-gradient(130deg,#7138f4,#943cff)!important;color:#fff!important;
+ font-size:22px!important;font-weight:500!important;line-height:1!important;
+ box-shadow:0 3px 7px #7138f433!important;
+}
+@media(min-width:700px){
+ .round-menu .delivery-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important}
+ .round-menu .round-product .round-product-image{aspect-ratio:1.15/1!important}
+ .round-menu .round-product .round-product-body{padding:12px!important}
+}
+@media(max-width:380px){
+ .round-menu .delivery-grid{gap:9px!important}
+ .round-menu .round-product .round-product-body{padding:8px!important}
+ .round-menu .round-product h3{font-size:12px!important}
+ .round-menu .round-product .round-product-price{font-size:11px!important}
+ .round-menu .round-product .round-add{flex-basis:27px!important;width:27px!important;height:27px!important;min-width:27px!important;min-height:27px!important}
+}
