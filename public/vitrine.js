@@ -56,7 +56,7 @@ function displayStoreLogo(){
  image.classList.toggle('store-logo-custom',!!own);
 }
 function applyBrand(){
- const color=String(menu.brand_color||'').trim();
+ const color=String(menu.menu_theme_color||menu.brand_color||'').trim();
  if(/^#[0-9a-fA-F]{6}$/.test(color)){
   document.documentElement.style.setProperty('--green',color);
   document.documentElement.style.setProperty('--green2',color);
