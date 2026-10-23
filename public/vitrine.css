@@ -1132,3 +1132,31 @@ body.round-menu{
   text-align:center!important;
  }
 }
+
+
+/* Checkout mobile: contraste maior e nome + quantidade/valor na mesma linha */
+.round-menu .onlinecart .modalhead small{color:#6d35e8!important;font-weight:850!important}
+.round-menu .onlinecart .modalhead h2{color:#21166d!important}
+.round-menu .onlinecart .cartline{align-items:center!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important}
+.round-menu .onlinecart .cartline-info{min-width:0!important}
+.round-menu .onlinecart .cartline-title{display:flex!important;flex-wrap:wrap!important;align-items:baseline!important;column-gap:8px!important;row-gap:3px!important}
+.round-menu .onlinecart .cartline-title>b{color:#21166d!important;font-size:15px!important;font-weight:800!important;overflow-wrap:anywhere!important}
+.round-menu .onlinecart .cart-item-detail{display:inline!important;color:#5f587a!important;font-size:13px!important;font-weight:650!important;white-space:nowrap!important}
+.round-menu .onlinecart .total{color:#7138e8!important}
+.round-menu .onlinecart label{color:#554a78!important;font-size:13px!important;font-weight:750!important}
+.round-menu .onlinecart .checkout-disclaimer,
+.round-menu .onlinecart .muted{color:#625b76!important}
+.round-menu .onlinecart .formgrid input,
+.round-menu .onlinecart .formgrid select,
+.round-menu .onlinecart .formgrid textarea{
+ color:#21166d!important;background:#fbfaff!important;border-color:#d9d1f0!important;
+}
+.round-menu .onlinecart .formgrid input::placeholder,
+.round-menu .onlinecart .formgrid textarea::placeholder{color:#77708e!important;opacity:1!important}
+.round-menu .onlinecart .btn.alt{color:#35216f!important;background:#f0ebff!important;border-color:#cfc3f5!important}
+@media(max-width:650px){
+ .round-menu .onlinecart{padding:18px 16px calc(22px + env(safe-area-inset-bottom))!important}
+ .round-menu .onlinecart .cartline-title>b{font-size:15px!important}
+ .round-menu .onlinecart .cart-item-detail{font-size:13px!important;color:#4f456d!important}
+ .round-menu .onlinecart label{color:#51466f!important}
+}
