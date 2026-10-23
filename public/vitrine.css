@@ -1043,3 +1043,48 @@ body.round-menu{
  .round-menu .store-header .store-logo-custom{width:48px!important;height:48px!important}
  .round-menu .store-header .header-title{gap:9px!important}
 }
+
+
+/* Cabeçalho: marca e nome no canto superior esquerdo; menu de opções à direita */
+.round-menu .store-header{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+ grid-template-rows:auto!important;align-items:center!important;gap:12px!important;
+ min-height:78px!important;height:auto!important;padding:10px 16px!important;
+ background:#fff!important;
+}
+.round-menu .store-header .header-title{
+ grid-column:1!important;grid-row:1!important;justify-self:start!important;
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:flex-start!important;gap:10px!important;width:auto!important;
+ max-width:100%!important;min-width:0!important;text-align:left!important;
+}
+.round-menu .store-header .menu-hero-logo-card{
+ order:0!important;display:flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 48px!important;width:48px!important;height:48px!important;
+ border-radius:12px!important;overflow:hidden!important;background:#fff!important;
+}
+.round-menu .store-header .store-logo,
+.round-menu .store-header .store-logo-custom{
+ width:48px!important;height:48px!important;max-width:none!important;
+ object-fit:contain!important;object-position:center!important;
+}
+.round-menu .store-header .header-title h1{
+ order:1!important;flex:0 1 auto!important;min-width:0!important;
+ text-align:left!important;color:#28166f!important;
+ font-size:clamp(16px,2.8vw,24px)!important;font-weight:800!important;
+ letter-spacing:0!important;text-shadow:none!important;
+}
+.round-menu .store-options-button{
+ grid-column:2!important;grid-row:1!important;justify-self:end!important;
+ position:relative!important;z-index:5!important;
+}
+.round-menu .store-header .menu-hero-heading,
+.round-menu .store-header .menu-tagline{display:none!important}
+@media(max-width:650px){
+ .round-menu .store-header{grid-template-columns:minmax(0,1fr) auto!important;padding:10px 12px!important;min-height:70px!important}
+ .round-menu .store-header .header-title{gap:8px!important}
+ .round-menu .store-header .menu-hero-logo-card,
+ .round-menu .store-header .store-logo,
+ .round-menu .store-header .store-logo-custom{flex-basis:42px!important;width:42px!important;height:42px!important}
+ .round-menu .store-header .header-title h1{font-size:clamp(15px,4vw,21px)!important}
+}
