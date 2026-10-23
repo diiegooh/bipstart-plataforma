@@ -71,8 +71,8 @@ async function rest(table,{method='GET',query={},body}={}){
 async function rpc(name,body){
   return api('/rest/v1/rpc/'+name,{method:'POST',body});
 }
-function hideAll(){['auth','setup','createShop','workspace','resetPass','accessGate'].forEach(id=>hiding(id,false));}
-function showAuth(){hideAll();hiding('auth',true);hiding('logout',false);renderActiveCaptcha();}
+function hideAll(){document.body.classList.remove('auth-screen');['auth','setup','createShop','workspace','resetPass','accessGate'].forEach(id=>hiding(id,false));}
+function showAuth(){hideAll();document.body.classList.add('auth-screen');hiding('auth',true);hiding('logout',false);renderActiveCaptcha();}
 function authTab(signup){
   hiding('loginForm',!signup);hiding('signupForm',signup);
   $('showLogin').classList.toggle('selected',!signup);$('showSignup').classList.toggle('selected',signup);
