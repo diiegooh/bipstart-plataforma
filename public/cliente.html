@@ -66,11 +66,11 @@ body.day-mode .product-card,body.day-mode .order-card,body.day-mode .sale-card,b
 @media(max-width:600px){.theme-toggle{font-size:12px;padding:8px 10px}.top{flex-wrap:wrap}.top nav{margin-left:auto}}
 </style>
 <script id="bipstart-theme-controller">
-(()=>{const key='bipstart_theme_mode';const apply=mode=>{document.body.classList.toggle('day-mode',mode==='day');const b=document.getElementById('themeToggle');if(b){b.textContent=mode==='day'?'🌙 Modo noite':'☀️ Modo dia';b.setAttribute('aria-pressed',String(mode==='day'));b.title=mode==='day'?'Mudar para modo noite':'Mudar para modo dia';}};let mode='night';try{mode=localStorage.getItem(key)==='day'?'day':'night'}catch{};apply(mode);document.addEventListener('click',e=>{const b=e.target.closest('#themeToggle');if(!b)return;mode=mode==='day'?'night':'day';try{localStorage.setItem(key,mode)}catch{};apply(mode)});})();
+(()=>{const key='bipstart_theme_mode';const apply=mode=>{document.body.classList.toggle('day-mode',mode==='day');const b=document.getElementById('themeToggle');if(b){b.textContent=mode==='day'?'🌙 Modo noite':'☀️ Modo dia';b.setAttribute('aria-pressed',String(mode==='day'));b.title=mode==='day'?'Mudar para modo noite':'Mudar para modo dia';}};let mode='night';try{mode=localStorage.getItem(key)==='day'?'day':'night'}catch{};document.addEventListener('DOMContentLoaded',()=>apply(mode));document.addEventListener('click',e=>{const b=e.target.closest('#themeToggle');if(!b)return;mode=mode==='day'?'night':'day';try{localStorage.setItem(key,mode)}catch{};apply(mode)});})();
 </script>
 </head>
 <body>
-<header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><button type="button" id="themeToggle" class="theme-toggle" aria-pressed="false" title="Alternar entre modo dia e noite">☀️ Modo dia</button><button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
+<header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
 <main class="shell">
   <div id="notice" class="notice hidden" role="alert"></div>
   <section id="setup" class="card central hidden">
@@ -132,6 +132,7 @@ body.day-mode .product-card,body.day-mode .order-card,body.day-mode .sale-card,b
         <div id="nav"></div>
         <div class="side-actions">
           <div class="side-actions-row">
+            <button type="button" id="themeToggle" class="theme-toggle" aria-pressed="false" title="Alternar entre modo dia e noite">☀️ Modo dia</button>
             <button type="button" id="sideLogout" class="side-action">Sair</button>
           </div>
         </div>
