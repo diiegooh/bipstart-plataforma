@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const paymentLabels={pix:'Pix',credito:'Cartão de crédito',debito:'Cartão de débito',dinheiro:'Dinheiro'};
-let menu=null,cart=new Map(),config=null;
+let menu=null,cart=new Map(),config=null,activeCategory='Todos';
 function showErr(text){$('error').classList.remove('hidden');$('error').textContent=String(text)}
 function imageUrl(path){
  if(!path||!menu?.src)return '';
@@ -24,19 +24,20 @@ function categoryGroups(data){
  return [...groups.values()];
 }
 function productCard(item){
- const image=item.image_path?'<img src="'+esc(imageUrl(item.image_path))+'" loading="lazy" alt="'+esc(item.name)+'">':'';
+ const image=item.image_path?'<img src="'+esc(imageUrl(item.image_path))+'" loading="lazy" alt="'+esc(item.name)+'">':'<div class="product-image-placeholder" aria-hidden="true">🍽️</div>';
  return '<article class="product">'+image+'<div class="product-copy"><h3>'+esc(item.name)+'</h3>'+
   (item.description?'<p>'+esc(item.description)+'</p>':'')+
   '<div class="product-bottom"><strong>'+money(item.price)+'</strong>'+
-  '<button type="button" class="add-button" data-add="'+esc(item.id)+'" aria-label="Adicionar '+esc(item.name)+'">+ Adicionar</button>'+
+  '<button type="button" class="add-button" data-add="'+esc(item.id)+'" aria-label="Adicionar '+esc(item.name)+'">+</button>'+
   '</div></div></article>';
 }
-function categoryCard(category){
- return '<details class="category"><summary><span>'+esc(category.name)+
-  ' <span class="category-hint">('+category.items.length+')</span></span>'+
-  '<span class="chevron" aria-hidden="true">⌄</span></summary>'+
-  '<div class="category-items">'+(category.items.length?category.items.map(productCard).join(''):'<p class="empty">Nenhum produto cadastrado nesta categoria.</p>')+
-  '</div></details>';
+function renderCatalog(){
+ const groups=categoryGroups(menu);
+ const query=String($('menuSearch')?.value||'').trim().toLocaleLowerCase('pt-BR');
+ const names=['Todos',...groups.map(g=>g.name)];
+ $('categoryChips').innerHTML=names.map(name=>'<button type="button" class="category-chip'+(name===activeCategory?' active':'')+'" data-category="'+esc(name)+'">'+esc(name)+'</button>').join('');
+ const filtered=groups.filter(g=>(activeCategory==='Todos'||g.name===activeCategory)&&g.items.some(item=>!query||(String(item.name||'')+' '+String(item.description||'')+' '+String(item.category||'')).toLocaleLowerCase('pt-BR').includes(query)));
+ $('categories').innerHTML=filtered.map(group=>'<section class="category"><h2 class="category-title">'+esc(group.name)+'</h2><div class="category-items">'+group.items.filter(item=>!query||(String(item.name||'')+' '+String(item.description||'')+' '+String(item.category||'')).toLocaleLowerCase('pt-BR').includes(query)).map(productCard).join('')+'</div></section>').join('')||'<p class="empty">Nenhum produto encontrado.</p>';
 }
 function normalizeWhatsApp(v){
  let number=String(v||'').replace(/\D/g,'');
@@ -75,7 +76,7 @@ function render(){
    '<img src="/bipstart-logo.svg" alt="Logo BipStart">';
  const first=(menu.items||[]).find(p=>p.image_path)?.image_path;
  if(first)$('coverPicture').style.backgroundImage='url("'+imageUrl(first).replace(/["\\()]/g,'')+'")';
- $('categories').innerHTML=categoryGroups(menu).map(categoryCard).join('')||'<p class="empty">Este estabelecimento ainda não cadastrou produtos.</p>';
+ renderCatalog();
  renderCart();
 }
 function renderCart(){
@@ -153,6 +154,13 @@ async function placeOnlineOrder(){
  const trackingUrl=location.origin+'/acompanhar#pedido='+encodeURIComponent(result.id)+'&chave='+encodeURIComponent(token);
  return {id:result.id,trackingUrl};
 }
+$('menuSearch').addEventListener('input',renderCatalog);
+$('categoryChips').addEventListener('click',event=>{
+ const button=event.target.closest('[data-category]');
+ if(!button)return;
+ activeCategory=button.dataset.category;
+ renderCatalog();
+});
 document.addEventListener('click',event=>{
  const add=event.target.closest('[data-add]');
  const inc=event.target.closest('[data-inc]');
