@@ -3239,3 +3239,46 @@ body.workspace-fullscreen #workspace .content{
 }
 #workspace .menu-settings button:not(.button){color:#1f2937!important;}
 #workspace .menu-settings .menu-editor-items .item{background:#fff!important;}
+
+
+/* Correção direta dos cards exibidos em Configurações da loja */
+#workspace .receipt-settings-panel,
+#workspace .menu-layout-settings,
+#workspace .menu-logo-editor,
+#workspace .category-image-settings,
+#workspace .category-image-settings-list,
+#workspace fieldset.menu-payments,
+#workspace .menu-settings > label,
+#workspace .menu-settings > p,
+#workspace .menu-settings > .field,
+#workspace .menu-settings > div{
+ background:#fff!important;
+ background-image:none!important;
+ color:#1f2937!important;
+ border-color:#d1d5db!important;
+ box-shadow:none!important;
+}
+#workspace .receipt-settings-panel *,
+#workspace .menu-layout-settings *,
+#workspace .menu-logo-editor *,
+#workspace .category-image-settings *,
+#workspace fieldset.menu-payments *,
+#workspace .menu-settings label,
+#workspace .menu-settings p,
+#workspace .menu-settings legend,
+#workspace .menu-settings h3,
+#workspace .menu-settings h4,
+#workspace .menu-settings small,
+#workspace .menu-settings strong{
+ color:#1f2937!important;
+}
+#workspace .receipt-settings-panel input:not([type=checkbox]):not([type=color]),
+#workspace .menu-layout-settings input:not([type=checkbox]):not([type=color]),
+#workspace .menu-logo-editor input:not([type=checkbox]):not([type=color]),
+#workspace .category-image-settings input:not([type=checkbox]):not([type=color]),
+#workspace .menu-settings input:not([type=checkbox]):not([type=color]),
+#workspace .menu-settings select,
+#workspace .menu-settings textarea{
+ background:#fff!important;color:#111827!important;border-color:#cbd5e1!important;
+}
+#workspace .menu-editor-panel .data-form{background:transparent!important;}
