@@ -3201,3 +3201,41 @@ body.workspace-fullscreen #workspace .content{
 #workspace .plan-management .plan-management-pending{
  color:#166534!important;
 }
+
+
+/* Cartões de configurações: fundo claro e texto escuro */
+#workspace .menu-settings,
+#workspace .menu-settings > section,
+#workspace .menu-settings .menu-editor-panel,
+#workspace .menu-settings .category-image-settings,
+#workspace .menu-settings .menu-editor-items,
+#workspace .menu-settings .data-form,
+#workspace .menu-settings .item,
+#workspace .menu-settings .cart,
+#workspace .menu-settings .mode-option,
+#workspace .menu-settings .mode-menu,
+#workspace .menu-settings .mode-pdv{
+ background:#fff!important;
+ background-image:none!important;
+ color:#1f2937!important;
+ border-color:#dbe2ea!important;
+ box-shadow:none!important;
+}
+#workspace .menu-settings h2,
+#workspace .menu-settings h3,
+#workspace .menu-settings h4,
+#workspace .menu-settings p,
+#workspace .menu-settings label,
+#workspace .menu-settings small,
+#workspace .menu-settings strong,
+#workspace .menu-settings span,
+#workspace .menu-settings .muted{
+ color:#1f2937!important;
+}
+#workspace .menu-settings input:not([type=color]):not([type=checkbox]),
+#workspace .menu-settings select,
+#workspace .menu-settings textarea{
+ background:#fff!important;color:#111827!important;border-color:#cbd5e1!important;
+}
+#workspace .menu-settings button:not(.button){color:#1f2937!important;}
+#workspace .menu-settings .menu-editor-items .item{background:#fff!important;}
