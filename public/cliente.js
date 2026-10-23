@@ -1448,7 +1448,7 @@ function importNumber(value,defaultValue=0){
  if(value===null||value===undefined||String(value).trim()==='')return defaultValue;
  if(typeof value==='number')return value;
  let v=String(value).trim().replace(/\s/g,'');
- if(v.includes(','))v=v.replace(/\\./g,'').replace(',','.');
+ if(v.includes(','))v=v.replace(/\./g,'').replace(',','.');
  const n=Number(v);return Number.isFinite(n)?n:NaN;
 }
 function parseImportRows(rows){
@@ -2459,8 +2459,8 @@ document.addEventListener('click',async e=>{
   const pasteArea=e.target.closest('[data-image-paste]');if(pasteArea){pasteArea.focus();return}
   const importTemplate=e.target.closest('[data-stock-import-template]');
   if(importTemplate){
-    const csv='nome,categoria,preco_venda,custo,estoque,estoque_minimo,imagem_url\\nExemplo de produto,Geral,19.90,10.00,25,5,https://exemplo.com/foto.jpg\\n';
-    const blob=new Blob(['\\uFEFF',csv],{type:'text/csv;charset=utf-8;'});
+    const csv='nome,categoria,preco_venda,custo,estoque,estoque_minimo,imagem_url\nExemplo de produto,Geral,19.90,10.00,25,5,https://exemplo.com/foto.jpg\n';
+    const blob=new Blob(['\uFEFF',csv],{type:'text/csv;charset=utf-8;'});
     const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='modelo-importacao-bipstart.csv';a.click();URL.revokeObjectURL(url);return;
   }
   const importOpen=e.target.closest('[data-stock-import-open]');
