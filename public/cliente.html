@@ -37,6 +37,16 @@ body:has(#auth:not(.hidden)) .auth-card .text-button{color:#7044d6!important}
 <style id="bipstart-day-night-theme">
 .theme-toggle{border:1px solid #6d5292;background:#211437;color:#f6f2ff;border-radius:999px;padding:9px 13px;font-weight:750;white-space:nowrap}
 body.day-mode{--bg:#f5f3fa;--panel:#fff;--panel2:#eee8f8;--line:#ded6ea;--accent:#7044d6;--text:#2b2140;--muted:#71677f;--ok:#13865e;--danger:#c63755;background:#f5f3fa!important;color:#2b2140!important}
+body.night-mode{--bg:#000;--panel:#090909;--panel2:#111;--line:#303030;--accent:#a878ff;--text:#f6f2ff;--muted:#aaa;--ok:#4ce2ae;--danger:#ff8e9d;background:#000!important;color:#f6f2ff!important}
+body.night-mode .top{background:#050505!important;border-color:#292929!important;color:#f6f2ff!important}
+body.night-mode .top nav a,body.night-mode .brand{color:#e5d7ff!important}
+body.night-mode .side,body.night-mode .content{background:#050505!important;color:#f6f2ff!important;border-color:#292929!important}
+body.night-mode .card,body.night-mode .auth-card,body.night-mode .receipt-dialog,body.night-mode .modal,body.night-mode .panel,body.night-mode .stat-card,body.night-mode #workspace .pdv-panel,body.night-mode #workspace .menu-editor-panel,body.night-mode #workspace .category-image-settings,body.night-mode #workspace .data-form,body.night-mode #workspace .cart,body.night-mode #workspace .item,body.night-mode #workspace .tile,body.night-mode #workspace .empty,body.night-mode #workspace .menu-category-line,body.night-mode #workspace .category-image-setting-row,body.night-mode #workspace .pdv-best-sellers,body.night-mode #workspace .pdv-best-seller,body.night-mode #workspace .product-best-seller-option,body.night-mode #workspace .menu-editor-meta button{background:#090909!important;background-image:none!important;color:#f6f2ff!important;border-color:#303030!important}
+body.night-mode .card *,body.night-mode .side *,body.night-mode .content *,body.night-mode .receipt-dialog *{color:inherit}
+body.night-mode .muted,body.night-mode .small,body.night-mode #workspace small{color:#aaa!important}
+body.night-mode input:not([type=checkbox]):not([type=radio]),body.night-mode select,body.night-mode textarea{background:#111!important;color:#f6f2ff!important;border-color:#444!important}
+body.night-mode .ghost,body.night-mode .side-action,body.night-mode .side-toggle{background:#111!important;color:#e5d7ff!important;border-color:#303030!important}
+body.night-mode .button,body.night-mode button.button{background:#7044d6!important;color:#fff!important;border-color:#7044d6!important}
 body.day-mode .top{background:#fff!important;border-color:#e3dcec!important;color:#2b2140!important}
 body.day-mode .top nav a,body.day-mode .brand{color:#5b3ca0!important}
 body.day-mode .theme-toggle{background:#f0e9ff;color:#5b3ca0;border-color:#d8c8f4}
@@ -133,7 +143,7 @@ body.day-mode #workspace .side-actions-row .theme-toggle { background:#f0e9ff!im
 
 </style>
 <script id="bipstart-theme-controller">
-(()=>{const key='bipstart_theme_mode';let mode='night';const apply=()=>{document.body.classList.toggle('day-mode',mode==='day');const b=document.getElementById('themeToggle');if(b){b.textContent=mode==='day'?'🌙 Modo noite':'☀️ Modo dia';b.setAttribute('aria-pressed',String(mode==='day'));b.title=mode==='day'?'Mudar para modo noite':'Mudar para modo dia';}};try{mode=localStorage.getItem(key)==='day'?'day':'night'}catch{};const init=()=>{apply();const b=document.getElementById('themeToggle');if(b&&!b.dataset.themeReady){b.dataset.themeReady='1';b.addEventListener('click',()=>{mode=mode==='day'?'night':'day';try{localStorage.setItem(key,mode)}catch{};apply();});}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();})();
+(()=>{const key='bipstart_theme_mode';let mode='night';const apply=()=>{document.body.classList.toggle('day-mode',mode==='day');document.body.classList.toggle('night-mode',mode!=='day');const b=document.getElementById('themeToggle');if(b){b.textContent=mode==='day'?'🌙 Modo noite':'☀️ Modo dia';b.setAttribute('aria-pressed',String(mode==='day'));b.title=mode==='day'?'Mudar para modo noite':'Mudar para modo dia';}};try{mode=localStorage.getItem(key)==='day'?'day':'night'}catch{};const init=()=>{apply();const b=document.getElementById('themeToggle');if(b&&!b.dataset.themeReady){b.dataset.themeReady='1';b.addEventListener('click',()=>{mode=mode==='day'?'night':'day';try{localStorage.setItem(key,mode)}catch{};apply();});}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();})();
 </script>
 </head>
 <body>
