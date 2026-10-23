@@ -938,7 +938,7 @@ function productCard(product){
   '<div class="inventory-stock-meta"><span>Atual: <strong>'+esc(product.stock??0)+' un</strong></span>'+
    '<span aria-hidden="true">•</span><span>Mínimo: <strong>'+esc(product.min_stock??5)+' un</strong></span></div>'+
   '<div class="inventory-status '+state+'" role="status">'+label+'</div>'+
-  '<div class="inventory-actions">'+editBtn('product',product.id)+'</div>'+
+  '<div class="inventory-actions">'+editBtn('product',product.id)+' <button type="button" class="ghost danger" data-product-delete="'+esc(product.id)+'" aria-label="Remover '+esc(product.name)+'" title="Remover produto">Remover</button></div>'+
   '</div></article>';
 }
 function normalizedProductCategory(product){
@@ -2497,6 +2497,26 @@ document.addEventListener('click',async e=>{
     return
   }
   const add=e.target.closest('[data-new]');if(add){if(tab==='cardapio'&&!proAccess())return msg('Cardápio online exclusivo Premium.',true);if(tab==='produtos'&&add.dataset.new==='product')selectedStockPanel='all';showForm={kind:add.dataset.new,value:null};pastedProductImage=null;renderPage();if(add.dataset.new==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return}
+  const deleteProductButton=e.target.closest('[data-product-delete]');
+  if(deleteProductButton){
+    if(tab!=='produtos'||!shop||!hasAccess())return;
+    const product=products.find(item=>item.id===deleteProductButton.dataset.productDelete);
+    if(!product)return;
+    if(!window.confirm('Remover o produto "'+product.name+'" do cadastro? Esta ação não pode ser desfeita.'))return;
+    deleteProductButton.disabled=true;
+    try{
+      await rest('shop_products',{method:'DELETE',query:{id:'eq.'+product.id,shop_id:'eq.'+shop.id}});
+      products=products.filter(item=>item.id!==product.id);
+      showForm=null;
+      await reloadData();
+      renderPage();
+      msg('Produto "'+product.name+'" removido do cadastro.');
+    }catch(error){
+      deleteProductButton.disabled=false;
+      msg(error.message||'Não foi possível remover o produto. Se ele estiver vinculado a vendas, o sistema pode impedir a exclusão.',true);
+    }
+    return;
+  }
   const edit=e.target.closest('[data-edit]');if(edit){
     const lists={product:products,service:services,appointment:appointments,courier:couriers,delivery:deliveries};
     showForm={kind:edit.dataset.edit,value:(lists[edit.dataset.edit]||[]).find(v=>v.id===edit.dataset.id)||null};pastedProductImage=null;renderPage();if(edit.dataset.edit==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return
