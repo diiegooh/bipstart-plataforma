@@ -1774,17 +1774,19 @@ function applyPdvCategoryFontSizes(){
  });
 }
 let pdvCategoriesResizePending=false;
-window.addEventListener('resize',()=>{
- if(pdvCategoriesResizePending)return;
- pdvCategoriesResizePending=true;
- window.requestAnimationFrame(()=>{
-  pdvCategoriesResizePending=false;
-  if(tab==='caixa'){
-   applyPdvFloatingFullWidth();
-   applyPdvCategoryFontSizes();
-  }
+if(typeof window!=='undefined' && typeof window.addEventListener==='function'){
+ window.addEventListener('resize',()=>{
+  if(pdvCategoriesResizePending)return;
+  pdvCategoriesResizePending=true;
+  window.requestAnimationFrame(()=>{
+   pdvCategoriesResizePending=false;
+   if(tab==='caixa'){
+    applyPdvFloatingFullWidth();
+    applyPdvCategoryFontSizes();
+   }
+  });
  });
-});
+}
 
 /* Quando o carrinho flutuante substitui a coluna de caixa, ocupar toda a linha.
    Flex wrap preenche inclusive a última linha com menos cards. */
