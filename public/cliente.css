@@ -3942,3 +3942,39 @@ body #workspace #page button[data-share-courier].courier-system-accent:hover:not
  border-color:var(--store-accent,#7c3aed)!important;
  box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 30%,transparent)!important;
 }
+
+/* Configurações: cards de botão flutuante, comprovante e imagens no modo noite. */
+body.pdv-night #workspace #page #settingsForm :is(.receipt-settings-panel,.category-image-settings,.category-image-settings-list,.category-image-setting-row){
+ background:#22252d!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(.receipt-settings-fields,.category-image-setting-info){
+ background:transparent!important;background-image:none!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(.receipt-settings-panel h3,.category-image-settings h3,.category-image-setting-info strong){
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(.receipt-settings-panel p,.receipt-settings-panel label,.category-image-settings p,.category-image-setting-info small){
+ color:#b6bdcf!important;-webkit-text-fill-color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page #settingsForm .receipt-settings-panel :is(input:not([type=checkbox]),select){
+ background:#181a20!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;color-scheme:dark;
+}
+body.pdv-night #workspace #page #settingsForm .category-image-setting-row :is(.category-image-actions button,.category-image-file){
+ background:#2b2f39!important;background-image:none!important;
+ border-color:#454957!important;color:#f4f4f8!important;
+}
+/* Vendas: Exportar cupom 80 mm respeita a Cor do Sistema. */
+body #workspace #page .sales-export-actions button.sales-export-receipt-accent,
+body.pdv-night #workspace #page .sales-export-actions button.sales-export-receipt-accent{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ -webkit-text-fill-color:var(--store-accent-ink,#fff)!important;
+}
+body #workspace #page .sales-export-actions button.sales-export-receipt-accent:hover:not(:disabled){
+ filter:brightness(.88)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 30%,transparent)!important;
+}
