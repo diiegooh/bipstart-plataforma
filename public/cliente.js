@@ -742,7 +742,7 @@ function salesPrintableHtml(report,format,storeName,rangeLabel){
    '<section class="a4-details"><h2>Produtos vendidos por carrinho</h2>'+
    '<p class="a4-details-note">Detalhamento das vendas numeradas no período selecionado.</p>'+
    a4Details+'</section>')+
-  warning+'<footer>
+  warning+'<footer>'+
   'Documento gerencial, não substitui NF-e, NFC-e ou nota fiscal.</footer></main>';
  const toolbar='<div class="toolbar">'+
   (narrow?'':'<label class="print-option"><input type="checkbox" id="includeProducts"'+
