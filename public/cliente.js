@@ -1338,7 +1338,7 @@ function renderGodzillaPDV(){
   '<button type="button" class="pdv-card-kind'+(pdvPayment===code?' selected':'')+
   '" data-card-method="'+code+'" aria-pressed="'+(pdvPayment===code)+'">'+label+'</button>'
  ).join('');
- return '<div class="godzilla-pdv">'+
+ return '<div class="godzilla-pdv'+(floatingSale?' pdv-floating-layout':'')+'">'+
  '<div class="pdv-title"><h2>PDV</h2><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Pesquisar produtos..." value="'+esc(pdvQuery)+'" autocomplete="off"></label></div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
