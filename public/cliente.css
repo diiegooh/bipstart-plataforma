@@ -3772,3 +3772,58 @@ body #workspace #page #settingsForm :is(.menu-settings button.button,.menu-edito
  color:var(--settings-ink)!important;
  border-color:var(--settings-accent)!important;
 }
+
+/* Configurações no modo noite: todos os painéis e cards têm superfícies escuras neutras. */
+body.pdv-night #workspace #page #settingsForm,
+body.pdv-night #workspace #page #settingsForm :is(
+ .menu-settings,.menu-payments,.menu-logo-settings,.menu-logo-editor,
+ .menu-layout-settings,.receipt-settings-panel,.category-image-settings,
+ .category-image-setting-row,.category-image-settings-list,.menu-editor-panel,
+ .menu-layout-fields,.menu-layout-subtitle,.receipt-settings-fields,
+ .menu-price-controls,.online-sale-price,.menu-category-list,.menu-category-line,
+ .category-image-setting-info,.menu-logo-editor-heading,
+ fieldset,.settings-card,.receipt-settings-card
+){
+ background:#22252d!important;
+ background-image:none!important;
+ border-color:#393d49!important;
+ box-shadow:none!important;
+ color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(
+ .menu-settings,.menu-payments,.menu-logo-settings,.menu-logo-editor,
+ .menu-layout-settings,.receipt-settings-panel,.category-image-settings,
+ .category-image-setting-row,.category-image-settings-list,.menu-editor-panel,
+ .menu-layout-fields,.menu-layout-subtitle,.receipt-settings-fields,
+ .menu-price-controls,.online-sale-price,.menu-category-list,.menu-category-line,
+ .category-image-setting-info
+) :is(h2,h3,h4,p,small,label,legend,span,strong,b){
+ color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(
+ input:not([type=checkbox]):not([type=radio]):not([type=color]),
+ select,textarea
+){
+ background:#181a20!important;
+ background-image:none!important;
+ color:#f4f4f8!important;
+ border-color:#393d49!important;
+ color-scheme:dark;
+}
+body.pdv-night #workspace #page #settingsForm :is(input,textarea)::placeholder{
+ color:#aeb3c1!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(
+ .menu-settings button:not(.button),.category-image-actions button:not(.button),
+ .menu-logo-editor button:not(.button)
+){
+ background:#2b2f39!important;
+ color:#f4f4f8!important;
+ border-color:#393d49!important;
+}
+body.pdv-night #workspace #page #settingsForm .settings-save-button,
+body.pdv-night #workspace #page #settingsForm button.button{
+ background:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+}
