@@ -3702,3 +3702,34 @@ body.workspace-fullscreen #workspace .pdv-floating-sale-button:hover{
  body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-category-tiles{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))!important}
  body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-products{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))!important}
 }
+
+/* Layout expandido vinculado diretamente ao estado da venda flutuante. */
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-two-panels,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-two-panels{
+ grid-template-columns:minmax(0,1fr)!important;
+ width:100%!important;
+ max-width:none!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-catalog,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-catalog{
+ grid-column:1/-1!important;
+ width:100%!important;
+ max-width:none!important;
+ min-width:0!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fit,minmax(145px,1fr))!important;
+ gap:12px!important;
+ width:100%!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important;
+ gap:12px!important;
+ width:100%!important;
+}
+@media(max-width:700px){
+ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
