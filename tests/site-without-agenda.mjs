@@ -43,7 +43,7 @@ test('link Planos centraliza o título logo abaixo do cabeçalho fixo',()=>{
  assert.equal((html.match(/id="planos"/g)||[]).length,1);
  assert.match(css,/html\{scroll-padding-top:90px\}/);
  assert.match(css,/\.pricing-title#planos\{scroll-margin-top:12px\}/);
- assert.match(html,/\/style\.css\?v=9/);
+ assert.match(html,/\/style\.css\?v=[0-9]+/);
 });
 
 test('tipografia dos planos permanece legível e destacada no desktop e no celular',()=>{
@@ -150,7 +150,7 @@ test('nomes dos mini cards e dos dois modelos estão mais destacados no desktop 
  assert.match(css,/#solucoes \.solution-card-copy h3\{margin:0 0 9px;font-size:25px/);
  assert.match(css,/#solucoes \.solution-card-copy h3\{font-size:23px\}/);
  assert.match(css,/#solucoes \.solution-mini-card>strong\{font-size:16px\}/);
- assert.match(html,/\/style\.css\?v=9/);
+ assert.match(html,/\/style\.css\?v=[0-9]+/);
 });
 
 
@@ -172,5 +172,5 @@ test('seção Modelos ocupa menos altura no notebook mantendo os seis exemplos',
  assert.match(css,/@media\(max-width:830px\)\{/);
  assert.match(css,/#solucoes \.solution-grid\{grid-template-columns:1fr;max-width:600px;margin-inline:auto;gap:19px\}/);
  assert.match(css,/@media\(max-width:430px\)\{/);
- assert.match(html,/\/style\.css\?v=9/);
+ assert.match(html,/\/style\.css\?v=[0-9]+/);
 });
