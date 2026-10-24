@@ -810,7 +810,7 @@ body.round-menu{background:radial-gradient(ellipse at 8% 20%,color-mix(in srgb,v
 
 /* Tema roxo claro: aplicado à rota oficial /cardapio (vitrine.html) */
 body.round-menu{
- --green:#7138f4!important;--green2:#8f42ff!important;--theme-ink:#fff!important;
+ --green2:var(--green)!important;--theme-ink:#fff!important;
  background:#f8f8ff!important;color:#17115d!important;
  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif!important;
 }
@@ -823,7 +823,7 @@ body.round-menu{
  align-items:center!important;gap:10px!important;text-align:left!important}
 .round-menu .menu-hero-heading{display:none!important}
 .round-menu .menu-hero-logo-card{width:42px!important;height:42px!important;border-radius:12px!important;
- background:linear-gradient(130deg,#7138f4,#963bff)!important;box-shadow:none!important}
+ background:linear-gradient(130deg,var(--green),var(--green))!important;box-shadow:none!important}
 .round-menu .menu-hero-logo-card img{width:100%!important;height:100%!important;object-fit:contain!important}
 .round-menu .store-header .header-title h1{font-family:Inter,system-ui,sans-serif!important;font-size:22px!important;
  font-weight:850!important;letter-spacing:-.04em!important;color:#17115d!important;margin:0!important;text-align:left!important}
@@ -834,7 +834,7 @@ body.round-menu{
  box-shadow:0 3px 12px #3020800a!important;color:#21166d!important}
 .round-menu .location-card small,.round-menu .hours-card small{font-size:10px!important;color:#77729b!important}
 .round-menu .location-card b,.round-menu .hours-card b{font-size:11px!important;color:#21166d!important;overflow-wrap:anywhere!important}
-.round-menu .location-pin,.round-menu .hours-icon{color:#7138f4!important;border-color:#7138f4!important}
+.round-menu .location-pin,.round-menu .hours-icon{color:var(--green)!important;border-color:var(--green)!important}
 .round-menu .category-strip{display:flex!important;gap:9px!important;overflow-x:auto!important;padding:10px 14px 13px!important;
  scrollbar-width:none!important;background:#f8f8ff!important}
 .round-menu .category-strip::-webkit-scrollbar{display:none!important}
@@ -845,9 +845,9 @@ body.round-menu{
 .round-menu .category-tile .category-art img{width:100%!important;height:100%!important;object-fit:cover!important}
 .round-menu .category-tile> b{font-size:11px!important;color:#35277c!important;white-space:nowrap!important;max-width:76px!important;
  overflow:hidden!important;text-overflow:ellipsis!important}
-.round-menu .category-tile.active .category-art{background:#eee8ff!important;border:2px solid #7138f4!important;box-shadow:0 3px 10px #7138f422!important}
-.round-menu .category-tile.active>b{color:#7138f4!important}
-.round-menu .category-tile-all .category-art-all-fixed{background:#7138f4!important;border:0!important}
+.round-menu .category-tile.active .category-art{background:#eee8ff!important;border:2px solid var(--green)!important;box-shadow:0 3px 10px var(--green)22!important}
+.round-menu .category-tile.active>b{color:var(--green)!important}
+.round-menu .category-tile-all .category-art-all-fixed{background:var(--green)!important;border:0!important}
 .round-menu .category-tile-all .category-all-png{background-color:#fff!important}
 .round-menu .combo-banner{display:none!important}
 .round-menu .catalog-shell{padding:3px 14px 100px!important}
@@ -855,8 +855,8 @@ body.round-menu{
 .round-menu .catalog-toolbar{display:block!important;margin:0 0 14px!important}
 .round-menu .searchbox{display:flex!important;align-items:center!important;gap:9px!important;min-height:45px!important;
  padding:0 13px!important;background:#f0edff!important;border:1px solid #efebff!important;border-radius:16px!important;
- color:#7138f4!important;box-shadow:none!important}
-.round-menu .searchbox>span{font-size:21px!important;color:#7138f4!important}
+ color:var(--green)!important;box-shadow:none!important}
+.round-menu .searchbox>span{font-size:21px!important;color:var(--green)!important}
 .round-menu .searchbox input{min-width:0!important;width:100%!important;padding:10px 0!important;background:transparent!important;
  color:#21166d!important;border:0!important;outline:0!important;font-size:13px!important}
 .round-menu .searchbox input::placeholder{color:#7c72b3!important}
@@ -871,11 +871,11 @@ body.round-menu{
 .round-menu .round-product .round-product-description{font-size:11px!important;color:#77729b!important}
 .round-menu .round-product .round-product-price{font-size:12px!important;font-weight:800!important;color:#21166d!important}
 .round-menu .round-product .round-add{display:grid!important;place-items:center!important;width:29px!important;height:29px!important;min-height:29px!important;
- padding:0!important;border:0!important;border-radius:50%!important;background:linear-gradient(130deg,#7138f4,#943cff)!important;
+ padding:0!important;border:0!important;border-radius:50%!important;background:linear-gradient(130deg,var(--green),var(--green))!important;
  color:#fff!important;font-size:22px!important;line-height:1!important}
 .round-menu .cartfloat{right:14px!important;bottom:16px!important;width:54px!important;height:54px!important;
- background:linear-gradient(130deg,#7138f4,#943cff)!important;border:0!important;box-shadow:0 5px 18px #7138f455!important}
-.round-menu .cartfloat b{background:#fff!important;color:#7138f4!important}
+ background:linear-gradient(130deg,var(--green),var(--green))!important;border:0!important;box-shadow:0 5px 18px var(--green)55!important}
+.round-menu .cartfloat b{background:#fff!important;color:var(--green)!important}
 .round-menu .onlinecart{background:#fff!important;color:#21166d!important;border-color:#e6e1fb!important}
 .round-menu .cartline{background:#f8f6ff!important;border-color:#e6e1fb!important}
 .round-menu .input,.round-menu textarea,.round-menu .select{background:#faf9ff!important;color:#21166d!important;border-color:#ddd6ff!important}
@@ -896,7 +896,7 @@ body.round-menu{
 .round-menu .store-header{position:relative!important;display:flex!important;justify-content:flex-start!important;padding-left:14px!important}
 .round-menu .store-options-button{display:grid!important;place-items:center!important;flex:0 0 38px!important;width:38px!important;height:38px!important;
  margin:0 8px 0 0!important;padding:0!important;border:0!important;border-radius:10px!important;background:transparent!important;
- color:#7138f4!important;font-size:25px!important;line-height:1!important;cursor:pointer!important}
+ color:var(--green)!important;font-size:25px!important;line-height:1!important;cursor:pointer!important}
 .round-menu .store-header .header-title{flex:1!important;min-width:0!important;grid-template-columns:42px minmax(0,1fr)!important}
 .round-menu .store-options-panel{position:absolute!important;z-index:60!important;top:70px!important;left:10px!important;
  width:min(340px,calc(100vw - 24px))!important;padding:12px!important;background:#fff!important;color:#21166d!important;
@@ -904,7 +904,7 @@ body.round-menu{
 .round-menu .store-options-panel.hidden{display:none!important}
 .round-menu .store-options-head{display:flex!important;align-items:center!important;justify-content:space-between!important;
  gap:12px!important;padding:2px 4px 10px!important;font-size:14px!important;color:#21166d!important}
-.round-menu .store-options-head button{border:0!important;background:#f0edff!important;color:#7138f4!important;border-radius:9px!important;
+.round-menu .store-options-head button{border:0!important;background:#f0edff!important;color:var(--green)!important;border-radius:9px!important;
  width:30px!important;height:30px!important;font-size:22px!important;line-height:1!important}
 .round-menu .store-options-panel .location-row{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;
  padding:0!important;margin:0!important}
@@ -912,7 +912,7 @@ body.round-menu{
 .round-menu .store-options-panel .hours-card{display:flex!important;width:100%!important;min-height:58px!important}
 .round-menu .store-options-panel .location-card b,
 .round-menu .store-options-panel .hours-card b{white-space:normal!important;overflow-wrap:anywhere!important}
-.round-menu .store-options-panel .location-map{color:#7138f4!important}
+.round-menu .store-options-panel .location-map{color:var(--green)!important}
 @media(min-width:700px){.round-menu .store-options-panel{top:74px!important;left:max(10px,calc((100vw - 1120px)/2))!important}}
 
 
@@ -937,8 +937,8 @@ body.round-menu{
  white-space:nowrap!important;font-size:12px!important;font-weight:650!important;line-height:1!important;color:inherit!important;
 }
 .round-menu .category-tile.active{
- background:linear-gradient(120deg,#7138f4,#943cff)!important;border-color:transparent!important;
- box-shadow:0 3px 9px #7138f433!important;color:#fff!important;
+ background:linear-gradient(120deg,var(--green),var(--green))!important;border-color:transparent!important;
+ box-shadow:0 3px 9px var(--green)33!important;color:#fff!important;
 }
 .round-menu .category-tile.active>b{color:#fff!important}
 @media(min-width:700px){
@@ -989,9 +989,9 @@ body.round-menu{
  display:grid!important;place-items:center!important;flex:0 0 30px!important;
  width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
  margin:0 0 0 auto!important;padding:0!important;border:0!important;border-radius:50%!important;
- background:linear-gradient(130deg,#7138f4,#943cff)!important;color:#fff!important;
+ background:linear-gradient(130deg,var(--green),var(--green))!important;color:#fff!important;
  font-size:22px!important;font-weight:500!important;line-height:1!important;
- box-shadow:0 3px 7px #7138f433!important;
+ box-shadow:0 3px 7px var(--green)33!important;
 }
 @media(min-width:700px){
  .round-menu .delivery-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important}
@@ -1170,7 +1170,7 @@ body.round-menu{
  border-radius:999px!important;background:#f2edff!important;color:#4f22b8!important;
  font-size:13px!important;font-weight:800!important;white-space:nowrap!important;cursor:pointer!important;
 }
-.round-menu .return-store-btn:focus-visible{outline:2px solid #7138f4!important;outline-offset:2px!important}
+.round-menu .return-store-btn:focus-visible{outline:2px solid var(--green)!important;outline-offset:2px!important}
 @media(max-width:420px){
  .round-menu .onlinecart .modalhead{align-items:center!important;gap:6px!important}
  .round-menu .cart-header-actions{gap:4px!important}
@@ -1257,7 +1257,7 @@ body.round-menu.menu-night{color-scheme:dark!important;background:#08080d!import
 .menu-night.round-menu .store-options-head button{background:#292639!important;color:#fff!important}
 .menu-night.round-menu .category-tile{background:#1a1923!important;border-color:#33313e!important;color:#fff!important;box-shadow:none!important}
 .menu-night.round-menu .category-tile>b{color:#fff!important}
-.menu-night.round-menu .category-tile.active{background:#7138f4!important;border-color:#7138f4!important}
+.menu-night.round-menu .category-tile.active{background:var(--green)!important;border-color:var(--green)!important}
 .menu-night.round-menu .category-tile.active>b{color:#fff!important}
 .menu-night.round-menu .searchbox{background:#191923!important;border-color:#353440!important;color:#fff!important}
 .menu-night.round-menu .searchbox input{color:#fff!important}
@@ -1286,4 +1286,4 @@ body.round-menu.menu-night{color-scheme:dark!important;background:#08080d!import
 .menu-night.round-menu .summary,.menu-night.round-menu .tracking-ready{background:#1b1a24!important;color:#fff!important;border-color:#343341!important}
 .menu-night.round-menu .store-options-theme{color:#fff!important;border-top:1px solid #363440!important}
 .round-menu .store-options-theme{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 4px 2px;font-size:13px;font-weight:700;color:#30216d}
-.round-menu .store-options-theme button{padding:9px 12px;border-radius:10px;border:1px solid #7138f4;background:#7138f4;color:#fff;font-weight:800;cursor:pointer}
+.round-menu .store-options-theme button{padding:9px 12px;border-radius:10px;border:1px solid var(--green);background:var(--green);color:#fff;font-weight:800;cursor:pointer}
