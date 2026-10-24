@@ -380,9 +380,12 @@ function operationalMenuItems(){
   ];
 }
 function applySidebarTheme(){
- const color='#7c3aed';
+ const candidate=String(shop?.brand_color||'');
+ const color=/^#[0-9a-f]{6}$/i.test(candidate)?candidate:'#7c3aed';
+ const channels=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255);
+ const luminance=channels.map(x=>x<=.04045?x/12.92:Math.pow((x+.055)/1.055,2.4)).reduce((sum,x,i)=>sum+x*[.2126,.7152,.0722][i],0);
  document.documentElement.style.setProperty('--store-accent',color);
- document.documentElement.style.setProperty('--store-accent-ink','#ffffff');
+ document.documentElement.style.setProperty('--store-accent-ink',luminance>.35?'#181321':'#ffffff');
  document.documentElement.style.setProperty('--accent',color);
  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',color);
 }
@@ -1650,6 +1653,7 @@ function renderPage(){
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
       +(isMenu?establishmentTypeField():'')
+      +(canCustomize()?field('brand_color','COR DO SISTEMA','color',shop.brand_color||'#7c3aed')+'<p class="muted small">Cor aplicada aos botões, seleções, destaques e cardápio online.</p>':'')
       
       +(isMenu?'<div class="menu-settings">'
        +field('opening_hours','Horário de atendimento','text',shop.opening_hours||'','maxlength="160" placeholder="Ex.: Segunda a sábado, 18h às 23h"')
@@ -2008,7 +2012,11 @@ async function handleSubmit(form,contractWindow=null){
       if(whatsapp&&!/^\d{10,13}$/.test(whatsapp))throw Error('Informe um telefone WhatsApp com DDD.');
       if(!v.name?.trim())throw Error('Informe o nome do estabelecimento.');
       const body={name:v.name.trim(),whatsapp:whatsapp||null};
-      // Identidade lilás BipStart fixa; não salvar cores customizadas.
+      if(canCustomize()){
+        if(!/^#[0-9a-f]{6}$/i.test(String(v.brand_color||'')))throw Error('Selecione uma cor válida.');
+        body.brand_color=v.brand_color;
+        body.menu_theme_color=v.brand_color;
+      }
       let receiptPreference=null;
       if(shop.model==='pdv'){
         if(!receiptPaperOptions.includes(String(v.paper||''))||String(v.footer||'').length>120)
