@@ -49,14 +49,14 @@ test('fila mostra rotas Maps e Waze com escape de dados de clientes',()=>{
  assert.match(card,/&lt;img src=x/);
  assert.doesNotMatch(card,/<img src=x/);
  assert.match(card,/Combo &amp; uma bebida/);
- assert.match(card,/Google Maps/);
- assert.match(card,/Waze/);
+ assert.match(card,/courier-order-actions/);
+ assert.match(driver,/function wazeUrl\(address\)/);
  assert.match(mapUrl(row.address),/destination=Rua%20A/);
  assert.match(wazeUrl(row.address),/navigate=yes/);
  const assigned=deliveryCard({...row,status:'atribuida'},false);
- assert.match(assigned,/Iniciar rota/);
+ assert.match(assigned,/INICIAR ROTA/);
  const outbound=deliveryCard({...row,status:'a_caminho'},false);
- assert.match(outbound,/Marcar como entregue/);
+ assert.match(outbound,/ENTREGUE/);
 });
 test('painel motoboy oferece convite seguro e link de login com botões de compartilhar',()=>{
  const a=client.indexOf('function courierAccessUrl('),b=client.indexOf('function renderPage(){',a);
