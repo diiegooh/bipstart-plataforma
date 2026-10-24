@@ -1664,6 +1664,37 @@ function applySettingsNightStyles(){
 }
 window.applySettingsNightStyles=applySettingsNightStyles;
 
+
+/* Histórico de vendas: aplicar o tema noite também aos cards reconstruídos por renderPage. */
+function applySalesNightStyles(){
+ const root=$('page');
+ if(!root)return;
+ const dark=document.body.classList.contains('pdv-night');
+ const paint=(selector,styles)=>{
+  root.querySelectorAll(selector).forEach(el=>{
+   for(const [key,value] of Object.entries(styles)){
+    if(dark)el.style.setProperty(key,value,'important');
+    else el.style.removeProperty(key);
+   }
+  });
+ };
+ paint('.sales-records-section,.sales-records-scroll',{
+  'background':'#22252d','background-image':'none',
+  'border-color':'#393d49','color':'#f4f4f8','box-shadow':'none'
+ });
+ paint('.sales-records-section h3',{
+  'color':'#ffffff','-webkit-text-fill-color':'#ffffff'
+ });
+ paint('.sales-records-section>p',{
+  'color':'#b6bdcf','-webkit-text-fill-color':'#b6bdcf'
+ });
+ paint('.sales-records-table th',{
+  'background':'#2b2f39','border-color':'#393d49',
+  'color':'#dce1ed','-webkit-text-fill-color':'#dce1ed'
+ });
+}
+window.applySalesNightStyles=applySalesNightStyles;
+
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
   if(!pages().some(([key])=>key===tab))tab='resumo';
@@ -1773,6 +1804,7 @@ function renderPage(){
   $('page').innerHTML=content;
   if(tab==='produtos')applyInventoryNightStyles();
    if(tab==='configuracoes')applySettingsNightStyles();
+   if(tab==='vendas')applySalesNightStyles();
 }
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
 function formShell(kind,id,inside){return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="columns">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
