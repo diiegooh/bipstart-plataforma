@@ -28,6 +28,13 @@ const hiding=(id,on)=>{
 function msg(t,error=false){const box=$('toast');box.textContent=t;box.style.borderColor=error?'#e9768d':'#8052ce';box.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>box.classList.add('hidden'),5500)}
 function status(t){const box=$('notice');box.textContent=t;box.classList.remove('hidden')}
 function formVal(form){return Object.fromEntries(new FormData(form).entries())}
+function formatCurrencyDigits(value){
+ const digits=String(value??'').replace(/\D/g,'').replace(/^0+(?=\d)/,'');
+ if(!digits)return '';
+ const cents=digits.padStart(3,'0');
+ const integer=String(Number(cents.slice(0,-2)));
+ return integer+','+cents.slice(-2);
+}
 function parseMoneyInput(value){const raw=String(value??'').trim().replace(/\s/g,'');if(!raw)return NaN;const normalized=raw.includes(',')?raw.replace(/\./g,'').replace(',','.'):raw;return Number(normalized)}
 function qs(table,search={}){
   const url=new URL(cfg.supabaseUrl+'/rest/v1/'+table);
@@ -2120,7 +2127,10 @@ document.addEventListener('input',e=>{
   pdvQuery=e.target.value;
   const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();
  }else if(e.target.id==='pdvReceived'||e.target.id==='pdvFeePercent'){
-   if(e.target.id==='pdvFeePercent')pdvCardFeePercent=e.target.value;
+   if(e.target.id==='pdvReceived'){
+     const formatted=formatCurrencyDigits(e.target.value);
+     if(formatted!==e.target.value){e.target.value=formatted; e.target.setSelectionRange(formatted.length,formatted.length);}
+   }else pdvCardFeePercent=e.target.value;
    updatePdvEstimates();
  }
 });
