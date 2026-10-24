@@ -14,7 +14,7 @@ test('colagem e upload ficam nas Configurações, e os cards de produtos e o edi
  assert.match(panel,/data-category-image-file/);
  assert.match(panel,/function categoryImagesSettings\(\)/);
  assert.match(panel,/categoryImageActions\(name\)/);
- assert.match(panel,/\(isMenu\?receiptSettingsPanel\(\)\+categoryImagesSettings\(\):''\)/);
+ assert.match(panel,/cardapioLayoutSettings\(\)\+receiptSettingsPanel\(\)\+categoryImagesSettings\(\)/);
  assert.doesNotMatch(panel.slice(panel.indexOf("function productCategoryCards(selected='all'){"),panel.indexOf("function productGrid(selected='all',stockMode='all'){")),/data-category-image|categoryThumbnail|categoryImageActions/);
  assert.doesNotMatch(panel.slice(panel.indexOf('function cardapioEditor(){'),panel.indexOf('function filteredPdvProducts(){')),/categoryThumbnail|categoryImageActions|data-category-image/);
  assert.match(panel,/async function saveCategoryImage\(name,file\)/);
