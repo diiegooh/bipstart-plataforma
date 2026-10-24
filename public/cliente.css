@@ -4147,15 +4147,22 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pd
  min-width:min(100%,170px)!important;
  max-width:none!important;
 }
-body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-product,
-body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-product{
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-product-wrap,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-product-wrap{
  flex:1 1 190px!important;
  min-width:min(100%,160px)!important;
  max-width:none!important;
 }
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-product-wrap > .pdv-product{
+ width:100%!important;
+ height:100%!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-empty{
+ flex:1 1 100%!important;
+}
 @media(max-width:700px){
  body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles > .pdv-category-tile,
- body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-product{
+ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-product-wrap{
   flex:1 1 calc(50% - 6px)!important;
   min-width:0!important;
  }
