@@ -871,7 +871,7 @@ function renderSalesReport(){
   content+='<p class="sales-disclaimer">Há '+report.unmatchedSales.length+' venda(s) sem itens detalhados; elas entram no faturamento, mas não no lucro calculado.</p>';
  if(!report.days.length)return content+empty('Nenhuma venda registrada neste período.');
  content+='<div class="sales-export-actions" role="group" aria-label="Exportar relatório de vendas">'+
-  '<button type="button" class="button" data-sales-export="receipt">Exportar cupom 80 mm</button>'+
+  '<button type="button" class="button sales-export-receipt-accent" style="background:var(--store-accent,#7c3aed)!important;background-image:none!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;-webkit-text-fill-color:var(--store-accent-ink,#fff)!important" data-sales-export="receipt">Exportar cupom 80 mm</button>'+
   '<button type="button" class="ghost" data-sales-export="a4">Exportar folha A4 / PDF</button></div>'+
   '<section class="sales-records-section" aria-label="Lista de todas as vendas">'+
   '<h3>Lista de vendas</h3>'+
@@ -1627,6 +1627,43 @@ function applyInventoryNightStyles(){
 }
 window.applyInventoryNightStyles=applyInventoryNightStyles;
 
+/* Configurações da loja: padronização real dos cards ao ativar o modo noite. */
+function applySettingsNightStyles(){
+ const form=$('settingsForm');
+ if(!form)return;
+ const dark=document.body.classList.contains('pdv-night');
+ const paint=(selector,styles)=>{
+  form.querySelectorAll(selector).forEach(el=>{
+   for(const [key,value] of Object.entries(styles)){
+    if(dark)el.style.setProperty(key,value,'important');
+    else el.style.removeProperty(key);
+   }
+  });
+ };
+ paint('.receipt-settings-panel,.category-image-settings,.category-image-settings-list,.category-image-setting-row',{
+  'background':'#22252d','background-image':'none',
+  'border-color':'#393d49','color':'#f4f4f8','box-shadow':'none'
+ });
+ paint('.receipt-settings-fields,.category-image-setting-info',{
+  'background':'transparent','background-image':'none','color':'#f4f4f8'
+ });
+ paint('.receipt-settings-panel h3,.category-image-settings h3,.category-image-setting-info strong',{
+  'color':'#ffffff','-webkit-text-fill-color':'#ffffff'
+ });
+ paint('.receipt-settings-panel p,.receipt-settings-panel label,.category-image-settings p,.category-image-setting-info small',{
+  'color':'#b6bdcf','-webkit-text-fill-color':'#b6bdcf'
+ });
+ paint('.receipt-settings-panel input:not([type=checkbox]),.receipt-settings-panel select',{
+  'background':'#181a20','background-image':'none','border-color':'#393d49',
+  'color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8','color-scheme':'dark'
+ });
+ paint('.category-image-setting-row .category-image-actions button,.category-image-setting-row .category-image-file',{
+  'background':'#2b2f39','background-image':'none',
+  'border-color':'#454957','color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8'
+ });
+}
+window.applySettingsNightStyles=applySettingsNightStyles;
+
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
   if(!pages().some(([key])=>key===tab))tab='resumo';
@@ -1735,6 +1772,7 @@ function renderPage(){
   }
   $('page').innerHTML=content;
   if(tab==='produtos')applyInventoryNightStyles();
+   if(tab==='configuracoes')applySettingsNightStyles();
 }
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
 function formShell(kind,id,inside){return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="columns">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
