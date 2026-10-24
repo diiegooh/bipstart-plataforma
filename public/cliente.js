@@ -380,13 +380,9 @@ function operationalMenuItems(){
   ];
 }
 function applySidebarTheme(){
- const value=String(shop?.brand_color||'');
- const color=/^#[0-9a-fA-F]{6}$/.test(value)?value:'#7c3aed';
- const rgb=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255);
- const linear=rgb.map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));
- const luminance=linear[0]*.2126+linear[1]*.7152+linear[2]*.0722;
+ const color='#7c3aed';
  document.documentElement.style.setProperty('--store-accent',color);
- document.documentElement.style.setProperty('--store-accent-ink',luminance>.35?'#101510':'#ffffff');
+ document.documentElement.style.setProperty('--store-accent-ink','#ffffff');
  document.documentElement.style.setProperty('--accent',color);
  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',color);
 }
@@ -1654,8 +1650,8 @@ function renderPage(){
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
       +(isMenu?establishmentTypeField():'')
-      +(canCustomize()?field('brand_color','COR DO SISTEMA','color',shop.brand_color||'#7c3aed')+'<p class="muted small">Cor usada no PDV e nas demais telas do sistema.</p>':'')
-       +(isMenu&&canCustomize()?field('menu_theme_color','COR DO CARDÁPIO ONLINE','color',shop.menu_theme_color||shop.brand_color||'#7c3aed')+'<p class="muted small">Escolha a cor de destaque dos botões, categorias e detalhes do cardápio online.</p>':'')
+      
+       +(isMenu&&canCustomize()?field('menu_theme_color','COR DO CARDÁPIO ONLINE','color',shop.menu_theme_color||'#7c3aed')+'<p class="muted small">Escolha a cor de destaque dos botões, categorias e detalhes do cardápio online.</p>':'')
       +(isMenu?'<div class="menu-settings">'
        +field('opening_hours','Horário de atendimento','text',shop.opening_hours||'','maxlength="160" placeholder="Ex.: Segunda a sábado, 18h às 23h"')
        +field('location_text','Localização ou endereço','text',shop.location_text||'','maxlength="240" placeholder="Ex.: Rua das Flores, 100 — Centro"')
