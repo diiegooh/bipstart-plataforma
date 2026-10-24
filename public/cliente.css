@@ -3827,3 +3827,41 @@ body.pdv-night #workspace #page #settingsForm button.button{
  color:var(--store-accent-ink,#fff)!important;
  border-color:var(--store-accent,#7c3aed)!important;
 }
+
+/* Produtos / estoque: corrigir os cards claros que sobrepunham o modo noite. */
+body.pdv-night #workspace #page :is(.inventory-card,.inventory-category-card,.stock-summary-card,.stock-row){
+ background:#22252d!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page :is(.inventory-card-heading h3,.inventory-card-prices>strong,.inventory-category-heading strong,.inventory-category-card strong,.stock-summary-number,.inventory-card .inventory-card-heading strong){
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page :is(.inventory-card-heading small,.inventory-card-prices>small,.inventory-stock-meta,.inventory-stock-meta strong,.inventory-category-heading small,.inventory-category-card small,.stock-summary-label){
+ color:#b6bdcf!important;-webkit-text-fill-color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page :is(.inventory-card,.inventory-category-card,.stock-summary-card) :is(.inventory-photo-placeholder,.stock-placeholder){
+ background:#2b2f39!important;
+}
+body.pdv-night #workspace #page .inventory-category-card.active,
+body.pdv-night #workspace #page .stock-summary-card.active{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 24%,#22252d)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+body.pdv-night #workspace #page .inventory-category-card:hover{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 15%,#22252d)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+body.pdv-night #workspace #page .content:has(.inventory-kicker),
+body.pdv-night #workspace #page .content:has(.inventory-kicker) .data-form{
+ background:#181a20!important;border-color:#393d49!important;color:#fff!important;
+}
+body.pdv-night #workspace #page .inventory-card :is(.inventory-card-body,.inventory-card-actions,.inventory-card-info){
+ background:#22252d!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .inventory-card :is(.button,.ghost),
+body.pdv-night #workspace #page .stock-row .actions button{
+ border-color:#454957!important;
+}
+body.pdv-night #workspace #page .inventory-card .inventory-status.ok{color:#70dba8!important}
+body.pdv-night #workspace #page .inventory-card .inventory-status.low{color:#ffc36d!important}
+body.pdv-night #workspace #page .inventory-card .inventory-status.out{color:#ff8298!important}
