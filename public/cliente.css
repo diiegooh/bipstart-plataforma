@@ -3865,3 +3865,33 @@ body.pdv-night #workspace #page .stock-row .actions button{
 body.pdv-night #workspace #page .inventory-card .inventory-status.ok{color:#70dba8!important}
 body.pdv-night #workspace #page .inventory-card .inventory-status.low{color:#ffc36d!important}
 body.pdv-night #workspace #page .inventory-card .inventory-status.out{color:#ff8298!important}
+
+/* Reposição segue o modo noite do estoque, anulando o antigo tema claro. */
+body.pdv-night #workspace #page .restock-section,
+body.pdv-night #workspace #page .restock-item{
+ background:#22252d!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;
+ box-shadow:none!important;
+}
+body.pdv-night #workspace #page .restock-total{
+ background:#2b2f39!important;background-image:none!important;
+ border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .restock-heading h3,
+body.pdv-night #workspace #page .restock-item>div>strong,
+body.pdv-night #workspace #page .restock-item .restock-name strong{
+ color:#fff!important;
+}
+body.pdv-night #workspace #page :is(.restock-heading p,.restock-note,.restock-total small),
+body.pdv-night #workspace #page .restock-item>div>small{
+ color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page .restock-total strong,
+body.pdv-night #workspace #page .restock-item>div:last-child strong{
+ color:var(--store-accent,#a78bfa)!important;
+}
+@media(max-width:760px){
+ body.pdv-night #workspace #page .restock-item>div:first-child{
+  border-bottom-color:#393d49!important;
+ }
+}
