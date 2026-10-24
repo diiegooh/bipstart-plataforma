@@ -44,7 +44,7 @@ test('vitrine consulta cardápio público isolado por slug sem expor chaves secr
  assert.match(js,/function displayStoreLogo\(\)/);
  assert.match(js,/menu\.logo_path/);
  assert.match(html,/id="storeLogo"/);
- assert.match(js,/menu\.brand_color/);
+ assert.match(js,/menu\?\.brand_color/);
  assert.match(js,/categoryNames\(\)/);
  assert.match(js,/imageUrl\(item\.image_path\)/);
  assert.match(js,/encodeURIComponent\(checkoutMessage\(receipt\.id\)\)/);
