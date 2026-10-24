@@ -1405,8 +1405,8 @@ function onlineOrderCard(order){
  const orderOpen=status!=='cancelled'&&status!=='fulfilled';
  const awaiting=status==='awaiting_confirmation';
  const items=Array.isArray(order.items)?order.items:[];
- const phone=String(order.customer_phone||'').replace(/\\D/g,'');
- const phoneValid=/^\\d{10,13}$/.test(phone);
+ const phone=String(order.customer_phone||'').replace(/\D/g,'');
+ const phoneValid=/^\d{10,13}$/.test(phone);
  const phoneUri=phoneValid?'<a href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone||'Não informado');
  const contact=phoneValid?' <a target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'">WhatsApp</a>':'';
  const delivery=order.delivery_method==='delivery';
