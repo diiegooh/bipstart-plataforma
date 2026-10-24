@@ -1287,3 +1287,24 @@ body.round-menu.menu-night{color-scheme:dark!important;background:#08080d!import
 .menu-night.round-menu .store-options-theme{color:#fff!important;border-top:1px solid #363440!important}
 .round-menu .store-options-theme{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 4px 2px;font-size:13px;font-weight:700;color:#30216d}
 .round-menu .store-options-theme button{padding:9px 12px;border-radius:10px;border:1px solid var(--green);background:var(--green);color:#fff;font-weight:800;cursor:pointer}
+
+/* Cor do sistema compartilhada com o cardápio online. */
+.round-menu .store-options-theme button,
+.round-menu .round-product .round-add,
+.round-menu .cartfloat,
+.round-menu .category-tile.active,
+.round-menu .btn,
+.round-menu .checkout-btn{
+ background:var(--green,#7c3aed)!important;
+ background-image:none!important;
+ border-color:var(--green,#7c3aed)!important;
+ color:var(--theme-ink,#fff)!important;
+}
+.round-menu .category-tile.active>b{color:var(--theme-ink,#fff)!important}
+.round-menu :is(.round-add,.cartfloat,.btn,.checkout-btn,.category-tile,.return-store-btn):hover:not(:disabled){
+ border-color:var(--green,#7c3aed)!important;
+ box-shadow:0 0 0 3px color-mix(in srgb,var(--green,#7c3aed) 25%,transparent)!important;
+}
+.round-menu .searchbox:focus-within,
+.round-menu :is(button,input,select,textarea):focus-visible{outline-color:var(--green,#7c3aed)!important;border-color:var(--green,#7c3aed)!important}
+.round-menu .cartfloat b{color:var(--green,#7c3aed)!important}
