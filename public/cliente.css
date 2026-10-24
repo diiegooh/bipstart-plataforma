@@ -3635,3 +3635,22 @@ body.pdv-night #workspace :is(.pdv-payment-chip.selected,.pdv-card-kind.selected
 #workspace :is(.pdv-payment-chip,.pdv-card-kind,.sales-period-switch button,.side #nav nav button,.side #nav nav a,.ghost,.online-order-quick-actions button,.online-order-payment-actions button):hover:not(:disabled){
  border-color:var(--store-accent,#7c3aed)!important;
 }
+
+/* Carrinho flutuante Ver venda: acompanha a Cor do Sistema em desktop e mobile. */
+body #workspace .pdv-floating-sale-button,
+body.workspace-fullscreen #workspace .pdv-floating-sale-button{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border:1px solid var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ box-shadow:0 10px 26px color-mix(in srgb,var(--store-accent,#7c3aed) 36%,transparent)!important;
+}
+body #workspace .pdv-floating-sale-button :is(span,strong),
+body.workspace-fullscreen #workspace .pdv-floating-sale-button :is(span,strong){
+ color:var(--store-accent-ink,#fff)!important;
+}
+body #workspace .pdv-floating-sale-button:hover,
+body.workspace-fullscreen #workspace .pdv-floating-sale-button:hover{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 85%,#101018)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+}
