@@ -3539,3 +3539,34 @@ body.night-mode #workspace input.search-input::placeholder {
   color:#a7a7a7!important;
   opacity:1!important;
 }
+
+
+/* Correção reforçada da pesquisa do PDV no tema noite: cobre o input real do layout Godzilla e diferentes alvos da classe do tema. */
+html.night-mode #workspace .godzilla-pdv .pdv-search-top input,
+body.night-mode #workspace .godzilla-pdv .pdv-search-top input,
+#workspace.night-mode .godzilla-pdv .pdv-search-top input,
+.night-mode #workspace .godzilla-pdv .pdv-search-top input,
+html.night-mode #workspace .pdv-search-top input,
+body.night-mode #workspace .pdv-search-top input,
+#workspace.night-mode .pdv-search-top input,
+.night-mode #workspace .pdv-search-top input {
+  background: #000 !important;
+  background-color: #000 !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+  box-shadow: none !important;
+  -webkit-text-fill-color: #fff !important;
+  color-scheme: dark !important;
+}
+html.night-mode #workspace .godzilla-pdv .pdv-search-top input::placeholder,
+body.night-mode #workspace .godzilla-pdv .pdv-search-top input::placeholder,
+#workspace.night-mode .godzilla-pdv .pdv-search-top input::placeholder,
+.night-mode #workspace .godzilla-pdv .pdv-search-top input::placeholder,
+html.night-mode #workspace .pdv-search-top input::placeholder,
+body.night-mode #workspace .pdv-search-top input::placeholder,
+#workspace.night-mode .pdv-search-top input::placeholder,
+.night-mode #workspace .pdv-search-top input::placeholder {
+  color: #aaa !important;
+  -webkit-text-fill-color: #aaa !important;
+  opacity: 1 !important;
+}
