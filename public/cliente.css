@@ -4080,3 +4080,29 @@ body.pdv-night #workspace #page .sales-records-section .sales-inline-detail .sal
 body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(.sales-inline-fee,.sales-fee-editor small){
  color:#e2cfac!important;-webkit-text-fill-color:#e2cfac!important;
 }
+
+/* PDV categorias: textos duplicados para melhor leitura. */
+body #workspace #page .godzilla-pdv .pdv-category-tiles .pdv-category-tile{
+ height:auto!important;
+ min-height:170px!important;
+ padding:16px 12px!important;
+ font-size:48px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles .pdv-category-tile > strong{
+ font-size:48px!important;
+ line-height:1.12!important;
+ font-weight:800!important;
+ text-align:center!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+}
+@media(max-width:700px){
+ body #workspace #page .godzilla-pdv .pdv-category-tiles .pdv-category-tile{
+  min-height:155px!important;
+  font-size:40px!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-category-tiles .pdv-category-tile > strong{
+  font-size:40px!important;
+  line-height:1.12!important;
+ }
+}
