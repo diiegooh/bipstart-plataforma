@@ -1672,7 +1672,7 @@ function renderPage(){
   }else if(tab==='vendas'){
     content=renderSalesReport();
   }else if(tab==='motoboys'){
-    content=heading('Motoboys','','<button type="button" class="ghost" data-nav="entregas">Entrar na fila de pedidos</button><button class="button" data-new="courier">+ Novo motoboy</button>');
+    content=heading('Motoboys','','<button type="button" class="ghost" data-nav="entregas">Entrar na fila de pedidos</button><button type="button" class="button courier-system-accent" data-new="courier" style="background:var(--store-accent,#7c3aed)!important;background-image:none!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;-webkit-text-fill-color:var(--store-accent-ink,#fff)!important">+ Novo motoboy</button>');
     content+=showForm?.kind==='courier'?courierForm(showForm.value):'';
     content+=couriers.length?'<div class="courier-access-list">'+couriers.map(c=>{
       const link=location.origin+'/motoboy';
@@ -1680,7 +1680,7 @@ function renderPage(){
         '<p class="courier-access-label">'+'Link de login do motoboy:'+'</p>'+
         '<a class="courier-access-url" target="_blank" rel="noopener noreferrer" href="'+esc(link)+'">'+esc(link)+'</a>'+
         '</div><div class="actions courier-access-actions">'+
-         '<button type="button" class="button" data-share-courier="'+esc(link)+'" data-courier-name="'+esc(c.name)+'">Compartilhar link</button>'+
+         '<button type="button" class="button courier-system-accent" style="background:var(--store-accent,#7c3aed)!important;background-image:none!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;-webkit-text-fill-color:var(--store-accent-ink,#fff)!important" data-share-courier="'+esc(link)+'" data-courier-name="'+esc(c.name)+'">Compartilhar link</button>'+
          '<button type="button" class="ghost" data-copy-invite="'+esc(link)+'">Copiar link</button>'+
          editBtn('courier',c.id)+
          '<button type="button" class="ghost" data-delete-courier="'+esc(c.id)+'">Remover</button></div></div>';
