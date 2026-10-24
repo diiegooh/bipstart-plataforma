@@ -1755,6 +1755,41 @@ function applyPdvCategoryFontSizes(){
  });
 }
 
+
+/* Quando o carrinho flutuante substitui a coluna de caixa, ocupar toda a linha.
+   Flex wrap preenche inclusive a última linha com menos cards. */
+function applyPdvFloatingFullWidth(){
+ if(!floatingSaleEnabled())return;
+ const root=$('page');
+ const layout=root?.querySelector('.godzilla-pdv.pdv-floating-layout');
+ if(!layout)return;
+ const panels=layout.querySelector('.pdv-two-panels');
+ const catalog=layout.querySelector('.pdv-catalog');
+ if(panels){
+  panels.style.setProperty('display','grid','important');
+  panels.style.setProperty('grid-template-columns','minmax(0,1fr)','important');
+  panels.style.setProperty('width','100%','important');
+  panels.style.setProperty('max-width','none','important');
+  panels.style.setProperty('gap','0','important');
+ }
+ if(catalog){
+  catalog.style.setProperty('grid-column','1 / -1','important');
+  catalog.style.setProperty('width','100%','important');
+  catalog.style.setProperty('max-width','none','important');
+  catalog.style.setProperty('min-width','0','important');
+ }
+ for(const cls of ['.pdv-category-tiles','.pdv-products']){
+  const list=layout.querySelector(cls);
+  if(!list)continue;
+  list.style.setProperty('display','flex','important');
+  list.style.setProperty('flex-wrap','wrap','important');
+  list.style.setProperty('align-items','stretch','important');
+  list.style.setProperty('width','100%','important');
+  list.style.setProperty('max-width','none','important');
+  list.style.setProperty('gap','12px','important');
+ }
+}
+
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
   if(!pages().some(([key])=>key===tab))tab='resumo';
@@ -1866,6 +1901,7 @@ function renderPage(){
    if(tab==='configuracoes')applySettingsNightStyles();
    if(tab==='vendas')applySalesNightStyles();
    if(tab==='caixa')applyPdvCategoryFontSizes();
+   if(tab==='caixa')applyPdvFloatingFullWidth();
 }
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
 function formShell(kind,id,inside){return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="columns">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
