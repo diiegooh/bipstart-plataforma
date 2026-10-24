@@ -18,7 +18,8 @@ test('colagem e upload ficam nas Configurações, e os cards de produtos e o edi
  assert.doesNotMatch(panel.slice(panel.indexOf("function productCategoryCards(selected='all'){"),panel.indexOf("function productGrid(selected='all',stockMode='all'){")),/data-category-image|categoryThumbnail|categoryImageActions/);
  assert.doesNotMatch(panel.slice(panel.indexOf('function cardapioEditor(){'),panel.indexOf('function filteredPdvProducts(){')),/categoryThumbnail|categoryImageActions|data-category-image/);
  assert.match(panel,/async function saveCategoryImage\(name,file\)/);
- assert.match(panel,/if\(!proAccess\(\)\|\|!menuSchemaReady\)return ''/);
+ assert.match(panel,/if\(!proAccess\(\)\)return '<section class="category-image-settings"/);
+ assert.match(panel,/if\(!menuSchemaReady\)return '<section class="category-image-settings"/);
  assert.match(panel,/void saveCategoryImage\(categoryTarget\.dataset\.categoryImagePaste,file\)/);
  assert.match(panel,/void saveCategoryImage\(categoryFile\.dataset\.categoryImageFile,file\)/);
  assert.match(panel,/const file=pastedProductImage\|\|form\.querySelector\('input\[name=image\]'\)/);
