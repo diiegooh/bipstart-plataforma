@@ -1603,6 +1603,28 @@ function applyInventoryNightStyles(){
  paint('.inventory-card .inventory-card-body,.inventory-card .inventory-card-info,.inventory-card .inventory-card-actions',{
   'background-color':'#22252d','color':'#f4f4f8'
  });
+ // Painel Reposição: mesmas superfícies escuras utilizadas nos cards de Produtos.
+ paint('.restock-section,.restock-item',{
+  'background':'#22252d','background-image':'none',
+  'border-color':'#393d49','color':'#f4f4f8','box-shadow':'none'
+ });
+ paint('.restock-total',{
+  'background':'#2b2f39','background-image':'none',
+  'border-color':'#393d49','color':'#f4f4f8'
+ });
+ paint('.restock-heading h3,.restock-item>div>strong,.restock-item .restock-name strong',{
+  'color':'#ffffff','-webkit-text-fill-color':'#ffffff'
+ });
+ paint('.restock-heading p,.restock-item>div>small,.restock-total small,.restock-note',{
+  'color':'#b6bdcf','-webkit-text-fill-color':'#b6bdcf'
+ });
+ paint('.restock-total strong,.restock-item>div:last-child strong',{
+  'color':'var(--store-accent,#a78bfa)',
+  '-webkit-text-fill-color':'var(--store-accent,#a78bfa)'
+ });
+ paint('.restock-item>div:first-child',{
+  'border-bottom-color':'#393d49'
+ });
 }
 window.applyInventoryNightStyles=applyInventoryNightStyles;
 
