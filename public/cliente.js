@@ -1692,6 +1692,46 @@ function applySalesNightStyles(){
   'background':'#2b2f39','border-color':'#393d49',
   'color':'#dce1ed','-webkit-text-fill-color':'#dce1ed'
  });
+
+ // Detalhes da venda: estilização direta para sobrepor o CSS antigo.
+ paint('.sales-record-details-row>td,.sales-inline-detail,.sales-inline-scroll,.sales-inline-products',{
+  'background':'#22252d','background-image':'none','border-color':'#393d49',
+  'color':'#f4f4f8'
+ });
+ paint('.sales-inline-heading',{
+  'background':'#22252d','border-color':'#393d49','color':'#f4f4f8'
+ });
+ paint('.sales-inline-heading strong,.sales-inline-products td strong,.sales-inline-summary strong',{
+  'color':'#ffffff','-webkit-text-fill-color':'#ffffff'
+ });
+ paint('.sales-inline-heading span,.sales-inline-products td small,.sales-inline-summary span,.sales-checkout-empty',{
+  'color':'#b6bdcf','-webkit-text-fill-color':'#b6bdcf'
+ });
+ paint('.sales-inline-products thead th',{
+  'background':'#2b2f39','color':'#dce1ed','border-color':'#393d49',
+  '-webkit-text-fill-color':'#dce1ed'
+ });
+ paint('.sales-inline-products tbody td',{
+  'background':'#22252d','color':'#f4f4f8','border-color':'#393d49',
+  '-webkit-text-fill-color':'#f4f4f8'
+ });
+ paint('.sales-inline-summary',{
+  'background':'#2b2f39','border':'1px solid #393d49',
+  'border-radius':'10px','padding':'12px','color':'#f4f4f8'
+ });
+ paint('.sales-inline-fee,.sales-fee-editor small',{
+  'color':'#e2cfac','-webkit-text-fill-color':'#e2cfac'
+ });
+ paint('.sales-inline-detail .sales-fee-editor',{
+  'background':'#25252d','border-color':'#393d49','color':'#f4f4f8'
+ });
+ paint('.sales-inline-detail .sales-fee-editor label',{
+  'color':'#e5e7ef','-webkit-text-fill-color':'#e5e7ef'
+ });
+ paint('.sales-inline-detail .sales-fee-editor input',{
+  'background':'#181a20','border-color':'#454957','color':'#fff',
+  '-webkit-text-fill-color':'#fff','color-scheme':'dark'
+ });
 }
 window.applySalesNightStyles=applySalesNightStyles;
 
