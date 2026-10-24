@@ -1352,7 +1352,7 @@ function renderGodzillaPDV(){
  categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:anywhere!important">'+esc(name)+'</strong></button>';}).join('')+
  '</div>'+
  (pdvShowBestSellers?pdvBestSellers():'')+
- '<div class="pdv-list-head"><strong>Produtos da loja</strong><small>'+products.length+' cadastrados</small></div>'+
+ '<div class="pdv-list-head"><strong>Produtos da loja</strong></div>'+
  '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
  '</section><div class="pdv-floating-backdrop'+(floatingSale&&pdvCheckoutOpen?' open':'')+'" data-floating-sale-close></div><aside class="pdv-panel pdv-sale-panel'+(floatingSale?' pdv-sale-panel-floating':'')+(floatingSale&&pdvCheckoutOpen?' is-open':'')+'" aria-label="Venda atual">'+
  '<div class="pdv-sale-head"><div><span class="kicker">CAIXA</span><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
