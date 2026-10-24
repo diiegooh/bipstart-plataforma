@@ -8,23 +8,24 @@ const driver=readFileSync('public/motoboy.js','utf8');
 const page=readFileSync('public/motoboy.html','utf8');
 const server=readFileSync('server.mjs','utf8');
 
-test('área individual de motoboy com login, convite e acesso por Supabase Auth',()=>{
+test('motoboy tem login individual seguro por telefone ou e-mail antigo',()=>{
  new vm.Script(driver,{filename:'public/motoboy.js'});
- for(const id of ['loginForm','signupForm','inviteForm','offers','assignments','refresh','logout']){
+ for(const id of ['loginForm','dashboard','deliveries','refresh','logout']){
   assert.ok(page.includes('id="'+id+'"'),id);
  }
+ assert.match(page,/name="login"/);
+ assert.match(page,/name="password"/);
+ assert.match(driver,/function courierLoginEmail\(input\)/);
  assert.match(driver,/auth\/v1\/token\?grant_type=password/);
- assert.match(driver,/auth\/v1\/signup\?redirect_to=/);
  assert.match(driver,/gotrue_meta_security/);
- assert.match(driver,/bipstart_courier_claim_invite/);
  assert.match(driver,/bipstart_courier_my_shops/);
  assert.match(driver,/bipstart_courier_queue/);
  assert.match(driver,/bipstart_courier_accept/);
  assert.match(driver,/bipstart_courier_set_status/);
- assert.match(driver,/window\.turnstile\.render/);
- assert.match(driver,/bipstart_courier_session/);
+ assert.doesNotMatch(page,/id="signupForm"|id="inviteForm"/);
  assert.doesNotMatch(driver,/SUPABASE_SECRET_KEY|ADMIN_PASSWORD|MERCADO_PAGO_ACCESS_TOKEN/);
 });
+
 test('fila mostra rotas Maps e Waze com escape de dados de clientes',()=>{
  const start=driver.indexOf('function mapUrl(');
  const stop=driver.indexOf('async function refresh()',start);
@@ -44,7 +45,7 @@ test('fila mostra rotas Maps e Waze com escape de dados de clientes',()=>{
  };
  const card=deliveryCard(row,true);
  assert.match(card,/Aceitar entrega/);
- assert.match(card,/Loja &lt;B&gt;/);
+ assert.doesNotMatch(card,/<B>/);
  assert.match(card,/&lt;img src=x/);
  assert.doesNotMatch(card,/<img src=x/);
  assert.match(card,/Combo &amp; uma bebida/);
@@ -74,7 +75,7 @@ test('painel motoboy oferece convite seguro e link de login com botões de compa
  assert.match(client,/navigator\.share/);
  assert.match(client,/navigator\.clipboard\.writeText\(link\)/);
  assert.match(client,/case 'courierForm'/);
- assert.match(driver,/new URLSearchParams\(location\.search\)\.get\('convite'\)/);
+ assert.match(driver,/function courierLoginEmail\(input\)/);
 });
 
 test('os motoboys aparecem somente em Pro com acesso vigente',()=>{
@@ -168,7 +169,7 @@ test('Painel Premium permite vincular pedido pelo botão e acompanhar mudanças 
  assert.match(client,/e\.target\.matches\('#deliveryForm select\[name="online_order_id"\]'\)/);
  assert.match(client,/refreshOnlineOrdersIfVisible/);
  assert.match(client,/setInterval\(\(\)=>\{void refreshOnlineOrdersIfVisible\(\)\},15000\)/);
- assert.match(client,/onlineOrders=latest;renderPage\(\)/);
+ assert.match(client,/onlineOrders=latest;if\(tab==='pedidos'\)renderPage\(\);else renderNav\(\)/);
  assert.match(client,/if\(!proAccess\(\)\)return msg\('Entregas com motoboys são exclusivas do Premium\.'/);
  const tracker=readFileSync('public/acompanhar.js','utf8');
  assert.match(tracker,/setInterval\(refreshTracking,20000\)/);
