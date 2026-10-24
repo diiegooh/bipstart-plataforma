@@ -4040,3 +4040,43 @@ body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(
 body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(span,small,th,td,p){
  color:#c6cbd9!important;border-color:#393d49!important;
 }
+
+/* Vendas: detalhes dos itens vendidos com o mesmo padrão do modo noite. */
+body.pdv-night #workspace #page .sales-records-section :is(.sales-record-details-row>td,.sales-inline-detail,.sales-inline-scroll,.sales-inline-products){
+ background:#22252d!important;background-image:none!important;
+ color:#f4f4f8!important;border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-heading{
+ background:#22252d!important;color:#fff!important;border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-products thead th{
+ background:#2b2f39!important;color:#dce1ed!important;
+ border-color:#393d49!important;-webkit-text-fill-color:#dce1ed!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-products tbody td{
+ background:#22252d!important;color:#f4f4f8!important;
+ border-color:#393d49!important;-webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(.sales-inline-heading strong,.sales-inline-products td strong,.sales-inline-summary strong){
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(.sales-inline-heading span,.sales-inline-products td small,.sales-inline-summary span,.sales-checkout-empty){
+ color:#b6bdcf!important;-webkit-text-fill-color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-summary{
+ background:#2b2f39!important;color:#f4f4f8!important;
+ border:1px solid #393d49!important;border-radius:10px!important;padding:12px!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail .sales-fee-editor{
+ background:#25252d!important;border-color:#393d49!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail .sales-fee-editor label{
+ color:#e5e7ef!important;-webkit-text-fill-color:#e5e7ef!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail .sales-fee-editor input{
+ background:#181a20!important;border-color:#454957!important;
+ color:#fff!important;-webkit-text-fill-color:#fff!important;color-scheme:dark;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(.sales-inline-fee,.sales-fee-editor small){
+ color:#e2cfac!important;-webkit-text-fill-color:#e2cfac!important;
+}
