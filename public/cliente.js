@@ -1348,8 +1348,8 @@ function renderGodzillaPDV(){
  '<div class="pdv-title"><h2>PDV</h2><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Pesquisar produtos..." value="'+esc(pdvQuery)+'" autocomplete="off"></label></div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
- '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:clamp(40px,4.7vw,48px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:anywhere!important">Mais vendidos</strong></button>'+
- categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:clamp(40px,4.7vw,48px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:anywhere!important">'+esc(name)+'</strong></button>';}).join('')+
+ '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:anywhere!important">Mais vendidos</strong></button>'+
+ categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:anywhere!important">'+esc(name)+'</strong></button>';}).join('')+
  '</div>'+
  (pdvShowBestSellers?pdvBestSellers():'')+
  '<div class="pdv-list-head"><strong>Produtos da loja</strong><small>'+products.length+' cadastrados</small></div>'+
@@ -1747,7 +1747,7 @@ function applyPdvCategoryFontSizes(){
   tile.style.setProperty('padding','16px 12px','important');
   const name=tile.querySelector('strong');
   if(!name)return;
-  name.style.setProperty('font-size','clamp(40px,4.7vw,48px)','important');
+  name.style.setProperty('font-size','30px','important');
   name.style.setProperty('line-height','1.12','important');
   name.style.setProperty('font-weight','800','important');
   name.style.setProperty('white-space','normal','important');
