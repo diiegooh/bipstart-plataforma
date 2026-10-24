@@ -119,8 +119,9 @@ test('template está livre de chaves privadas no navegador e mantém consentimen
  const server=readFileSync('server.mjs','utf8');
  assert.match(server,/updateOnlineOrderAndNotify\(req, res\)/);
  assert.doesNotMatch(html,/id="whatsappOptIn" type="checkbox"/);
- assert.match(html,/id="whatsappConsentNotice"/);
- assert.match(html,/aria-describedby="whatsappConsentNotice"/);
+ assert.match(html,/id="sendPreparedWhatsapp"/);
+ assert.doesNotMatch(html,/id="whatsappOptIn"/);
+ assert.match(js,/saveWhatsappUpdatesConsent\(registeredOrderId,orderToken\)/);
  assert.match(js,/bipstart_set_online_order_whatsapp_optin/);
  assert.match(js,/\$\('sendPreparedWhatsapp'\)\.addEventListener\('click'/);
  assert.match(sql,/whatsapp_updates_opt_in boolean not null default false/);
