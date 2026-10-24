@@ -215,7 +215,8 @@ test('WhatsApp é manual e consentimento não é presumido ao registrar pedido',
 test('opt-out permanece disponível na API, mesmo sem botão antigo no painel',()=>{
  const sql=readFileSync('sql/bipstart_online_whatsapp_owner_optout_20261015.sql','utf8');
  assert.match(sql,/whatsapp_updates_opt_in/);
- assert.match(sql,/bipstart_/);
+ assert.match(sql,/grant update\(whatsapp_updates_opt_in\) on table public\.shop_online_orders to authenticated/);
+ assert.match(sql,/RLS shop_online_orders_owner_update/);
  assert.doesNotMatch(sql,/drop table|truncate table|disable row level security/i);
  assert.doesNotMatch(panel,/O registro ocorre antes de abrir o WhatsApp/);
 });
