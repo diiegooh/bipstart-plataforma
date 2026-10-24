@@ -94,6 +94,18 @@ body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-empty{co
 body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-total strong,
 body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-head .kicker{color:#c2adff!important;-webkit-text-fill-color:#c2adff!important;}
 body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel input:not([type=hidden]){background:#2b2f39!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border-color:#393d49!important;}
+
+/* Resumo do estoque usa o mesmo acabamento dos cards de produtos no modo noite. */
+body.pdv-night #workspace #page .stock-summary-grid .stock-summary-card,
+body.pdv-night #workspace #page .stock-summary-grid .stock-summary-card.active{
+ background:#2b2f39!important;background-image:none!important;border-color:#393d49!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .stock-summary-grid .stock-summary-card :is(span,small,strong,b){
+ color:#f4f4f8!important;-webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .stock-summary-grid .stock-summary-card:hover{
+ background:#333743!important;border-color:#51466e!important;
+}
 </style>
 </head>
 <body>
