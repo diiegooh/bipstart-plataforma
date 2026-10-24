@@ -1239,3 +1239,51 @@ body.round-menu{
  .round-menu .store-header .store-options-button{right:8px!important}
  .round-menu .store-header .header-title h1{margin:4px 0 0!important}
 }
+
+
+/* BipStart — modo noite do cardápio online (sobrescreve o tema claro compacto). */
+body.round-menu.menu-night{color-scheme:dark!important;background:#08080d!important;color:#f7f5ff!important}
+.menu-night.round-menu .delivery-app,.menu-night.round-menu .category-strip{background:#08080d!important}
+.menu-night.round-menu .store-header{background:#101017!important;box-shadow:0 3px 14px #0007!important}
+.menu-night.round-menu .store-header .header-title h1,
+.menu-night.round-menu #storeName{color:#fff!important}
+.menu-night.round-menu .menu-hero-logo-card{background:#191822!important}
+.menu-night.round-menu .store-options-button{color:#c5a8ff!important}
+.menu-night.round-menu .store-options-panel,
+.menu-night.round-menu .location-card,.menu-night.round-menu .hours-card{background:#181820!important;color:#fff!important;border-color:#30303d!important;box-shadow:none!important}
+.menu-night.round-menu .store-options-head,.menu-night.round-menu .store-options-head strong,
+.menu-night.round-menu .location-card b,.menu-night.round-menu .hours-card b{color:#fff!important}
+.menu-night.round-menu .location-card small,.menu-night.round-menu .hours-card small{color:#b9b7c7!important}
+.menu-night.round-menu .store-options-head button{background:#292639!important;color:#fff!important}
+.menu-night.round-menu .category-tile{background:#1a1923!important;border-color:#33313e!important;color:#fff!important;box-shadow:none!important}
+.menu-night.round-menu .category-tile>b{color:#fff!important}
+.menu-night.round-menu .category-tile.active{background:#7138f4!important;border-color:#7138f4!important}
+.menu-night.round-menu .category-tile.active>b{color:#fff!important}
+.menu-night.round-menu .searchbox{background:#191923!important;border-color:#353440!important;color:#fff!important}
+.menu-night.round-menu .searchbox input{color:#fff!important}
+.menu-night.round-menu .searchbox input::placeholder{color:#aaa7bb!important}
+.menu-night.round-menu .round-product{background:#181820!important;border-color:#343341!important;box-shadow:0 4px 12px #0004!important}
+.menu-night.round-menu .round-product .round-product-body{background:#181820!important}
+.menu-night.round-menu .round-product .round-product-image{background:#252432!important}
+.menu-night.round-menu .round-product h3,
+.menu-night.round-menu .round-product .round-product-price{color:#fff!important}
+.menu-night.round-menu .round-product .round-product-description{color:#bcb9ca!important}
+.menu-night.round-menu .onlinecart{background:#111118!important;color:#fff!important;border-color:#33313e!important}
+.menu-night.round-menu .onlinecart .modalhead h2,.menu-night.round-menu .onlinecart .cartline-title>b,
+.menu-night.round-menu .onlinecart .total,.menu-night.round-menu .onlinecart label{color:#fff!important}
+.menu-night.round-menu .onlinecart .cartline{background:#1b1a24!important;border-color:#363440!important;color:#fff!important}
+.menu-night.round-menu .onlinecart .cart-item-detail,
+.menu-night.round-menu .onlinecart .muted{color:#bbb8ca!important}
+.menu-night.round-menu .onlinecart .formgrid input,
+.menu-night.round-menu .onlinecart .formgrid select,
+.menu-night.round-menu .onlinecart .formgrid textarea,
+.menu-night.round-menu .input,.menu-night.round-menu textarea,.menu-night.round-menu .select{background:#20202b!important;color:#fff!important;border-color:#444151!important}
+.menu-night.round-menu .onlinecart .formgrid input::placeholder,
+.menu-night.round-menu .onlinecart .formgrid textarea::placeholder{color:#aaa6bd!important}
+.menu-night.round-menu .onlinecart .btn.alt,
+.menu-night.round-menu .return-store-btn{background:#27233a!important;color:#e5d9ff!important;border-color:#54476f!important}
+.menu-night.round-menu .onlinecart .close{color:#fff!important}
+.menu-night.round-menu .summary,.menu-night.round-menu .tracking-ready{background:#1b1a24!important;color:#fff!important;border-color:#343341!important}
+.menu-night.round-menu .store-options-theme{color:#fff!important;border-top:1px solid #363440!important}
+.round-menu .store-options-theme{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 4px 2px;font-size:13px;font-weight:700;color:#30216d}
+.round-menu .store-options-theme button{padding:9px 12px;border-radius:10px;border:1px solid #7138f4;background:#7138f4;color:#fff;font-weight:800;cursor:pointer}
