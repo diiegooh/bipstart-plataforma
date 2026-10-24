@@ -106,6 +106,48 @@ body.pdv-night #workspace #page .stock-summary-grid .stock-summary-card :is(span
 body.pdv-night #workspace #page .stock-summary-grid .stock-summary-card:hover{
  background:#333743!important;border-color:#51466e!important;
 }
+
+/* Pedidos online: acompanhar modo noite do PDV, incluindo os cards formatados. */
+body.pdv-night #workspace .online-order-stats .tile,
+body.pdv-night #workspace #page article.online-order-card.online-order-formatted{
+ background:#22252d!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-head,.online-order-section){
+ background:transparent!important;border-color:#393d49!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-head h3,.online-order-head div,.online-order-section h4,.online-order-section p,.online-order-total),
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-head,.online-order-section) :is(strong,b){
+ color:#f4f4f8!important;-webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table{
+ background:#22252d!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table :is(th,td){
+ background:#252934!important;border-color:#393d49!important;
+ color:#f4f4f8!important;-webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table td{
+ background:#22252d!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-quick-actions,.online-order-payment-actions) button{
+ background:#2b2f39!important;color:#fff!important;border-color:#494d5b!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-quick-actions button:first-child{
+ background:#7138f4!important;border-color:#7138f4!important;color:#fff!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-quick-actions .online-order-danger,.online-order-payment-actions button[data-payment-cancel]){
+ background:#38272e!important;border-color:#b95869!important;color:#ffd1d9!important;
+}
+body.pdv-night #workspace #page .online-order-formatted a{
+ color:#c2adff!important;-webkit-text-fill-color:#c2adff!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-address,.online-order-notes,.online-order-items){
+ background:#2b2f39!important;border-color:#393d49!important;color:#fff!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(small,.online-order-fees){
+ color:#b6bdcf!important;
+}
 </style>
 </head>
 <body>
