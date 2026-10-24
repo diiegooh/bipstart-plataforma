@@ -75,7 +75,7 @@ function applyMenuNight(enabled){
 let menuNightEnabled=false;
 try{menuNightEnabled=localStorage.getItem(menuNightStorageKey)==='true'}catch{}
 applyMenuNight(menuNightEnabled);
-$('toggleMenuNight').addEventListener('click',()=>{
+$('toggleMenuNight')?.addEventListener('click',()=>{
  menuNightEnabled=!menuNightEnabled;
  try{localStorage.setItem(menuNightStorageKey,String(menuNightEnabled))}catch{}
  applyMenuNight(menuNightEnabled);
