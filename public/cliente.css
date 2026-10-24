@@ -3517,3 +3517,46 @@ body #workspace #page .godzilla-pdv .pdv-product-info{height:auto!important;min-
 #workspace .godzilla-pdv .pdv-sale-product > strong{
  text-transform:uppercase!important;
 }
+
+/* Cor do sistema: botões principais e seleções usam a cor configurada pela loja. */
+#workspace .button,
+#workspace button.button,
+#workspace a.button,
+#workspace .pdv-finish,
+#workspace .pdv-payment-form .pdv-finish,
+#workspace .sales-period-switch button.active{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ box-shadow:0 5px 14px color-mix(in srgb,var(--store-accent,#7c3aed) 24%,transparent)!important;
+}
+#workspace .side nav button.active,
+#workspace .side nav a.active,
+#workspace .side #nav nav button.active,
+#workspace .side #nav nav a.side-public-menu.active,
+#workspace .pdv-payment-chip.selected,
+#workspace .pdv-card-kind.selected,
+#workspace .stock-summary-card.active,
+#workspace .inventory-category-card.active,
+#workspace .pdv-category-tile.selected,
+#workspace .pdv-filters .ghost.active{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 22%,#fff)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent,#7c3aed)!important;
+ box-shadow:none!important;
+}
+#workspace .pdv-payment-chip.selected,
+#workspace .pdv-card-kind.selected,
+#workspace .stock-summary-card.active,
+#workspace .inventory-category-card.active{
+ outline-color:var(--store-accent,#7c3aed)!important;
+}
+#workspace .pdv-category-tile.selected{outline-color:var(--store-accent,#7c3aed)!important}
+#workspace .side nav button.active .side-nav-icon,
+#workspace .side nav a.active .side-nav-icon{filter:none!important}
+#workspace .item button:not(.button):not(.ghost):hover,
+#workspace .stock-row .actions button:hover,
+#workspace .inventory-category-card:hover{
+ border-color:var(--store-accent,#7c3aed)!important;
+}
