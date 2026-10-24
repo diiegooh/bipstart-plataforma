@@ -1348,8 +1348,8 @@ function renderGodzillaPDV(){
  '<div class="pdv-title"><h2>PDV</h2><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Pesquisar produtos..." value="'+esc(pdvQuery)+'" autocomplete="off"></label></div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
- '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong>Mais vendidos</strong></button>'+
- categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong>'+esc(name)+'</strong></button>';}).join('')+
+ '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:clamp(40px,4.7vw,48px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:anywhere!important">Mais vendidos</strong></button>'+
+ categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:clamp(40px,4.7vw,48px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:anywhere!important">'+esc(name)+'</strong></button>';}).join('')+
  '</div>'+
  (pdvShowBestSellers?pdvBestSellers():'')+
  '<div class="pdv-list-head"><strong>Produtos da loja</strong><small>'+products.length+' cadastrados</small></div>'+
@@ -1735,6 +1735,26 @@ function applySalesNightStyles(){
 }
 window.applySalesNightStyles=applySalesNightStyles;
 
+
+/* Cards de categorias do PDV: aplicar tamanho diretamente ao DOM,
+   evitando que estilos antigos prevaleçam sobre os rótulos. */
+function applyPdvCategoryFontSizes(){
+ const root=$('page');
+ if(!root)return;
+ root.querySelectorAll('.godzilla-pdv .pdv-category-tiles .pdv-category-tile').forEach(tile=>{
+  tile.style.setProperty('height','auto','important');
+  tile.style.setProperty('min-height','clamp(155px,15vw,170px)','important');
+  tile.style.setProperty('padding','16px 12px','important');
+  const name=tile.querySelector('strong');
+  if(!name)return;
+  name.style.setProperty('font-size','clamp(40px,4.7vw,48px)','important');
+  name.style.setProperty('line-height','1.12','important');
+  name.style.setProperty('font-weight','800','important');
+  name.style.setProperty('white-space','normal','important');
+  name.style.setProperty('overflow-wrap','anywhere','important');
+ });
+}
+
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
   if(!pages().some(([key])=>key===tab))tab='resumo';
@@ -1845,6 +1865,7 @@ function renderPage(){
   if(tab==='produtos')applyInventoryNightStyles();
    if(tab==='configuracoes')applySettingsNightStyles();
    if(tab==='vendas')applySalesNightStyles();
+   if(tab==='caixa')applyPdvCategoryFontSizes();
 }
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
 function formShell(kind,id,inside){return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="columns">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
