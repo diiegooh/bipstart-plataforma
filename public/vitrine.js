@@ -56,9 +56,13 @@ function displayStoreLogo(){
  image.classList.toggle('store-logo-custom',!!own);
 }
 function applyBrand(){
- document.documentElement.style.setProperty('--green','#7138f4');
- document.documentElement.style.setProperty('--green2','#7138f4');
- document.documentElement.style.setProperty('--theme-ink','#ffffff');
+ const raw=String(menu?.brand_color||menu?.menu_theme_color||'');
+ const color=/^#[0-9a-f]{6}$/i.test(raw)?raw:'#7c3aed';
+ const rgb=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255);
+ const lightness=rgb.map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((sum,x,i)=>sum+x*[.2126,.7152,.0722][i],0);
+ document.documentElement.style.setProperty('--green',color);
+ document.documentElement.style.setProperty('--green2',color);
+ document.documentElement.style.setProperty('--theme-ink',lightness>.35?'#181321':'#ffffff');
 }
 // Usa o mesmo estado do modo noite do PDV na mesma origem.
 const sharedNightStorageKey='bipstart_pdv_night_v2';
