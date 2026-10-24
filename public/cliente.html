@@ -35,6 +35,32 @@ body:has(#auth:not(.hidden)) .auth-card .text-button{color:#7044d6!important}
 </style>
 
 <script>try{localStorage.removeItem('bipstart_theme_mode')}catch{}</script>
+<style id="pdv-night-reference">
+#workspace #pdvNightToggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:11px 12px;border:1px solid #ddd3f0;border-radius:9px;background:#eee8f7;color:#43315e;font:600 13px system-ui;cursor:pointer}
+#pdvNightToggle .night-switch{width:28px;height:16px;border-radius:20px;background:#aaa;position:relative}
+#pdvNightToggle .night-switch:after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .15s}
+#pdvNightToggle[aria-pressed="true"] .night-switch{background:#a78bfa}
+#pdvNightToggle[aria-pressed="true"] .night-switch:after{transform:translateX(12px)}
+#pdvNightToggle:focus-visible{outline:2px solid #a78bfa;outline-offset:3px}
+body.pdv-night:has(#workspace:not(.hidden)){background:#181a20!important}
+body.pdv-night #workspace{--text:#f4f4f8;--muted:#b6bdcf;--line:#343741;--panel:#22252d;--bg:#181a20;color:#f4f4f8!important}
+body.pdv-night #workspace :is(.dashboard,.content,#page,.godzilla-pdv,.pdv-two-panels){background:#181a20!important;background-image:none!important;color:#f4f4f8!important}
+body.pdv-night #workspace :is(.side,.side-store,.side-actions,#nav,.pdv-panel,.pdv-catalog,.pdv-sale-panel,.pdv-sale-list,.pdv-payment-form,.pdv-payment-selector,.card,.data-form,.cart,.tile,.item,.empty,.menu-editor-panel,.category-image-settings){background:#22252d!important;background-image:none!important;border-color:#343741!important;color:#f4f4f8!important;box-shadow:none!important}
+body.pdv-night #workspace :is(h1,h2,h3,h4,label,legend,strong,.pdv-product-name){color:#f4f4f8!important}
+body.pdv-night #workspace :is(p,small,.muted,.pdv-sale-empty){color:#b6bdcf!important}
+body.pdv-night #workspace :is(input:not([type=checkbox]):not([type=radio]),select,textarea,.pdv-search-top input){background:#22252d!important;color:#f4f4f8!important;border-color:#343741!important;color-scheme:dark}
+body.pdv-night #workspace input::placeholder{color:#b6bdcf!important}
+body.pdv-night #workspace :is(.pdv-product,.pdv-product-info,.pdv-sale-item,.pdv-sale-qty button,.pdv-payment-chip,.pdv-card-kind){background:#2b2f39!important;background-image:none!important;border-color:#393d49!important;color:#f4f4f8!important}
+body.pdv-night #workspace :is(.pdv-product-price,.pdv-sale-line-total,.pdv-sale-total strong){color:#c2adff!important}
+body.pdv-night #workspace .side #nav nav :is(button,a){background:transparent!important;color:#b6bdcf!important;border-color:transparent!important}
+body.pdv-night #workspace .side #nav nav button.active{background:#382c53!important;color:#fff!important}
+body.pdv-night #workspace :is(.side-action,.side-settings,.ghost){background:#2b2f39!important;color:#d7c9fa!important;border-color:#393d49!important}
+body.pdv-night #workspace :is(.button,.pdv-payment-chip.selected,.pdv-card-kind.selected){background:#6f4bab!important;color:#fff!important;border-color:#8662bc!important}
+body.pdv-night #workspace #pdvNightToggle{background:#42315f!important;color:#fff!important;border-color:#42315f!important}
+body.pdv-night #workspace .side #nav nav button.online-order-nav-alert{background:#ac2340!important;color:#fff!important;border-color:#ff6577!important}
+body.pdv-night #workspace :is(th,td,.pdv-sale-total){border-color:#343741!important;color:#f4f4f8}
+@media(prefers-reduced-motion:reduce){#pdvNightToggle .night-switch:after{transition:none}}
+</style>
 </head>
 <body>
 <header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
@@ -98,6 +124,7 @@ body:has(#auth:not(.hidden)) .auth-card .text-button{color:#7044d6!important}
         </div>
         <div id="nav"></div>
         <div class="side-actions">
+<button type="button" id="pdvNightToggle" aria-pressed="false"><span>Modo noite</span><span class="night-switch" aria-hidden="true"></span></button>
           <div class="side-actions-row">
             <button type="button" id="sideLogout" class="side-action">Sair</button>
           </div>
@@ -121,4 +148,5 @@ body:has(#auth:not(.hidden)) .auth-card .text-button{color:#7044d6!important}
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
 <script src="/cliente.js?v=35" defer></script>
+<script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite'};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
