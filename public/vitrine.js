@@ -65,20 +65,39 @@ function applyBrand(){
   document.documentElement.style.setProperty('--theme-ink',luminance>.35?'#0a0d0b':'#ffffff');
  }
 }
+// Usa o mesmo estado do modo noite do PDV na mesma origem.
+const sharedNightStorageKey='bipstart_pdv_night_v2';
 const menuNightStorageKey='bipstart-cardapio-modo-noite';
-function applyMenuNight(enabled){
- document.body.classList.toggle('menu-night',enabled);
- const button=$('toggleMenuNight');
- if(button){button.textContent=enabled?'☀️ Modo dia':'🌙 Modo noite';button.setAttribute('aria-pressed',String(enabled));}
- document.querySelector('meta[name="theme-color"]')?.setAttribute('content',enabled?'#08080d':'#f8f8ff');
+function readMenuNight(){
+ try{
+  const shared=localStorage.getItem(sharedNightStorageKey);
+  if(shared==='1'||shared==='0')return shared==='1';
+  return localStorage.getItem(menuNightStorageKey)==='true';
+ }catch{return false}
 }
-let menuNightEnabled=false;
-try{menuNightEnabled=localStorage.getItem(menuNightStorageKey)==='true'}catch{}
+let menuNightEnabled=readMenuNight();
+function applyMenuNight(enabled){
+ menuNightEnabled=Boolean(enabled);
+ document.body.classList.toggle('menu-night',menuNightEnabled);
+ document.documentElement.classList.toggle('menu-night',menuNightEnabled);
+ const button=$('toggleMenuNight');
+ if(button){
+  button.textContent=menuNightEnabled?'☀️ Modo dia':'🌙 Modo noite';
+  button.setAttribute('aria-pressed',String(menuNightEnabled));
+ }
+ document.querySelector('meta[name="theme-color"]')?.setAttribute('content',menuNightEnabled?'#08080d':'#f8f8ff');
+}
 applyMenuNight(menuNightEnabled);
 $('toggleMenuNight')?.addEventListener('click',()=>{
- menuNightEnabled=!menuNightEnabled;
- try{localStorage.setItem(menuNightStorageKey,String(menuNightEnabled))}catch{}
- applyMenuNight(menuNightEnabled);
+ applyMenuNight(!menuNightEnabled);
+ try{
+  localStorage.setItem(sharedNightStorageKey,menuNightEnabled?'1':'0');
+  localStorage.setItem(menuNightStorageKey,String(menuNightEnabled));
+ }catch{}
+});
+window.addEventListener('storage',event=>{
+ if(event.key===sharedNightStorageKey||event.key===menuNightStorageKey||event.key===null)
+  applyMenuNight(readMenuNight());
 });
 function drawPage(){
  const isRound=roundMenuActive();
