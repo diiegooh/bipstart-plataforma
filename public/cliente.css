@@ -3570,3 +3570,42 @@ body.night-mode #workspace .pdv-search-top input::placeholder,
   -webkit-text-fill-color: #aaa !important;
   opacity: 1 !important;
 }
+
+
+/* Homologação: tipografia maior nos cards de produtos do PDV. */
+#workspace .godzilla-pdv .pdv-product h3,
+#workspace .godzilla-pdv .pdv-product strong,
+#workspace .godzilla-pdv [data-pdv-product] h3,
+#workspace .godzilla-pdv [data-pdv-product] strong,
+body.workspace-fullscreen .godzilla-pdv .pdv-product-info strong,
+body.workspace-fullscreen .godzilla-pdv .pdv-product h3 {
+  font-size: 16px !important;
+  line-height: 1.35 !important;
+  font-weight: 750 !important;
+}
+#workspace .godzilla-pdv .pdv-product-price,
+#workspace .godzilla-pdv [data-pdv-product] .pdv-product-price,
+body.workspace-fullscreen .godzilla-pdv .pdv-product-price {
+  font-size: 20px !important;
+  line-height: 1.3 !important;
+  font-weight: 800 !important;
+}
+#workspace .godzilla-pdv .pdv-product-info button,
+#workspace .godzilla-pdv [data-pdv-product] button,
+body.workspace-fullscreen .godzilla-pdv .pdv-product-info button {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+@media(max-width:580px) {
+  #workspace .godzilla-pdv .pdv-product h3,
+  #workspace .godzilla-pdv .pdv-product strong,
+  #workspace .godzilla-pdv [data-pdv-product] h3,
+  #workspace .godzilla-pdv [data-pdv-product] strong,
+  body.workspace-fullscreen .godzilla-pdv .pdv-product-info strong {
+    font-size: 14px !important;
+  }
+  #workspace .godzilla-pdv .pdv-product-price,
+  body.workspace-fullscreen .godzilla-pdv .pdv-product-price {
+    font-size: 18px !important;
+  }
+}
