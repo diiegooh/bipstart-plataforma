@@ -3579,3 +3579,26 @@ body #workspace #page .pdv-category-tiles .pdv-category-tile > strong{
  body #workspace #page .pdv-category-tiles .pdv-category-tile > span{font-size:38px!important}
  body #workspace #page .pdv-category-tiles .pdv-category-tile > strong{font-size:20px!important}
 }
+
+/* Paleta da loja: aplica a cor configurada a todos os principais controles e estados. */
+#workspace :is(button,a.button,.button,input[type="checkbox"],input[type="radio"]){accent-color:var(--store-accent,#7c3aed)}
+#workspace :is(.button,.pdv-finish,.pdv-best-seller-manage,.pdv-category-tile.selected,.pdv-payment-chip.selected,.pdv-card-kind.selected,.side nav button.active,.side nav a.active,.sales-period-switch button.active){
+ --accent:var(--store-accent,#7c3aed);
+}
+#workspace :is(.button,.pdv-finish,.pdv-best-seller-manage,.sales-period-switch button.active,.online-order-formatted .online-order-quick-actions button:first-child){
+ background:var(--store-accent,#7c3aed)!important;background-image:none!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;
+}
+#workspace :is(.button,.ghost,.pdv-payment-chip,.pdv-card-kind,.pdv-category-tile,.pdv-product,.pdv-best-seller,.sales-period-switch button,.inventory-category-card,.stock-summary-card,.online-order-quick-actions button,.online-order-payment-actions button,.side nav button,.side nav a):hover:not(:disabled){
+ border-color:var(--store-accent,#7c3aed)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 32%,transparent)!important;
+}
+#workspace :is(.button,.pdv-finish,.pdv-best-seller-manage):hover:not(:disabled){
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 84%,#15151b)!important;
+}
+#workspace :is(.pdv-payment-chip.selected,.pdv-card-kind.selected,.stock-summary-card.active,.inventory-category-card.active,.pdv-category-tile.selected,.sales-period-switch button.active,.side nav button.active,.side nav a.active){
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+#workspace :is(button,a,input,select,textarea):focus-visible{outline-color:var(--store-accent,#7c3aed)!important}
+#workspace #pdvNightToggle[aria-pressed="true"]{background:var(--store-accent,#7c3aed)!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important}
+body.pdv-night #workspace #pdvNightToggle[aria-pressed="true"]{background:var(--store-accent,#7c3aed)!important}
+#workspace .pdv-sale-total strong,#workspace .pdv-product-price{color:var(--store-accent,#7c3aed)}
