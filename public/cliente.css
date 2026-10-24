@@ -4155,7 +4155,6 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pd
 }
 body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-product-wrap > .pdv-product{
  width:100%!important;
- height:100%!important;
 }
 body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-empty{
  flex:1 1 100%!important;
