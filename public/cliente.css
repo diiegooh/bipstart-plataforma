@@ -3733,3 +3733,42 @@ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products{
  body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}
  body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+/* Configurações: acentos consistentes com Cor do Sistema, inclusive em modo noite. */
+body #workspace #page #settingsForm{
+ --settings-accent:var(--store-accent,#7c3aed);
+ --settings-ink:var(--store-accent-ink,#fff);
+}
+body #workspace #page #settingsForm .settings-save-button,
+body #workspace #page #settingsForm button.settings-save-button,
+body.pdv-night #workspace #page #settingsForm .settings-save-button{
+ background:var(--settings-accent)!important;
+ background-image:none!important;
+ border:1px solid var(--settings-accent)!important;
+ color:var(--settings-ink)!important;
+ box-shadow:0 5px 15px color-mix(in srgb,var(--settings-accent) 25%,transparent)!important;
+}
+body #workspace #page #settingsForm .settings-save-button:hover:not(:disabled){
+ background:color-mix(in srgb,var(--settings-accent) 84%,#17151f)!important;
+ border-color:var(--settings-accent)!important;
+}
+body #workspace #page #settingsForm :is(input[type=radio],input[type=checkbox],input[type=color]){
+ accent-color:var(--settings-accent)!important;
+}
+body #workspace #page #settingsForm :is(input:not([type=checkbox]):not([type=radio]),select,textarea):focus{
+ border-color:var(--settings-accent)!important;
+ outline:2px solid color-mix(in srgb,var(--settings-accent) 35%,transparent)!important;
+ outline-offset:1px;
+}
+body #workspace #page #settingsForm :is(.menu-settings,.menu-payments,.menu-logo-settings,.menu-logo-editor,.menu-layout-settings,.receipt-settings-panel,.category-image-settings,.category-image-setting-row,.menu-editor-panel){
+ border-color:color-mix(in srgb,var(--settings-accent) 42%,#51515c)!important;
+}
+body #workspace #page #settingsForm :is(.menu-settings button,.category-image-actions button,.menu-editor-panel .button):hover:not(:disabled){
+ border-color:var(--settings-accent)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--settings-accent) 22%,transparent)!important;
+}
+body #workspace #page #settingsForm :is(.menu-settings button.button,.menu-editor-panel button.button){
+ background:var(--settings-accent)!important;
+ color:var(--settings-ink)!important;
+ border-color:var(--settings-accent)!important;
+}
