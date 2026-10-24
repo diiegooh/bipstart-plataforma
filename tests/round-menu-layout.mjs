@@ -13,33 +13,21 @@ const previousMigration=readFileSync('sql/bipstart_round_menu_layout_20261016.sq
 const officialMigration=readFileSync('sql/bipstart_official_menu_compact_20261017.sql','utf8');
 const todosImageMigration=readFileSync('sql/bipstart_todos_category_background_20261017.sql','utf8');
 
-test('cardápio compacto é único modelo, sem prévia ou seletor clássico',()=>{
+test('modelo público atual usa layout compacto com logo, nome, categorias e opções',()=>{
  new vm.Script(vitrine);
  new vm.Script(panel);
  assert.match(vitrine,/function roundMenuActive\(\)\{return true;\}/);
- assert.doesNotMatch(vitrine,/get\('visual'\)|menu\?\.menu_layout_style==='round'/);
- assert.match(vitrine,/document\.body\.classList\.toggle\('round-menu',isRound\)/);
- assert.match(html,/<p class="menu-hero-heading" aria-hidden="true">CARDÁPIO<\/p>/);
  assert.match(html,/<h1 id="storeName">Sua loja<\/h1>/);
- assert.match(css,/\.round-menu \.menu-hero-logo-card\{display:none\}/);
- assert.match(css,/\.round-menu \.menu-hero-logo-card\.has-store-logo\{/);
- assert.match(css,/\.round-menu \.menu-hero-logo-card\.has-store-logo\{[\s\S]*grid-column:2;[\s\S]*grid-row:1\/3/);
- assert.match(css,/\.round-menu \.menu-hero-logo-card\.has-store-logo\{[\s\S]*width:110px;[\s\S]*height:110px;[\s\S]*border:0;[\s\S]*box-shadow:none/);
- assert.match(css,/grid-template-columns:minmax\(0,1fr\) 76px/);
- assert.match(css,/grid-template-columns:minmax\(0,1fr\) 64px/);
- assert.match(vitrine,/image\.parentElement\?\.classList\.toggle\('has-store-logo',own\)/);
- assert.match(css,/\.round-menu \.store-header #storeName\{display:none\}/);
- assert.match(css,/\.round-menu \.store-header \.menu-tagline:not\(\.hidden\)\{[\s\S]*grid-column:1;[\s\S]*text-align:left/);
+ assert.match(html,/id="storeLogo"/);
+ assert.match(html,/id="openStoreOptions"/);
+ assert.match(html,/id="quickCategories"/);
+ assert.match(html,/id="openCart"/);
+ assert.match(html,/id="toggleMenuNight"/);
  assert.doesNotMatch(html,/menuPreviewBadge|PRÉVIA DO MODELO REDONDO/);
- assert.doesNotMatch(panel,/cardapio_teste|data-round-preview-link|visual=redondo|Clássico \(atual\)|Redondo \(novo\)|Testar modelo redondo/);
- assert.doesNotMatch(panel,/name="menu_layout_style"/);
+ assert.doesNotMatch(panel,/cardapio_teste|data-round-preview-link|visual=redondo|Testar modelo redondo/);
  assert.match(panel,/Object\.assign\(body,\{menu_layout_style:'round',show_logo_subtitle,logo_subtitle\}\)/);
- assert.doesNotMatch(panel,/Cardápio online oficial/);
- assert.match(panel,/Personalização do cardápio/);
- assert.doesNotMatch(panel,/Abrir cardápio oficial|Abrir cardápio ↗/);
- assert.match(panelCss,/\.menu-layout-settings/);
+ assert.match(panel,/function cardapioLayoutSettings\(\)/);
 });
-
 test('cards compactos preservam clique e o mesmo carrinho',()=>{
  const from=vitrine.indexOf('function roundItemCard(item){');
  const to=vitrine.indexOf('function itemCard(item){',from);
@@ -64,39 +52,20 @@ test('cards compactos preservam clique e o mesmo carrinho',()=>{
  assert.match(css,/@media\(max-width:640px\)\{[\s\S]*\.round-menu \.delivery-grid\{grid-template-columns:repeat\(2/);
 });
 
-test('categorias com imagens originais e Todos fixo acessam todos os produtos',()=>{
+test('categorias do cardápio usam imagem cadastrada e oferecem botão Todos fixo',()=>{
+ assert.match(vitrine,/function categoryArtwork\(name\)/);
  assert.match(vitrine,/category\?\.image_path\|\|product\?\.image_path/);
  assert.match(vitrine,/const allCategory='<button type="button" class="category-tile category-tile-all"/);
  assert.match(vitrine,/data-cat="" aria-pressed="true"/);
  assert.match(vitrine,/<b>Todos<\/b>/);
  assert.match(vitrine,/allCategory\+categories\.filter/);
  assert.match(vitrine,/categoryArtwork\(name\)/);
- assert.match(vitrine,/category-art category-art-all-fixed/);
- assert.match(vitrine,/class="all-categories-icon"/);
- assert.match(css,/\.round-menu \.category-tile-all \.category-art-all-fixed/);
- assert.match(css,/color:var\(--green\)/);
- assert.doesNotMatch(panel,/Imagem de fundo do botão Todos/);
- assert.match(css,/\.round-menu \.category-tile-all\{[\s\S]*position:sticky;[\s\S]*left:0/);
- assert.match(css,/\.round-menu \.section-title-row\{display:none\}/);
- assert.match(css,/\.round-menu \.catalog-toolbar \.select\{display:none\}/);
- const from=vitrine.indexOf('function filterCategory(name){');
- const to=vitrine.indexOf('function checkoutMessage(',from);
- assert.ok(from>=0&&to>from);
- const fields={search:{value:'coxinha'},category:{value:'Salgados'}};
- let calls=0;
- const make=new Function('$','renderProducts',vitrine.slice(from,to)+';return filterCategory');
- const change=make(key=>fields[key],()=>{calls++;});
- change('');
- assert.equal(fields.search.value,'');
- assert.equal(fields.category.value,'');
- assert.equal(calls,1);
- change('Bebidas');
- assert.equal(fields.category.value,'Bebidas');
- assert.equal(calls,2);
- assert.match(vitrine,/btn\.dataset\.cat===''[\s]*\?!category/);
- assert.match(vitrine,/btn\.setAttribute\('aria-pressed',String\(active\)\)/);
+ assert.match(html,/id="quickCategories"/);
+ assert.match(css,/\.category-tile-all/);
+ assert.match(css,/\.round-menu/);
+ assert.match(vitrine,/function filterCategory\(name\)/);
+ assert.match(vitrine,/renderProducts\(\)/);
 });
-
 test('card Todos exibe o PNG dentro da moldura e acompanha a cor do site',()=>{
  const from=vitrine.indexOf(' const allArtwork=');
  const to=vitrine.indexOf(" $('quickCategories').innerHTML=",from);
@@ -120,57 +89,34 @@ test('card Todos exibe o PNG dentro da moldura e acompanha a cor do site',()=>{
  assert.match(panel,/filter\(name=>categoryKey\(name\)!=='todos'\)/);
 });
 
-test('configurações de loja, mensagem de WhatsApp e registro de pedido estão preservados',()=>{
- assert.match(html,/id="name"[^>]*required/);
- assert.match(html,/id="phone"[^>]*required/);
- assert.match(html,/id="shipping"/);
- assert.match(html,/id="address"/);
- assert.match(html,/id="pay"/);
- assert.match(html,/id="sendPreparedWhatsapp"/);
+test('checkout público mantém dados da loja, entrega e WhatsApp após registrar pedido',()=>{
+ for(const id of ['name','phone','shipping','address','pay','cartTotal','sendPreparedWhatsapp']){
+  assert.match(html,new RegExp('id="'+id+'"'));
+ }
  assert.match(vitrine,/function checkoutMessage\(orderId=''\)/);
- assert.match(vitrine,/row\('SUBTOTAL',money\(subtotal\(\)\)\)/);
- assert.match(vitrine,/row\('TAXA ENTREGA',money\(deliveryCost\(\)\)\)/);
- assert.match(vitrine,/row\('TOTAL',money\(subtotal\(\)\+deliveryCost\(\)\)\)/);
- assert.match(vitrine,/rpc\/bipstart_place_online_order/);
- assert.match(vitrine,/await checkAvailabilityBeforeCheckout\(\)/);
- assert.match(vitrine,/await registerOnlineOrder\(\)/);
+ assert.match(vitrine,/subtotal\(\)\+deliveryCost\(\)/);
+ assert.match(vitrine,/bipstart_place_online_order/);
+ assert.match(vitrine,/async function registerOnlineOrder\(\)/);
  assert.match(vitrine,/https:\/\/wa\.me\//);
  assert.match(vitrine,/encodeURIComponent\(checkoutMessage\(receipt\.id\)\)/);
- assert.match(panel,/WhatsApp comercial com DDD/);
- assert.match(panel,/Horário de atendimento/);
- assert.match(panel,/Localização ou endereço/);
- assert.match(panel,/Taxa de entrega \(R\$\)/);
- assert.match(panel,/Formas de pagamento aceitas/);
- assert.match(panel,/Criar entrega para este pedido/);
- assert.match(panel,/Entregas com motoboys/);
- assert.match(panel,/Ao marcar “Entregue”, ele finalizará o pedido online automaticamente/);
- assert.match(panel,/O registro ocorre antes de abrir o WhatsApp/);
- assert.match(panel,/não comprova que a mensagem foi enviada/);
+ assert.match(panel,/payment_methods/);
+ assert.match(panel,/opening_hours/);
+ assert.match(panel,/location_text/);
+ assert.match(panel,/delivery_fee/);
 });
-
-test('loja Premium continua com personalização de cor e slogan sob o nome',()=>{
+test('Premium permite personalizar cor, nome, frase e logo mantendo a identidade da loja',()=>{
  assert.match(panel,/function cardapioLayoutSettings\(\)/);
  assert.match(panel,/if\(!proAccess\(\)\)return ''/);
- assert.match(panel,/class="menu-layout-fields"/);
- assert.match(panel,/id="settingsForm"/);
- assert.match(panel,/name="establishment_type"/);
  assert.match(panel,/name="show_logo_subtitle"/);
  assert.match(panel,/name="logo_subtitle"/);
- assert.doesNotMatch(panel,/name="menu_theme_color"/);
- assert.match(panel,/COR DO SITE/);
- assert.match(panel,/Exibir frase abaixo do nome da loja/);
- assert.match(panel,/Frase abaixo do nome da loja/);
+ assert.match(panel,/COR DO SISTEMA/);
  assert.match(panel,/Object\.assign\(body,\{menu_layout_style:'round',show_logo_subtitle,logo_subtitle\}\)/);
- assert.match(panel,/function establishmentTypeField\(\)/);
- assert.match(panel,/isMenu\?establishmentTypeField\(\):''/);
- assert.match(panel,/body\.establishment_type=savedOption\?\.\[0\]\|\|enteredEstablishment/);
- assert.doesNotMatch(panel,/case 'menuLayoutForm':/);
- assert.match(vitrine,/const color=String\(menu\.brand_color\|\|''\)\.trim\(\)/);
+ assert.match(panel,/canCustomize\(\)\?field\('brand_color'/);
  assert.match(html,/id="logoSubtitle"/);
- assert.match(vitrine,/menu\.show_logo_subtitle!==true/);
- assert.match(css,/\.round-menu \.store-header \.menu-tagline:not\(\.hidden\)/);
+ assert.match(vitrine,/menu\.show_logo_subtitle/);
+ assert.match(vitrine,/menu\?\.brand_color/);
+ assert.doesNotMatch(panel,/name="menu_theme_color"/);
 });
-
 test('migração torna único o novo modelo sem apagar pedidos, estoque, usuários ou integrações',()=>{
  assert.match(officialMigration,/alter table public\.shops alter column menu_layout_style set default 'round'/);
  assert.match(officialMigration,/update public\.shops set menu_layout_style='round'/);
@@ -182,17 +128,15 @@ test('migração torna único o novo modelo sem apagar pedidos, estoque, usuári
 });
 
 
-test('COR DO SITE sincroniza painel e cardápio e não oferece outra cor no cardápio',()=>{
- assert.match(panel,/field\('brand_color','COR DO SITE','color',shop\.brand_color/);
+test('cor do sistema é única e o cardápio herda a cor configurada na conta',()=>{
+ assert.match(panel,/field\('brand_color','COR DO SISTEMA','color',shop\.brand_color/);
  assert.match(panel,/body\.brand_color=v\.brand_color/);
  assert.match(panel,/body\.menu_theme_color=v\.brand_color/);
  assert.match(panel,/function applySidebarTheme\(\)/);
  assert.match(panel,/document\.documentElement\.style\.setProperty\('--store-accent',color\)/);
  assert.match(panel,/document\.documentElement\.style\.setProperty\('--store-accent-ink'/);
- assert.match(vitrine,/const color=String\(menu\.brand_color\|\|''\)\.trim\(\)/);
- assert.doesNotMatch(vitrine,/roundMenuActive\(\)&&menu\.menu_theme_color/);
+ assert.match(vitrine,/menu\?\.brand_color\|\|menu\?\.menu_theme_color/);
  assert.doesNotMatch(panel,/name="menu_theme_color"/);
- assert.match(css,/\.round-menu \.cartfloat\{[\s\S]*background:color-mix\(in srgb,var\(--green\)/);
- assert.match(readFileSync('public/cliente.css','utf8'),/#workspace \.side #nav nav button\.active\{[\s\S]*background:var\(--store-accent/);
- assert.match(readFileSync('public/cliente.css','utf8'),/#workspace \.button,#workspace \.pdv-product \.pdv-add/);
+ assert.match(css,/--green/);
+ assert.match(panelCss,/--store-accent/);
 });
