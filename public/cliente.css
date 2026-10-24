@@ -3978,3 +3978,65 @@ body #workspace #page .sales-export-actions button.sales-export-receipt-accent:h
  filter:brightness(.88)!important;
  box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 30%,transparent)!important;
 }
+
+/* Vendas: lista de vendas e detalhes harmonizados ao modo noite. */
+body.pdv-night #workspace #page .sales-records-section,
+body.pdv-night #workspace #page .sales-records-scroll{
+ background:#22252d!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .sales-records-section h3{
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section>p{
+ color:#b6bdcf!important;-webkit-text-fill-color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table{
+ background:#22252d!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table th{
+ background:#2b2f39!important;color:#dce1ed!important;
+ border-color:#393d49!important;-webkit-text-fill-color:#dce1ed!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table tbody tr td,
+body.pdv-night #workspace #page .sales-records-section .sales-records-table tbody tr:nth-child(even) td{
+ background:#22252d!important;color:#f4f4f8!important;
+ border-color:#393d49!important;-webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table tbody tr.sales-record-row:hover td{
+ background:#303540!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table tbody tr.sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) td{
+ background:#2b2f39!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table td strong{
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table td.sales-record-profit{
+ color:#70dba8!important;-webkit-text-fill-color:#70dba8!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table .sales-record-toggle{
+ background:#2b2f39!important;color:#fff!important;-webkit-text-fill-color:#fff!important;
+ border-color:#454957!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table .sales-record-toggle:hover,
+body.pdv-night #workspace #page .sales-records-section .sales-records-table .sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) .sales-record-toggle{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 24%,#22252d)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-record-arrow{
+ background:#393d49!important;color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-record-details-row>td,
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail,
+body.pdv-night #workspace #page .sales-records-section .sales-inline-summary,
+body.pdv-night #workspace #page .sales-records-section .sales-inline-scroll{
+ background:#1b1e25!important;color:#f4f4f8!important;border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(strong,b){
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(span,small,th,td,p){
+ color:#c6cbd9!important;border-color:#393d49!important;
+}
