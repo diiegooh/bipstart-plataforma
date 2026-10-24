@@ -3462,3 +3462,53 @@ body.workspace-fullscreen #workspace .content{
 #settingsForm input[type="radio"] {
   accent-color: #6d28d9 !important;
 }
+
+
+/* Homologação: o modo noite também precisa escurecer o menu lateral inteiro do PDV. */
+body.night-mode #workspace .side,
+body.night-mode #workspace #sidebar,
+body.night-mode #workspace .side-store,
+body.night-mode #workspace .side-actions,
+body.night-mode #workspace .side-actions-row,
+body.night-mode #workspace .side #nav,
+body.night-mode #workspace .side #nav nav {
+  background:#050505!important;
+  background-image:none!important;
+  color:#f6f2ff!important;
+  border-color:#292929!important;
+  box-shadow:none!important;
+}
+body.night-mode #workspace .side-store {
+  border-bottom-color:#292929!important;
+}
+body.night-mode #workspace .side .side-settings,
+body.night-mode #workspace .side #nav nav button,
+body.night-mode #workspace .side .side-action,
+body.night-mode #workspace .side .theme-toggle {
+  background:#101010!important;
+  background-image:none!important;
+  color:#e8dcff!important;
+  border-color:#303030!important;
+  box-shadow:none!important;
+}
+body.night-mode #workspace .side #nav nav button:hover:not(.active),
+body.night-mode #workspace .side .side-settings:hover {
+  background:#1b1b1b!important;
+  border-color:#555!important;
+}
+body.night-mode #workspace .side #nav nav button.active {
+  background:#7044d6!important;
+  background-image:none!important;
+  color:#fff!important;
+  border-color:#8e69ec!important;
+  box-shadow:0 0 0 1px #7044d633!important;
+}
+body.night-mode #workspace .side-store-text strong,
+body.night-mode #workspace .side-store-text small {
+  color:#f6f2ff!important;
+}
+body.night-mode #workspace .side .side-action:hover,
+body.night-mode #workspace .side .theme-toggle:hover {
+  background:#202020!important;
+  border-color:#555!important;
+}
