@@ -1606,7 +1606,7 @@ function applyInventoryNightStyles(){
   'border-bottom-color':'#393d49'
  });
 }
-window.applyInventoryNightStyles=applyInventoryNightStyles;
+if(typeof window!=='undefined')window.applyInventoryNightStyles=applyInventoryNightStyles;
 
 /* Configurações da loja: padronização real dos cards ao ativar o modo noite. */
 function applySettingsNightStyles(){
@@ -1643,7 +1643,7 @@ function applySettingsNightStyles(){
   'border-color':'#454957','color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8'
  });
 }
-window.applySettingsNightStyles=applySettingsNightStyles;
+if(typeof window!=='undefined')window.applySettingsNightStyles=applySettingsNightStyles;
 
 
 /* Histórico de vendas: aplicar o tema noite também aos cards reconstruídos por renderPage. */
@@ -1714,7 +1714,7 @@ function applySalesNightStyles(){
   '-webkit-text-fill-color':'#fff','color-scheme':'dark'
  });
 }
-window.applySalesNightStyles=applySalesNightStyles;
+if(typeof window!=='undefined')window.applySalesNightStyles=applySalesNightStyles;
 
 
 /* Cards de categorias do PDV: aplicar tamanho diretamente ao DOM,
