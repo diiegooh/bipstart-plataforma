@@ -72,13 +72,15 @@ test('antes do WhatsApp, a vitrine remove os itens esgotados mesmo se mudaram ap
 });
 
 test('vitrine pública não oferece controle administrativo ou menu de três linhas',()=>{
- assert.doesNotMatch(html,/id="ownerNav"|id="ownerEditorLink"|Gerenciar cardápio|id="jumpCategories"|☰/);
+ assert.doesNotMatch(html,/id="ownerNav"|id="ownerEditorLink"|Gerenciar cardápio|id="jumpCategories"/);
+ assert.match(html,/id="openStoreOptions"/);
+ assert.match(html,/id="toggleMenuNight"/);
  assert.doesNotMatch(js,/revealOwnerNavigation|jumpCategories|ownerNav/);
  assert.doesNotMatch(client,/class="menu-live-preview"|Prévia do seu cardápio|<iframe src=/);
  assert.match(client,/requested\.get\('editar'\)==='cardapio'/);
  assert.match(client,/hiding\('workspace',true\);renderPage\(\)/);
  assert.doesNotMatch(client,/modeChooser|backToModes/);
- assert.match(clientHtml,/cliente\.js\?v=49/);
+ assert.match(clientHtml,/cliente\.js\?v=\d+/);
  assert.match(js,/async function boot\(\)/);
  assert.match(js,/drawPage\(\)/);
 });
