@@ -859,7 +859,6 @@ function renderSalesReport(){
   tile('Total vendido',fmt(paymentTotals.gross))+
   tile('Custo',figures.missing||report.unmatchedSales.length?'—':fmt(figures.cost))+
   tile('Lucro',salesProfitLabel(calculatedProfit))+'</div>';
- content+='<p class="sales-disclaimer">Lucro = total vendido − custo dos produtos − taxas da maquininha registradas. Não inclui impostos e outras despesas.</p>';
  if(figures.estimated)
   content+='<p class="sales-disclaimer">Em '+figures.estimated+
    ' item(ns) antigos, o custo foi estimado com o cadastro atual.</p>';
