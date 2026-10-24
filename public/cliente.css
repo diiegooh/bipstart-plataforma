@@ -3609,3 +3609,58 @@ body.workspace-fullscreen .godzilla-pdv .pdv-product-info button {
     font-size: 18px !important;
   }
 }
+
+
+/* Homologação: carrinho do PDV em modo noite — itens e pagamento com fundo preto. */
+body.night-mode #workspace .godzilla-pdv .pdv-sale-panel,
+html.night-mode #workspace .godzilla-pdv .pdv-sale-panel,
+#workspace.night-mode .godzilla-pdv .pdv-sale-panel,
+body.night-mode #workspace .godzilla-pdv .pdv-sale-list,
+html.night-mode #workspace .godzilla-pdv .pdv-sale-list,
+#workspace.night-mode .godzilla-pdv .pdv-sale-list,
+body.night-mode #workspace .godzilla-pdv .pdv-sale-item,
+html.night-mode #workspace .godzilla-pdv .pdv-sale-item,
+#workspace.night-mode .godzilla-pdv .pdv-sale-item,
+body.night-mode #workspace .godzilla-pdv .pdv-payment-form,
+html.night-mode #workspace .godzilla-pdv .pdv-payment-form,
+#workspace.night-mode .godzilla-pdv .pdv-payment-form,
+body.night-mode #workspace .godzilla-pdv .pdv-payment-selector,
+html.night-mode #workspace .godzilla-pdv .pdv-payment-selector,
+#workspace.night-mode .godzilla-pdv .pdv-payment-selector,
+body.night-mode #workspace .godzilla-pdv #pdvCashFields,
+html.night-mode #workspace .godzilla-pdv #pdvCashFields,
+#workspace.night-mode .godzilla-pdv #pdvCashFields,
+body.night-mode #workspace .godzilla-pdv #pdvCardFields,
+html.night-mode #workspace .godzilla-pdv #pdvCardFields,
+#workspace.night-mode .godzilla-pdv #pdvCardFields {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+body.night-mode #workspace .godzilla-pdv .pdv-sale-item,
+html.night-mode #workspace .godzilla-pdv .pdv-sale-item,
+#workspace.night-mode .godzilla-pdv .pdv-sale-item {
+  border-color: #292929 !important;
+}
+body.night-mode #workspace .godzilla-pdv .pdv-sale-item small,
+body.night-mode #workspace .godzilla-pdv .pdv-sale-item strong,
+body.night-mode #workspace .godzilla-pdv .pdv-sale-item b,
+body.night-mode #workspace .godzilla-pdv .pdv-payment-form label,
+body.night-mode #workspace .godzilla-pdv .pdv-payment-label,
+body.night-mode #workspace .godzilla-pdv .pdv-card-kind-label,
+body.night-mode #workspace .godzilla-pdv .pdv-calculation,
+html.night-mode #workspace .godzilla-pdv .pdv-sale-item small,
+html.night-mode #workspace .godzilla-pdv .pdv-sale-item strong,
+html.night-mode #workspace .godzilla-pdv .pdv-sale-item b,
+html.night-mode #workspace .godzilla-pdv .pdv-payment-form label,
+html.night-mode #workspace .godzilla-pdv .pdv-payment-label,
+html.night-mode #workspace .godzilla-pdv .pdv-card-kind-label,
+html.night-mode #workspace .godzilla-pdv .pdv-calculation {
+  color: #fff !important;
+}
+body.night-mode #workspace .godzilla-pdv .pdv-payment-form input,
+html.night-mode #workspace .godzilla-pdv .pdv-payment-form input,
+#workspace.night-mode .godzilla-pdv .pdv-payment-form input {
+  background: #111 !important;
+  color: #fff !important;
+  border-color: #393939 !important;
+}
