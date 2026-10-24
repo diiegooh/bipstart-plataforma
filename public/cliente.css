@@ -3908,3 +3908,18 @@ body #workspace #page button[data-new="product"]:hover:not(:disabled){
  filter:brightness(.88);
  box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 32%,transparent)!important;
 }
+
+/* Pedidos online: as duas ações Finalizar pedido usam a Cor do Sistema. */
+body #workspace #page .online-order-formatted .online-order-quick-actions button.online-order-finalize,
+body.pdv-night #workspace #page .online-order-formatted .online-order-quick-actions button.online-order-finalize{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ -webkit-text-fill-color:var(--store-accent-ink,#fff)!important;
+}
+body #workspace #page .online-order-formatted .online-order-quick-actions button.online-order-finalize:hover:not(:disabled){
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 85%,#13131a)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 28%,transparent)!important;
+}
