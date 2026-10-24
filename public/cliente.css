@@ -3654,3 +3654,21 @@ body.workspace-fullscreen #workspace .pdv-floating-sale-button:hover{
  background:color-mix(in srgb,var(--store-accent,#7c3aed) 85%,#101018)!important;
  border-color:var(--store-accent,#7c3aed)!important;
 }
+
+/* Hover dos produtos do PDV segue a cor escolhida em Configurações. */
+@media (hover:hover){
+ body #workspace #page .godzilla-pdv .pdv-product:hover,
+ body #workspace #page .godzilla-pdv [data-pdv-product]:hover{
+  background:color-mix(in srgb,var(--store-accent,#7c3aed) 20%,#ffffff)!important;
+  background-image:none!important;
+  border-color:var(--store-accent,#7c3aed)!important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 38%,transparent)!important;
+ }
+ body.pdv-night #workspace #page .godzilla-pdv .pdv-product:hover,
+ body.pdv-night #workspace #page .godzilla-pdv [data-pdv-product]:hover{
+  background:color-mix(in srgb,var(--store-accent,#7c3aed) 28%,#22252d)!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-product:hover .pdv-product-info{
+  background:transparent!important;
+ }
+}
