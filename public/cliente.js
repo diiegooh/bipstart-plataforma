@@ -1651,7 +1651,6 @@ function renderPage(){
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
       +(isMenu?establishmentTypeField():'')
       
-       +(isMenu&&canCustomize()?field('menu_theme_color','COR DO CARDÁPIO ONLINE','color',shop.menu_theme_color||'#7c3aed')+'<p class="muted small">Escolha a cor de destaque dos botões, categorias e detalhes do cardápio online.</p>':'')
       +(isMenu?'<div class="menu-settings">'
        +field('opening_hours','Horário de atendimento','text',shop.opening_hours||'','maxlength="160" placeholder="Ex.: Segunda a sábado, 18h às 23h"')
        +field('location_text','Localização ou endereço','text',shop.location_text||'','maxlength="240" placeholder="Ex.: Rua das Flores, 100 — Centro"')
@@ -2009,12 +2008,7 @@ async function handleSubmit(form,contractWindow=null){
       if(whatsapp&&!/^\d{10,13}$/.test(whatsapp))throw Error('Informe um telefone WhatsApp com DDD.');
       if(!v.name?.trim())throw Error('Informe o nome do estabelecimento.');
       const body={name:v.name.trim(),whatsapp:whatsapp||null};
-      if(canCustomize()){
-        if(!/^#[0-9a-f]{6}$/i.test(String(v.brand_color||'')))throw Error('Selecione uma cor válida.');
-        body.brand_color=v.brand_color;
-        // Sincroniza o campo legado para não haver cores divergentes entre vitrines.
-        body.menu_theme_color=v.brand_color;
-      }
+      // Identidade lilás BipStart fixa; não salvar cores customizadas.
       let receiptPreference=null;
       if(shop.model==='pdv'){
         if(!receiptPaperOptions.includes(String(v.paper||''))||String(v.footer||'').length>120)
