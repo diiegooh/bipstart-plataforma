@@ -4274,3 +4274,39 @@ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-emp
   max-height:none!important;
  }
 }
+
+/* PDV: categorias de mesma altura e quebra de linha apenas entre palavras.
+   O texto começa em 30 px e o JavaScript reduz somente nos nomes longos. */
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile{
+ height:168px!important;
+ min-height:168px!important;
+ max-height:168px!important;
+ padding:12px 10px!important;
+ box-sizing:border-box!important;
+ overflow:hidden!important;
+ gap:6px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > strong{
+ display:block!important;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ white-space:normal!important;
+ overflow-wrap:normal!important;
+ word-break:normal!important;
+ hyphens:none!important;
+ line-height:1.12!important;
+ text-align:center!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > span[aria-hidden]{
+ flex-shrink:0!important;
+}
+@media(max-width:700px){
+ body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile{
+  height:154px!important;
+  min-height:154px!important;
+  max-height:154px!important;
+ }
+}
