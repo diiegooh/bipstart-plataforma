@@ -3512,3 +3512,30 @@ body.night-mode #workspace .side .theme-toggle:hover {
   background:#202020!important;
   border-color:#555!important;
 }
+
+
+/* Homologação: campo de pesquisa preto no modo noite, incluindo pesquisa do PDV. */
+body.night-mode #workspace input[type="search"],
+body.night-mode #workspace input[placeholder*="Pesquisar" i],
+body.night-mode #workspace input[placeholder*="Buscar" i],
+body.night-mode #workspace input[placeholder*="pesquisa" i],
+body.night-mode #workspace .pdv-search-top input,
+body.night-mode #workspace .pdv-filters input,
+body.night-mode #workspace input.search-input {
+  background:#000!important;
+  background-color:#000!important;
+  background-image:none!important;
+  color:#f6f2ff!important;
+  border-color:#3a3a3a!important;
+  box-shadow:none!important;
+}
+body.night-mode #workspace input[type="search"]::placeholder,
+body.night-mode #workspace input[placeholder*="Pesquisar" i]::placeholder,
+body.night-mode #workspace input[placeholder*="Buscar" i]::placeholder,
+body.night-mode #workspace input[placeholder*="pesquisa" i]::placeholder,
+body.night-mode #workspace .pdv-search-top input::placeholder,
+body.night-mode #workspace .pdv-filters input::placeholder,
+body.night-mode #workspace input.search-input::placeholder {
+  color:#a7a7a7!important;
+  opacity:1!important;
+}
