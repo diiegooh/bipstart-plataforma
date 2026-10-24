@@ -3923,3 +3923,22 @@ body #workspace #page .online-order-formatted .online-order-quick-actions button
  border-color:var(--store-accent,#7c3aed)!important;
  box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 28%,transparent)!important;
 }
+
+/* Motoboys: Novo motoboy e Compartilhar link seguem a cor do sistema. */
+body #workspace #page button[data-new="courier"].courier-system-accent,
+body #workspace #page button[data-share-courier].courier-system-accent,
+body.pdv-night #workspace #page button[data-new="courier"].courier-system-accent,
+body.pdv-night #workspace #page button[data-share-courier].courier-system-accent{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ -webkit-text-fill-color:var(--store-accent-ink,#fff)!important;
+ box-shadow:0 4px 12px color-mix(in srgb,var(--store-accent,#7c3aed) 22%,transparent)!important;
+}
+body #workspace #page button[data-new="courier"].courier-system-accent:hover:not(:disabled),
+body #workspace #page button[data-share-courier].courier-system-accent:hover:not(:disabled){
+ filter:brightness(.87)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 30%,transparent)!important;
+}
