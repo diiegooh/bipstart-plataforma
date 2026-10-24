@@ -3560,3 +3560,41 @@ body #workspace #page .godzilla-pdv .pdv-product-info{height:auto!important;min-
 #workspace .inventory-category-card:hover{
  border-color:var(--store-accent,#7c3aed)!important;
 }
+
+/* Modo noite: cards de Pedidos online em grafite, preservando cores semânticas dos status. */
+body.pdv-night #workspace #page .online-order-card.online-order-formatted{
+ background:#22252d!important;border-color:#393d49!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-head,
+body.pdv-night #workspace #page .online-order-formatted .online-order-section{
+ background:transparent!important;border-color:#393d49!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(h3,h4,p,b,strong,span,th,td){
+ color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-total{
+ color:#c2adff!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table,
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table thead,
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table tbody,
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table tr{
+ background:#22252d!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table th,
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table td{
+ background:#2b2f39!important;border-color:#393d49!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-payment-actions button,
+body.pdv-night #workspace #page .online-order-formatted .online-order-quick-actions button,
+body.pdv-night #workspace #page .online-order-formatted .online-status-controls button{
+ background:#2b2f39!important;border-color:#454a58!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-payment-actions button[data-payment-advance],
+body.pdv-night #workspace #page .online-order-formatted .online-status-controls button:not([data-order-cancel]){
+ background:var(--store-accent,#7c3aed)!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-payment-actions button[data-payment-cancel],
+body.pdv-night #workspace #page .online-order-formatted .online-status-controls button[data-order-cancel]{
+ background:#44272e!important;border-color:#75404b!important;color:#ffd9df!important;
+}
