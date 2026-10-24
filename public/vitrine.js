@@ -65,6 +65,21 @@ function applyBrand(){
   document.documentElement.style.setProperty('--theme-ink',luminance>.35?'#0a0d0b':'#ffffff');
  }
 }
+const menuNightStorageKey='bipstart-cardapio-modo-noite';
+function applyMenuNight(enabled){
+ document.body.classList.toggle('menu-night',enabled);
+ const button=$('toggleMenuNight');
+ if(button){button.textContent=enabled?'☀️ Modo dia':'🌙 Modo noite';button.setAttribute('aria-pressed',String(enabled));}
+ document.querySelector('meta[name="theme-color"]')?.setAttribute('content',enabled?'#08080d':'#f8f8ff');
+}
+let menuNightEnabled=false;
+try{menuNightEnabled=localStorage.getItem(menuNightStorageKey)==='true'}catch{}
+applyMenuNight(menuNightEnabled);
+$('toggleMenuNight').addEventListener('click',()=>{
+ menuNightEnabled=!menuNightEnabled;
+ try{localStorage.setItem(menuNightStorageKey,String(menuNightEnabled))}catch{}
+ applyMenuNight(menuNightEnabled);
+});
 function drawPage(){
  const isRound=roundMenuActive();
  document.body.classList.toggle('round-menu',isRound);
