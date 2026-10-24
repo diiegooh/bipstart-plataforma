@@ -1571,6 +1571,41 @@ async function confirmStockImport(){
   throw Error('A importação parou após '+inserted+' produto(s). '+error.message+' Você pode importar novamente; os itens já criados serão identificados como duplicados.');
  }finally{stockImportBusy=false;renderPage();}
 }
+
+/* Complemento do modo noite para cards de Produtos:
+   usa estilos inline prioritários, pois o tema antigo traz fundos claros com !important. */
+function applyInventoryNightStyles(){
+ const root=$('page');
+ if(!root)return;
+ const dark=document.body.classList.contains('pdv-night');
+ const paint=(selector,values)=>{
+  root.querySelectorAll(selector).forEach(el=>{
+   for(const [property,value] of Object.entries(values)){
+    if(dark)el.style.setProperty(property,value,'important');
+    else el.style.removeProperty(property);
+   }
+  });
+ };
+ paint('.inventory-card,.inventory-category-card,.stock-summary-card,.stock-row,.inventory-card-body',{
+  'background-color':'#22252d','background-image':'none',
+  'border-color':'#393d49','color':'#f4f4f8'
+ });
+ paint('.inventory-card-heading h3,.inventory-card-prices>strong,.inventory-category-card strong,.stock-summary-number',{
+  'color':'#ffffff','-webkit-text-fill-color':'#ffffff'
+ });
+ paint('.inventory-card-heading small,.inventory-card-prices>small,.inventory-stock-meta,.inventory-stock-meta strong,.inventory-category-card small,.stock-summary-label',{
+  'color':'#b6bdcf','-webkit-text-fill-color':'#b6bdcf'
+ });
+ paint('.inventory-category-card.active,.stock-summary-card.active',{
+  'background-color':'color-mix(in srgb,var(--store-accent,#7c3aed) 24%,#22252d)',
+  'border-color':'var(--store-accent,#7c3aed)'
+ });
+ paint('.inventory-card .inventory-card-body,.inventory-card .inventory-card-info,.inventory-card .inventory-card-actions',{
+  'background-color':'#22252d','color':'#f4f4f8'
+ });
+}
+window.applyInventoryNightStyles=applyInventoryNightStyles;
+
 function renderPage(){
   if(!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();return}
   if(!pages().some(([key])=>key===tab))tab='resumo';
@@ -1678,6 +1713,7 @@ function renderPage(){
       +(requests.length?'<div class="stack">'+requests.map(r=>'<div class="item"><div><strong>'+esc(r.status)+'</strong><small>'+new Date(r.created_at).toLocaleDateString('pt-BR')+'</small><p>'+esc(r.details)+'</p></div></div>').join('')+'</div>':'');
   }
   $('page').innerHTML=content;
+  if(tab==='produtos')applyInventoryNightStyles();
 }
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
 function formShell(kind,id,inside){return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="columns">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
