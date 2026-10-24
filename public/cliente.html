@@ -141,6 +141,89 @@ body.day-mode #workspace .product-best-seller-option strong,
 body.day-mode #workspace .product-best-seller-option small { color:#5b3ca0!important; }
 body.day-mode #workspace .side-actions-row .theme-toggle { background:#f0e9ff!important;color:#5b3ca0!important;border-color:#d8c8f4!important; }
 
+
+/* Homologação PDV: o modo noite escurece toda a moldura sem apagar as cores dos controles. */
+body.night-mode .shell,
+body.night-mode #workspace,
+body.night-mode #workspace>.content,
+body.night-mode #workspace .content,
+body.night-mode #workspace .dashboard,
+body.night-mode #workspace .godzilla-pdv,
+body.night-mode #workspace .pdv-two-panels {
+  background:#000!important;
+  background-image:none!important;
+  color:#f6f2ff!important;
+  border-color:#292929!important;
+}
+body.night-mode #workspace .pdv-title h2,
+body.night-mode #workspace .pdv-list-head strong,
+body.night-mode #workspace .pdv-sale-head h2,
+body.night-mode #workspace .pdv-payment-label,
+body.night-mode #workspace .pdv-payment-form label,
+body.night-mode #workspace .pdv-card-kind-label {
+  color:#f6f2ff!important;
+}
+body.night-mode #workspace .pdv-panel {
+  background:#090909!important;
+  background-image:none!important;
+  color:#f6f2ff!important;
+  border-color:#303030!important;
+}
+body.night-mode #workspace .pdv-product,
+body.night-mode #workspace .pdv-best-seller {
+  background:#111!important;
+  background-image:none!important;
+  color:#f6f2ff!important;
+  border-color:#303030!important;
+}
+body.night-mode #workspace .pdv-product-info,
+body.night-mode #workspace .pdv-sale-list,
+body.night-mode #workspace .pdv-payment-form,
+body.night-mode #workspace .pdv-payment-selector,
+body.night-mode #workspace #pdvCardFields,
+body.night-mode #workspace #pdvCashFields {
+  background:#090909!important;
+  background-image:none!important;
+  color:#f6f2ff!important;
+  border-color:#303030!important;
+}
+body.night-mode #workspace .pdv-sale-empty,
+body.night-mode #workspace .pdv-sale-total,
+body.night-mode #workspace .pdv-payment-options,
+body.night-mode #workspace .pdv-card-kinds {
+  background:#111!important;
+  color:#f6f2ff!important;
+  border-color:#303030!important;
+}
+body.night-mode #workspace .pdv-sale-total strong,
+body.night-mode #workspace .pdv-product-name,
+body.night-mode #workspace .pdv-product-price,
+body.night-mode #workspace .pdv-sale-product,
+body.night-mode #workspace .pdv-sale-product strong,
+body.night-mode #workspace .pdv-sale-product small {
+  color:#f6f2ff!important;
+}
+body.night-mode #workspace .pdv-payment-chip,
+body.night-mode #workspace .pdv-card-kind {
+  color:#e5d7ff!important;
+}
+body.night-mode #workspace .pdv-payment-chip.selected,
+body.night-mode #workspace .pdv-card-kind.selected {
+  background:#eee8ff!important;
+  color:#5b3ca0!important;
+  border-color:#b9a4ff!important;
+}
+body.night-mode #workspace .pdv-payment-form input:not([type=checkbox]):not([type=radio]),
+body.night-mode #workspace .pdv-search-top input {
+  background:#111!important;
+  color:#f6f2ff!important;
+  border-color:#444!important;
+}
+body.night-mode #workspace .pdv-payment-form input::placeholder,
+body.night-mode #workspace .pdv-search-top input::placeholder {
+  color:#aaa!important;
+}
+
 </style>
 <script id="bipstart-theme-controller">
 (()=>{const key='bipstart_theme_mode';let mode='night';const apply=()=>{document.body.classList.toggle('day-mode',mode==='day');document.body.classList.toggle('night-mode',mode!=='day');const b=document.getElementById('themeToggle');if(b){b.textContent=mode==='day'?'🌙 Modo noite':'☀️ Modo dia';b.setAttribute('aria-pressed',String(mode==='day'));b.title=mode==='day'?'Mudar para modo noite':'Mudar para modo dia';}};try{mode=localStorage.getItem(key)==='day'?'day':'night'}catch{};const init=()=>{apply();const b=document.getElementById('themeToggle');if(b&&!b.dataset.themeReady){b.dataset.themeReady='1';b.addEventListener('click',()=>{mode=mode==='day'?'night':'day';try{localStorage.setItem(key,mode)}catch{};apply();});}};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();})();
