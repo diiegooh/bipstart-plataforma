@@ -1,0 +1,260 @@
+/* BipStart • acabamento visual da área do cliente/lojista
+   Arquivo complementar: mantém a lógica e os componentes existentes. */
+#workspace{
+  --client-ink:#253251;
+  --client-muted:#74819e;
+  --client-line:#e2e7f5;
+  --client-accent:#6554df;
+  color:var(--client-ink);
+  font-family:Inter,"DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+#workspace .dashboard{
+  align-items:start;
+  gap:20px;
+}
+#workspace .side{
+  border-radius:20px!important;
+  padding:15px!important;
+  box-shadow:0 12px 32px #283d740b!important;
+}
+#workspace .side-store{
+  gap:10px;
+  padding:8px 5px 16px!important;
+  margin-bottom:14px!important;
+}
+#workspace .side-store-text strong{
+  letter-spacing:-.25px;
+  overflow-wrap:anywhere;
+}
+#workspace .side #nav nav{gap:6px!important}
+#workspace .side #nav nav button,
+#workspace .side #nav nav a.side-public-menu{
+  min-height:44px;
+  border-radius:12px!important;
+  transition:background .16s,border-color .16s,transform .16s;
+}
+#workspace .side #nav nav button:active{transform:scale(.99)}
+#workspace .side #nav nav button.active,
+#workspace .side #nav nav a.side-public-menu.active{
+  background:linear-gradient(105deg,#eeeaff,#e8edff)!important;
+  border-color:#d9ddff!important;
+  color:#493bb0!important;
+  box-shadow:inset 3px 0 #6d5ce7,0 4px 12px #5e55cf0b!important;
+}
+#workspace .side .side-actions{padding-top:18px!important}
+#workspace .side .side-action{
+  border-radius:11px!important;
+  transition:background .16s,border-color .16s;
+}
+#workspace .content{
+  min-width:0;
+  border-radius:20px!important;
+  padding:clamp(16px,2.2vw,28px)!important;
+  box-shadow:0 12px 35px #283d740b!important;
+}
+#workspace #page{min-width:0}
+#workspace #page>.heading,
+#workspace #page>.toolbar{
+  margin-top:0;
+}
+#workspace #page>.heading{
+  align-items:center;
+  gap:18px;
+  margin-bottom:24px!important;
+  padding-bottom:20px;
+  border-bottom:1px solid #e9edf8;
+}
+#workspace #page>.heading h1,
+#workspace #page>.heading h2{
+  letter-spacing:-.8px;
+}
+#workspace #page>.heading p{
+  max-width:68ch;
+  line-height:1.65;
+}
+#workspace .toolbar{
+  margin-bottom:18px;
+  gap:12px;
+}
+#workspace .toolbar h2{
+  font-size:clamp(22px,2.3vw,29px);
+  letter-spacing:-.7px;
+}
+#workspace .grid{
+  gap:14px;
+}
+#workspace .tile{
+  padding:19px!important;
+  border-radius:16px!important;
+  transition:transform .16s,border-color .16s,box-shadow .16s;
+}
+#workspace .tile:hover{
+  transform:translateY(-2px);
+  border-color:#cfd7fa!important;
+  box-shadow:0 8px 20px #263b7410!important;
+}
+#workspace .tile strong{
+  font-size:clamp(21px,2.2vw,28px);
+  letter-spacing:-.5px;
+  overflow-wrap:anywhere;
+}
+#workspace .data-form,
+#workspace .cart{
+  padding:20px;
+  box-shadow:0 5px 16px #263b7408;
+}
+#workspace .data-form h3,
+#workspace .cart h3{letter-spacing:-.35px}
+#workspace label{
+  line-height:1.45;
+}
+#workspace input:not([type=checkbox]):not([type=radio]):not([type=file]),
+#workspace select,
+#workspace textarea{
+  min-height:43px;
+  transition:border-color .15s,box-shadow .15s;
+}
+#workspace textarea{min-height:100px}
+#workspace .stack{gap:11px}
+#workspace .stack .item,
+#workspace .item{
+  padding:15px;
+  gap:14px;
+  box-shadow:0 2px 8px #263b7405;
+}
+#workspace .item .actions{
+  justify-content:flex-end;
+}
+#workspace .button,
+#workspace button.button,
+#workspace a.button{
+  border-radius:11px;
+}
+#workspace .pill{
+  font-weight:750;
+  padding:5px 10px;
+}
+#workspace .empty{
+  border-radius:15px;
+  padding:32px 20px;
+  line-height:1.7;
+}
+#workspace .notice,
+#workspace .warn{border-radius:12px;line-height:1.6}
+
+/* Pedidos: leitura em blocos, tabela rolável e ações compactas. */
+#workspace .online-order-card{
+  border-radius:16px!important;
+  overflow:hidden;
+}
+#workspace .online-order-head{
+  padding:17px!important;
+  gap:9px 16px;
+}
+#workspace .online-order-head h3{
+  letter-spacing:-.25px;
+}
+#workspace .online-order-section{
+  padding:16px 17px!important;
+}
+#workspace .online-order-section h4{
+  margin:0 0 12px;
+  letter-spacing:-.15px;
+}
+#workspace .online-order-section p{
+  line-height:1.65;
+  overflow-wrap:anywhere;
+}
+#workspace .online-order-table-wrap{
+  max-width:100%;
+  overflow-x:auto;
+  border-radius:10px;
+}
+#workspace .online-order-items-table{
+  min-width:520px;
+}
+#workspace .online-order-quick-actions{
+  display:flex!important;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px!important;
+}
+#workspace .online-order-quick-actions button{
+  flex:0 1 auto;
+  width:auto;
+  min-height:36px!important;
+  padding:8px 12px!important;
+  border-radius:9px!important;
+  font-size:12px!important;
+  font-weight:800;
+}
+#workspace .online-order-payment-actions{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+}
+#workspace .online-order-payment-actions button{
+  min-height:38px;
+  border-radius:9px;
+  padding:9px 13px;
+}
+/* Quando o pagamento já foi confirmado e só resta cancelar, centraliza essa ação. */
+#workspace .online-order-payment-actions:has(button[data-payment-cancel]:only-child){
+  justify-content:center;
+}
+#workspace .online-order-total{
+  font-size:19px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:#f5f6ff;
+}
+#workspace .online-order-danger{
+  background:#fff0f1!important;
+  border:1px solid #f5c9cf!important;
+  color:#b4233b!important;
+}
+#workspace .online-order-danger:hover{
+  background:#ffe4e7!important;
+}
+#workspace .receipt-dialog{
+  border-radius:20px;
+}
+
+/* Barra e navegação em telas menores. */
+#workspace .pdv-mobile-menu{margin-bottom:12px}
+#workspace .side-toggle{border-radius:11px}
+@media(max-width:1000px){
+  #workspace .dashboard{gap:12px}
+  #workspace .content{padding:18px!important}
+  #workspace .side{box-shadow:0 20px 50px #141b3030!important}
+}
+@media(max-width:700px){
+  #workspace .content{padding:14px!important;border-radius:16px!important}
+  #workspace #page>.heading{
+    align-items:flex-start;
+    flex-direction:column;
+    padding-bottom:16px;
+    margin-bottom:18px!important;
+  }
+  #workspace .grid{gap:10px}
+  #workspace .tile{padding:14px!important}
+  #workspace .data-form,#workspace .cart{padding:14px}
+  #workspace .online-order-head,
+  #workspace .online-order-section{padding:13px!important}
+  #workspace .online-order-quick-actions button{
+    flex:1 1 calc(50% - 8px);
+    min-width:0;
+  }
+  #workspace .online-order-payment-actions button{flex:1 1 auto}
+  #workspace .online-order-total{font-size:17px}
+}
+@media(max-width:420px){
+  #workspace .grid{grid-template-columns:minmax(0,1fr)!important}
+  #workspace .online-order-quick-actions button{flex:1 1 100%}
+  #workspace .item .actions{justify-content:stretch}
+}
+@media(prefers-reduced-motion:reduce){
+  #workspace .tile,#workspace .side #nav nav button{transition:none}
+}

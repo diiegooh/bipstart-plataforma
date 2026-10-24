@@ -190,8 +190,10 @@ h1,h2,h3{line-height:1.2;margin:0 0 12px}h1{font-size:clamp(26px,4vw,45px)}h2{fo
 @media(max-width:390px){#workspace .pdv-payment-options{gap:5px}#workspace .pdv-payment-chip{font-size:12px;padding:8px 3px;min-height:44px}}
 
 .pdv-payment-form select,.pdv-payment-form input{margin-top:7px}
-.pdv-calculation{display:flex;justify-content:space-between;gap:12px;color:#ceb7e0;margin:10px 0}
-.pdv-calculation strong{color:#fff}
+.pdv-calculation{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#f3e8ff;background:#21142f;border:1px solid #8050a8;border-radius:10px;padding:11px 13px;margin:10px 0;font-weight:750}
+.pdv-calculation strong{color:#86efac;background:#123522;border:1px solid #237447;border-radius:8px;padding:6px 10px;font-size:16px;font-weight:900;white-space:nowrap}
+#workspace #pdvCashFields .pdv-calculation{color:#fff;background:#21142f;border-color:#a855f7}
+#workspace #pdvCashFields #pdvChange{color:#86efac;background:transparent;border-color:transparent;min-width:100px;text-align:center;box-shadow:none;padding:6px 10px}
 .pdv-finish{width:100%;margin-top:9px}
 @media(min-width:1250px){#workspace .dashboard{grid-template-columns:245px minmax(0,1fr)}#workspace .side{border-radius:23px}#workspace .content{border-radius:23px}#workspace:has(.godzilla-pdv) .side{min-height:450px}}
 @media(max-width:1180px){.pdv-products{grid-template-columns:repeat(2,minmax(0,1fr))}.pdv-two-panels{grid-template-columns:minmax(0,1fr) minmax(280px,.75fr)}}
@@ -1271,3 +1273,3040 @@ body.receipt-open{overflow:hidden}
  50%{filter:brightness(1.22);box-shadow:0 0 0 5px #e5233a2a,0 7px 26px #ef233d66}
 }
 @media(prefers-reduced-motion:reduce){#workspace .side #nav nav button.online-order-nav-alert{animation:none}}
+
+
+/* Homologação: PDV claro inspirado na referência visual enviada. */
+body.workspace-fullscreen{background:#f4f6ff;color:#20213b}
+body.workspace-fullscreen .top{background:#fff;border-bottom:1px solid #e2e5f4}
+body.workspace-fullscreen .dashboard{grid-template-columns:220px minmax(0,1fr);gap:16px}
+body.workspace-fullscreen .side,body.workspace-fullscreen .content{background:#fff;border:1px solid #e5e8f5;border-radius:18px;box-shadow:0 8px 26px #263b7a0b}
+body.workspace-fullscreen .side{padding:14px}
+body.workspace-fullscreen .side-store{color:#272849}
+body.workspace-fullscreen .side nav{display:grid;gap:6px}
+body.workspace-fullscreen .side nav button,body.workspace-fullscreen .side nav a{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border-radius:11px;color:#626580;background:transparent;border:1px solid transparent;text-decoration:none;text-align:left}
+body.workspace-fullscreen .side nav button.active,body.workspace-fullscreen .side nav a.active{background:#edf0ff;color:#3c46b5;border-color:#e3e7ff}
+body.workspace-fullscreen .side .side-nav-icon{width:22px;text-align:center;font-size:17px}
+body.workspace-fullscreen .content{padding:22px;min-width:0}
+body.workspace-fullscreen .godzilla-pdv{color:#252642}
+body.workspace-fullscreen .godzilla-pdv .pdv-title{margin-bottom:16px}
+body.workspace-fullscreen .godzilla-pdv .pdv-title h2{font-size:25px;color:#252642}
+body.workspace-fullscreen .godzilla-pdv .pdv-two-panels{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,.9fr);gap:16px;align-items:start}
+body.workspace-fullscreen .godzilla-pdv .pdv-panel{background:#fff;border:1px solid #e3e7f5;border-radius:17px;padding:17px;box-shadow:0 8px 24px #283c7c0a;min-width:0}
+body.workspace-fullscreen .godzilla-pdv .pdv-filters{display:grid;grid-template-columns:minmax(130px,1fr) minmax(120px,.7fr);gap:9px}
+body.workspace-fullscreen .godzilla-pdv .pdv-filters input,body.workspace-fullscreen .godzilla-pdv .pdv-filters select{background:#f8f9ff;color:#30314e;border:1px solid #e1e5f4;border-radius:10px;min-height:42px}
+body.workspace-fullscreen .godzilla-pdv .pdv-filters button{grid-column:1/-1;background:#f1f3ff;color:#4a4e9c;border:1px solid #e0e5ff}
+body.workspace-fullscreen .godzilla-pdv .pdv-list-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:20px 0 12px;color:#333550}
+body.workspace-fullscreen .godzilla-pdv .pdv-list-head small{color:#888ba5}
+body.workspace-fullscreen .godzilla-pdv .pdv-products{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+body.workspace-fullscreen .godzilla-pdv .pdv-product,body.workspace-fullscreen .godzilla-pdv [data-pdv-product]{border:1px solid #e0e5f4;background:#fff;border-radius:13px;overflow:hidden;color:#282947;box-shadow:0 3px 10px #2b397008}
+body.workspace-fullscreen .godzilla-pdv .pdv-product button,body.workspace-fullscreen .godzilla-pdv [data-pdv-product] button{color:#fff;background:linear-gradient(135deg,#5268ef,#7548dc);border:0;border-radius:9px;padding:9px 11px}
+body.workspace-fullscreen .godzilla-pdv .pdv-product img,body.workspace-fullscreen .godzilla-pdv [data-pdv-product] img{width:100%;height:104px;object-fit:contain;background:#f7f8ff;padding:8px}
+body.workspace-fullscreen .godzilla-pdv .pdv-product strong,body.workspace-fullscreen .godzilla-pdv [data-pdv-product] strong{color:#2b2d4b}
+body.workspace-fullscreen .godzilla-pdv .pdv-sale-panel{position:sticky;top:14px}
+body.workspace-fullscreen .godzilla-pdv .pdv-sale-head h2{color:#282947}
+body.workspace-fullscreen .godzilla-pdv .pdv-sale-item{background:#f8f9ff;border:1px solid #e6e9f7;color:#333550;border-radius:11px;margin:8px 0;padding:11px}
+body.workspace-fullscreen .godzilla-pdv .pdv-sale-item small{color:#898da7}
+body.workspace-fullscreen .godzilla-pdv .pdv-sale-qty button{background:#fff;color:#4c4fb4;border:1px solid #dfe3f5;border-radius:8px}
+body.workspace-fullscreen .godzilla-pdv .pdv-sale-total{border-top:1px solid #e6e8f4;color:#292b4b;padding-top:16px;margin-top:14px}
+body.workspace-fullscreen .godzilla-pdv .pdv-sale-total strong{color:#5146dc;font-size:27px}
+body.workspace-fullscreen .godzilla-pdv .pdv-payment-label,body.workspace-fullscreen .godzilla-pdv .pdv-card-kind-label{color:#5c5f7b}
+body.workspace-fullscreen .godzilla-pdv .pdv-payment-options,body.workspace-fullscreen .godzilla-pdv .pdv-card-kinds{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}
+body.workspace-fullscreen .godzilla-pdv .pdv-payment-chip,body.workspace-fullscreen .godzilla-pdv .pdv-card-kind{background:#f5f6ff;color:#555879;border:1px solid #e2e5f5;border-radius:9px;padding:9px 12px}
+body.workspace-fullscreen .godzilla-pdv .pdv-payment-chip.selected,body.workspace-fullscreen .godzilla-pdv .pdv-card-kind.selected{background:#ecebff;color:#5140cb;border-color:#bdb8ff}
+body.workspace-fullscreen .godzilla-pdv .pdv-payment-form label{color:#575a78}
+body.workspace-fullscreen .godzilla-pdv .pdv-payment-form input{background:#f9faff;color:#282947;border-color:#e0e4f3}
+body.workspace-fullscreen .godzilla-pdv .pdv-finish{width:100%;background:linear-gradient(100deg,#4f46e5,#8b35e8);color:#fff;border:0;border-radius:11px;box-shadow:0 7px 18px #6049df30}
+body.workspace-fullscreen .godzilla-pdv .pdv-sale-empty{color:#898da6;background:#f8f9ff;border:1px dashed #dce1f2;border-radius:11px;padding:20px;text-align:center}
+@media(max-width:1000px){body.workspace-fullscreen .godzilla-pdv .pdv-two-panels{grid-template-columns:minmax(0,1fr)}body.workspace-fullscreen .godzilla-pdv .pdv-sale-panel{position:static}}
+@media(max-width:650px){body.workspace-fullscreen .content{padding:12px}body.workspace-fullscreen .godzilla-pdv .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr))}body.workspace-fullscreen .godzilla-pdv .pdv-filters{grid-template-columns:1fr}body.workspace-fullscreen .godzilla-pdv .pdv-filters button{grid-column:auto}}
+
+
+/* Correção de prioridade: o tema escuro legado do workspace não deve sobrescrever o PDV claro da homologação. */
+body.workspace-fullscreen #workspace .side,
+body.workspace-fullscreen #workspace .content{
+ background:#fff !important;
+ color:#252642 !important;
+ border:1px solid #e5e8f5 !important;
+ box-shadow:0 8px 26px #263b7a0b !important;
+}
+body.workspace-fullscreen #workspace .side{padding:14px !important}
+body.workspace-fullscreen #workspace .side nav button,
+body.workspace-fullscreen #workspace .side nav a{color:#626580 !important;background:transparent !important;border-color:transparent !important}
+body.workspace-fullscreen #workspace .side nav button.active,
+body.workspace-fullscreen #workspace .side nav a.active{background:#edf0ff !important;color:#3c46b5 !important;border-color:#e3e7ff !important}
+body.workspace-fullscreen #workspace .pdv-panel{
+ background:#fff !important;color:#292b4b !important;border:1px solid #e3e7f5 !important;
+ box-shadow:0 8px 24px #283c7c0a !important;
+}
+body.workspace-fullscreen #workspace .pdv-title h2,
+body.workspace-fullscreen #workspace .pdv-sale-head h2,
+body.workspace-fullscreen #workspace .pdv-list-head,
+body.workspace-fullscreen #workspace .pdv-product h3,
+body.workspace-fullscreen #workspace .pdv-product-info,
+body.workspace-fullscreen #workspace .pdv-sale-product,
+body.workspace-fullscreen #workspace .pdv-payment-form label{color:#292b4b !important}
+body.workspace-fullscreen #workspace .pdv-product{
+ background:#fff !important;color:#292b4b !important;border:1px solid #e0e5f4 !important;
+ box-shadow:0 3px 10px #2b397008 !important;
+}
+body.workspace-fullscreen #workspace .pdv-product-media{background:#f7f8ff !important}
+body.workspace-fullscreen #workspace .pdv-product .pdv-add,
+body.workspace-fullscreen #workspace .pdv-finish{
+ background:linear-gradient(100deg,#4f46e5,#8b35e8) !important;color:#fff !important;border:0 !important;
+}
+body.workspace-fullscreen #workspace .pdv-filters input,
+body.workspace-fullscreen #workspace .pdv-filters select,
+body.workspace-fullscreen #workspace .pdv-payment-form input{
+ background:#f8f9ff !important;color:#30314e !important;border:1px solid #e1e5f4 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-item,
+body.workspace-fullscreen #workspace .pdv-sale-empty{
+ background:#f8f9ff !important;color:#333550 !important;border:1px solid #e6e9f7 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total{color:#292b4b !important}
+body.workspace-fullscreen #workspace .pdv-payment-chip,
+body.workspace-fullscreen #workspace .pdv-card-kind{background:#f5f6ff !important;color:#555879 !important;border:1px solid #e2e5f5 !important}
+body.workspace-fullscreen #workspace .pdv-payment-chip.selected,
+body.workspace-fullscreen #workspace .pdv-card-kind.selected{background:#ecebff !important;color:#5140cb !important;border-color:#bdb8ff !important}
+
+/* Ajuste final: neutralizar componentes escuros aninhados no formulário do PDV. */
+body.workspace-fullscreen #workspace .pdv-best-sellers,
+body.workspace-fullscreen #workspace .pdv-best-sellers *:not(button),
+body.workspace-fullscreen #workspace .pdv-payment-form,
+body.workspace-fullscreen #workspace .pdv-payment-form > div,
+body.workspace-fullscreen #workspace .pdv-payment-form .pdv-payment-selector{
+ background-color:transparent !important;
+ color:#292b4b !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers{
+ background:#f7f8ff !important;border:1px solid #e1e5f4 !important;border-radius:13px !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers button{
+ background:#fff !important;color:#5146dc !important;border:1px solid #e1e5f4 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form{
+ background:#fff !important;color:#292b4b !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form > div:not(.hidden){
+ background:#fff !important;color:#292b4b !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-payment-selector{
+ background:#fff !important;color:#292b4b !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-payment-options{
+ background:transparent !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-finish{
+ background:linear-gradient(100deg,#4f46e5,#8b35e8) !important;color:#fff !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-payment-chip.selected{
+ background:#ecebff !important;color:#5140cb !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-card-kinds,
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form .pdv-calculation{
+ background:#fff !important;color:#292b4b !important;
+}
+
+/* Ajuste de contraste final observado na tela de homologação. */
+body.workspace-fullscreen #workspace .pdv-sale-total > span,
+body.workspace-fullscreen #workspace .pdv-payment-label,
+body.workspace-fullscreen #workspace #pdvPaymentLabel,
+body.workspace-fullscreen #workspace .pdv-payment-selector > span{
+ color:#414463 !important;
+ opacity:1 !important;
+ font-weight:600 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total{
+ color:#414463 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total strong{
+ color:#5146dc !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-selector{
+ background:#fff !important;
+ color:#292b4b !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form{
+ color:#292b4b !important;
+}
+
+/* Atalhos de categoria inspirados na referência visual do PDV. */
+body.workspace-fullscreen #workspace .pdv-category-tiles{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0 18px;
+}
+body.workspace-fullscreen #workspace .pdv-category-tile{
+ min-height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+ border:1px solid transparent;border-radius:13px;padding:10px 8px;color:#fff;font-size:13px;
+ box-shadow:0 5px 12px #30305012;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;
+}
+body.workspace-fullscreen #workspace .pdv-category-tile > span{font-size:22px;line-height:1.1}
+body.workspace-fullscreen #workspace .pdv-category-tile strong{font-weight:700;text-align:center;overflow-wrap:anywhere}
+body.workspace-fullscreen #workspace .pdv-category-tile:hover{transform:translateY(-2px);box-shadow:0 8px 16px #30305020}
+body.workspace-fullscreen #workspace .pdv-category-tile.selected{outline:3px solid #d9d5ff;outline-offset:2px}
+body.workspace-fullscreen #workspace .pdv-category-all{background:linear-gradient(135deg,#5368ef,#3155d9)!important}
+body.workspace-fullscreen #workspace .pdv-category-tone-0{background:linear-gradient(135deg,#2e9fe6,#2870d9)!important}
+body.workspace-fullscreen #workspace .pdv-category-tone-1{background:linear-gradient(135deg,#ffb44d,#ff8d42)!important}
+body.workspace-fullscreen #workspace .pdv-category-tone-2{background:linear-gradient(135deg,#36c981,#1aa66b)!important}
+body.workspace-fullscreen #workspace .pdv-category-tone-3{background:linear-gradient(135deg,#df63d7,#b33fc2)!important}
+body.workspace-fullscreen #workspace .pdv-list-head{margin-top:12px!important}
+body.workspace-fullscreen #workspace .pdv-products{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+body.workspace-fullscreen #workspace .pdv-product img{height:112px!important}
+@media(max-width:700px){
+ body.workspace-fullscreen #workspace .pdv-category-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.workspace-fullscreen #workspace .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+
+/* Refinamento visual do catálogo e caixa para aproximar o PDV da referência. */
+body.workspace-fullscreen .godzilla-pdv .pdv-title{
+ display:flex;align-items:center;justify-content:space-between;
+ padding-bottom:12px;border-bottom:1px solid #e3e7f5;margin-bottom:16px;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-title h2{font-size:28px;letter-spacing:-.6px}
+body.workspace-fullscreen .godzilla-pdv .pdv-product{
+ display:flex;flex-direction:column;min-width:0;transition:transform .15s ease,box-shadow .15s ease;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-product:hover{
+ transform:translateY(-2px);box-shadow:0 8px 18px #303d7b14;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-product-media{
+ display:flex;align-items:center;justify-content:center;min-height:128px;
+ aspect-ratio:1.35;background:#f6f8ff;border-bottom:1px solid #edf0fa;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-product-media img{
+ width:100%;height:128px;object-fit:contain;padding:10px;background:transparent;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-product-info{
+ display:flex;flex:1;flex-direction:column;align-items:stretch;gap:7px;padding:11px;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-product-info strong{
+ font-size:13px;line-height:1.3;overflow-wrap:anywhere;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-product-price{
+ color:#a63ee8;font-size:17px;font-weight:800;letter-spacing:-.2px;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-product-info button{
+ width:100%;margin-top:auto;font-size:12px;font-weight:750;min-height:34px;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-best-sellers{
+ border-radius:14px!important;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-sale-head{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-sale-head h2{font-size:24px;letter-spacing:-.4px}
+body.workspace-fullscreen .godzilla-pdv .pdv-sale-empty{
+ min-height:82px;display:flex;align-items:center;justify-content:center;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-payment-options{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-payment-chip{
+ min-height:48px;text-align:center;font-weight:700;
+}
+body.workspace-fullscreen .godzilla-pdv .pdv-finish{
+ min-height:48px;font-size:14px;font-weight:800;margin-top:10px;
+}
+@media(max-width:700px){
+ body.workspace-fullscreen .godzilla-pdv .pdv-category-tile{min-height:68px}
+ body.workspace-fullscreen .godzilla-pdv .pdv-product-media,
+ body.workspace-fullscreen .godzilla-pdv .pdv-product-media img{height:105px;min-height:105px}
+ body.workspace-fullscreen .godzilla-pdv .pdv-product-info{padding:8px}
+}
+
+/* Em desktop, manter a navegação lateral visível como no layout de referência. */
+@media(min-width:1001px){
+ body.workspace-fullscreen #workspace .dashboard{
+  display:grid!important;grid-template-columns:205px minmax(0,1fr)!important;gap:16px!important;align-items:start!important;
+ }
+ body.workspace-fullscreen #workspace .side{
+  display:flex!important;position:sticky!important;top:14px!important;align-self:start!important;
+  height:calc(100vh - 28px)!important;max-height:900px!important;overflow-y:auto!important;
+  border-radius:16px!important;padding:14px 10px!important;
+ }
+ body.workspace-fullscreen #workspace .content{
+  min-width:0!important;padding:20px!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-mobile-menu{display:none!important}
+ body.workspace-fullscreen #workspace .side nav{display:grid!important;gap:5px!important}
+ body.workspace-fullscreen #workspace .side nav a,
+ body.workspace-fullscreen #workspace .side nav button{
+  display:flex!important;align-items:center!important;gap:9px!important;
+  width:100%!important;text-align:left!important;padding:10px 9px!important;
+  font-size:13px!important;border-radius:10px!important;
+ }
+}
+@media(max-width:1000px){
+ body.workspace-fullscreen #workspace .dashboard{grid-template-columns:minmax(0,1fr)!important}
+ body.workspace-fullscreen #workspace .side{display:none!important}
+ body.workspace-fullscreen #workspace .pdv-mobile-menu{display:flex!important}
+}
+
+/* Correção final: menu lateral aberto por padrão em desktop no PDV de homologação. */
+@media (min-width: 1001px) {
+  body.workspace-fullscreen #workspace .dashboard,
+  #workspace .dashboard {
+    display: grid !important;
+    grid-template-columns: 220px minmax(0, 1fr) !important;
+    gap: 16px !important;
+    align-items: start !important;
+  }
+  body.workspace-fullscreen #workspace .side,
+  #workspace .side {
+    display: flex !important;
+    flex-direction: column !important;
+    position: sticky !important;
+    inset: auto !important;
+    top: 14px !important;
+    width: auto !important;
+    height: calc(100vh - 28px) !important;
+    max-height: 920px !important;
+    min-height: 500px !important;
+    overflow-y: auto !important;
+    transform: none !important;
+    visibility: visible !important;
+    z-index: 2 !important;
+    border-radius: 16px !important;
+    padding: 14px 10px !important;
+    box-shadow: 0 8px 26px #263b7a0b !important;
+  }
+  body.workspace-fullscreen #workspace .pdv-mobile-menu,
+  #workspace .pdv-mobile-menu {
+    display: none !important;
+  }
+  body.workspace-fullscreen #workspace .side-backdrop,
+  #workspace .side-backdrop {
+    display: none !important;
+  }
+  body.workspace-fullscreen #workspace .content,
+  #workspace .content {
+    min-width: 0 !important;
+    padding: 20px !important;
+  }
+}
+@media (max-width: 1000px) {
+  #workspace .dashboard { grid-template-columns: minmax(0, 1fr) !important; }
+  #workspace .side {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    width: min(300px, 88vw) !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    transform: translateX(-105%);
+    visibility: hidden;
+  }
+  #workspace .side.open { transform: translateX(0) !important; visibility: visible !important; }
+  #workspace .pdv-mobile-menu { display: flex !important; }
+}
+
+
+/* Refinamento de formatação: cabeçalho compacto, respiro consistente e caixa mais organizado. */
+@media (min-width: 1001px) {
+  body.workspace-fullscreen #workspace .content { padding: 18px !important; }
+  body.workspace-fullscreen #workspace .pdv-two-panels {
+    gap: 16px !important;
+    align-items: start !important;
+  }
+  body.workspace-fullscreen #workspace .pdv-sale-panel {
+    padding: 16px !important;
+    border-radius: 16px !important;
+  }
+  body.workspace-fullscreen #workspace .pdv-products {
+    gap: 12px !important;
+  }
+}
+body.workspace-fullscreen #workspace .pdv-title {
+  padding-bottom: 10px !important;
+  margin-bottom: 12px !important;
+}
+body.workspace-fullscreen #workspace .pdv-title h2 {
+  font-size: clamp(22px, 2vw, 27px) !important;
+  line-height: 1.2 !important;
+}
+body.workspace-fullscreen #workspace .pdv-category-tiles {
+  gap: 9px !important;
+  margin: 12px 0 15px !important;
+}
+body.workspace-fullscreen #workspace .pdv-list-head {
+  margin-bottom: 10px !important;
+}
+body.workspace-fullscreen #workspace .pdv-product {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-head {
+  padding-bottom: 10px !important;
+  margin-bottom: 10px !important;
+  border-bottom: 1px solid #edf0fa !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-head h2 {
+  font-size: 22px !important;
+  line-height: 1.2 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 12px 13px !important;
+  margin-top: 12px !important;
+  border-radius: 11px !important;
+  background: #f7f8ff !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total strong {
+  font-size: 22px !important;
+  font-weight: 850 !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-form {
+  margin-top: 12px !important;
+}
+@media (max-width: 700px) {
+  body.workspace-fullscreen #workspace .content { padding: 12px !important; }
+  body.workspace-fullscreen #workspace .pdv-category-tiles { gap: 8px !important; }
+  body.workspace-fullscreen #workspace .pdv-products { gap: 9px !important; }
+  body.workspace-fullscreen #workspace .pdv-sale-panel { padding: 12px !important; }
+  body.workspace-fullscreen #workspace .pdv-sale-head h2 { font-size: 20px !important; }
+  body.workspace-fullscreen #workspace .pdv-sale-total strong { font-size: 20px !important; }
+}
+
+
+/* Ajustes de contraste e alinhamento visual do menu e dos cartões do PDV. */
+body.workspace-fullscreen #workspace .side-store,
+#workspace .side-store {
+  color: #252947 !important;
+}
+body.workspace-fullscreen #workspace #sideShopName,
+#workspace #sideShopName {
+  color: #252947 !important;
+  font-weight: 800 !important;
+}
+body.workspace-fullscreen #workspace .side-settings,
+#workspace .side-settings {
+  color: #5154c9 !important;
+  background: #f0f1ff !important;
+  border: 1px solid #dfe2ff !important;
+  border-radius: 9px !important;
+}
+body.workspace-fullscreen #workspace .side nav a,
+body.workspace-fullscreen #workspace .side nav button,
+#workspace .side nav a,
+#workspace .side nav button {
+  color: #4b4e6d !important;
+  font-weight: 700 !important;
+}
+body.workspace-fullscreen #workspace .side nav a.active,
+body.workspace-fullscreen #workspace .side nav button.active,
+#workspace .side nav a.active,
+#workspace .side nav button.active {
+  color: #3442b8 !important;
+  background: #edf0ff !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers,
+#workspace .pdv-best-sellers {
+  padding: 13px !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers > div,
+#workspace .pdv-best-sellers > div {
+  gap: 10px !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers button,
+#workspace .pdv-best-sellers button {
+  border-radius: 11px !important;
+}
+body.workspace-fullscreen #workspace .pdv-best-sellers img,
+#workspace .pdv-best-sellers img {
+  object-fit: contain !important;
+}
+body.workspace-fullscreen #workspace .pdv-product-media,
+#workspace .pdv-product-media {
+  background: #f7f8ff !important;
+}
+body.workspace-fullscreen #workspace .pdv-product-media img,
+#workspace .pdv-product-media img {
+  object-fit: contain !important;
+}
+body.workspace-fullscreen #workspace .pdv-product-info strong,
+#workspace .pdv-product-info strong {
+  color: #292b4b !important;
+  line-height: 1.35 !important;
+}
+body.workspace-fullscreen #workspace .pdv-product-price,
+#workspace .pdv-product-price {
+  color: #5146dc !important;
+  font-weight: 850 !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-form .pdv-finish,
+#workspace .pdv-payment-form .pdv-finish {
+  background: linear-gradient(100deg, #4f46e5, #8b35e8) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 15px #6049df2b !important;
+}
+
+
+/* Caixa: contraste acessível para o troco e espaçamento mais compacto. */
+body.workspace-fullscreen #workspace #pdvCashFields #pdvChange,
+#workspace #pdvCashFields #pdvChange {
+  color: #16834a !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  font-weight: 850 !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-panel,
+#workspace .pdv-sale-panel {
+  padding: 13px !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-head,
+#workspace .pdv-sale-head {
+  margin-bottom: 8px !important;
+  padding-bottom: 8px !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-item,
+#workspace .pdv-sale-item {
+  padding: 10px 11px !important;
+}
+body.workspace-fullscreen #workspace .pdv-sale-total,
+#workspace .pdv-sale-total {
+  margin-top: 9px !important;
+  padding: 10px 12px !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-form,
+#workspace .pdv-payment-form {
+  margin-top: 9px !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-options,
+#workspace .pdv-payment-options {
+  gap: 7px !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-chip,
+#workspace .pdv-payment-chip {
+  min-height: 44px !important;
+}
+body.workspace-fullscreen #workspace #pdvCashFields,
+#workspace #pdvCashFields {
+  margin-top: 8px !important;
+  gap: 8px !important;
+}
+body.workspace-fullscreen #workspace #pdvCashFields .pdv-calculation,
+#workspace #pdvCashFields .pdv-calculation {
+  margin: 7px 0 !important;
+  padding: 8px 11px !important;
+  min-height: 48px !important;
+}
+body.workspace-fullscreen #workspace .pdv-payment-form .pdv-finish,
+#workspace .pdv-payment-form .pdv-finish {
+  margin-top: 8px !important;
+  min-height: 46px !important;
+}
+@media (max-width: 700px) {
+  body.workspace-fullscreen #workspace .pdv-sale-panel,
+  #workspace .pdv-sale-panel { padding: 11px !important; }
+  body.workspace-fullscreen #workspace #pdvCashFields .pdv-calculation,
+  #workspace #pdvCashFields .pdv-calculation { padding: 7px 9px !important; }
+}
+
+/* Botão flutuante de venda: total sempre visível e checkout expansível. */
+.pdv-floating-sale-button{display:none}
+.pdv-floating-backdrop{display:none}
+@media(min-width:701px){
+ body.workspace-fullscreen #workspace .pdv-sale-panel-floating,
+ #workspace .pdv-sale-panel-floating{display:none!important}
+ body.workspace-fullscreen #workspace .pdv-sale-panel-floating.is-open,
+ #workspace .pdv-sale-panel-floating.is-open{
+  display:block!important;position:fixed!important;z-index:1002!important;
+  right:24px!important;bottom:90px!important;top:auto!important;
+  width:min(540px,calc(100vw - 48px))!important;max-height:calc(100vh - 130px)!important;
+  overflow-y:auto!important;box-shadow:0 22px 70px #17152d38!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-floating-sale-button,
+ #workspace .pdv-floating-sale-button{
+  display:flex;position:fixed;z-index:1004;right:26px;bottom:24px;
+  align-items:center;justify-content:space-between;gap:28px;
+  min-width:260px;padding:15px 20px;border:0;border-radius:16px;
+  color:#fff;background:linear-gradient(105deg,#4f46e5,#8b35e8);
+  box-shadow:0 12px 30px #5146dc40;font-weight:800;cursor:pointer;
+ }
+ body.workspace-fullscreen #workspace .pdv-floating-sale-button strong,
+ #workspace .pdv-floating-sale-button strong{font-size:20px;color:#fff;white-space:nowrap}
+ body.workspace-fullscreen #workspace .pdv-floating-backdrop.open,
+ #workspace .pdv-floating-backdrop.open{
+  display:block;position:fixed;inset:0;z-index:1001;background:#17152d55;
+ }
+}
+@media(max-width:700px){
+ body.workspace-fullscreen #workspace .pdv-sale-panel-floating,
+ #workspace .pdv-sale-panel-floating{display:none!important}
+ body.workspace-fullscreen #workspace .pdv-sale-panel-floating.is-open,
+ #workspace .pdv-sale-panel-floating.is-open{
+  display:block!important;position:fixed!important;z-index:1002!important;
+  left:12px!important;right:12px!important;bottom:82px!important;top:auto!important;
+  width:auto!important;max-height:calc(100dvh - 105px)!important;overflow-y:auto!important;
+  box-shadow:0 22px 70px #17152d38!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-floating-sale-button,
+ #workspace .pdv-floating-sale-button{
+  display:flex;position:fixed;z-index:1004;left:12px;right:12px;bottom:12px;
+  align-items:center;justify-content:space-between;gap:18px;
+  padding:14px 17px;border:0;border-radius:14px;color:#fff;
+  background:linear-gradient(105deg,#4f46e5,#8b35e8);
+  box-shadow:0 10px 26px #5146dc40;font-weight:800;cursor:pointer;
+ }
+ body.workspace-fullscreen #workspace .pdv-floating-sale-button strong,
+ #workspace .pdv-floating-sale-button strong{font-size:19px;color:#fff;white-space:nowrap}
+ body.workspace-fullscreen #workspace .pdv-floating-backdrop.open,
+ #workspace .pdv-floating-backdrop.open{display:block;position:fixed;inset:0;z-index:1001;background:#17152d55}
+}
+
+/* Homologação: mostrar a venda ao passar o mouse sobre o carrinho flutuante. */
+@media (hover:hover) and (min-width:701px){
+ #workspace .godzilla-pdv:has(.pdv-floating-sale-button:hover) .pdv-sale-panel-floating,
+ #workspace .pdv-sale-panel-floating:hover{
+  display:block!important;position:fixed!important;z-index:1002!important;
+  right:24px!important;bottom:90px!important;top:auto!important;
+  width:min(540px,calc(100vw - 48px))!important;max-height:calc(100vh - 130px)!important;
+  overflow-y:auto!important;box-shadow:0 22px 70px #17152d38!important;
+ }
+}
+
+/* Homologação: PDV em painel fixo, com pesquisa superior e cartões maiores. */
+body.workspace-fullscreen{overflow:hidden!important;height:100vh}
+body.workspace-fullscreen #workspace{height:calc(100vh - var(--topbar-height,0px));min-height:0;overflow:hidden}
+body.workspace-fullscreen #workspace .content{min-height:0;overflow:hidden}
+#workspace .godzilla-pdv{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#workspace .godzilla-pdv .pdv-title{display:flex;align-items:center;justify-content:space-between;gap:20px;flex:0 0 auto}
+#workspace .godzilla-pdv .pdv-search-top{width:min(520px,58%);margin:0}
+#workspace .godzilla-pdv .pdv-search-top input{height:48px;font-size:16px;padding:12px 16px;background:#fff;color:#252746;border:1px solid #d7d3eb;border-radius:13px}
+#workspace .godzilla-pdv .pdv-two-panels{flex:1;min-height:0;overflow:hidden;grid-template-columns:minmax(0,1.45fr) minmax(330px,.8fr);align-items:stretch}
+#workspace .godzilla-pdv .pdv-catalog{min-height:0;overflow-y:auto;overscroll-behavior:contain}
+#workspace .godzilla-pdv .pdv-category-tiles{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px}
+#workspace .godzilla-pdv .pdv-category-tile{min-height:112px;padding:16px 12px;gap:10px;border-radius:16px;font-size:15px}
+#workspace .godzilla-pdv .pdv-category-tile>span{font-size:30px}
+#workspace .godzilla-pdv .pdv-products{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}
+#workspace .godzilla-pdv .pdv-product{min-width:0}
+#workspace .godzilla-pdv .pdv-product-media{height:180px}
+#workspace .godzilla-pdv .pdv-product-info{padding:15px}
+#workspace .godzilla-pdv .pdv-product-info h3{font-size:17px;line-height:1.3}
+#workspace .godzilla-pdv .pdv-product-price{font-size:19px}
+#workspace .godzilla-pdv .pdv-add{min-height:42px}
+#workspace .godzilla-pdv .pdv-sale-panel{min-height:0;overflow-y:auto;overscroll-behavior:contain}
+@media(max-width:900px){
+ body.workspace-fullscreen{overflow:auto!important;height:auto}
+ body.workspace-fullscreen #workspace{height:auto;overflow:visible}
+ body.workspace-fullscreen #workspace .content{overflow:visible}
+ #workspace .godzilla-pdv{height:auto;overflow:visible}
+ #workspace .godzilla-pdv .pdv-title{align-items:stretch;flex-direction:column}
+ #workspace .godzilla-pdv .pdv-search-top{width:100%}
+ #workspace .godzilla-pdv .pdv-two-panels{overflow:visible;grid-template-columns:minmax(0,1fr)}
+ #workspace .godzilla-pdv .pdv-catalog{overflow:visible}
+ #workspace .godzilla-pdv .pdv-category-tiles{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+ #workspace .godzilla-pdv .pdv-products{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+}
+
+/* Categorias padrão de mercado e adega: cores e ícones vindos do catálogo. */
+#workspace .godzilla-pdv .pdv-category-tile{
+ background:var(--category-bg,#e8e8ef)!important;
+ color:var(--category-fg,#45455b)!important;
+ border:1px solid color-mix(in srgb,var(--category-fg,#45455b) 14%,transparent)!important;
+}
+#workspace .godzilla-pdv .pdv-category-tile strong,
+#workspace .godzilla-pdv .pdv-category-tile span{color:var(--category-fg,#45455b)!important}
+#workspace .godzilla-pdv .pdv-category-tile.selected{
+ outline:3px solid color-mix(in srgb,var(--category-fg,#45455b) 48%,transparent);
+ outline-offset:1px;box-shadow:0 7px 20px color-mix(in srgb,var(--category-fg,#45455b) 14%,transparent);
+}
+#workspace #productForm select[name="category"]{font-size:15px}
+
+/* PDV homologação: cartões de produto limpos e clicáveis, sem botão Adicionar. */
+#workspace .godzilla-pdv .pdv-product-clickable{
+ appearance:none;width:100%;min-width:0;display:flex;flex-direction:column;
+ padding:0;overflow:hidden;text-align:left;cursor:pointer;
+ border:1px solid #e5e1f2;border-radius:16px;background:#fff;color:#252746;
+ box-shadow:0 3px 12px rgba(48,35,90,.06);transition:transform .15s,box-shadow .15s;
+}
+#workspace .godzilla-pdv .pdv-product-clickable:hover:not(:disabled){
+ transform:translateY(-2px);box-shadow:0 8px 22px rgba(48,35,90,.12);border-color:#c9b9f7;
+}
+#workspace .godzilla-pdv .pdv-product-clickable:focus-visible{outline:3px solid #9b7af1;outline-offset:2px}
+#workspace .godzilla-pdv .pdv-product-clickable:disabled{cursor:not-allowed;opacity:.58}
+#workspace .godzilla-pdv .pdv-product-clickable .pdv-product-media{display:flex;width:100%;height:180px;align-items:center;justify-content:center;overflow:hidden;background:#f8f7fc}
+#workspace .godzilla-pdv .pdv-product-clickable .pdv-product-media img{width:100%;height:100%;object-fit:cover}
+#workspace .godzilla-pdv .pdv-product-clickable .pdv-product-info{display:flex;flex:1;width:100%;box-sizing:border-box;flex-direction:column;gap:8px;padding:14px}
+#workspace .godzilla-pdv .pdv-product-clickable .pdv-product-name{font-size:16px;line-height:1.3;font-weight:650;color:#252746}
+#workspace .godzilla-pdv .pdv-product-clickable .pdv-product-price{font-size:19px;font-weight:750;color:#7650dc}
+
+
+/* Homologação PDV: campo compacto para informar quantidade após cliques repetidos. */
+#workspace .godzilla-pdv .pdv-product-wrap{min-width:0;display:flex;flex-direction:column;gap:8px}
+#workspace .godzilla-pdv .pdv-quantity-entry{
+ display:block;width:100%;min-width:0;box-sizing:border-box;
+ height:42px;padding:8px 12px;border:2px solid #8b5cf6;border-radius:10px;
+ background:#fff;color:#252746;font-size:17px;font-weight:700;outline:none;
+ box-shadow:0 0 0 3px #8b5cf61c;
+}
+#workspace .godzilla-pdv .pdv-quantity-entry:focus{border-color:#6d43dc;box-shadow:0 0 0 3px #8b5cf633}
+
+
+/* PDV claro — alinhado à referência visual aprovada (sem alterar regras de venda). */
+#workspace:has(.godzilla-pdv){--pdv-ink:#202b49;--pdv-muted:#7d88a5;--pdv-line:#dfe5fb;--pdv-surface:#fff;--pdv-soft:#f5f7ff;--pdv-purple:#7038ee;color:var(--pdv-ink)}
+#workspace:has(.godzilla-pdv) .content{background:#fff!important;border:1px solid #e0e6fb!important;box-shadow:0 10px 35px #253b7410}
+#workspace:has(.godzilla-pdv) .pdv-title{border-bottom:1px solid #d9def1!important}
+#workspace:has(.godzilla-pdv) .pdv-title h2,
+#workspace:has(.godzilla-pdv) .pdv-sale-head h2,
+#workspace:has(.godzilla-pdv) .pdv-list-head,
+#workspace:has(.godzilla-pdv) .pdv-product h3{color:#202b49!important}
+#workspace:has(.godzilla-pdv) .pdv-title p,
+#workspace:has(.godzilla-pdv) .pdv-list-head small,
+#workspace:has(.godzilla-pdv) .pdv-product p{color:#7d88a5!important}
+#workspace:has(.godzilla-pdv) .pdv-two-panels{grid-template-columns:minmax(0,1.55fr) minmax(310px,.85fr);gap:18px;align-items:start}
+#workspace:has(.godzilla-pdv) .pdv-panel{background:#fff!important;border:1px solid #e0e6fb!important;border-radius:18px;box-shadow:0 8px 25px #263a7010;padding:18px}
+#workspace:has(.godzilla-pdv) .pdv-filters input,
+#workspace:has(.godzilla-pdv) .pdv-filters select{background:#fff!important;color:#283451!important;border-color:#d7def5!important}
+#workspace:has(.godzilla-pdv) .pdv-filters input::placeholder{color:#8791ac}
+#workspace:has(.godzilla-pdv) .pdv-filters .ghost{background:#f4f6ff!important;color:#414d70!important;border-color:#dce2f8!important}
+#workspace:has(.godzilla-pdv) .pdv-filters .ghost.active{background:#e9edff!important;border-color:#8b9bff!important;color:#3446a5!important}
+#workspace:has(.godzilla-pdv) .pdv-best-sellers{background:#f7f8ff!important;border-color:#e1e6fb!important}
+#workspace:has(.godzilla-pdv) .pdv-best-sellers-title strong{color:#273453!important}
+#workspace:has(.godzilla-pdv) .pdv-best-sellers-title small{color:#7783a0!important}
+#workspace:has(.godzilla-pdv) .pdv-best-seller{background:#fff!important;color:#293653!important;border-color:#e0e5f8!important}
+#workspace:has(.godzilla-pdv) .pdv-best-seller-text small{color:#6041c9!important}
+#workspace:has(.godzilla-pdv) .pdv-best-seller-photo{background:#f0f2ff!important}
+#workspace:has(.godzilla-pdv) .pdv-products{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px}
+#workspace:has(.godzilla-pdv) .pdv-product{background:#fff!important;border:1px solid #dfe5f8!important;border-radius:14px;box-shadow:0 3px 10px #283b7210}
+#workspace:has(.godzilla-pdv) .pdv-product:hover{border-color:#a7b2ff!important;box-shadow:0 8px 20px #3447a51a}
+#workspace:has(.godzilla-pdv) .pdv-product-media{aspect-ratio:1.35;background:#f5f6ff!important}
+#workspace:has(.godzilla-pdv) .pdv-no-photo{color:#9aa5c7!important}
+#workspace:has(.godzilla-pdv) .pdv-product-info{padding:12px}
+#workspace:has(.godzilla-pdv) .pdv-product-price{color:#293c75!important;font-size:18px}
+#workspace:has(.godzilla-pdv) .pdv-product .pdv-add{background:linear-gradient(100deg,#4d6df2,#2869dc)!important;color:#fff!important;border:0!important;border-radius:9px}
+#workspace:has(.godzilla-pdv) .pdv-sale-panel{position:sticky;top:15px}
+#workspace:has(.godzilla-pdv) .pdv-sale-head .kicker{color:#7b54e8!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-head>span{color:#7141e8}
+#workspace:has(.godzilla-pdv) .pdv-sale-empty{color:#7d88a5!important;border-color:#d9e0f6!important;background:#fafbff}
+#workspace:has(.godzilla-pdv) .pdv-sale-item{background:#f8f9ff!important;border-color:#e0e5f8!important;color:#263452}
+#workspace:has(.godzilla-pdv) .pdv-sale-item small{color:#7d88a5!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-qty button{background:#edf0ff!important;color:#3e4d8b!important;border-color:#d6defb!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-qty button:last-child{background:#fff0f2!important;color:#bd3f5b!important;border-color:#f5d6de!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-total{border-top-color:#e0e5f8!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-total span{color:#687594!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-total strong{color:#263452!important}
+#workspace:has(.godzilla-pdv) .pdv-payment-label,
+#workspace:has(.godzilla-pdv) .pdv-card-kind-label{color:#34415f!important}
+#workspace:has(.godzilla-pdv) .pdv-payment-chip,
+#workspace:has(.godzilla-pdv) .pdv-card-kind{background:#f7f8ff!important;color:#475575!important;border-color:#dce2f7!important}
+#workspace:has(.godzilla-pdv) .pdv-payment-chip.selected,
+#workspace:has(.godzilla-pdv) .pdv-card-kind.selected{background:#eeeaff!important;color:#6032d5!important;border-color:#9474f6!important}
+#workspace:has(.godzilla-pdv) .pdv-calculation{background:#f2efff!important;color:#493582!important;border-color:#ded3ff!important}
+#workspace:has(.godzilla-pdv) .pdv-sale-total strong{font-variant-numeric:tabular-nums}
+#workspace:has(.godzilla-pdv) .pdv-finish{background:linear-gradient(100deg,#7038ee,#8e35e8)!important;color:#fff!important;border:0!important;box-shadow:0 8px 20px #7138ee30}
+#workspace:has(.godzilla-pdv) .pdv-product:focus-within{outline:2px solid #a9b4ff;outline-offset:2px}
+@media(max-width:1100px){
+ #workspace:has(.godzilla-pdv) .pdv-two-panels{grid-template-columns:minmax(0,1.2fr) minmax(280px,.9fr)}
+ #workspace:has(.godzilla-pdv) .pdv-products{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+}
+@media(max-width:880px){
+ #workspace:has(.godzilla-pdv) .pdv-two-panels{grid-template-columns:minmax(0,1fr)}
+ #workspace:has(.godzilla-pdv) .pdv-sale-panel{position:static}
+}
+@media(max-width:580px){
+ #workspace:has(.godzilla-pdv) .pdv-panel{padding:12px}
+ #workspace:has(.godzilla-pdv) .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ #workspace:has(.godzilla-pdv) .pdv-product-info{padding:9px}
+}
+
+
+/* Tema claro unificado para TODAS as telas da área do lojista: resumo, configurações,
+   pedidos online, produtos, estoque, cardápio, vendas e entregas. */
+#workspace{
+ --bg:#f4f6ff;--panel:#fff;--panel2:#f5f7ff;--line:#dfe5f8;
+ --accent:#7040ed;--text:#253251;--muted:#7885a3;--ok:#16885b;--danger:#c83f5c;
+ color:var(--text);background:transparent;
+}
+#workspace .heading,
+#workspace .heading h1,
+#workspace .heading h2,
+#workspace .heading h3{color:#253251}
+#workspace .heading .muted,#workspace .heading p{color:#7885a3}
+#workspace .content{background:#fff!important;border:1px solid #e0e6f8!important;color:#253251;box-shadow:0 8px 28px #283d7410}
+#workspace .side{background:#fff!important;border:1px solid #e0e6f8!important;color:#253251;box-shadow:0 6px 24px #283d740c}
+#workspace .side-store{border-bottom-color:#e2e7f7!important}
+#workspace .side-store-text strong{color:#253251!important}
+#workspace .side-store-text small{color:#7885a3!important}
+#workspace .side .side-settings{color:#647291!important}
+#workspace .side #nav nav button,
+#workspace .side #nav nav a.side-public-menu{color:#53617f!important;background:transparent;border-color:transparent}
+#workspace .side #nav nav button:hover:not(.active),
+#workspace .side #nav nav a.side-public-menu:hover{background:#f3f5ff!important;border-color:#e2e7fa!important;color:#34446e!important}
+#workspace .side #nav nav button.active,
+#workspace .side #nav nav a.side-public-menu.active{background:#eceeff!important;border-color:#dce2ff!important;color:#3548b3!important;box-shadow:0 5px 16px #6575ed12}
+#workspace .kicker{color:#7450df!important}
+#workspace .muted,#workspace small.muted{color:#7885a3}
+#workspace p{color:inherit}
+#workspace .toolbar h2,#workspace .toolbar h3,
+#workspace .content h1,#workspace .content h2,#workspace .content h3{color:#253251}
+#workspace .tile{background:#f8f9ff!important;border:1px solid #e0e6f8!important;color:#253251;border-radius:15px;box-shadow:0 3px 12px #263b7410}
+#workspace .tile strong{color:#293b67}
+#workspace .tile small{color:#7885a3}
+#workspace .stack .item,
+#workspace .item{background:#fff!important;border:1px solid #e0e6f8!important;color:#293653;border-radius:12px}
+#workspace .item strong{color:#293653}
+#workspace .item small{color:#7885a3}
+#workspace .item .actions{gap:8px}
+#workspace .item button:not(.button):not(.ghost){background:#edf0ff!important;color:#4455a4!important;border:1px solid #d8dffc!important;border-radius:9px;min-height:36px;padding:8px 12px;font-weight:750}
+#workspace .item button:not(.button):not(.ghost):hover{background:#e2e7ff!important;border-color:#bdc9ff!important}
+#workspace .data-form,
+#workspace .cart{background:#f8f9ff!important;border:1px solid #e0e6f8!important;color:#293653;border-radius:16px}
+#workspace .data-form label,
+#workspace .cart label{color:#435170}
+#workspace input:not([type=checkbox]):not([type=radio]):not([type=file]),
+#workspace select,#workspace textarea{background:#fff!important;color:#293653!important;border:1px solid #d6def3!important;border-radius:10px;box-shadow:none}
+#workspace input::placeholder,#workspace textarea::placeholder{color:#929db7}
+#workspace input:focus,#workspace select:focus,#workspace textarea:focus{outline:3px solid #dfe4ff;border-color:#8798ff!important}
+#workspace input[type=checkbox],#workspace input[type=radio]{accent-color:#7040ed}
+#workspace .button,
+#workspace button.button,
+#workspace a.button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 16px;border:1px solid transparent;border-radius:10px;background:linear-gradient(105deg,#5b6ff0,#3268dc)!important;color:#fff!important;font-weight:800;line-height:1.2;text-decoration:none;box-shadow:0 4px 10px #4567d51a;transition:filter .15s,transform .15s,box-shadow .15s}
+#workspace .button:hover,#workspace button.button:hover,#workspace a.button:hover{filter:brightness(1.04);box-shadow:0 6px 14px #4567d526}
+#workspace .button:active,#workspace button.button:active{transform:translateY(1px)}
+#workspace .button:disabled,#workspace button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+#workspace .ghost,
+#workspace button.ghost,#workspace a.ghost{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:8px 13px;background:#f1f3ff!important;color:#45527a!important;border:1px solid #dce2f7!important;border-radius:10px;font-weight:750;text-decoration:none}
+#workspace .ghost:hover,#workspace button.ghost:hover,#workspace a.ghost:hover{background:#e7ebff!important;border-color:#cbd4fb!important}
+#workspace .text-button{color:#6844d7!important}
+#workspace .pill{background:#eeebff!important;color:#6740c8!important;border:1px solid #ded6ff}
+#workspace .price{color:#5c43c7!important}
+#workspace .total{color:#253251}
+#workspace .empty{background:#fafbff;color:#7885a3;border-color:#d8e0f5}
+#workspace .notice{background:#eff3ff;color:#344777;border:1px solid #d4defa}
+#workspace .warn{background:#fff7e9;color:#87551b;border-color:#f1d8a9}
+#workspace .toast{background:#fff;color:#293653;border:1px solid #d9def8;box-shadow:0 12px 35px #253b7426}
+#workspace table{color:#293653;border-color:#e0e6f8}
+#workspace th{background:#f2f4ff;color:#3b496b}
+#workspace td,#workspace th{border-color:#e0e6f8}
+#workspace hr{border:0;border-top:1px solid #e0e6f8}
+#workspace .button:focus-visible,#workspace .ghost:focus-visible,
+#workspace button:focus-visible,#workspace a:focus-visible{outline:3px solid #c9d1ff;outline-offset:2px}
+@media(max-width:580px){
+ #workspace .data-form{padding:12px}
+ #workspace .item .actions{width:100%}
+ #workspace .item .actions>*{flex:1}
+ #workspace .button,#workspace button.button,#workspace a.button{min-height:40px}
+}
+
+
+/* Correções de acabamento do tema claro nas telas que ainda tinham estilos próprios antigos. */
+#workspace .orders-intro,
+#workspace .orders-premium,
+#workspace .online-order-notice,
+#workspace .sales-disclaimer{background:#f5f7ff!important;border-color:#dfe5f8!important;color:#465574!important}
+#workspace .orders-intro p,#workspace .orders-premium p{color:#7885a3!important}
+#workspace .online-order-stats .tile,
+#workspace .sales-period-totals .tile{background:#f8f9ff!important;border-color:#e0e6f8!important;color:#293653!important}
+#workspace .online-order-card{background:#fff!important;border:1px solid #dfe5f8!important;color:#293653!important;box-shadow:0 5px 18px #253b7410}
+#workspace .online-order-top{border-color:#e4e8f7!important;background:#fafbff}
+#workspace .online-order-top h3,#workspace .online-order-total{color:#293653!important}
+#workspace .online-order-top small,#workspace .online-order-details span,
+#workspace .online-order-fees{color:#7885a3!important}
+#workspace .online-order-details strong,#workspace .online-order-items>div,
+#workspace .online-order-item-name{color:#293653!important}
+#workspace .online-order-phone{color:#3c62c9!important}
+#workspace .online-order-address,#workspace .online-order-notes{background:#f7f8ff!important;border-color:#e0e6f8!important;color:#465574!important}
+#workspace .online-order-items{background:#f8f9ff!important;border-color:#e0e6f8!important}
+#workspace .online-order-items h5{color:#4c5e91!important}
+#workspace .online-order-items .online-order-item{border-color:#e0e6f8!important}
+#workspace .online-order-item-qty{color:#5c65b6!important}
+#workspace .online-order-items .online-order-item>strong{color:#34446d!important}
+#workspace .online-status-block{background:#f8f9ff!important;border-color:#e0e6f8!important}
+#workspace .online-status-title,#workspace .online-order-section h4,
+#workspace .online-order-actions-heading{color:#34415f!important}
+#workspace .online-state-pill{background:#eaf8f0!important;color:#18754e!important;border-color:#bce7d0!important}
+#workspace .online-state-pill.is-done{background:#e5f7f1!important;color:#147b65!important;border-color:#a9e3d4!important}
+#workspace .online-state-pill.is-cancelled{background:#fff0f2!important;color:#b53650!important;border-color:#f1c8d1!important}
+#workspace .online-status-controls .online-advance{background:#eaf0ff!important;color:#354fba!important;border:1px solid #cbd7ff!important;border-radius:9px}
+#workspace .online-status-controls .online-cancel{background:#fff0f2!important;color:#b53650!important;border:1px solid #f0cbd3!important;border-radius:9px}
+#workspace .online-status-end{color:#53617f!important}
+#workspace .online-order-dispatch{background:#eef8f2!important;color:#18764e!important;border-color:#c5e8d3!important}
+#workspace .online-order-section{border-color:#e4e8f7!important}
+#workspace .inventory-card,
+#workspace .inventory-category-card,
+#workspace .stock-summary-card{background:#fff!important;border:1px solid #dfe5f8!important;color:#293653!important;box-shadow:0 4px 15px #253b740d}
+#workspace .inventory-card-heading h3,
+#workspace .inventory-card-prices>strong,
+#workspace .inventory-category-heading strong,
+#workspace .inventory-category-card strong,
+#workspace .stock-summary-number{color:#293653!important}
+#workspace .inventory-card-heading small,
+#workspace .inventory-card-prices>small,
+#workspace .inventory-stock-meta,
+#workspace .inventory-stock-meta strong,
+#workspace .inventory-category-heading small,
+#workspace .inventory-category-card small,
+#workspace .stock-summary-label{color:#7885a3!important}
+#workspace .inventory-photo-placeholder,
+#workspace .inventory-card img,
+#workspace .stock-item img,#workspace .stock-placeholder{background:#f1f4ff!important}
+#workspace .inventory-status.ok{color:#16885b!important}
+#workspace .inventory-status.low{color:#a56812!important}
+#workspace .inventory-status.out{color:#c83f5c!important}
+#workspace .inventory-card[data-stock-state="low"],
+#workspace .inventory-card[data-stock-state="out"]{border-color:#e3d9bf!important}
+#workspace .stock-badge.ok{background:#e5f7ee!important;color:#18764e!important}
+#workspace .stock-badge.low{background:#fff4dc!important;color:#94600c!important}
+#workspace .stock-badge.out{background:#fff0f2!important;color:#b53650!important}
+#workspace .stock-row{background:#fff!important;border-color:#e0e6f8!important;color:#293653!important}
+#workspace .stock-row .actions button{background:#edf0ff!important;color:#4455a4!important;border-color:#d8dffc!important}
+#workspace .stock-summary-card.active{background:#eef0ff!important;border-color:#9ba9ff!important}
+#workspace .stock-summary-card.active .stock-summary-label{color:#4d5eb2!important}
+#workspace .stock-summary-card.active .stock-summary-number{color:#5b55cf!important}
+#workspace .inventory-category-card.active{background:#eef0ff!important;border-color:#9ba9ff!important}
+#workspace .inventory-category-card.active strong{color:#4354b5!important}
+#workspace .inventory-category-card.active small{color:#6572b2!important}
+#workspace .content:has(.inventory-kicker){background:#fff!important;border-color:#e0e6f8!important}
+#workspace .content:has(.inventory-kicker) .toolbar p{color:#7885a3!important}
+#workspace .content:has(.inventory-kicker) .data-form{background:#f8f9ff!important;border-color:#e0e6f8!important}
+#workspace .content:has(.inventory-kicker) .data-form input,
+#workspace .content:has(.inventory-kicker) .data-form select{background:#fff!important;border-color:#d6def3!important;color:#293653!important}
+#workspace .product-best-seller-option{background:#f8f9ff!important;border-color:#e0e6f8!important}
+#workspace .product-best-seller-option strong{color:#34415f!important}
+#workspace .product-best-seller-option small{color:#7885a3!important}
+#workspace .menu-price-controls{background:#f4f6ff!important;border-color:#dfe5f8!important}
+#workspace .menu-price-controls .menu-price-toggle{color:#34415f!important}
+#workspace .menu-price-controls .online-sale-price{background:#fff!important;border-color:#e0e6f8!important}
+#workspace .inventory-online-price,#workspace .inventory-online-price strong{color:#6545c4!important}
+#workspace .inventory-online-status{color:#18764e!important}
+#workspace .inventory-online-status.offline{color:#b53650!important}
+#workspace .sales-report-controls{--sales-filter-surface:#fff;--sales-filter-border:#d6def3}
+#workspace .sales-period-switch{background:#f1f3ff!important;border-color:#dce2f7!important}
+#workspace .sales-period-switch button{color:#53617f!important}
+#workspace .sales-period-switch button.active{background:#7040ed!important;color:#fff!important}
+#workspace .sales-report-controls input[type="date"]{background:#fff!important;color:#293653!important;color-scheme:light}
+#workspace .sales-report-controls>[data-sales-refresh]{background:#f1f3ff!important;color:#45527a!important;border-color:#dce2f7!important}
+#workspace .sales-period-label{color:#7885a3!important}
+#workspace .sales-day{background:#fff!important;border-color:#dfe5f8!important}
+#workspace .sales-day-heading{background:#f4f6ff!important;border-color:#e0e6f8!important}
+#workspace .sales-day-heading h3{color:#293653!important}
+#workspace .sales-day-heading small,#workspace .sales-day-summary{color:#7885a3!important}
+#workspace .sales-day-summary strong{color:#293653!important}
+#workspace .sales-table{color:#465574!important}
+#workspace .sales-table th{background:#f1f3ff!important;color:#53617f!important}
+#workspace .sales-table th,#workspace .sales-table td{border-color:#e0e6f8!important}
+#workspace .sales-table td:nth-child(2) strong{color:#293653!important}
+#workspace .sales-table td:nth-child(2) small{color:#7885a3!important}
+#workspace .sales-table td.sales-profit{color:#16885b!important}
+#workspace .sales-record-toggle{background:#edf0ff!important;color:#4455a4!important;border-color:#d8dffc!important}
+#workspace .menu-price-controls input[type=checkbox]{accent-color:#7040ed}
+#workspace .content:has(.stock-summary-grid) .toolbar h2{color:#253251!important}
+
+
+/* Rolagem consistente em todas as abas do painel do lojista. Evita que telas longas
+   (configurações, pedidos, produtos, estoque, vendas, relatórios e cardápio) fiquem presas. */
+html:has(body.workspace-fullscreen),
+body.workspace-fullscreen{
+  height:auto!important;
+  min-height:100%!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior-y:contain;
+}
+body.workspace-fullscreen .shell{
+  height:auto!important;
+  min-height:100vh;
+  overflow:visible!important;
+}
+body.workspace-fullscreen #workspace{
+  height:auto!important;
+  min-height:calc(100vh - var(--topbar-height,0px));
+  max-height:none!important;
+  overflow:visible!important;
+}
+body.workspace-fullscreen #workspace .dashboard{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  align-items:start;
+}
+body.workspace-fullscreen #workspace .content{
+  height:auto!important;
+  min-height:calc(100vh - 60px);
+  max-height:none!important;
+  overflow:visible!important;
+  overscroll-behavior: auto;
+}
+body.workspace-fullscreen #workspace .side{
+  max-height:calc(100vh - 30px);
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#c7cdef transparent;
+}
+body.workspace-fullscreen #workspace .content>*{
+  min-width:0;
+}
+body.workspace-fullscreen #workspace .content table,
+body.workspace-fullscreen #workspace .content .table-wrap,
+body.workspace-fullscreen #workspace .content .table-scroll{
+  max-width:100%;
+}
+body.workspace-fullscreen #workspace .content .table-wrap,
+body.workspace-fullscreen #workspace .content .table-scroll{
+  overflow-x:auto;
+  overscroll-behavior-x:contain;
+}
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-catalog{
+  max-height:none!important;
+  height:auto!important;
+  overflow:visible!important;
+}
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-sale-panel{
+  max-height:calc(100vh - 30px);
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+}
+@media(max-width:850px){
+  body.workspace-fullscreen .shell{padding-bottom:40px!important}
+  body.workspace-fullscreen #workspace .dashboard{height:auto!important;overflow:visible!important}
+  body.workspace-fullscreen #workspace .content{min-height:0!important;height:auto!important;overflow:visible!important}
+  body.workspace-fullscreen #workspace .side{
+    max-height:calc(100dvh - 20px);
+    overflow-y:auto!important;
+  }
+  body.workspace-fullscreen #workspace .godzilla-pdv .pdv-sale-panel{
+    max-height:none!important;overflow:visible!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.workspace-fullscreen #workspace *{scroll-behavior:auto!important;transition-duration:0s!important}
+}
+
+
+/* Compactar cartões de pedidos online: menos padding e intervalos, mantendo legibilidade. */
+#workspace .online-order-card{border-radius:12px!important;box-shadow:0 3px 12px #253b740b!important}
+#workspace .online-order-top{padding:12px 15px 10px!important;gap:8px!important}
+#workspace .online-order-top h3{font-size:20px!important;line-height:1.2!important}
+#workspace .online-order-top small{font-size:11px!important}
+#workspace .online-order-section{padding:11px 15px!important}
+#workspace .online-order-section h4,
+#workspace .online-order-actions-heading{margin-bottom:8px!important;font-size:12px!important}
+#workspace .online-order-overview{padding-top:10px!important;padding-bottom:10px!important}
+#workspace .online-order-details{gap:7px 12px!important}
+#workspace .online-order-details>div{gap:2px!important}
+#workspace .online-order-items{padding:8px 0 0!important;gap:4px!important}
+#workspace .online-order-items h5{margin-bottom:5px!important}
+#workspace .online-order-items .online-order-item{padding:4px 0!important;gap:7px!important}
+#workspace .online-order-items .online-order-item>span,
+#workspace .online-order-items .online-order-item>strong{font-size:12px!important;line-height:1.3!important}
+#workspace .online-order-total-row{padding-top:8px!important;padding-bottom:8px!important}
+#workspace .online-order-actions{gap:8px!important;padding:11px 15px 13px!important}
+#workspace .online-status-block{padding:9px!important;gap:6px!important;border-radius:9px!important}
+#workspace .online-status-controls{gap:6px!important}
+#workspace .online-order-card .button,
+#workspace .online-order-card button{min-height:34px!important;padding:7px 10px!important;font-size:12px!important}
+#workspace .online-order-stats{gap:10px!important;margin:10px 0!important}
+#workspace .online-order-stats .tile{padding:11px!important}
+@media(max-width:700px){
+ #workspace .online-order-top{padding:11px 12px!important}
+ #workspace .online-order-section{padding:10px 12px!important}
+ #workspace .online-order-actions{padding:10px 12px 12px!important}
+ #workspace .online-order-card{gap:0!important}
+}
+
+
+/* PDV: cards compactos em 4 colunas, imagem preenchendo a área visual e texto centralizado no rodapé. */
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-products,
+#workspace .godzilla-pdv .pdv-products{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:9px!important;
+  align-content:start;
+}
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product,
+#workspace .godzilla-pdv .pdv-product{
+  min-width:0!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  border-radius:12px!important;
+  padding:0!important;
+  gap:0!important;
+}
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product-media,
+#workspace .godzilla-pdv .pdv-product-media,
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product-clickable .pdv-product-media,
+#workspace .godzilla-pdv .pdv-product-clickable .pdv-product-media{
+  width:100%!important;
+  height:clamp(95px,11vw,145px)!important;
+  min-height:0!important;
+  aspect-ratio:auto!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:hidden!important;
+  background:#f5f6ff!important;
+}
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product-media img,
+#workspace .godzilla-pdv .pdv-product-media img,
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product-clickable .pdv-product-media img,
+#workspace .godzilla-pdv .pdv-product-clickable .pdv-product-media img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  padding:0!important;
+  margin:0!important;
+}
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product-info,
+#workspace .godzilla-pdv .pdv-product-info,
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product-clickable .pdv-product-info,
+#workspace .godzilla-pdv .pdv-product-clickable .pdv-product-info{
+  width:100%!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex:1 0 auto!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  padding:8px 5px 9px!important;
+  text-align:center!important;
+}
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product h3,
+#workspace .godzilla-pdv .pdv-product h3,
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product-info strong,
+#workspace .godzilla-pdv .pdv-product-info strong{
+  width:100%!important;
+  margin:0!important;
+  text-align:center!important;
+  font-size:12px!important;
+  line-height:1.3!important;
+  overflow-wrap:anywhere!important;
+}
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product-price,
+#workspace .godzilla-pdv .pdv-product-price{
+  display:block!important;
+  width:100%!important;
+  margin:0!important;
+  text-align:center!important;
+  font-size:14px!important;
+  line-height:1.3!important;
+  font-weight:800!important;
+}
+body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product .pdv-add,
+#workspace .godzilla-pdv .pdv-product .pdv-add{
+  min-height:30px!important;
+  padding:5px 6px!important;
+  margin:4px 0 0!important;
+  font-size:11px!important;
+}
+@media(max-width:900px){
+ body.workspace-fullscreen #workspace .godzilla-pdv .pdv-products,
+ #workspace .godzilla-pdv .pdv-products{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:600px){
+ body.workspace-fullscreen #workspace .godzilla-pdv .pdv-products,
+ #workspace .godzilla-pdv .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ body.workspace-fullscreen #workspace .godzilla-pdv .pdv-product-media,
+ #workspace .godzilla-pdv .pdv-product-media{height:clamp(100px,34vw,150px)!important}
+}
+
+
+/* Lista de reposição: harmonizada com o tema claro do painel. */
+#workspace .restock-section{
+  background:#fff!important;
+  border:1px solid #dfe5f8!important;
+  border-radius:15px!important;
+  padding:16px!important;
+  margin:14px 0!important;
+  color:#293653!important;
+  box-shadow:0 4px 16px #253b740b;
+}
+#workspace .restock-heading{align-items:center!important;gap:12px!important;margin-bottom:12px!important}
+#workspace .restock-heading h3{color:#253251!important;font-size:18px!important;line-height:1.3!important}
+#workspace .restock-heading p{color:#7885a3!important}
+#workspace .restock-total{
+  background:#f1edff!important;
+  border:1px solid #e0d7ff!important;
+  border-radius:11px!important;
+  padding:10px 13px!important;
+  align-items:flex-end!important;
+}
+#workspace .restock-total small{color:#71658f!important}
+#workspace .restock-total strong{color:#6740d2!important;font-size:21px!important;font-variant-numeric:tabular-nums}
+#workspace .restock-list{gap:7px!important}
+#workspace .restock-item{
+  grid-template-columns:minmax(180px,2fr) minmax(65px,.7fr) minmax(95px,.8fr) minmax(120px,1fr)!important;
+  gap:12px!important;
+  padding:11px 13px!important;
+  border:1px solid #e0e6f8!important;
+  border-radius:11px!important;
+  background:#f8f9ff!important;
+  color:#293653!important;
+}
+#workspace .restock-item>div{gap:4px!important}
+#workspace .restock-item>div>small{color:#7885a3!important;font-size:11px!important}
+#workspace .restock-item>div>strong{color:#34415f!important;font-size:13px!important;line-height:1.35!important}
+#workspace .restock-item .restock-name strong{color:#253251!important;font-size:14px!important}
+#workspace .restock-item .restock-name small{line-height:1.5!important}
+#workspace .restock-item>div:last-child strong{color:#6740d2!important;font-variant-numeric:tabular-nums}
+#workspace .restock-note{color:#7885a3!important}
+@media(max-width:760px){
+ #workspace .restock-section{padding:12px!important}
+ #workspace .restock-item{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:10px!important}
+ #workspace .restock-item>div:first-child{grid-column:1/-1;border-bottom:1px solid #e0e6f8!important;padding-bottom:8px!important}
+ #workspace .restock-total{align-items:flex-start!important;text-align:left!important}
+}
+
+
+/* Motoboys cadastrados: três cards por fileira em telas maiores. */
+#workspace .courier-access-list{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;align-items:stretch!important}
+#workspace .courier-access-item{min-width:0!important;display:flex!important;flex-direction:column!important;justify-content:space-between!important;gap:14px!important;padding:15px!important;box-sizing:border-box!important}
+#workspace .courier-access-info{min-width:0!important}
+#workspace .courier-access-url{overflow-wrap:anywhere!important;word-break:break-word!important}
+#workspace .courier-access-actions{display:flex!important;flex-wrap:wrap!important;gap:7px!important}
+#workspace .courier-access-actions button{flex:1 1 auto!important;min-width:0!important}
+@media(max-width:900px){#workspace .courier-access-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:600px){#workspace .courier-access-list{grid-template-columns:minmax(0,1fr)!important}}
+
+
+/* Garante rolagem vertical pela roda do mouse no painel inteiro. */
+html:has(body.workspace-fullscreen),
+body.workspace-fullscreen,
+body.workspace-fullscreen .shell,
+body.workspace-fullscreen #workspace,
+body.workspace-fullscreen #workspace .dashboard,
+body.workspace-fullscreen #workspace .content{
+  overscroll-behavior-y:auto!important;
+}
+html:has(body.workspace-fullscreen),
+body.workspace-fullscreen{
+  overflow-y:auto!important;
+  height:auto!important;
+  max-height:none!important;
+}
+body.workspace-fullscreen #workspace .content{
+  overflow-y:visible!important;
+  touch-action:pan-y!important;
+}
+
+
+/* Cards de motoboy: nome e telefone mais legíveis; link posicionado abaixo. */
+#workspace .courier-access-item{align-items:stretch!important}
+#workspace .courier-access-info{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:7px!important}
+#workspace .courier-access-info>strong{display:block!important;font-size:18px!important;line-height:1.3!important;font-weight:800!important;color:var(--text,#26324b)!important}
+#workspace .courier-access-info>small{font-size:14px!important;line-height:1.45!important}
+#workspace .courier-access-label{margin:18px 0 3px!important;font-size:13px!important}
+#workspace .courier-access-url{margin-top:2px!important;font-size:14px!important;line-height:1.5!important}
+#workspace .courier-access-actions{margin-top:8px!important}
+
+
+/* Histórico de vendas: tabela organizada, hierarquia visual clara e adaptação para telas menores. */
+#workspace .sales-records-section{
+  margin:18px 0 22px!important;
+  padding:20px!important;
+  background:#fff!important;
+  border:1px solid #dfe5f8!important;
+  border-radius:16px!important;
+  box-shadow:0 5px 18px #253b740b!important;
+  color:#293653!important;
+}
+#workspace .sales-records-section h3{color:#253251!important;font-size:20px!important;font-weight:800!important;line-height:1.3!important}
+#workspace .sales-records-section>p{color:#7885a3!important;font-size:13px!important;line-height:1.5!important}
+#workspace .sales-records-scroll{
+  border:1px solid #e0e6f8!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  overflow-x:auto!important;
+  scrollbar-width:thin;
+  scrollbar-color:#c7cdef transparent;
+}
+#workspace .sales-records-table{
+  width:100%!important;
+  min-width:720px!important;
+  border-collapse:separate!important;
+  border-spacing:0!important;
+  font-size:13px!important;
+  color:#465574!important;
+  font-variant-numeric:tabular-nums;
+}
+#workspace .sales-records-table th{
+  padding:13px 14px!important;
+  background:#f1f3ff!important;
+  color:#53617f!important;
+  border-bottom:1px solid #dfe5f8!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  letter-spacing:.025em;
+  text-transform:uppercase;
+  white-space:nowrap!important;
+}
+#workspace .sales-records-table td{
+  padding:13px 14px!important;
+  background:#fff!important;
+  border-bottom:1px solid #edf0fa!important;
+  color:#53617f!important;
+  vertical-align:middle!important;
+}
+#workspace .sales-records-table tbody tr:nth-child(even) td{background:#fafbff!important}
+#workspace .sales-records-table tbody tr:hover td{background:#f4f5ff!important}
+#workspace .sales-records-table tr:last-child td{border-bottom:0!important}
+#workspace .sales-records-table th:nth-child(-n+2),
+#workspace .sales-records-table td:nth-child(-n+2){text-align:left!important}
+#workspace .sales-records-table td strong{color:#293653!important;font-weight:800!important}
+#workspace .sales-records-table .sales-record-profit{color:#16885b!important;font-weight:800!important}
+#workspace .sales-records-table .sales-record-toggle{
+  display:flex!important;align-items:center!important;gap:8px!important;
+  min-height:40px!important;padding:8px 10px!important;
+  border:1px solid #dfe5f8!important;border-radius:9px!important;
+  background:#f4f5ff!important;color:#43519b!important;
+  font-size:13px!important;font-weight:800!important;
+}
+#workspace .sales-records-table .sales-record-toggle:hover{background:#eceeff!important;color:#5135b8!important}
+#workspace .sales-records-table .sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) td{background:#f3f1ff!important}
+#workspace .sales-records-table .sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) .sales-record-toggle{background:#e9e4ff!important;border-color:#d7cbff!important;color:#5939c3!important}
+#workspace .sales-export-actions{display:flex!important;flex-wrap:wrap!important;gap:10px!important;margin:14px 0!important}
+#workspace .sales-export-actions button{min-height:40px!important;border-radius:10px!important;padding:10px 14px!important;font-weight:750!important}
+@media(max-width:700px){
+  #workspace .sales-records-section{padding:12px!important;border-radius:12px!important}
+  #workspace .sales-records-section h3{font-size:18px!important}
+  #workspace .sales-records-table{min-width:690px!important;font-size:12px!important}
+  #workspace .sales-records-table th,#workspace .sales-records-table td{padding:10px 9px!important}
+  #workspace .sales-export-actions button{flex:1 1 180px!important}
+}
+
+
+/* Corrige o botão do menu da loja em janelas estreitas: mantém o acionador visível e clicável acima do conteúdo. */
+@media(max-width:1000px){
+  #workspace .pdv-mobile-menu,
+  body.workspace-fullscreen #workspace .pdv-mobile-menu{
+    display:flex!important;
+    position:relative!important;
+    z-index:120!important;
+    width:100%!important;
+    min-height:44px!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+  }
+  #workspace .pdv-mobile-menu #sideToggle,
+  body.workspace-fullscreen #workspace .pdv-mobile-menu #sideToggle{
+    display:inline-flex!important;
+    position:relative!important;
+    z-index:121!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+    cursor:pointer!important;
+  }
+  #workspace .side{
+    z-index:130!important;
+  }
+  #workspace .side-backdrop:not(.hidden){
+    z-index:125!important;
+  }
+}
+
+
+/* Refinamento visual dos cards de motoboy sem alterar dimensões, espaçamentos ou grade. */
+#workspace .courier-access-item{
+  background:linear-gradient(145deg,#fff 0%,#f8f9ff 100%)!important;
+  border:1px solid #dfe5f5!important;
+  border-radius:14px!important;
+  box-shadow:0 4px 14px #263b720d!important;
+  color:#293653!important;
+  transition:border-color .18s ease,box-shadow .18s ease!important;
+}
+#workspace .courier-access-item:hover{
+  border-color:#b9a7f5!important;
+  box-shadow:0 7px 18px #5140a014!important;
+}
+#workspace .courier-access-info>strong{
+  color:#253251!important;
+  letter-spacing:-.015em!important;
+}
+#workspace .courier-access-info>small{
+  color:#687694!important;
+}
+#workspace .courier-access-label{
+  color:#687694!important;
+  font-weight:750!important;
+}
+#workspace .courier-access-url{
+  color:#6543c2!important;
+  text-decoration:none!important;
+  text-underline-offset:3px!important;
+}
+#workspace .courier-access-url:hover{
+  color:#4d2da8!important;
+  text-decoration:underline!important;
+}
+#workspace .courier-access-actions button{
+  border-radius:9px!important;
+  font-weight:750!important;
+  transition:filter .15s ease,box-shadow .15s ease!important;
+}
+#workspace .courier-access-actions button:hover{
+  filter:brightness(.97)!important;
+  box-shadow:0 2px 7px #263b7214!important;
+}
+
+
+/* Painel esquerdo fixo em desktop: a rolagem fica somente na área de conteúdo. */
+@media(min-width:1001px){
+  #workspace .dashboard{
+    grid-template-columns:254px minmax(0,1fr)!important;
+    align-items:start!important;
+  }
+  #workspace .side{
+    position:fixed!important;
+    top:15px!important;
+    left:max(18px,calc((100vw - 1200px)/2 + 18px))!important;
+    width:254px!important;
+    height:calc(100vh - 30px)!important;
+    min-height:0!important;
+    max-height:calc(100vh - 30px)!important;
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
+    align-self:initial!important;
+  }
+  #workspace .content{
+    grid-column:2!important;
+    min-width:0!important;
+  }
+}
+
+
+/* Pedidos online: cartão claro e organizado no padrão do comprovante de pedido. */
+#workspace .online-order-card{
+  display:flex!important;flex-direction:column!important;gap:0!important;
+  overflow:hidden!important;background:#fff!important;color:#171b2b!important;
+  border:1px solid #e0e2e8!important;border-radius:17px!important;
+  box-shadow:0 3px 12px #202b4510!important;padding:0!important;
+}
+#workspace .online-order-top{order:1!important;display:flex!important;justify-content:flex-start!important;text-align:left!important;align-items:center!important;padding:17px 20px 8px!important;background:#fff!important;border:0!important}
+#workspace .online-order-eyebrow{display:none!important}
+#workspace .online-order-top h3{font-size:25px!important;line-height:1.2!important;color:#25294f!important;margin:0!important;font-weight:850!important}
+#workspace .online-order-top small{font-size:13px!important;color:#737887!important;margin-top:5px!important}
+#workspace .online-order-overview{order:2!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;padding:0 20px 13px!important;color:#4e5363!important;font-size:13px!important}
+#workspace .online-state-pill{display:inline-flex!important;align-items:center!important;justify-content:center!important;border-radius:999px!important;padding:7px 12px!important;background:#e5f6eb!important;border:1px solid #b8e2c6!important;color:#167746!important;font-size:12px!important;font-weight:800!important;white-space:normal!important}
+#workspace .online-state-pill.is-cancelled{background:#fff0f0!important;border-color:#efc7c7!important;color:#a22e38!important}
+#workspace .online-order-customer{order:3!important;margin:0 16px 14px!important;padding:15px 16px!important;text-align:left!important;background:#f3f4f7!important;border:1px solid #e0e2e8!important;border-radius:14px!important}
+#workspace .online-order-customer h3{font-size:19px!important;line-height:1.3!important;color:#171b2b!important;margin:4px 0 9px!important;font-weight:800!important}
+#workspace .online-order-customer:before{content:'CLIENTE';display:block;color:#34394a;font-size:12px;font-weight:850;letter-spacing:.02em}
+#workspace .online-order-customer .online-order-details{display:flex!important;justify-content:flex-start!important;text-align:left!important;color:#555b69!important;font-size:13px!important;overflow-wrap:anywhere}
+#workspace .online-order-customer .online-phone-line{display:flex!important;flex-wrap:wrap!important;gap:7px!important;align-items:center!important}
+#workspace .online-order-phone{color:#41485a!important;text-decoration:none!important;font-weight:600!important}
+#workspace .online-order-whatsapp{color:#25855a!important;display:inline-flex!important;align-items:center!important}
+#workspace .online-order-customer .online-order-address{margin:8px 0 0!important;color:#555b69!important;text-align:left!important;font-size:13px!important;overflow-wrap:anywhere!important}
+#workspace .online-order-items{order:4!important;margin:0 16px!important;padding:13px 15px!important;gap:5px!important;background:#f3f4f7!important;border:1px solid #e0e2e8!important;border-radius:14px!important}
+#workspace .online-order-items h5{color:#34394a!important;font-size:12px!important;text-align:left!important;margin:0 0 7px!important}
+#workspace .online-order-items .online-order-item{padding:7px 0!important;border-bottom:1px solid #dfe1e7!important;align-items:baseline!important}
+#workspace .online-order-items .online-order-item>span{color:#34394a!important;font-size:13px!important}
+#workspace .online-order-items .online-order-item>strong{color:#34394a!important;font-size:13px!important}
+#workspace .online-order-payment-meta{order:5!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:8px!important;padding:12px 20px 0!important;color:#555b69!important;font-size:12px!important}
+#workspace .online-order-total-row{order:6!important;display:flex!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:6px 10px!important;padding:12px 20px 15px!important;background:#fff!important;border:0!important;text-align:left!important}
+#workspace .online-order-total-row>span{font-size:18px!important;font-weight:850!important;color:#171b2b!important}
+#workspace .online-order-total-row .online-order-total{font-size:24px!important;font-weight:900!important;color:#171b2b!important}
+#workspace .online-order-actions{order:7!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;padding:0 16px 16px!important;margin:0!important;background:#fff!important;border:0!important}
+#workspace .online-order-actions .online-status-block{background:transparent!important;border:0!important;padding:0!important;min-width:0!important}
+#workspace .online-order-actions .online-status-controls{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+#workspace .online-order-actions button{border-radius:10px!important;min-height:40px!important;font-size:12px!important;padding:9px 12px!important}
+@media(max-width:600px){
+ #workspace .online-order-overview{padding-left:14px!important;padding-right:14px!important}
+ #workspace .online-order-top{padding:15px 14px 8px!important}
+ #workspace .online-order-customer{margin:0 12px 12px!important;padding:13px!important}
+ #workspace .online-order-items{margin:0 12px!important;padding:11px!important}
+ #workspace .online-order-payment-meta{padding:11px 14px 0!important}
+ #workspace .online-order-total-row{padding:11px 14px 13px!important}
+ #workspace .online-order-total-row>span{font-size:16px!important}
+ #workspace .online-order-total-row .online-order-total{font-size:22px!important}
+ #workspace .online-order-actions{grid-template-columns:1fr!important;padding:0 12px 13px!important}
+}
+
+
+/* Ajuste de leitura dos pedidos: um card por linha, sem colunas comprimidas. */
+#workspace .online-order-list{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:16px!important;align-items:start!important}
+#workspace .online-order-card{width:100%!important;max-width:none!important;min-width:0!important}
+#workspace .online-order-card .online-order-top{position:relative!important;padding-right:190px!important;min-height:72px!important}
+#workspace .online-order-card .online-order-overview{justify-content:flex-start!important;position:relative!important}
+#workspace .online-order-card .online-order-overview .online-state-pill{position:absolute!important;right:20px!important;top:-62px!important;max-width:175px!important}
+#workspace .online-order-card .online-order-customer{margin-top:0!important}
+#workspace .online-order-card .online-order-total-row{align-items:baseline!important;gap:8px!important;border-top:1px solid #e4e6ec!important}
+#workspace .online-order-card .online-order-total-row>span{font-size:20px!important}
+#workspace .online-order-card .online-order-total-row .online-order-total{font-size:28px!important}
+#workspace .online-order-card .online-order-actions{grid-template-columns:minmax(0,1fr)!important}
+#workspace .online-order-card .online-status-block{display:flex!important;flex-direction:column!important;gap:7px!important}
+#workspace .online-order-card .online-status-title{font-size:13px!important;font-weight:800!important;color:#34394a!important}
+#workspace .online-order-card .online-status-controls{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important}
+#workspace .online-order-card .online-status-controls button{flex:1 1 190px!important;min-width:0!important}
+@media(max-width:600px){
+ #workspace .online-order-card .online-order-top{padding-right:14px!important;min-height:0!important}
+ #workspace .online-order-card .online-order-overview{padding-top:0!important;justify-content:space-between!important}
+ #workspace .online-order-card .online-order-overview .online-state-pill{position:static!important;max-width:50%!important}
+ #workspace .online-order-card .online-status-controls button{flex:1 1 100%!important}
+}
+
+
+/* Pedidos online em três colunas compactas, com respiro entre os cards. */
+#workspace .online-order-list{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:22px!important;
+ align-items:stretch!important;
+}
+#workspace .online-order-card{
+ min-width:0!important;width:100%!important;max-width:none!important;
+ border-radius:14px!important;
+}
+#workspace .online-order-card .online-order-top{padding:14px 14px 8px!important;min-height:0!important}
+#workspace .online-order-card .online-order-top h3{font-size:20px!important;overflow-wrap:anywhere!important}
+#workspace .online-order-card .online-order-top small{font-size:11px!important}
+#workspace .online-order-card .online-order-overview{padding:0 14px 10px!important;font-size:12px!important;gap:6px!important;flex-wrap:wrap!important}
+#workspace .online-order-card .online-order-overview .online-state-pill{position:static!important;max-width:100%!important;padding:5px 9px!important;font-size:11px!important}
+#workspace .online-order-card .online-order-customer{margin:0 10px 10px!important;padding:11px!important;border-radius:11px!important}
+#workspace .online-order-card .online-order-customer h3{font-size:15px!important;overflow-wrap:anywhere!important}
+#workspace .online-order-card .online-order-customer .online-order-details,
+#workspace .online-order-card .online-order-customer .online-order-address{font-size:11px!important;overflow-wrap:anywhere!important}
+#workspace .online-order-card .online-order-items{margin:0 10px!important;padding:10px!important;border-radius:11px!important}
+#workspace .online-order-card .online-order-items h5{font-size:10px!important}
+#workspace .online-order-card .online-order-items .online-order-item{gap:5px!important}
+#workspace .online-order-card .online-order-items .online-order-item>span,
+#workspace .online-order-card .online-order-items .online-order-item>strong{font-size:11px!important;overflow-wrap:anywhere!important}
+#workspace .online-order-card .online-order-payment-meta{padding:10px 12px 0!important;font-size:11px!important;gap:5px!important}
+#workspace .online-order-card .online-state-pill{padding:5px 8px!important;font-size:10px!important}
+#workspace .online-order-card .online-order-total-row{padding:10px 12px!important;gap:5px!important}
+#workspace .online-order-card .online-order-total-row>span{font-size:14px!important}
+#workspace .online-order-card .online-order-total-row .online-order-total{font-size:21px!important}
+#workspace .online-order-card .online-order-actions{grid-template-columns:minmax(0,1fr)!important;padding:0 10px 12px!important;gap:8px!important}
+#workspace .online-order-card .online-status-block{min-width:0!important}
+#workspace .online-order-card .online-status-controls{flex-direction:column!important;align-items:stretch!important;gap:6px!important}
+#workspace .online-order-card .online-status-controls button{flex:1 1 auto!important;width:100%!important;min-width:0!important;min-height:34px!important;padding:7px 8px!important;font-size:10px!important;white-space:normal!important}
+@media(max-width:1100px){#workspace .online-order-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important}}
+@media(max-width:650px){#workspace .online-order-list{grid-template-columns:minmax(0,1fr)!important;gap:15px!important}}
+
+
+/* Pedidos online: cabeçalho central, status lado a lado e ações compactas. */
+#workspace .online-order-card .online-order-top{justify-content:center!important;text-align:center!important;padding:16px 14px 5px!important;border:0!important;min-height:0!important}
+#workspace .online-order-card .online-order-identifier{width:100%!important;text-align:center!important}
+#workspace .online-order-card .online-order-top h3{font-size:22px!important;margin:0!important;color:#25294f!important}
+#workspace .online-order-card .online-order-top small{display:block!important;margin-top:5px!important;font-size:12px!important;color:#737887!important}
+#workspace .online-order-card .online-order-overview{display:flex!important;justify-content:center!important;align-items:center!important;flex-wrap:wrap!important;gap:8px!important;padding:7px 12px 14px!important;border:0!important}
+#workspace .online-order-card .online-order-overview>strong:first-child{font-size:11px!important;color:#60677b!important}
+#workspace .online-order-card .online-order-overview .online-state-pill{position:static!important;max-width:100%!important;font-size:11px!important}
+#workspace .online-order-card .online-order-customer{margin-bottom:12px!important}
+#workspace .online-order-card .online-order-items{margin-bottom:0!important}
+#workspace .online-order-card .online-order-payment-meta{display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:7px!important;padding:10px 12px 0!important;border:0!important}
+#workspace .online-order-card .online-order-total-row{border:0!important;border-top:0!important;margin-top:0!important;padding:12px 12px 13px!important;display:flex!important;align-items:baseline!important;justify-content:space-between!important}
+#workspace .online-order-card .online-order-actions{border:0!important;border-top:0!important;margin:0!important;padding:0 10px 12px!important;display:flex!important;flex-direction:column!important;gap:8px!important}
+#workspace .online-order-card .online-order-actions .online-status-block{display:block!important;min-width:0!important}
+#workspace .online-order-card .online-order-actions .online-status-title{display:none!important}
+#workspace .online-order-card .online-order-actions .online-status-controls{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:stretch!important;gap:8px!important;width:100%!important}
+#workspace .online-order-card .online-status-controls button{flex:1 1 0!important;width:auto!important;min-width:0!important;min-height:36px!important;padding:8px 6px!important;font-size:10px!important;white-space:normal!important;line-height:1.25!important}
+#workspace .online-order-card .online-status-controls .online-manual-finish{display:none!important}
+#workspace .online-order-card .online-status-end{display:inline-flex!important;align-items:center!important;min-height:30px!important;font-size:11px!important;color:#4f5870!important}
+#workspace .online-order-card .online-order-actions .online-order-dispatch{width:100%!important}
+@media(max-width:650px){
+ #workspace .online-order-card .online-order-actions .online-status-controls{flex-wrap:wrap!important}
+ #workspace .online-order-card .online-status-controls button{flex:1 1 calc(50% - 8px)!important}
+}
+
+/* Status do pedido ao lado dos itens vendidos */
+#workspace .online-order-card .online-items-status-row{display:grid!important;grid-template-columns:minmax(0,1.4fr) minmax(190px,1fr)!important;align-items:stretch!important;gap:12px!important;margin:0 16px!important}
+#workspace .online-order-card .online-items-status-row .online-order-items{margin:0!important;min-width:0!important}
+#workspace .online-order-card .online-order-status-side{display:flex!important;flex-direction:column!important;justify-content:center!important;min-width:0!important;padding:12px!important;border:1px solid #e0e2e8!important;border-radius:14px!important;background:#f8f9fc!important}
+#workspace .online-order-card .online-order-status-side .online-status-title{display:block!important;font-size:12px!important;font-weight:800!important;color:#34394a!important}
+#workspace .online-order-card .online-order-status-side .online-status-controls{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important}
+#workspace .online-order-card .online-order-status-side .online-status-controls button{width:100%!important;min-width:0!important;flex:1 1 auto!important;min-height:38px!important;font-size:12px!important}
+@media(max-width:650px){
+ #workspace .online-order-card .online-items-status-row{grid-template-columns:minmax(0,1fr)!important;gap:8px!important;margin:0 10px!important}
+ #workspace .online-order-card .online-order-status-side{padding:10px!important}
+}
+
+/* Ordem visual explícita dos dados em cada pedido online */
+#workspace .online-order-card .online-order-top{order:1}
+#workspace .online-order-card .online-order-overview{order:2}
+#workspace .online-order-card .online-order-customer{order:3}
+#workspace .online-order-card .online-items-status-row{order:4}
+#workspace .online-order-card .online-order-total-row{order:5}
+#workspace .online-order-card .online-order-actions{order:6}
+#workspace .online-order-card{display:flex!important;flex-direction:column!important}
+#workspace .online-order-card .online-customer-label,
+#workspace .online-order-card .online-customer-data-label{display:block!important;font-size:11px!important;font-weight:800!important;letter-spacing:.04em!important;text-transform:uppercase!important;color:#626b7d!important;margin-bottom:4px!important}
+#workspace .online-order-card .online-customer-data-label{margin-top:9px!important}
+#workspace .online-order-card .online-order-payment-meta{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:6px!important;min-width:0!important}
+#workspace .online-order-card .online-order-payment-meta .online-status-title{display:block!important}
+#workspace .online-order-card .online-order-actions .online-status-block:first-child .online-status-title{display:block!important}
+
+#workspace .online-order-card .online-order-status-under-items{order:5!important;margin:10px 16px 0!important;padding:12px!important;border:1px solid #e0e2e8!important;border-radius:12px!important;background:#f8f9fc!important}
+#workspace .online-order-card .online-order-status-under-items .online-status-title{display:block!important;font-size:12px!important;font-weight:800!important;margin-bottom:8px!important}
+#workspace .online-order-card .online-order-status-under-items .online-status-controls{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+#workspace .online-order-card .online-order-status-under-items .online-status-controls button{min-height:38px!important}
+@media(max-width:650px){#workspace .online-order-card .online-order-status-under-items{margin:8px 10px 0!important}}
+
+#workspace .online-order-card .online-order-total-row{order:5!important}
+#workspace .online-order-card .online-order-status-under-items{order:6!important;margin:10px 16px!important}
+#workspace .online-order-card .online-order-actions{order:7!important}
+#workspace .online-order-card .online-order-status-under-items .online-status-controls button{white-space:normal!important}
+
+#workspace .online-order-card .online-order-status-under-items{order:8!important}
+#workspace .online-order-card .online-order-actions{order:7!important}
+#workspace .online-order-card .online-customer-label{display:none!important}
+
+/* Final order card layout: order status is the last block */
+#workspace .online-order-card .online-order-total-row{order:5!important}
+#workspace .online-order-card .online-order-actions{order:6!important}
+#workspace .online-order-card .online-order-status-under-items{order:7!important;display:block!important}
+#workspace .online-order-card .online-order-customer .online-customer-data-label{display:none!important}
+#workspace .online-order-card .online-order-customer h3{margin-top:0!important}
+
+#workspace .online-order-card .online-order-customer .online-customer-label,
+#workspace .online-order-card .online-order-customer .online-customer-data-label,
+#workspace .online-order-card .online-order-customer::before{display:none!important;content:none!important}
+#workspace .online-order-card .online-order-status-under-items{order:7!important}
+
+/* Hard override for mobile and desktop order cards */
+#workspace article.online-order-card{display:flex!important;flex-direction:column!important}
+#workspace article.online-order-card > .online-order-top{order:1!important}
+#workspace article.online-order-card > .online-order-overview{order:2!important}
+#workspace article.online-order-card > .online-order-customer{order:3!important}
+#workspace article.online-order-card > .online-items-status-row{order:4!important}
+#workspace article.online-order-card > .online-order-total-row{order:5!important;display:flex!important}
+#workspace article.online-order-card > .online-order-actions{order:6!important;display:block!important}
+#workspace article.online-order-card > .online-order-status-under-items{order:7!important;display:block!important}
+#workspace article.online-order-card .online-customer-data-label,
+#workspace article.online-order-card .online-customer-label,
+#workspace article.online-order-card .online-order-customer:before{display:none!important;content:none!important}
+
+
+/* Ajuste final dos cards: evitar áreas vazias e equilibrar itens/pagamento */
+#workspace .online-order-card > .online-items-status-row{
+  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)!important;
+  align-items:start!important;
+}
+#workspace .online-order-card .online-order-payment-meta{
+  align-self:start!important;
+  min-height:0!important;
+  padding:10px 8px!important;
+  gap:10px!important;
+}
+#workspace .online-order-card .online-order-payment-meta .online-status-title{
+  margin:0!important;
+}
+#workspace .online-order-card > .online-order-status-under-items{
+  min-height:0!important;
+  height:auto!important;
+  align-self:stretch!important;
+  margin-top:10px!important;
+  padding:12px!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-block{
+  min-height:0!important;
+  height:auto!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-end{
+  min-height:0!important;
+  padding:2px 0!important;
+  align-self:flex-start!important;
+}
+@media(max-width:1100px){
+  #workspace .online-order-card > .online-items-status-row{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}
+
+
+/* Correção definitiva: cards compactos, sem altura artificial no status final */
+#workspace .online-order-card{
+  height:auto!important;
+  min-height:0!important;
+  align-self:start!important;
+}
+#workspace .online-order-card > .online-items-status-row{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  align-items:start!important;
+  height:auto!important;
+  min-height:0!important;
+}
+#workspace .online-order-card > .online-items-status-row .online-order-items,
+#workspace .online-order-card > .online-items-status-row .online-order-payment-meta{
+  height:auto!important;
+  min-height:0!important;
+  align-self:start!important;
+}
+#workspace .online-order-card > .online-items-status-row .online-order-payment-meta{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  align-items:flex-start!important;
+  padding:10px!important;
+}
+#workspace .online-order-card > .online-order-status-under-items{
+  display:block!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  flex:0 0 auto!important;
+  margin:10px 16px 16px!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-block,
+#workspace .online-order-card > .online-order-status-under-items .online-status-controls{
+  height:auto!important;
+  min-height:0!important;
+  flex:0 0 auto!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-controls{
+  align-items:flex-start!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-end{
+  display:inline-flex!important;
+  min-height:0!important;
+  height:auto!important;
+}
+@media(max-width:1100px){
+  #workspace .online-order-card > .online-items-status-row{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}
+
+
+/* Os dois status ficam juntos no rodapé do card */
+#workspace .online-order-card > .online-order-status-under-items{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ align-items:start!important;
+ gap:14px!important;
+}
+#workspace .online-order-card > .online-order-status-under-items > .online-status-block,
+#workspace .online-order-card > .online-order-status-under-items > .online-order-payment-meta{
+ min-width:0!important;
+ height:auto!important;
+ min-height:0!important;
+ padding:0!important;
+ margin:0!important;
+ align-self:start!important;
+}
+#workspace .online-order-card > .online-order-status-under-items > .online-order-payment-meta{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:flex-start!important;
+ justify-content:flex-start!important;
+ gap:8px!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-title{
+ display:block!important;
+ margin:0 0 4px!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-controls{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
+ gap:8px!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-controls button{
+ width:100%!important;
+}
+@media(max-width:650px){
+ #workspace .online-order-card > .online-order-status-under-items{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+}
+
+
+/* Rodapé em duas colunas e ações de pagamento junto do respectivo status */
+#workspace .online-order-card > .online-order-status-under-items{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ align-items:start!important;
+ gap:16px!important;
+}
+#workspace .online-order-card > .online-order-status-under-items > .online-status-block,
+#workspace .online-order-card > .online-order-status-under-items > .online-order-payment-meta{
+ min-width:0!important;width:auto!important;height:auto!important;min-height:0!important;
+ margin:0!important;padding:0!important;border:0!important;background:transparent!important;
+}
+#workspace .online-order-card > .online-order-status-under-items > .online-order-payment-meta{
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ justify-content:flex-start!important;gap:8px!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-controls{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ gap:8px!important;width:100%!important;
+}
+#workspace .online-order-card > .online-order-status-under-items .online-status-controls button{
+ width:100%!important;min-width:0!important;
+}
+@media(max-width:650px){
+ #workspace .online-order-card > .online-order-status-under-items{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+}
+
+
+/* Pedido online em texto simples, uma linha por informação */
+#workspace article.online-order-card.online-order-plain{
+ display:block!important;
+ height:auto!important;min-height:0!important;
+ padding:12px!important;margin:12px 0!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:transparent!important;
+}
+#workspace article.online-order-card.online-order-plain > *{
+ display:block!important;
+ order:initial!important;
+ width:auto!important;min-width:0!important;max-width:none!important;
+ height:auto!important;min-height:0!important;
+ margin:0 0 7px!important;padding:0!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:transparent!important;
+ color:inherit!important;
+}
+#workspace article.online-order-card.online-order-plain h3,
+#workspace article.online-order-card.online-order-plain h5,
+#workspace article.online-order-card.online-order-plain strong,
+#workspace article.online-order-card.online-order-plain span{
+ font-size:inherit!important;font-weight:400!important;
+}
+#workspace article.online-order-card.online-order-plain .online-state-pill,
+#workspace article.online-order-card.online-order-plain button{
+ display:inline!important;
+ width:auto!important;min-height:0!important;
+ padding:0!important;margin:0 6px 0 0!important;
+ border:0!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;
+ color:inherit!important;font:inherit!important;text-transform:none!important;
+}
+
+
+/* Card de pedido formatado com cabeçalho, dados, tabela e ações */
+#workspace article.online-order-card.online-order-formatted{
+ display:block!important;height:auto!important;min-height:0!important;
+ padding:20px!important;margin:16px 0!important;
+ border:1px solid #dfe3e8!important;border-radius:14px!important;
+ background:#fff!important;box-shadow:0 3px 12px rgba(15,23,42,.07)!important;
+ color:#202938!important;overflow:hidden!important;
+}
+#workspace .online-order-formatted .online-order-head{
+ display:block!important;padding:0 0 16px!important;margin:0 0 16px!important;
+ border-bottom:1px solid #e5e7eb!important;background:transparent!important;
+}
+#workspace .online-order-formatted .online-order-head h3{
+ display:block!important;font-size:19px!important;font-weight:750!important;
+ margin:0 0 12px!important;padding:0!important;color:#172033!important;
+}
+#workspace .online-order-formatted .online-order-head div,
+#workspace .online-order-formatted .online-order-section p{
+ display:block!important;margin:6px 0!important;padding:0!important;
+ font-size:14px!important;line-height:1.55!important;color:#374151!important;
+}
+#workspace .online-order-formatted .online-order-section{
+ display:block!important;margin:0!important;padding:16px 0!important;
+ border-bottom:1px solid #e5e7eb!important;background:transparent!important;
+ min-width:0!important;height:auto!important;
+}
+#workspace .online-order-formatted .online-order-section h4{
+ display:block!important;margin:0 0 12px!important;padding:0!important;
+ font-size:16px!important;font-weight:700!important;color:#202938!important;
+}
+#workspace .online-order-formatted .online-order-table-wrap{width:100%!important;overflow-x:auto!important}
+#workspace .online-order-formatted .online-order-items-table{
+ width:100%!important;border-collapse:collapse!important;font-size:13px!important;
+ background:#fff!important;min-width:360px!important;
+}
+#workspace .online-order-formatted .online-order-items-table th,
+#workspace .online-order-formatted .online-order-items-table td{
+ padding:10px 8px!important;text-align:left!important;
+ border-bottom:1px solid #e5e7eb!important;background:transparent!important;
+ color:#374151!important;white-space:normal!important;
+}
+#workspace .online-order-formatted .online-order-items-table th{
+ font-weight:700!important;background:#f8fafc!important;color:#475569!important;
+}
+#workspace .online-order-formatted .online-order-items-table th:first-child,
+#workspace .online-order-formatted .online-order-items-table td:first-child{text-align:center!important}
+#workspace .online-order-formatted .online-order-total{font-size:16px!important;color:#111827!important}
+#workspace .online-order-formatted .online-order-quick{border-bottom:0!important;padding-bottom:0!important}
+#workspace .online-order-formatted .online-order-quick-actions,
+#workspace .online-order-formatted .online-order-payment-actions{
+ display:flex!important;flex-wrap:wrap!important;gap:8px!important;align-items:center!important;
+}
+#workspace .online-order-formatted .online-order-quick-actions button,
+#workspace .online-order-formatted .online-order-payment-actions button{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ width:auto!important;min-height:36px!important;padding:8px 12px!important;margin:0!important;
+ border:1px solid #cbd5e1!important;border-radius:8px!important;
+ background:#f8fafc!important;color:#1f2937!important;
+ font-size:13px!important;font-weight:650!important;text-transform:none!important;
+ box-shadow:none!important;cursor:pointer!important;
+}
+#workspace .online-order-formatted .online-order-quick-actions button:first-child{
+ background:#2563eb!important;border-color:#2563eb!important;color:#fff!important;
+}
+#workspace .online-order-formatted .online-order-quick-actions .online-order-danger,
+#workspace .online-order-formatted .online-order-payment-actions button[data-payment-cancel]{
+ background:#fff!important;border-color:#ef4444!important;color:#b91c1c!important;
+}
+#workspace .online-order-formatted a{color:#2563eb!important;text-decoration:underline!important}
+@media(max-width:600px){
+ #workspace article.online-order-card.online-order-formatted{padding:14px!important}
+ #workspace .online-order-formatted .online-order-head h3{font-size:17px!important}
+ #workspace .online-order-formatted .online-order-items-table{font-size:12px!important}
+ #workspace .online-order-formatted .online-order-items-table th,
+ #workspace .online-order-formatted .online-order-items-table td{padding:8px 6px!important}
+}
+
+/* Centraliza o botão de cancelar pagamento quando não há ação de confirmação */
+#workspace .online-order-formatted .online-order-payment-actions:not(:has(button[data-payment-advance)){
+ justify-content:center!important;
+}
+
+
+/* Texto justificado em todo o card e ações rápidas compactas na mesma linha */
+#workspace .online-order-formatted,
+#workspace .online-order-formatted .online-order-head,
+#workspace .online-order-formatted .online-order-section,
+#workspace .online-order-formatted .online-order-section p,
+#workspace .online-order-formatted .online-order-head div{
+ text-align:justify!important;
+}
+#workspace .online-order-formatted .online-order-quick-actions{
+ display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+ align-items:center!important;justify-content:flex-start!important;gap:6px!important;
+ width:100%!important;
+}
+#workspace .online-order-formatted .online-order-quick-actions button{
+ flex:0 1 auto!important;width:auto!important;min-width:0!important;
+ min-height:30px!important;padding:6px 9px!important;margin:0!important;
+ font-size:11px!important;line-height:1.2!important;white-space:nowrap!important;
+ border-radius:6px!important;
+}
+@media(max-width:480px){
+ #workspace .online-order-formatted .online-order-quick-actions{gap:4px!important}
+ #workspace .online-order-formatted .online-order-quick-actions button{
+  padding:6px 5px!important;font-size:10px!important;white-space:normal!important;
+ }
+}
+
+
+/* Meu plano: fundo branco e contraste legível */
+#workspace .plan-management{
+ background:#fff!important;
+ border:1px solid #e2e8f0!important;
+ color:#1f2937!important;
+ box-shadow:0 2px 8px rgba(15,23,42,.05)!important;
+}
+#workspace .plan-management h3,
+#workspace .plan-management p,
+#workspace .plan-management p strong{
+ color:#1f2937!important;
+}
+#workspace .plan-management .plan-management-pending{
+ color:#166534!important;
+}
+
+
+/* Cartões de configurações: fundo claro e texto escuro */
+#workspace .menu-settings,
+#workspace .menu-settings > section,
+#workspace .menu-settings .menu-editor-panel,
+#workspace .menu-settings .category-image-settings,
+#workspace .menu-settings .menu-editor-items,
+#workspace .menu-settings .data-form,
+#workspace .menu-settings .item,
+#workspace .menu-settings .cart,
+#workspace .menu-settings .mode-option,
+#workspace .menu-settings .mode-menu,
+#workspace .menu-settings .mode-pdv{
+ background:#fff!important;
+ background-image:none!important;
+ color:#1f2937!important;
+ border-color:#dbe2ea!important;
+ box-shadow:none!important;
+}
+#workspace .menu-settings h2,
+#workspace .menu-settings h3,
+#workspace .menu-settings h4,
+#workspace .menu-settings p,
+#workspace .menu-settings label,
+#workspace .menu-settings small,
+#workspace .menu-settings strong,
+#workspace .menu-settings span,
+#workspace .menu-settings .muted{
+ color:#1f2937!important;
+}
+#workspace .menu-settings input:not([type=color]):not([type=checkbox]),
+#workspace .menu-settings select,
+#workspace .menu-settings textarea{
+ background:#fff!important;color:#111827!important;border-color:#cbd5e1!important;
+}
+#workspace .menu-settings button:not(.button){color:#1f2937!important;}
+#workspace .menu-settings .menu-editor-items .item{background:#fff!important;}
+
+
+/* Correção direta dos cards exibidos em Configurações da loja */
+#workspace .receipt-settings-panel,
+#workspace .menu-layout-settings,
+#workspace .menu-logo-editor,
+#workspace .category-image-settings,
+#workspace .category-image-settings-list,
+#workspace fieldset.menu-payments,
+#workspace .menu-settings > label,
+#workspace .menu-settings > p,
+#workspace .menu-settings > .field,
+#workspace .menu-settings > div{
+ background:#fff!important;
+ background-image:none!important;
+ color:#1f2937!important;
+ border-color:#d1d5db!important;
+ box-shadow:none!important;
+}
+#workspace .receipt-settings-panel *,
+#workspace .menu-layout-settings *,
+#workspace .menu-logo-editor *,
+#workspace .category-image-settings *,
+#workspace fieldset.menu-payments *,
+#workspace .menu-settings label,
+#workspace .menu-settings p,
+#workspace .menu-settings legend,
+#workspace .menu-settings h3,
+#workspace .menu-settings h4,
+#workspace .menu-settings small,
+#workspace .menu-settings strong{
+ color:#1f2937!important;
+}
+#workspace .receipt-settings-panel input:not([type=checkbox]):not([type=color]),
+#workspace .menu-layout-settings input:not([type=checkbox]):not([type=color]),
+#workspace .menu-logo-editor input:not([type=checkbox]):not([type=color]),
+#workspace .category-image-settings input:not([type=checkbox]):not([type=color]),
+#workspace .menu-settings input:not([type=checkbox]):not([type=color]),
+#workspace .menu-settings select,
+#workspace .menu-settings textarea{
+ background:#fff!important;color:#111827!important;border-color:#cbd5e1!important;
+}
+#workspace .menu-editor-panel .data-form{background:transparent!important;}
+
+
+/* Override final e específico do formulário Configurações da loja */
+#workspace .data-form:has(#settingsForm) #settingsForm > section,
+#workspace .data-form:has(#settingsForm) #settingsForm > fieldset,
+#workspace .data-form:has(#settingsForm) #settingsForm > .menu-settings,
+#workspace .data-form:has(#settingsForm) #settingsForm > .menu-settings > *,
+#workspace .data-form:has(#settingsForm) #settingsForm .receipt-settings-panel,
+#workspace .data-form:has(#settingsForm) #settingsForm .menu-editor-panel,
+#workspace .data-form:has(#settingsForm) #settingsForm .category-image-settings,
+#workspace .data-form:has(#settingsForm) #settingsForm .category-image-settings-list,
+#workspace .data-form:has(#settingsForm) #settingsForm .menu-payments{
+ background:#fff!important;
+ background-color:#fff!important;
+ background-image:none!important;
+ color:#1f2937!important;
+ border-color:#d1d5db!important;
+ box-shadow:none!important;
+}
+#workspace .data-form:has(#settingsForm) #settingsForm > section *,
+#workspace .data-form:has(#settingsForm) #settingsForm > fieldset *,
+#workspace .data-form:has(#settingsForm) #settingsForm .receipt-settings-panel *,
+#workspace .data-form:has(#settingsForm) #settingsForm .menu-editor-panel *,
+#workspace .data-form:has(#settingsForm) #settingsForm .category-image-settings *,
+#workspace .data-form:has(#settingsForm) #settingsForm .menu-payments *{
+ color:#1f2937!important;
+}
+#workspace .data-form:has(#settingsForm) #settingsForm input:not([type=checkbox]):not([type=radio]):not([type=color]),
+#workspace .data-form:has(#settingsForm) #settingsForm select,
+#workspace .data-form:has(#settingsForm) #settingsForm textarea{
+ background:#fff!important;color:#111827!important;border-color:#cbd5e1!important;
+}
+#workspace .data-form:has(#settingsForm) #settingsForm input[type=checkbox],
+#workspace .data-form:has(#settingsForm) #settingsForm input[type=radio]{accent-color:#6d28d9!important}
+
+
+/* Configurações do cardápio: tema claro aplicado aos nomes reais dos cards */
+#page .category-image-settings,
+#page .category-image-setting-row,
+#page .menu-editor-panel,
+#page .menu-editor-meta button,
+#page .menu-layout-settings,
+#page .menu-logo-editor,
+#page .receipt-settings-panel,
+#page .menu-payments,
+#page .menu-settings,
+#page .menu-settings > section,
+#page .menu-settings > fieldset,
+#page .menu-settings .menu-price-controls,
+#page .menu-settings .menu-price-controls .online-sale-price {
+ background:#ffffff!important;background-image:none!important;color:#202938!important;
+ border-color:#d5dce5!important;box-shadow:none!important;
+}
+#page .category-image-settings h3,
+#page .category-image-settings p,
+#page .category-image-setting-row *,
+#page .menu-editor-panel h3,
+#page .menu-editor-panel p,
+#page .menu-editor-panel label,
+#page .menu-editor-panel legend,
+#page .menu-editor-panel small,
+#page .menu-editor-panel strong,
+#page .menu-editor-meta button,
+#page .menu-editor-meta button small,
+#page .menu-editor-meta button strong,
+#page .receipt-settings-panel *,
+#page .menu-layout-settings *,
+#page .menu-logo-editor *,
+#page .menu-payments * {color:#202938!important}
+#page .category-image-actions button,
+#page .category-image-file,
+#page .menu-editor-panel .button,
+#page .menu-settings .button {color:#fff!important}
+#page .menu-editor-panel input:not([type=checkbox]):not([type=radio]):not([type=color]),
+#page .menu-editor-panel select,
+#page .menu-editor-panel textarea,
+#page .menu-settings input:not([type=checkbox]):not([type=radio]):not([type=color]),
+#page .menu-settings select,
+#page .menu-settings textarea {background:#fff!important;color:#111827!important;border-color:#cbd5e1!important}
+#page .menu-category-line {background:#f8fafc!important;color:#202938!important;border-color:#d5dce5!important}
+#page .menu-category-line small {color:#475569!important}
+
+
+/* Correção global dos cards internos de Configurações — sem depender do #workspace */
+#settingsForm .menu-settings .menu-payments,
+#settingsForm .menu-settings .menu-logo-editor,
+#settingsForm .menu-settings .menu-layout-settings,
+#settingsForm .menu-settings .receipt-settings-panel,
+#settingsForm .menu-settings .category-image-settings,
+#settingsForm .menu-settings .category-image-setting-row,
+#settingsForm .menu-settings .menu-editor-panel,
+#settingsForm .menu-settings .menu-layout-subtitle,
+#settingsForm .menu-settings .menu-layout-fields,
+#settingsForm .menu-settings .menu-logo-editor form,
+#settingsForm .menu-settings .category-image-settings-list,
+#settingsForm .menu-settings .category-image-settings-list > *,
+#settingsForm .menu-settings .receipt-settings-fields,
+#settingsForm .menu-settings .menu-logo-editor-heading,
+#settingsForm .menu-settings .menu-category-list,
+#settingsForm .menu-settings .menu-price-controls,
+#settingsForm .menu-settings .online-sale-price {
+  background:#fff!important;background-image:none!important;color:#1f2937!important;
+  border-color:#d1d5db!important;box-shadow:none!important;
+}
+#settingsForm .menu-settings .menu-payments *,
+#settingsForm .menu-settings .menu-logo-editor *,
+#settingsForm .menu-settings .menu-layout-settings *,
+#settingsForm .menu-settings .receipt-settings-panel *,
+#settingsForm .menu-settings .category-image-settings *,
+#settingsForm .menu-settings .category-image-setting-row *,
+#settingsForm .menu-settings .menu-editor-panel * { color:#1f2937!important; }
+#settingsForm .menu-settings input:not([type=checkbox]):not([type=radio]):not([type=color]),
+#settingsForm .menu-settings select,
+#settingsForm .menu-settings textarea,
+#settingsForm .menu-settings input[type=file] {
+ background:#fff!important;background-image:none!important;color:#111827!important;border-color:#cbd5e1!important;
+}
+#settingsForm .menu-settings input[type=checkbox],#settingsForm .menu-settings input[type=radio]{accent-color:#6d28d9!important}
+#settingsForm .menu-settings button:not(.button),#settingsForm .menu-settings .category-image-actions button {background:#f3f4f6!important;color:#1f2937!important;border-color:#d1d5db!important}
+
+
+/* Ajuste definitivo: cards de Configurações da loja, independente do nível no formulário */
+#settingsForm .menu-settings,
+#settingsForm .menu-payments,
+#settingsForm .menu-logo-settings,
+#settingsForm .menu-logo-editor,
+#settingsForm .menu-layout-settings,
+#settingsForm .receipt-settings-panel,
+#settingsForm .category-image-settings,
+#settingsForm .category-image-setting-row,
+#settingsForm .category-image-settings-list,
+#settingsForm .menu-editor-panel,
+#settingsForm .menu-layout-fields,
+#settingsForm .menu-layout-subtitle,
+#settingsForm .receipt-settings-fields,
+#settingsForm .menu-price-controls,
+#settingsForm .online-sale-price,
+#settingsForm .menu-category-list,
+#settingsForm .menu-category-line,
+#settingsForm .category-image-setting-info {
+  background: #fff !important;
+  background-color: #fff !important;
+  background-image: none !important;
+  color: #1f2937 !important;
+  border-color: #d1d5db !important;
+  box-shadow: none !important;
+}
+#settingsForm .menu-settings *,
+#settingsForm .menu-payments *,
+#settingsForm .menu-logo-settings *,
+#settingsForm .menu-logo-editor *,
+#settingsForm .menu-layout-settings *,
+#settingsForm .receipt-settings-panel *,
+#settingsForm .category-image-settings *,
+#settingsForm .category-image-setting-row *,
+#settingsForm .category-image-settings-list *,
+#settingsForm .menu-editor-panel *,
+#settingsForm .menu-price-controls *,
+#settingsForm .online-sale-price *,
+#settingsForm .menu-category-list *,
+#settingsForm .menu-category-line * {
+  color: #1f2937 !important;
+}
+#settingsForm input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+#settingsForm select,
+#settingsForm textarea {
+  background-color: #fff !important;
+  color: #111827 !important;
+  border-color: #cbd5e1 !important;
+}
+#settingsForm .menu-settings button,
+#settingsForm .category-image-actions button,
+#settingsForm .menu-editor-panel .button,
+#settingsForm .settings-save-button {
+  color: #fff !important;
+}
+#settingsForm input[type="checkbox"],
+#settingsForm input[type="radio"] {
+  accent-color: #6d28d9 !important;
+}
+
+
+/* Homologação: tipografia maior nos cards de produtos do PDV. */
+#workspace .godzilla-pdv .pdv-product h3,
+#workspace .godzilla-pdv .pdv-product strong,
+#workspace .godzilla-pdv [data-pdv-product] h3,
+#workspace .godzilla-pdv [data-pdv-product] strong,
+body.workspace-fullscreen .godzilla-pdv .pdv-product-info strong,
+body.workspace-fullscreen .godzilla-pdv .pdv-product h3 {
+  font-size: 16px !important;
+  line-height: 1.35 !important;
+  font-weight: 750 !important;
+}
+#workspace .godzilla-pdv .pdv-product-price,
+#workspace .godzilla-pdv [data-pdv-product] .pdv-product-price,
+body.workspace-fullscreen .godzilla-pdv .pdv-product-price {
+  font-size: 20px !important;
+  line-height: 1.3 !important;
+  font-weight: 800 !important;
+}
+#workspace .godzilla-pdv .pdv-product-info button,
+#workspace .godzilla-pdv [data-pdv-product] button,
+body.workspace-fullscreen .godzilla-pdv .pdv-product-info button {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+@media(max-width:580px) {
+  #workspace .godzilla-pdv .pdv-product h3,
+  #workspace .godzilla-pdv .pdv-product strong,
+  #workspace .godzilla-pdv [data-pdv-product] h3,
+  #workspace .godzilla-pdv [data-pdv-product] strong,
+  body.workspace-fullscreen .godzilla-pdv .pdv-product-info strong {
+    font-size: 14px !important;
+  }
+  #workspace .godzilla-pdv .pdv-product-price,
+  body.workspace-fullscreen .godzilla-pdv .pdv-product-price {
+    font-size: 18px !important;
+  }
+}
+
+/* PDV: fontes dos cards duplicadas em relação às regras efetivas anteriores. */
+body #workspace #page .godzilla-pdv .pdv-category-tile{font-size:26px!important;height:auto!important}
+body #workspace #page .godzilla-pdv .pdv-category-tile strong{font-size:26px!important;line-height:1.25!important;white-space:normal!important;overflow-wrap:anywhere!important}
+body #workspace #page .godzilla-pdv .pdv-category-tile > span{font-size:44px!important}
+body #workspace #page .godzilla-pdv .pdv-product .pdv-product-info .pdv-product-name{font-size:24px!important;line-height:1.3!important;white-space:normal!important;overflow-wrap:anywhere!important}
+body #workspace #page .godzilla-pdv .pdv-product .pdv-product-info .pdv-product-price{font-size:28px!important;line-height:1.3!important;white-space:normal!important;overflow-wrap:anywhere!important}
+body #workspace #page .godzilla-pdv .pdv-product{height:auto!important}
+body #workspace #page .godzilla-pdv .pdv-product-info{height:auto!important;min-height:0!important}
+
+/* Exibe os nomes dos produtos em maiúsculas no PDV, independentemente da grafia cadastrada. */
+#workspace .godzilla-pdv .pdv-product-name,
+#workspace .godzilla-pdv .pdv-best-seller-text strong,
+#workspace .godzilla-pdv .pdv-sale-product > strong{
+ text-transform:uppercase!important;
+}
+
+/* Cor do sistema: botões principais e seleções usam a cor configurada pela loja. */
+#workspace .button,
+#workspace button.button,
+#workspace a.button,
+#workspace .pdv-finish,
+#workspace .pdv-payment-form .pdv-finish,
+#workspace .sales-period-switch button.active{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ box-shadow:0 5px 14px color-mix(in srgb,var(--store-accent,#7c3aed) 24%,transparent)!important;
+}
+#workspace .side nav button.active,
+#workspace .side nav a.active,
+#workspace .side #nav nav button.active,
+#workspace .side #nav nav a.side-public-menu.active,
+#workspace .pdv-payment-chip.selected,
+#workspace .pdv-card-kind.selected,
+#workspace .stock-summary-card.active,
+#workspace .inventory-category-card.active,
+#workspace .pdv-category-tile.selected,
+#workspace .pdv-filters .ghost.active{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 22%,#fff)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent,#7c3aed)!important;
+ box-shadow:none!important;
+}
+#workspace .pdv-payment-chip.selected,
+#workspace .pdv-card-kind.selected,
+#workspace .stock-summary-card.active,
+#workspace .inventory-category-card.active{
+ outline-color:var(--store-accent,#7c3aed)!important;
+}
+#workspace .pdv-category-tile.selected{outline-color:var(--store-accent,#7c3aed)!important}
+#workspace .side nav button.active .side-nav-icon,
+#workspace .side nav a.active .side-nav-icon{filter:none!important}
+#workspace .item button:not(.button):not(.ghost):hover,
+#workspace .stock-row .actions button:hover,
+#workspace .inventory-category-card:hover{
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+
+/* Atalhos do PDV: ícones e títulos ocupam melhor a área dos cards. */
+body #workspace #page .pdv-category-tiles .pdv-category-tile{
+ min-height:116px!important;height:auto!important;padding:12px 10px!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ justify-content:center!important;gap:8px!important;
+}
+body #workspace #page .pdv-category-tiles .pdv-category-tile > span{
+ font-size:44px!important;line-height:1!important;
+}
+body #workspace #page .pdv-category-tiles .pdv-category-tile > strong{
+ font-size:24px!important;line-height:1.2!important;font-weight:800!important;
+ text-align:center!important;white-space:normal!important;overflow-wrap:anywhere!important;
+}
+@media(max-width:700px){
+ body #workspace #page .pdv-category-tiles .pdv-category-tile{min-height:108px!important}
+ body #workspace #page .pdv-category-tiles .pdv-category-tile > span{font-size:38px!important}
+ body #workspace #page .pdv-category-tiles .pdv-category-tile > strong{font-size:20px!important}
+}
+
+/* Paleta da loja: aplica a cor configurada a todos os principais controles e estados. */
+#workspace :is(button,a.button,.button,input[type="checkbox"],input[type="radio"]){accent-color:var(--store-accent,#7c3aed)}
+#workspace :is(.button,.pdv-finish,.pdv-best-seller-manage,.pdv-category-tile.selected,.pdv-payment-chip.selected,.pdv-card-kind.selected,.side nav button.active,.side nav a.active,.sales-period-switch button.active){
+ --accent:var(--store-accent,#7c3aed);
+}
+#workspace :is(.button,.pdv-finish,.pdv-best-seller-manage,.sales-period-switch button.active,.online-order-formatted .online-order-quick-actions button:first-child){
+ background:var(--store-accent,#7c3aed)!important;background-image:none!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;
+}
+#workspace :is(.button,.ghost,.pdv-payment-chip,.pdv-card-kind,.pdv-category-tile,.pdv-product,.pdv-best-seller,.sales-period-switch button,.inventory-category-card,.stock-summary-card,.online-order-quick-actions button,.online-order-payment-actions button,.side nav button,.side nav a):hover:not(:disabled){
+ border-color:var(--store-accent,#7c3aed)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 32%,transparent)!important;
+}
+#workspace :is(.button,.pdv-finish,.pdv-best-seller-manage):hover:not(:disabled){
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 84%,#15151b)!important;
+}
+#workspace :is(.pdv-payment-chip.selected,.pdv-card-kind.selected,.stock-summary-card.active,.inventory-category-card.active,.pdv-category-tile.selected,.sales-period-switch button.active,.side nav button.active,.side nav a.active){
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+#workspace :is(button,a,input,select,textarea):focus-visible{outline-color:var(--store-accent,#7c3aed)!important}
+#workspace #pdvNightToggle[aria-pressed="true"]{background:var(--store-accent,#7c3aed)!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important}
+body.pdv-night #workspace #pdvNightToggle[aria-pressed="true"]{background:var(--store-accent,#7c3aed)!important}
+#workspace .pdv-sale-total strong,#workspace .pdv-product-price{color:var(--store-accent,#7c3aed)}
+
+/* Cor do Sistema: detalhes destacados no caixa, filtros e ações da homologação. */
+#workspace .pdv-sale-total strong,
+#workspace .pdv-sale-line-total,
+#workspace .pdv-product-price,
+#workspace .pdv-sale-item .pdv-sale-product + span,
+#workspace .sales-period-switch button.active,
+#workspace .online-order-total-row .online-order-total{
+ color:var(--store-accent,#7c3aed)!important;
+}
+#workspace .pdv-payment-chip.selected,
+#workspace .pdv-card-kind.selected,
+#workspace .sales-period-switch button.active,
+#workspace .side #nav nav button.active,
+#workspace .side #nav nav a.active{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 16%,#f5f3ff)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent,#7c3aed)!important;
+}
+body.pdv-night #workspace :is(.pdv-payment-chip.selected,.pdv-card-kind.selected,.sales-period-switch button.active,.side #nav nav button.active,.side #nav nav a.active){
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 24%,#22252d)!important;
+}
+#workspace .pdv-finish,
+#workspace .online-order-formatted .online-order-quick-actions button:first-child,
+#workspace .button,
+#workspace a.button{
+ background:var(--store-accent,#7c3aed)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+}
+#workspace :is(.pdv-payment-chip,.pdv-card-kind,.sales-period-switch button,.side #nav nav button,.side #nav nav a,.ghost,.online-order-quick-actions button,.online-order-payment-actions button):hover:not(:disabled){
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+
+/* Carrinho flutuante Ver venda: acompanha a Cor do Sistema em desktop e mobile. */
+body #workspace .pdv-floating-sale-button,
+body.workspace-fullscreen #workspace .pdv-floating-sale-button{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border:1px solid var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ box-shadow:0 10px 26px color-mix(in srgb,var(--store-accent,#7c3aed) 36%,transparent)!important;
+}
+body #workspace .pdv-floating-sale-button :is(span,strong),
+body.workspace-fullscreen #workspace .pdv-floating-sale-button :is(span,strong){
+ color:var(--store-accent-ink,#fff)!important;
+}
+body #workspace .pdv-floating-sale-button:hover,
+body.workspace-fullscreen #workspace .pdv-floating-sale-button:hover{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 85%,#101018)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+
+/* Hover dos produtos do PDV segue a cor escolhida em Configurações. */
+@media (hover:hover){
+ body #workspace #page .godzilla-pdv .pdv-product:hover,
+ body #workspace #page .godzilla-pdv [data-pdv-product]:hover{
+  background:color-mix(in srgb,var(--store-accent,#7c3aed) 20%,#ffffff)!important;
+  background-image:none!important;
+  border-color:var(--store-accent,#7c3aed)!important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 38%,transparent)!important;
+ }
+ body.pdv-night #workspace #page .godzilla-pdv .pdv-product:hover,
+ body.pdv-night #workspace #page .godzilla-pdv [data-pdv-product]:hover{
+  background:color-mix(in srgb,var(--store-accent,#7c3aed) 28%,#22252d)!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-product:hover .pdv-product-info{
+  background:transparent!important;
+ }
+}
+
+/* PDV com venda flutuante: catálogo utiliza toda a largura sem a coluna do caixa. */
+@media(min-width:701px){
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-two-panels,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-two-panels{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:0!important;
+  width:100%!important;
+ }
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-catalog{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+ }
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-category-tiles{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(145px,1fr))!important;
+  gap:12px!important;
+ }
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-products{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr))!important;
+  gap:12px!important;
+ }
+}
+@media(min-width:701px) and (max-width:960px){
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-category-tiles{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))!important}
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-products{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))!important}
+}
+
+/* Layout expandido vinculado diretamente ao estado da venda flutuante. */
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-two-panels,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-two-panels{
+ grid-template-columns:minmax(0,1fr)!important;
+ width:100%!important;
+ max-width:none!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-catalog,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-catalog{
+ grid-column:1/-1!important;
+ width:100%!important;
+ max-width:none!important;
+ min-width:0!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fit,minmax(145px,1fr))!important;
+ gap:12px!important;
+ width:100%!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important;
+ gap:12px!important;
+ width:100%!important;
+}
+@media(max-width:700px){
+ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+
+/* Configurações: acentos consistentes com Cor do Sistema, inclusive em modo noite. */
+body #workspace #page #settingsForm{
+ --settings-accent:var(--store-accent,#7c3aed);
+ --settings-ink:var(--store-accent-ink,#fff);
+}
+body #workspace #page #settingsForm .settings-save-button,
+body #workspace #page #settingsForm button.settings-save-button,
+body.pdv-night #workspace #page #settingsForm .settings-save-button{
+ background:var(--settings-accent)!important;
+ background-image:none!important;
+ border:1px solid var(--settings-accent)!important;
+ color:var(--settings-ink)!important;
+ box-shadow:0 5px 15px color-mix(in srgb,var(--settings-accent) 25%,transparent)!important;
+}
+body #workspace #page #settingsForm .settings-save-button:hover:not(:disabled){
+ background:color-mix(in srgb,var(--settings-accent) 84%,#17151f)!important;
+ border-color:var(--settings-accent)!important;
+}
+body #workspace #page #settingsForm :is(input[type=radio],input[type=checkbox],input[type=color]){
+ accent-color:var(--settings-accent)!important;
+}
+body #workspace #page #settingsForm :is(input:not([type=checkbox]):not([type=radio]),select,textarea):focus{
+ border-color:var(--settings-accent)!important;
+ outline:2px solid color-mix(in srgb,var(--settings-accent) 35%,transparent)!important;
+ outline-offset:1px;
+}
+body #workspace #page #settingsForm :is(.menu-settings,.menu-payments,.menu-logo-settings,.menu-logo-editor,.menu-layout-settings,.receipt-settings-panel,.category-image-settings,.category-image-setting-row,.menu-editor-panel){
+ border-color:color-mix(in srgb,var(--settings-accent) 42%,#51515c)!important;
+}
+body #workspace #page #settingsForm :is(.menu-settings button,.category-image-actions button,.menu-editor-panel .button):hover:not(:disabled){
+ border-color:var(--settings-accent)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--settings-accent) 22%,transparent)!important;
+}
+body #workspace #page #settingsForm :is(.menu-settings button.button,.menu-editor-panel button.button){
+ background:var(--settings-accent)!important;
+ color:var(--settings-ink)!important;
+ border-color:var(--settings-accent)!important;
+}
+
+/* Configurações no modo noite: todos os painéis e cards têm superfícies escuras neutras. */
+body.pdv-night #workspace #page #settingsForm,
+body.pdv-night #workspace #page #settingsForm :is(
+ .menu-settings,.menu-payments,.menu-logo-settings,.menu-logo-editor,
+ .menu-layout-settings,.receipt-settings-panel,.category-image-settings,
+ .category-image-setting-row,.category-image-settings-list,.menu-editor-panel,
+ .menu-layout-fields,.menu-layout-subtitle,.receipt-settings-fields,
+ .menu-price-controls,.online-sale-price,.menu-category-list,.menu-category-line,
+ .category-image-setting-info,.menu-logo-editor-heading,
+ fieldset,.settings-card,.receipt-settings-card
+){
+ background:#22252d!important;
+ background-image:none!important;
+ border-color:#393d49!important;
+ box-shadow:none!important;
+ color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(
+ .menu-settings,.menu-payments,.menu-logo-settings,.menu-logo-editor,
+ .menu-layout-settings,.receipt-settings-panel,.category-image-settings,
+ .category-image-setting-row,.category-image-settings-list,.menu-editor-panel,
+ .menu-layout-fields,.menu-layout-subtitle,.receipt-settings-fields,
+ .menu-price-controls,.online-sale-price,.menu-category-list,.menu-category-line,
+ .category-image-setting-info
+) :is(h2,h3,h4,p,small,label,legend,span,strong,b){
+ color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(
+ input:not([type=checkbox]):not([type=radio]):not([type=color]),
+ select,textarea
+){
+ background:#181a20!important;
+ background-image:none!important;
+ color:#f4f4f8!important;
+ border-color:#393d49!important;
+ color-scheme:dark;
+}
+body.pdv-night #workspace #page #settingsForm :is(input,textarea)::placeholder{
+ color:#aeb3c1!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(
+ .menu-settings button:not(.button),.category-image-actions button:not(.button),
+ .menu-logo-editor button:not(.button)
+){
+ background:#2b2f39!important;
+ color:#f4f4f8!important;
+ border-color:#393d49!important;
+}
+body.pdv-night #workspace #page #settingsForm .settings-save-button,
+body.pdv-night #workspace #page #settingsForm button.button{
+ background:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+
+/* Produtos / estoque: corrigir os cards claros que sobrepunham o modo noite. */
+body.pdv-night #workspace #page :is(.inventory-card,.inventory-category-card,.stock-summary-card,.stock-row){
+ background:#22252d!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page :is(.inventory-card-heading h3,.inventory-card-prices>strong,.inventory-category-heading strong,.inventory-category-card strong,.stock-summary-number,.inventory-card .inventory-card-heading strong){
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page :is(.inventory-card-heading small,.inventory-card-prices>small,.inventory-stock-meta,.inventory-stock-meta strong,.inventory-category-heading small,.inventory-category-card small,.stock-summary-label){
+ color:#b6bdcf!important;-webkit-text-fill-color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page :is(.inventory-card,.inventory-category-card,.stock-summary-card) :is(.inventory-photo-placeholder,.stock-placeholder){
+ background:#2b2f39!important;
+}
+body.pdv-night #workspace #page .inventory-category-card.active,
+body.pdv-night #workspace #page .stock-summary-card.active{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 24%,#22252d)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+body.pdv-night #workspace #page .inventory-category-card:hover{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 15%,#22252d)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+body.pdv-night #workspace #page .content:has(.inventory-kicker),
+body.pdv-night #workspace #page .content:has(.inventory-kicker) .data-form{
+ background:#181a20!important;border-color:#393d49!important;color:#fff!important;
+}
+body.pdv-night #workspace #page .inventory-card :is(.inventory-card-body,.inventory-card-actions,.inventory-card-info){
+ background:#22252d!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .inventory-card :is(.button,.ghost),
+body.pdv-night #workspace #page .stock-row .actions button{
+ border-color:#454957!important;
+}
+body.pdv-night #workspace #page .inventory-card .inventory-status.ok{color:#70dba8!important}
+body.pdv-night #workspace #page .inventory-card .inventory-status.low{color:#ffc36d!important}
+body.pdv-night #workspace #page .inventory-card .inventory-status.out{color:#ff8298!important}
+
+/* Reposição segue o modo noite do estoque, anulando o antigo tema claro. */
+body.pdv-night #workspace #page .restock-section,
+body.pdv-night #workspace #page .restock-item{
+ background:#22252d!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;
+ box-shadow:none!important;
+}
+body.pdv-night #workspace #page .restock-total{
+ background:#2b2f39!important;background-image:none!important;
+ border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .restock-heading h3,
+body.pdv-night #workspace #page .restock-item>div>strong,
+body.pdv-night #workspace #page .restock-item .restock-name strong{
+ color:#fff!important;
+}
+body.pdv-night #workspace #page :is(.restock-heading p,.restock-note,.restock-total small),
+body.pdv-night #workspace #page .restock-item>div>small{
+ color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page .restock-total strong,
+body.pdv-night #workspace #page .restock-item>div:last-child strong{
+ color:var(--store-accent,#a78bfa)!important;
+}
+@media(max-width:760px){
+ body.pdv-night #workspace #page .restock-item>div:first-child{
+  border-bottom-color:#393d49!important;
+ }
+}
+
+/* O botão Novo produto segue Cor do Sistema nos modos claro/escuro. */
+body #workspace #page button[data-new="product"]{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ -webkit-text-fill-color:var(--store-accent-ink,#fff)!important;
+}
+body #workspace #page button[data-new="product"]:hover:not(:disabled){
+ filter:brightness(.88);
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 32%,transparent)!important;
+}
+
+/* Pedidos online: as duas ações Finalizar pedido usam a Cor do Sistema. */
+body #workspace #page .online-order-formatted .online-order-quick-actions button.online-order-finalize,
+body.pdv-night #workspace #page .online-order-formatted .online-order-quick-actions button.online-order-finalize{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ -webkit-text-fill-color:var(--store-accent-ink,#fff)!important;
+}
+body #workspace #page .online-order-formatted .online-order-quick-actions button.online-order-finalize:hover:not(:disabled){
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 85%,#13131a)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 28%,transparent)!important;
+}
+
+/* Motoboys: Novo motoboy e Compartilhar link seguem a cor do sistema. */
+body #workspace #page button[data-new="courier"].courier-system-accent,
+body #workspace #page button[data-share-courier].courier-system-accent,
+body.pdv-night #workspace #page button[data-new="courier"].courier-system-accent,
+body.pdv-night #workspace #page button[data-share-courier].courier-system-accent{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ -webkit-text-fill-color:var(--store-accent-ink,#fff)!important;
+ box-shadow:0 4px 12px color-mix(in srgb,var(--store-accent,#7c3aed) 22%,transparent)!important;
+}
+body #workspace #page button[data-new="courier"].courier-system-accent:hover:not(:disabled),
+body #workspace #page button[data-share-courier].courier-system-accent:hover:not(:disabled){
+ filter:brightness(.87)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 30%,transparent)!important;
+}
+
+/* Configurações: cards de botão flutuante, comprovante e imagens no modo noite. */
+body.pdv-night #workspace #page #settingsForm :is(.receipt-settings-panel,.category-image-settings,.category-image-settings-list,.category-image-setting-row){
+ background:#22252d!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(.receipt-settings-fields,.category-image-setting-info){
+ background:transparent!important;background-image:none!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(.receipt-settings-panel h3,.category-image-settings h3,.category-image-setting-info strong){
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page #settingsForm :is(.receipt-settings-panel p,.receipt-settings-panel label,.category-image-settings p,.category-image-setting-info small){
+ color:#b6bdcf!important;-webkit-text-fill-color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page #settingsForm .receipt-settings-panel :is(input:not([type=checkbox]),select){
+ background:#181a20!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;color-scheme:dark;
+}
+body.pdv-night #workspace #page #settingsForm .category-image-setting-row :is(.category-image-actions button,.category-image-file){
+ background:#2b2f39!important;background-image:none!important;
+ border-color:#454957!important;color:#f4f4f8!important;
+}
+/* Vendas: Exportar cupom 80 mm respeita a Cor do Sistema. */
+body #workspace #page .sales-export-actions button.sales-export-receipt-accent,
+body.pdv-night #workspace #page .sales-export-actions button.sales-export-receipt-accent{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+ -webkit-text-fill-color:var(--store-accent-ink,#fff)!important;
+}
+body #workspace #page .sales-export-actions button.sales-export-receipt-accent:hover:not(:disabled){
+ filter:brightness(.88)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 30%,transparent)!important;
+}
+
+/* Vendas: lista de vendas e detalhes harmonizados ao modo noite. */
+body.pdv-night #workspace #page .sales-records-section,
+body.pdv-night #workspace #page .sales-records-scroll{
+ background:#22252d!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .sales-records-section h3{
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section>p{
+ color:#b6bdcf!important;-webkit-text-fill-color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table{
+ background:#22252d!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table th{
+ background:#2b2f39!important;color:#dce1ed!important;
+ border-color:#393d49!important;-webkit-text-fill-color:#dce1ed!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table tbody tr td,
+body.pdv-night #workspace #page .sales-records-section .sales-records-table tbody tr:nth-child(even) td{
+ background:#22252d!important;color:#f4f4f8!important;
+ border-color:#393d49!important;-webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table tbody tr.sales-record-row:hover td{
+ background:#303540!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table tbody tr.sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) td{
+ background:#2b2f39!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table td strong{
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table td.sales-record-profit{
+ color:#70dba8!important;-webkit-text-fill-color:#70dba8!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table .sales-record-toggle{
+ background:#2b2f39!important;color:#fff!important;-webkit-text-fill-color:#fff!important;
+ border-color:#454957!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-records-table .sales-record-toggle:hover,
+body.pdv-night #workspace #page .sales-records-section .sales-records-table .sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) .sales-record-toggle{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 24%,#22252d)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-record-arrow{
+ background:#393d49!important;color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-record-details-row>td,
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail,
+body.pdv-night #workspace #page .sales-records-section .sales-inline-summary,
+body.pdv-night #workspace #page .sales-records-section .sales-inline-scroll{
+ background:#1b1e25!important;color:#f4f4f8!important;border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(strong,b){
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(span,small,th,td,p){
+ color:#c6cbd9!important;border-color:#393d49!important;
+}
+
+/* Vendas: detalhes dos itens vendidos com o mesmo padrão do modo noite. */
+body.pdv-night #workspace #page .sales-records-section :is(.sales-record-details-row>td,.sales-inline-detail,.sales-inline-scroll,.sales-inline-products){
+ background:#22252d!important;background-image:none!important;
+ color:#f4f4f8!important;border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-heading{
+ background:#22252d!important;color:#fff!important;border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-products thead th{
+ background:#2b2f39!important;color:#dce1ed!important;
+ border-color:#393d49!important;-webkit-text-fill-color:#dce1ed!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-products tbody td{
+ background:#22252d!important;color:#f4f4f8!important;
+ border-color:#393d49!important;-webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(.sales-inline-heading strong,.sales-inline-products td strong,.sales-inline-summary strong){
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(.sales-inline-heading span,.sales-inline-products td small,.sales-inline-summary span,.sales-checkout-empty){
+ color:#b6bdcf!important;-webkit-text-fill-color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-summary{
+ background:#2b2f39!important;color:#f4f4f8!important;
+ border:1px solid #393d49!important;border-radius:10px!important;padding:12px!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail .sales-fee-editor{
+ background:#25252d!important;border-color:#393d49!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail .sales-fee-editor label{
+ color:#e5e7ef!important;-webkit-text-fill-color:#e5e7ef!important;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail .sales-fee-editor input{
+ background:#181a20!important;border-color:#454957!important;
+ color:#fff!important;-webkit-text-fill-color:#fff!important;color-scheme:dark;
+}
+body.pdv-night #workspace #page .sales-records-section .sales-inline-detail :is(.sales-inline-fee,.sales-fee-editor small){
+ color:#e2cfac!important;-webkit-text-fill-color:#e2cfac!important;
+}
+
+/* PDV categorias: textos duplicados para melhor leitura. */
+body #workspace #page .godzilla-pdv .pdv-category-tiles .pdv-category-tile{
+ height:auto!important;
+ min-height:170px!important;
+ padding:16px 12px!important;
+ font-size:30px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles .pdv-category-tile > strong{
+ font-size:30px!important;
+ line-height:1.12!important;
+ font-weight:800!important;
+ text-align:center!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+}
+@media(max-width:700px){
+ body #workspace #page .godzilla-pdv .pdv-category-tiles .pdv-category-tile{
+  min-height:155px!important;
+  font-size:30px!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-category-tiles .pdv-category-tile > strong{
+  font-size:30px!important;
+  line-height:1.12!important;
+ }
+}
+
+/* PDV com botão flutuante: categorias e produtos ocupam toda a largura,
+   inclusive a última linha (sem colunas reservadas vazias à direita). */
+body #workspace #page .godzilla-pdv.pdv-floating-layout{
+ width:100%!important;
+ max-width:none!important;
+ min-width:0!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-two-panels,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-two-panels{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ width:100%!important;
+ max-width:none!important;
+ min-width:0!important;
+ gap:0!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-catalog,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-catalog{
+ grid-column:1/-1!important;
+ width:100%!important;
+ max-width:none!important;
+ min-width:0!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles,
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products{
+ display:flex!important;
+ flex-wrap:wrap!important;
+ align-items:stretch!important;
+ width:100%!important;
+ max-width:none!important;
+ gap:12px!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles > .pdv-category-tile,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles > .pdv-category-tile{
+ flex:1 1 205px!important;
+ min-width:min(100%,170px)!important;
+ max-width:none!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-product-wrap,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-product-wrap{
+ flex:1 1 190px!important;
+ min-width:min(100%,160px)!important;
+ max-width:none!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-product-wrap > .pdv-product{
+ width:100%!important;
+}
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-empty{
+ flex:1 1 100%!important;
+}
+@media(max-width:700px){
+ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles > .pdv-category-tile,
+ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-products > .pdv-product-wrap{
+  flex:1 1 calc(50% - 6px)!important;
+  min-width:0!important;
+ }
+}
+
+/* PDV desktop: escala reduzida e layout limitado ao viewport, sem rolar a pagina. */
+@media(min-width:1001px){
+ html:has(body.workspace-fullscreen #workspace #page .godzilla-pdv){
+  height:100%!important;
+  overflow:hidden!important;
+ }
+ body.workspace-fullscreen:has(#workspace #page .godzilla-pdv){
+  height:100dvh!important;
+  min-height:0!important;
+  overflow-x:hidden!important;
+  overflow-y:hidden!important;
+ }
+ body.workspace-fullscreen:has(#workspace #page .godzilla-pdv) .shell{
+  height:100dvh!important;
+  min-height:0!important;
+  padding:10px 12px!important;
+  overflow:hidden!important;
+ }
+ body.workspace-fullscreen #workspace:has(#page .godzilla-pdv){
+  height:100%!important;
+  min-height:0!important;
+  max-height:100%!important;
+  overflow:hidden!important;
+ }
+ body.workspace-fullscreen #workspace:has(#page .godzilla-pdv) .dashboard{
+  height:100%!important;
+  min-height:0!important;
+  max-height:100%!important;
+  overflow:hidden!important;
+  align-items:stretch!important;
+ }
+ body.workspace-fullscreen #workspace:has(#page .godzilla-pdv) .content{
+  height:100%!important;
+  min-height:0!important;
+  max-height:100%!important;
+  overflow:hidden!important;
+  padding:12px!important;
+ }
+ body.workspace-fullscreen #workspace:has(#page .godzilla-pdv) #page{
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+ }
+ body.workspace-fullscreen #workspace #page .godzilla-pdv{
+  zoom:.85!important;
+  width:117.647%!important;
+  height:117.647%!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:hidden!important;
+ }
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-two-panels{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  max-height:100%!important;
+  overflow:hidden!important;
+ }
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-catalog{
+  min-height:0!important;
+  max-height:100%!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior-y:contain;
+ }
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-sale-panel:not(.pdv-sale-panel-floating){
+  max-height:100%!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+ }
+}
+@media(min-width:1001px) and (max-height:740px){
+ body.workspace-fullscreen #workspace #page .godzilla-pdv{
+  zoom:.8!important;
+  width:125%!important;
+  height:125%!important;
+ }
+}
+/* Janelas muito baixas e tablets continuam roláveis para não esconder controles. */
+@media(min-width:1001px) and (max-height:520px){
+ html:has(body.workspace-fullscreen #workspace #page .godzilla-pdv),
+ body.workspace-fullscreen:has(#workspace #page .godzilla-pdv){
+  height:auto!important;
+  overflow-y:auto!important;
+ }
+ body.workspace-fullscreen:has(#workspace #page .godzilla-pdv) .shell,
+ body.workspace-fullscreen #workspace:has(#page .godzilla-pdv),
+ body.workspace-fullscreen #workspace:has(#page .godzilla-pdv) .dashboard,
+ body.workspace-fullscreen #workspace:has(#page .godzilla-pdv) .content,
+ body.workspace-fullscreen #workspace:has(#page .godzilla-pdv) #page{
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+ }
+ body.workspace-fullscreen #workspace #page .godzilla-pdv{
+  zoom:.8!important;
+  width:125%!important;
+  height:auto!important;
+  overflow:visible!important;
+ }
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-two-panels{
+  overflow:visible!important;
+ }
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-catalog{
+  overflow:visible!important;
+  max-height:none!important;
+ }
+}
+
+/* PDV: categorias de mesma altura e quebra de linha apenas entre palavras.
+   O texto começa em 30 px e o JavaScript reduz somente nos nomes longos. */
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile{
+ height:168px!important;
+ min-height:168px!important;
+ max-height:168px!important;
+ padding:12px 10px!important;
+ box-sizing:border-box!important;
+ overflow:hidden!important;
+ gap:6px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > strong{
+ display:block!important;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ white-space:normal!important;
+ overflow-wrap:normal!important;
+ word-break:normal!important;
+ hyphens:none!important;
+ line-height:1.12!important;
+ text-align:center!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > span[aria-hidden]{
+ flex-shrink:0!important;
+}
+@media(max-width:700px){
+ body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile{
+  height:154px!important;
+  min-height:154px!important;
+  max-height:154px!important;
+ }
+}

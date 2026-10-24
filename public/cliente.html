@@ -3,10 +3,198 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#100721"><title>Minha loja • BipStart</title>
-<link rel="stylesheet" href="/cliente.css?v=54">
+
+
+
+
+
+
+<link rel="stylesheet" href="/cliente.css?v=164">
+<link rel="stylesheet" href="/cliente-area.css?v=no-night-20261024">
+<link rel="stylesheet" href="/login.css?v=3">
+<style id="bipstart-login-theme">
+body:has(#auth:not(.hidden)){background:#faf8ff!important;color:#24163d!important;font-family:Inter,system-ui,sans-serif!important}
+body:has(#auth:not(.hidden)) .top{background:#faf8ff!important;border-bottom:1px solid #e8e0f4!important}
+body:has(#auth:not(.hidden)) .top nav a{color:#55456d!important}
+body:has(#auth:not(.hidden)) .shell{max-width:1160px!important;margin:0 auto!important;padding:56px 22px!important}
+body:has(#auth:not(.hidden)) #auth{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(320px,430px)!important;gap:64px!important;align-items:center!important;margin:0!important}
+body:has(#auth:not(.hidden)) .auth-copy{max-width:570px}
+body:has(#auth:not(.hidden)) .auth-copy .kicker{color:#7044d6!important;background:#f0e9ff;padding:8px 12px;border-radius:999px;display:inline-block}
+body:has(#auth:not(.hidden)) .auth-copy h1{font-size:clamp(38px,5vw,62px)!important;line-height:1.08;color:#24163d!important}
+body:has(#auth:not(.hidden)) .auth-copy h1 em{color:#8055df!important}
+body:has(#auth:not(.hidden)) .auth-copy p{color:#625671!important}
+body:has(#auth:not(.hidden)) .auth-card{width:100%!important;max-width:none!important;background:#fff!important;color:#24163d!important;border:1px solid #e8e0f4!important;border-radius:24px!important;padding:32px!important;box-shadow:0 24px 70px #361f1e1c!important}
+body:has(#auth:not(.hidden)) .auth-card .switch{display:flex;gap:5px;padding:5px;background:#f4f0fb!important;border-radius:13px;margin-bottom:26px}
+body:has(#auth:not(.hidden)) .auth-card .switch button{flex:1;border:0!important;border-radius:9px;padding:12px;background:transparent!important;color:#746785!important;font-weight:750}
+body:has(#auth:not(.hidden)) .auth-card .switch button.selected{background:#7044d6!important;color:#fff!important}
+body:has(#auth:not(.hidden)) .auth-card h2,body:has(#auth:not(.hidden)) .auth-card label{color:#24163d!important}
+body:has(#auth:not(.hidden)) .auth-card input:not([type=checkbox]):not([type=radio]){background:#fff!important;color:#24163d!important;border:1px solid #ddd3ed!important;border-radius:11px!important;padding:12px 14px!important}
+body:has(#auth:not(.hidden)) .auth-card .button{background:#7044d6!important;color:#fff!important;border:0!important;border-radius:11px!important}
+body:has(#auth:not(.hidden)) .auth-card .text-button{color:#7044d6!important}
+@media(max-width:800px){body:has(#auth:not(.hidden)) #auth{grid-template-columns:1fr!important;gap:28px!important}body:has(#auth:not(.hidden)) .shell{padding:30px 16px!important}body:has(#auth:not(.hidden)) .auth-card{padding:22px!important}}
+</style>
+
+<script>try{localStorage.removeItem('bipstart_theme_mode')}catch{}</script>
+<style id="pdv-night-reference">
+#workspace #pdvNightToggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:11px 12px;border:1px solid #ddd3f0;border-radius:9px;background:#eee8f7;color:#43315e;font:600 13px system-ui;cursor:pointer}
+#pdvNightToggle .night-switch{width:28px;height:16px;border-radius:20px;background:#aaa;position:relative}
+#pdvNightToggle .night-switch:after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .15s}
+#pdvNightToggle[aria-pressed="true"] .night-switch{background:#a78bfa}
+#pdvNightToggle[aria-pressed="true"] .night-switch:after{transform:translateX(12px)}
+#pdvNightToggle:focus-visible{outline:2px solid #a78bfa;outline-offset:3px}
+body.pdv-night:has(#workspace:not(.hidden)){background:#181a20!important}
+body.pdv-night #workspace{--text:#f4f4f8;--muted:#b6bdcf;--line:#343741;--panel:#22252d;--bg:#181a20;color:#f4f4f8!important}
+body.pdv-night #workspace :is(.dashboard,.content,#page,.godzilla-pdv,.pdv-two-panels){background:#181a20!important;background-image:none!important;color:#f4f4f8!important}
+body.pdv-night #workspace :is(.side,.side-store,.side-actions,#nav,.pdv-panel,.pdv-catalog,.pdv-sale-panel,.pdv-sale-list,.pdv-payment-form,.pdv-payment-selector,.card,.data-form,.cart,.tile,.item,.empty,.menu-editor-panel,.category-image-settings){background:#22252d!important;background-image:none!important;border-color:#343741!important;color:#f4f4f8!important;box-shadow:none!important}
+body.pdv-night #workspace :is(h1,h2,h3,h4,label,legend,strong,.pdv-product-name){color:#f4f4f8!important}
+body.pdv-night #workspace :is(p,small,.muted,.pdv-sale-empty){color:#b6bdcf!important}
+body.pdv-night #workspace :is(input:not([type=checkbox]):not([type=radio]),select,textarea,.pdv-search-top input){background:#22252d!important;color:#f4f4f8!important;border-color:#343741!important;color-scheme:dark}
+body.pdv-night #workspace input::placeholder{color:#b6bdcf!important}
+body.pdv-night #workspace :is(.pdv-product,.pdv-product-info,.pdv-sale-item,.pdv-sale-qty button,.pdv-payment-chip,.pdv-card-kind){background:#2b2f39!important;background-image:none!important;border-color:#393d49!important;color:#f4f4f8!important}
+body.pdv-night #workspace :is(.pdv-product-price,.pdv-sale-line-total,.pdv-sale-total strong){color:#c2adff!important}
+body.pdv-night #workspace .side #nav nav :is(button,a){background:transparent!important;color:#b6bdcf!important;border-color:transparent!important}
+body.pdv-night #workspace .side #nav nav button.active{background:#382c53!important;color:#fff!important}
+body.pdv-night #workspace :is(.side-action,.side-settings,.ghost){background:#2b2f39!important;color:#d7c9fa!important;border-color:#393d49!important}
+body.pdv-night #workspace :is(.button,.pdv-payment-chip.selected,.pdv-card-kind.selected){background:#6f4bab!important;color:#fff!important;border-color:#8662bc!important}
+body.pdv-night #workspace #pdvNightToggle{background:#42315f!important;color:#fff!important;border-color:#42315f!important}
+body.pdv-night #workspace .side #nav nav button.online-order-nav-alert{background:#ac2340!important;color:#fff!important;border-color:#ff6577!important}
+body.pdv-night #workspace :is(th,td,.pdv-sale-total){border-color:#343741!important;color:#f4f4f8}
+@media(prefers-reduced-motion:reduce){#pdvNightToggle .night-switch:after{transition:none}}
+
+/* Textos principais brancos no modo noite. */
+body.pdv-night #workspace #sidebar #sideShopName,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-title h2,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-product .pdv-product-info .pdv-product-name,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-item .pdv-sale-product > strong {
+ color:#fff!important;
+ -webkit-text-fill-color:#fff!important;
+}
+
+/* Caixa: superfícies e contraste do modo noite. */
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-empty,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-total,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-list,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-payment-form,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-payment-selector,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-payment-options,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCashFields,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCardFields,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-card-kinds,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-calculation{background:#22252d!important;background-image:none!important;border-color:#343741!important;color:#f4f4f8!important;box-shadow:none!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-item{background:#2b2f39!important;background-image:none!important;border-color:#393d49!important;color:#f4f4f8!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-head{border-color:#343741!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-head h2,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-total > span,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-payment-label,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvPaymentLabel,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-card-kind-label,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel label,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-calculation{color:#fff!important;-webkit-text-fill-color:#fff!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-empty{color:#b6bdcf!important;-webkit-text-fill-color:#b6bdcf!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-total strong,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-head .kicker{color:#c2adff!important;-webkit-text-fill-color:#c2adff!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel input:not([type=hidden]){background:#2b2f39!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border-color:#393d49!important;}
+
+/* Resumo do estoque usa o mesmo acabamento dos cards de produtos no modo noite. */
+body.pdv-night #workspace #page .stock-summary-grid .stock-summary-card,
+body.pdv-night #workspace #page .stock-summary-grid .stock-summary-card.active{
+ background:#2b2f39!important;background-image:none!important;border-color:#393d49!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .stock-summary-grid .stock-summary-card :is(span,small,strong,b){
+ color:#f4f4f8!important;-webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .stock-summary-grid .stock-summary-card:hover{
+ background:#333743!important;border-color:#51466e!important;
+}
+
+/* Pedidos online: acompanhar modo noite do PDV, incluindo os cards formatados. */
+body.pdv-night #workspace .online-order-stats .tile,
+body.pdv-night #workspace #page article.online-order-card.online-order-formatted{
+ background:#22252d!important;background-image:none!important;
+ border-color:#393d49!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-head,.online-order-section){
+ background:transparent!important;border-color:#393d49!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-head h3,.online-order-head div,.online-order-section h4,.online-order-section p,.online-order-total),
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-head,.online-order-section) :is(strong,b){
+ color:#f4f4f8!important;-webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table{
+ background:#22252d!important;color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table :is(th,td){
+ background:#252934!important;border-color:#393d49!important;
+ color:#f4f4f8!important;-webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-items-table td{
+ background:#22252d!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-quick-actions,.online-order-payment-actions) button{
+ background:#2b2f39!important;color:#fff!important;border-color:#494d5b!important;
+}
+body.pdv-night #workspace #page .online-order-formatted .online-order-quick-actions button:first-child{
+ background:#7138f4!important;border-color:#7138f4!important;color:#fff!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-quick-actions .online-order-danger,.online-order-payment-actions button[data-payment-cancel]){
+ background:#38272e!important;border-color:#b95869!important;color:#ffd1d9!important;
+}
+body.pdv-night #workspace #page .online-order-formatted a{
+ color:#c2adff!important;-webkit-text-fill-color:#c2adff!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(.online-order-address,.online-order-notes,.online-order-items){
+ background:#2b2f39!important;border-color:#393d49!important;color:#fff!important;
+}
+body.pdv-night #workspace #page .online-order-formatted :is(small,.online-order-fees){
+ color:#b6bdcf!important;
+}
+</style>
+
+<style id="bipstart-system-color-unified">
+/* Aplicar a cor por loja depois das regras fixas do modo noite. */
+body #workspace .pdv-finish,
+body #workspace .pdv-payment-form .pdv-finish,
+body #workspace .button,
+body #workspace a.button,
+body #workspace .pdv-best-seller-manage,
+body #workspace .online-order-formatted .online-order-quick-actions button:first-child{
+ background:var(--store-accent,#7c3aed)!important;
+ background-image:none!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+}
+body #workspace .pdv-payment-chip.selected,
+body #workspace .pdv-card-kind.selected,
+body #workspace .sales-period-switch button.active,
+body #workspace .side #nav nav button.active,
+body #workspace .side #nav nav a.active{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 22%,#f4f1ff)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent,#7c3aed)!important;
+}
+body.pdv-night #workspace :is(.pdv-payment-chip.selected,.pdv-card-kind.selected,.sales-period-switch button.active,.side #nav nav button.active,.side #nav nav a.active){
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 28%,#22252d)!important;
+ color:#fff!important;
+}
+body #workspace :is(.pdv-sale-total strong,.pdv-sale-line-total,.pdv-product-price,.online-order-total-row .online-order-total){
+ color:var(--store-accent,#7c3aed)!important;
+}
+body #workspace :is(.ghost,.pdv-payment-chip,.pdv-card-kind,.sales-period-switch button,.side #nav nav button,.side #nav nav a,.online-order-quick-actions button,.online-order-payment-actions button):hover:not(:disabled){
+ border-color:var(--store-accent,#7c3aed)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 25%,transparent)!important;
+}
+body #workspace #pdvNightToggle[aria-pressed=true],
+body.pdv-night #workspace #pdvNightToggle[aria-pressed=true]{
+ background:var(--store-accent,#7c3aed)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+}
+body #workspace #pdvNightToggle[aria-pressed=true] .night-switch,
+body #workspace #pdvNightToggle[aria-pressed=true] .night-switch{background:color-mix(in srgb,var(--store-accent,#7c3aed) 70%,#fff)!important}
+</style>
 </head>
 <body>
-<header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><a href="/">Conhecer os planos</a> <button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
+<header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
 <main class="shell">
   <div id="notice" class="notice hidden" role="alert"></div>
   <section id="setup" class="card central hidden">
@@ -67,6 +255,7 @@
         </div>
         <div id="nav"></div>
         <div class="side-actions">
+<button type="button" id="pdvNightToggle" aria-pressed="false"><span>Modo noite</span><span class="night-switch" aria-hidden="true"></span></button>
           <div class="side-actions-row">
             <button type="button" id="sideLogout" class="side-action">Sair</button>
           </div>
@@ -89,5 +278,6 @@
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=17" defer></script>
+<script src="/cliente.js?v=156" defer></script>
+<script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>

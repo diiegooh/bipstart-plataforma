@@ -22,6 +22,7 @@ function renderTracking(order){
  $('trackingError').hidden=true;
  $('trackingData').hidden=false;
  $('shopName').textContent=String(order.shop_name||'Loja');
+ $('brandShopName').textContent=String(order.shop_name||'Loja');
  $('orderReference').textContent='Pedido #'+String(order.id).slice(0,8);
  const label=statuses[order.status]||'Status indisponível';
  $('statusPill').textContent=label;

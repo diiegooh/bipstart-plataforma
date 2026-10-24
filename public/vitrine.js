@@ -56,15 +56,48 @@ function displayStoreLogo(){
  image.classList.toggle('store-logo-custom',!!own);
 }
 function applyBrand(){
- const color=String(menu.brand_color||'').trim();
- if(/^#[0-9a-fA-F]{6}$/.test(color)){
-  document.documentElement.style.setProperty('--green',color);
-  document.documentElement.style.setProperty('--green2',color);
-  const parts=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255);
-  const luminance=parts.map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((a,x,i)=>a+x*[.2126,.7152,.0722][i],0);
-  document.documentElement.style.setProperty('--theme-ink',luminance>.35?'#0a0d0b':'#ffffff');
- }
+ const raw=String(menu?.brand_color||menu?.menu_theme_color||'');
+ const color=/^#[0-9a-f]{6}$/i.test(raw)?raw:'#7c3aed';
+ const rgb=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255);
+ const lightness=rgb.map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((sum,x,i)=>sum+x*[.2126,.7152,.0722][i],0);
+ document.documentElement.style.setProperty('--green',color);
+ document.documentElement.style.setProperty('--green2',color);
+ document.documentElement.style.setProperty('--theme-ink',lightness>.35?'#181321':'#ffffff');
 }
+// Usa o mesmo estado do modo noite do PDV na mesma origem.
+const sharedNightStorageKey='bipstart_pdv_night_v2';
+const menuNightStorageKey='bipstart-cardapio-modo-noite';
+function readMenuNight(){
+ try{
+  const shared=localStorage.getItem(sharedNightStorageKey);
+  if(shared==='1'||shared==='0')return shared==='1';
+  return localStorage.getItem(menuNightStorageKey)==='true';
+ }catch{return false}
+}
+let menuNightEnabled=readMenuNight();
+function applyMenuNight(enabled){
+ menuNightEnabled=Boolean(enabled);
+ document.body.classList.toggle('menu-night',menuNightEnabled);
+ document.documentElement.classList.toggle('menu-night',menuNightEnabled);
+ const button=$('toggleMenuNight');
+ if(button){
+  button.textContent=menuNightEnabled?'☀️ Modo dia':'🌙 Modo noite';
+  button.setAttribute('aria-pressed',String(menuNightEnabled));
+ }
+ document.querySelector('meta[name="theme-color"]')?.setAttribute('content',menuNightEnabled?'#08080d':'#f8f8ff');
+}
+applyMenuNight(menuNightEnabled);
+$('toggleMenuNight')?.addEventListener('click',()=>{
+ applyMenuNight(!menuNightEnabled);
+ try{
+  localStorage.setItem(sharedNightStorageKey,menuNightEnabled?'1':'0');
+  localStorage.setItem(menuNightStorageKey,String(menuNightEnabled));
+ }catch{}
+});
+window.addEventListener('storage',event=>{
+ if(event.key===sharedNightStorageKey||event.key===menuNightStorageKey||event.key===null)
+  applyMenuNight(readMenuNight());
+});
 function drawPage(){
  const isRound=roundMenuActive();
  document.body.classList.toggle('round-menu',isRound);
@@ -110,6 +143,18 @@ function drawPage(){
  renderProducts();
  renderCart();
 }
+function setStoreOptions(open){
+ const panel=$('storeOptions'),button=$('openStoreOptions');
+ panel.classList.toggle('hidden',!open);
+ panel.setAttribute('aria-hidden',String(!open));
+ button.setAttribute('aria-expanded',String(open));
+}
+$('openStoreOptions').addEventListener('click',()=>setStoreOptions($('storeOptions').classList.contains('hidden')));
+$('closeStoreOptions').addEventListener('click',()=>setStoreOptions(false));
+document.addEventListener('click',event=>{
+ if(!$('storeOptions').classList.contains('hidden')&&!event.target.closest('#storeOptions')&&!event.target.closest('#openStoreOptions'))setStoreOptions(false);
+});
+document.addEventListener('keydown',event=>{if(event.key==='Escape')setStoreOptions(false);});
 $('storeLogo').addEventListener('error',()=>{
  const img=$('storeLogo');
  if(!img.src.endsWith('/bipstart-marca-icon.png')){
@@ -176,7 +221,7 @@ function renderCart(){
   const item=products.find(x=>x.id===id);
   if(!item)continue;
   count+=qty;
-  lines.push('<div class="cartline"><div><b>'+esc(item.name)+'</b><div class="muted">'+qty+' × '+money(item.price)+'</div></div>'+
+  lines.push('<div class="cartline"><div class="cartline-info"><div class="cartline-title"><b>'+esc(item.name)+'</b><span class="cart-item-detail">'+qty+' × '+money(item.price)+'</span></div></div>'+
    '<div class="qty-group"><button type="button" class="btn alt" data-dec="'+esc(id)+'" aria-label="Diminuir '+esc(item.name)+'">−</button>'+
    '<strong>'+qty+'</strong><button type="button" class="btn alt" data-inc="'+esc(id)+'"'+(item.in_stock===false?' disabled aria-disabled="true"':'')+' aria-label="Aumentar '+esc(item.name)+'">+</button></div></div>');
  }
@@ -302,6 +347,7 @@ $('category').addEventListener('change',renderProducts);
 $('shipping').addEventListener('change',renderCart);
 $('openCart').addEventListener('click',openCart);
 $('closeCart').addEventListener('click',closeCart);
+$('returnToStore').addEventListener('click',()=>{closeCart();window.scrollTo({top:0,behavior:'smooth'});});
 $('cartBackdrop').addEventListener('click',closeCart);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('cartDrawer').classList.contains('show'))closeCart();});
 $('showAll').addEventListener('click',()=>{$('search').value='';filterCategory('');});
