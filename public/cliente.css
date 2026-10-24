@@ -3602,3 +3602,36 @@ body #workspace #page .pdv-category-tiles .pdv-category-tile > strong{
 #workspace #pdvNightToggle[aria-pressed="true"]{background:var(--store-accent,#7c3aed)!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important}
 body.pdv-night #workspace #pdvNightToggle[aria-pressed="true"]{background:var(--store-accent,#7c3aed)!important}
 #workspace .pdv-sale-total strong,#workspace .pdv-product-price{color:var(--store-accent,#7c3aed)}
+
+/* Cor do Sistema: detalhes destacados no caixa, filtros e ações da homologação. */
+#workspace .pdv-sale-total strong,
+#workspace .pdv-sale-line-total,
+#workspace .pdv-product-price,
+#workspace .pdv-sale-item .pdv-sale-product + span,
+#workspace .sales-period-switch button.active,
+#workspace .online-order-total-row .online-order-total{
+ color:var(--store-accent,#7c3aed)!important;
+}
+#workspace .pdv-payment-chip.selected,
+#workspace .pdv-card-kind.selected,
+#workspace .sales-period-switch button.active,
+#workspace .side #nav nav button.active,
+#workspace .side #nav nav a.active{
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 16%,#f5f3ff)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent,#7c3aed)!important;
+}
+body.pdv-night #workspace :is(.pdv-payment-chip.selected,.pdv-card-kind.selected,.sales-period-switch button.active,.side #nav nav button.active,.side #nav nav a.active){
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 24%,#22252d)!important;
+}
+#workspace .pdv-finish,
+#workspace .online-order-formatted .online-order-quick-actions button:first-child,
+#workspace .button,
+#workspace a.button{
+ background:var(--store-accent,#7c3aed)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;
+}
+#workspace :is(.pdv-payment-chip,.pdv-card-kind,.sales-period-switch button,.side #nav nav button,.side #nav nav a,.ghost,.online-order-quick-actions button,.online-order-payment-actions button):hover:not(:disabled){
+ border-color:var(--store-accent,#7c3aed)!important;
+}
