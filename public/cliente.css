@@ -3672,3 +3672,33 @@ body.workspace-fullscreen #workspace .pdv-floating-sale-button:hover{
   background:transparent!important;
  }
 }
+
+/* PDV com venda flutuante: catálogo utiliza toda a largura sem a coluna do caixa. */
+@media(min-width:701px){
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-two-panels,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-two-panels{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:0!important;
+  width:100%!important;
+ }
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-catalog{
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+ }
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-category-tiles{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(145px,1fr))!important;
+  gap:12px!important;
+ }
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-products{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr))!important;
+  gap:12px!important;
+ }
+}
+@media(min-width:701px) and (max-width:960px){
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-category-tiles{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))!important}
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button) .pdv-products{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))!important}
+}
