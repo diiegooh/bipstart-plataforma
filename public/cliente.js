@@ -1348,8 +1348,8 @@ function renderGodzillaPDV(){
  '<div class="pdv-title"><h2>PDV</h2><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Pesquisar produtos..." value="'+esc(pdvQuery)+'" autocomplete="off"></label></div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
- '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:anywhere!important">Mais vendidos</strong></button>'+
- categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:anywhere!important">'+esc(name)+'</strong></button>';}).join('')+
+ '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
+ categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">'+esc(name)+'</strong></button>';}).join('')+
  '</div>'+
  (pdvShowBestSellers?pdvBestSellers():'')+
  '<div class="pdv-list-head"><strong>Produtos da loja</strong></div>'+
@@ -1741,20 +1741,69 @@ window.applySalesNightStyles=applySalesNightStyles;
 function applyPdvCategoryFontSizes(){
  const root=$('page');
  if(!root)return;
- root.querySelectorAll('.godzilla-pdv .pdv-category-tiles .pdv-category-tile').forEach(tile=>{
-  tile.style.setProperty('height','auto','important');
-  tile.style.setProperty('min-height','clamp(155px,15vw,170px)','important');
-  tile.style.setProperty('padding','16px 12px','important');
+ const tiles=root.querySelectorAll('.godzilla-pdv .pdv-category-tiles .pdv-category-tile');
+ tiles.forEach(tile=>{
+  // Mesma altura em toda a grade, independentemente do comprimento do nome.
+  const mobile=window.matchMedia('(max-width:700px)').matches;
+  const height=mobile?'154px':'168px';
+  tile.style.setProperty('height',height,'important');
+  tile.style.setProperty('min-height',height,'important');
+  tile.style.setProperty('max-height',height,'important');
+  tile.style.setProperty('box-sizing','border-box','important');
+  tile.style.setProperty('padding','12px 10px','important');
+  tile.style.setProperty('gap','6px','important');
+  tile.style.setProperty('overflow','hidden','important');
+  const icon=tile.querySelector('span[aria-hidden]');
+  if(icon)icon.style.setProperty('flex-shrink','0','important');
   const name=tile.querySelector('strong');
   if(!name)return;
-  name.style.setProperty('font-size','30px','important');
+  name.style.setProperty('display','block','important');
+  name.style.setProperty('width','100%','important');
+  name.style.setProperty('max-width','100%','important');
+  name.style.setProperty('min-width','0','important');
   name.style.setProperty('line-height','1.12','important');
   name.style.setProperty('font-weight','800','important');
+  name.style.setProperty('text-align','center','important');
   name.style.setProperty('white-space','normal','important');
-  name.style.setProperty('overflow-wrap','anywhere','important');
+  name.style.setProperty('overflow-wrap','normal','important');
+  name.style.setProperty('word-break','normal','important');
+  name.style.setProperty('hyphens','none','important');
+  name.style.setProperty('text-overflow','clip','important');
+  name.style.setProperty('overflow','visible','important');
+  // Calcula o espaço real disponível depois do ícone e do padding.
+  const st=window.getComputedStyle(tile);
+  const pad=parseFloat(st.paddingTop)+parseFloat(st.paddingBottom);
+  const gap=parseFloat(st.rowGap)||0;
+  const availableHeight=tile.clientHeight-pad-(icon?.offsetHeight||0)-(icon?gap:0);
+  let fits=false;
+  for(const size of [30,28,26,24,22,20,18,16,14,12]){
+   name.style.setProperty('font-size',size+'px','important');
+   if(name.scrollWidth<=name.clientWidth+1 && name.scrollHeight<=availableHeight+1){
+    fits=true;
+    break;
+   }
+  }
+  // Apenas nomes extraordinariamente longos são truncados, sem partir palavras.
+  if(!fits){
+   name.style.setProperty('white-space','nowrap','important');
+   name.style.setProperty('text-overflow','ellipsis','important');
+   name.style.setProperty('overflow','hidden','important');
+  }
+  tile.title=name.textContent.trim();
  });
 }
-
+let pdvCategoriesResizePending=false;
+window.addEventListener('resize',()=>{
+ if(pdvCategoriesResizePending)return;
+ pdvCategoriesResizePending=true;
+ window.requestAnimationFrame(()=>{
+  pdvCategoriesResizePending=false;
+  if(tab==='caixa'){
+   applyPdvFloatingFullWidth();
+   applyPdvCategoryFontSizes();
+  }
+ });
+});
 
 /* Quando o carrinho flutuante substitui a coluna de caixa, ocupar toda a linha.
    Flex wrap preenche inclusive a última linha com menos cards. */
@@ -1900,8 +1949,8 @@ function renderPage(){
   if(tab==='produtos')applyInventoryNightStyles();
    if(tab==='configuracoes')applySettingsNightStyles();
    if(tab==='vendas')applySalesNightStyles();
-   if(tab==='caixa')applyPdvCategoryFontSizes();
    if(tab==='caixa')applyPdvFloatingFullWidth();
+   if(tab==='caixa')applyPdvCategoryFontSizes();
 }
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
 function formShell(kind,id,inside){return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="columns">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
