@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[],onlineOrders=[];
-let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all',selectedStockPanel='',showBestSellerPicker=false;
+let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all',selectedStockPanel='';
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
@@ -1282,26 +1282,8 @@ function filteredPdvProducts(){
  const term=pdvQuery.trim().toLocaleLowerCase('pt-BR');
  return products.filter(p=>p.active!==false
    &&(!pdvInStockOnly||Number(p.stock)>0)
-   &&(!pdvCategory||String(p.category||'Geral')===pdvCategory)
+   &&(pdvShowBestSellers?p.is_best_seller===true:(!pdvCategory||String(p.category||'Geral')===pdvCategory))
    &&(!term||[p.name,p.category].some(value=>String(value||'').toLocaleLowerCase('pt-BR').includes(term))));
-}
-function pdvBestSellerProducts(){
- // Destaques escolhidos pela loja, independentes dos filtros de busca do catálogo.
- return products.filter(p=>p.active!==false&&p.is_best_seller===true)
-   .sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
-}
-function pdvBestSellers(){
- const featured=pdvBestSellerProducts();
- const candidates=products.filter(p=>p.active!==false&&p.is_best_seller!==true).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));
- return '<section class="pdv-best-sellers" aria-label="Acesso rápido aos mais vendidos">'+
-  '<div class="pdv-best-sellers-title"><strong>★ Mais vendidos</strong><button type="button" class="pdv-best-seller-manage" data-best-seller-picker aria-expanded="'+(showBestSellerPicker?'true':'false')+'" aria-label="Adicionar produtos aos mais vendidos">+</button></div>'+
-  (showBestSellerPicker?'<div class="pdv-best-seller-picker"><strong>Adicionar produto ao acesso rápido</strong>'+
-   (candidates.length?candidates.map(p=>'<button type="button" data-best-seller-add="'+esc(p.id)+'"><span>'+esc(p.name)+'</span><b>+</b></button>').join(''):'<small>Todos os produtos ativos já estão nos mais vendidos.</small>')+'</div>':'')+
-  (featured.length?'<div class="pdv-best-sellers-list">'+featured.map(p=>{
-   const qty=cart.find(c=>c.id===p.id)?.qty||0, outOfStock=Number(p.stock)<=qty;
-   const photo=p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="" loading="lazy">':'<span class="pdv-best-seller-placeholder" aria-hidden="true">★</span>';
-   return '<button type="button" class="pdv-best-seller" data-cart="'+esc(p.id)+'"'+(outOfStock?' disabled':'')+' aria-label="'+esc(outOfStock?'Sem estoque: '+p.name:'Adicionar '+p.name+' ao carrinho')+'"><span class="pdv-best-seller-photo">'+photo+'</span><span class="pdv-best-seller-text"><strong>'+esc(p.name)+'</strong><small>'+(outOfStock?'Sem estoque':fmt(p.price))+'</small></span><span class="pdv-best-seller-plus" aria-hidden="true">'+(outOfStock?'×':'+')+'</span></button>';
-  }).join('')+'</div>':'')+'</section>';
 }
 function pdvProductCards(){
  const available=filteredPdvProducts();
@@ -1314,7 +1296,7 @@ function pdvProductCards(){
    '<span class="pdv-product-media">'+photo+'</span>'+
    '<span class="pdv-product-info"><strong class="pdv-product-name">'+esc(p.name)+'</strong>'+
    '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button>'+quantityField+'</div>';
- }).join(''):'<div class="empty pdv-empty">Nenhum produto corresponde à busca. Cadastre produtos ou altere os filtros.</div>';
+ }).join(''):'<div class="empty pdv-empty">'+(pdvShowBestSellers?'Nenhum produto encontrado em Mais vendidos. Marque os itens desejados no cadastro de produtos.':'Nenhum produto corresponde à busca. Cadastre produtos ou altere os filtros.')+'</div>';
 }
 function renderGodzillaPDV(){
  const floatingSale=floatingSaleEnabled();
@@ -1351,8 +1333,7 @@ function renderGodzillaPDV(){
  '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
  categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">'+esc(name)+'</strong></button>';}).join('')+
  '</div>'+
- (pdvShowBestSellers?pdvBestSellers():'')+
- '<div class="pdv-list-head"><strong>Produtos da loja</strong></div>'+
+ '<div class="pdv-list-head"><strong>'+(pdvShowBestSellers?'Mais vendidos':'Produtos da loja')+'</strong></div>'+
  '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
  '</section><div class="pdv-floating-backdrop'+(floatingSale&&pdvCheckoutOpen?' open':'')+'" data-floating-sale-close></div><aside class="pdv-panel pdv-sale-panel'+(floatingSale?' pdv-sale-panel-floating':'')+(floatingSale&&pdvCheckoutOpen?' is-open':'')+'" aria-label="Venda atual">'+
  '<div class="pdv-sale-head"><div><span class="kicker">CAIXA</span><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
@@ -2418,7 +2399,7 @@ document.addEventListener('change',e=>{
   catch{msg('Não foi possível salvar a configuração neste navegador.',true);}
   return;
  }
- if(e.target.id==='pdvCategory'){pdvCategory=e.target.value;const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();}
+ if(e.target.id==='pdvCategory'){pdvCategory=e.target.value;pdvShowBestSellers=false;renderPage();}
 });
 document.addEventListener('change',e=>{
  const categoryFile=e.target.closest?.('[data-category-image-file]');
@@ -2663,9 +2644,9 @@ document.addEventListener('click',async e=>{
   if(e.target.closest('#sideToggle')){toggleSideMenu();return}
   if(e.target.closest('#sideBackdrop')){closeSideMenu();return}
   if(e.target.closest('#sideLogout')){closeSideMenu();$('logout').click();return}
-  if(e.target.closest('[data-pdv-best-sellers]')){pdvShowBestSellers=!pdvShowBestSellers;renderPage();return;}
+  if(e.target.closest('[data-pdv-best-sellers]')){pdvShowBestSellers=!pdvShowBestSellers;pdvCategory='';renderPage();return;}
   const categoryTile=e.target.closest('[data-pdv-category]');
-  if(categoryTile){pdvCategory=categoryTile.dataset.pdvCategory||'';renderPage();return;}
+  if(categoryTile){pdvShowBestSellers=false;pdvCategory=categoryTile.dataset.pdvCategory||'';renderPage();return;}
   const less=e.target.closest('[data-qty-less]');
   if(less){
     const found=cart.find(c=>c.id===less.dataset.qtyLess);
@@ -2810,16 +2791,6 @@ document.addEventListener('click',async e=>{
     showForm={kind:edit.dataset.edit,value:(lists[edit.dataset.edit]||[]).find(v=>v.id===edit.dataset.id)||null};pastedProductImage=null;renderPage();if(edit.dataset.edit==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return
   }
   if(e.target.closest('[data-cancel]')){showForm=null;renderPage();return}
-  const bestSellerPicker=e.target.closest('[data-best-seller-picker]');
-  if(bestSellerPicker){showBestSellerPicker=!showBestSellerPicker;renderPage();return}
-  const addBestSeller=e.target.closest('[data-best-seller-add]');
-  if(addBestSeller){
-   const product=products.find(p=>p.id===addBestSeller.dataset.bestSellerAdd);
-   if(!product)return;
-   try{await rest('shop_products',{method:'PATCH',query:{id:'eq.'+product.id,shop_id:'eq.'+shop.id},body:{is_best_seller:true}});product.is_best_seller=true;showBestSellerPicker=true;renderPage();msg(product.name+' adicionado aos mais vendidos do PDV.')}
-   catch(err){msg(err.message||'Não foi possível adicionar o produto.',true)}
-   return
-  }
   const c=e.target.closest('[data-cart]');if(c){
     const p=products.find(p=>p.id===c.dataset.cart);if(!p)return;
     const old=cart.find(x=>x.id===p.id);
