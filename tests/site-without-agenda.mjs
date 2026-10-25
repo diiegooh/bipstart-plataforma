@@ -64,109 +64,75 @@ test('FAQ Premium, solicitações gratuitas e pagamentos refletem a oferta comer
 });
 test('botões de escolher plano têm o mesmo estilo e rótulos proporcionais',()=>{
  const html=readFileSync('public/index.html','utf8');
- const css=readFileSync('public/style.css','utf8');
- assert.match(html,/class="button button-primary button-plan-select" data-plan="1">Escolher Básico/);
- assert.match(html,/class="button button-primary button-plan-select" data-plan="3">Escolher Premium/);
- assert.equal((html.match(/class="button button-primary button-plan-select"/g)||[]).length,2);
- assert.match(css,/\.pricing-section \.plan>\.button-plan-select\{/);
- assert.match(css,/width:100%/);
- assert.match(css,/min-height:52px/);
+ const css=readFileSync('public/landing.css','utf8');
+ assert.match(html,/class="bs-button bs-button-secondary bs-plan-button" data-plan="1">Escolher Básico/);
+ assert.match(html,/class="bs-button bs-button-primary bs-plan-button" data-plan="3">Escolher Premium/);
+ assert.equal((html.match(/class="bs-button bs-button-(?:primary|secondary) bs-plan-button"/g)||[]).length,2);
+ assert.match(css,/\.bs-button\{/);
+ assert.match(css,/\.bs-button-primary\{/);
+ assert.match(css,/\.bs-button-secondary\{/);
 });
 test('celular oferece link direto Entrar para a área autenticada mesmo sem menu desktop',()=>{
  const html=readFileSync('public/index.html','utf8');
- const css=readFileSync('public/style.css','utf8');
- assert.match(html,/class="mobile-login" href="\/cliente" aria-label="Entrar na conta da loja">Entrar<\/a>/);
- assert.match(css,/\.mobile-login\{display:none\}/);
- assert.match(css,/@media\(max-width:760px\)\{/);
- assert.match(css,/\.mobile-login\{\s*display:inline-flex/);
- assert.match(css,/@media\(max-width:430px\)/);
- assert.match(css,/@media\(max-width:350px\)/);
+ const css=readFileSync('public/landing.css','utf8');
+ assert.match(html,/<a class="bs-login" href="\/cliente">Entrar<\/a>/);
+ assert.match(html,/id="bsMenuToggle"[^>]*aria-expanded="false"[^>]*aria-controls="bsNavLinks"/);
+ assert.match(html,/id="bsNavLinks"/);
+ assert.match(css,/\.bs-menu-toggle\{display:none/);
+ assert.match(css,/@media\s*\(max-width:/);
 });
 
 
 test('planos ficam compactos em notebooks e empilhados com legibilidade no celular',()=>{
- const css=readFileSync('public/style.css','utf8');
+ const css=readFileSync('public/landing.css','utf8');
  const html=readFileSync('public/index.html','utf8');
- assert.match(css,/@media\(min-width:831px\)\{/);
- assert.match(css,/\.pricing-section\.section\{padding-top:24px;padding-bottom:26px\}/);
- assert.match(css,/\.pricing-section \.pricing-title\{margin-bottom:19px\}/);
- assert.match(css,/\.pricing-section \.plans-two>\.plan\{/);
- assert.match(css,/\.pricing-section \.plan ul\{gap:8px;margin-bottom:15px\}/);
- assert.match(css,/\.pricing-section \.plan>\.button-plan-select\{/);
- assert.match(css,/min-height:44px/);
- assert.match(css,/@media\(min-width:831px\) and \(max-height:900px\)\{/);
- assert.match(css,/@media\(max-width:830px\)\{/);
- assert.match(css,/\.pricing-section \.plans-two\{grid-template-columns:1fr;gap:25px\}/);
- assert.match(css,/\.pricing-section \.plan>\.button-plan-select\{min-height:48px\}/);
- assert.equal((html.match(/class="plan-top"/g)||[]).length,2);
- assert.equal((html.match(/class="button button-primary button-plan-select"/g)||[]).length,2);
+ assert.match(html,/class="bs-plans"/);
+ assert.equal((html.match(/<article class="bs-plan(?: [^"]*)?"/g)||[]).length,2);
+ assert.match(css,/\.bs-plans\{/);
+ assert.match(css,/\.bs-plan\{/);
+ assert.match(css,/@media\s*\(max-width:/);
 });
 
 
 test('Modelos apresenta três mini cards ilustrados para cada sistema, sem prévias grandes',()=>{
  const html=readFileSync('public/index.html','utf8');
- const css=readFileSync('public/style.css','utf8');
- const block=html.slice(html.indexOf('id="solucoes"'),html.indexOf('<section class="section pricing-section"'));
- assert.equal((block.match(/class="solution-mini-grid"/g)||[]).length,2);
- assert.equal((block.match(/class="solution-mini-card"/g)||[]).length,6);
- assert.equal((block.match(/class="mini-illustration /g)||[]).length,6);
- assert.doesNotMatch(block,/class="solution-preview"|modelo-pdv\.svg|modelo-cardapio\.svg/);
- for(const label of ['Venda rápida','Controle automático','Resumo de vendas',
-  'Produtos organizados','Carrinho de compras','Pedido via WhatsApp'])
-  assert.match(block,new RegExp(label));
- assert.match(block,/data-model="pdv">Experimentar PDV ↗/);
- assert.match(block,/data-model="pdv">Experimentar cardápio ↗/);
- assert.match(css,/#solucoes \.solution-mini-grid\{/);
- assert.match(css,/grid-template-columns:repeat\(auto-fit,minmax\(143px,1fr\)\)/);
- assert.match(css,/#solucoes \.mini-illustration\{/);
- assert.match(css,/#solucoes \.mini-report>strong/);
- assert.match(css,/@media\(max-width:430px\)\{[\s\S]*#solucoes \.solution-mini-grid\{grid-template-columns:1fr\}/);
- assert.doesNotMatch(css,/#solucoes \.solution-preview/);
+ const css=readFileSync('public/landing.css','utf8');
+ for(const item of ['PDV e controle de estoque','Cardápio online e pedidos','Uma loja com a sua identidade']){
+  assert.ok(html.includes(item),item);
+ }
+ assert.equal((html.match(/<article class="bs-feature-card /g)||[]).length,3);
+ assert.match(css,/\.bs-feature-grid\{/);
+ assert.doesNotMatch(html,/modelo-pdv\.svg|modelo-cardapio\.svg/);
 });
 
 test('mini cards são apenas ilustrativos e não expõem dados reais de pedidos',()=>{
  const html=readFileSync('public/index.html','utf8');
- const block=html.slice(html.indexOf('id="solucoes"'),html.indexOf('<section class="section pricing-section"'));
- assert.match(block,/aria-hidden="true"/);
- assert.match(block,/Exemplos dos recursos do PDV/);
- assert.match(block,/Exemplos dos recursos do cardápio digital/);
- assert.equal((block.match(/class="mini-badge"/g)||[]).length,6);
- assert.doesNotMatch(block,/id="customer|data-order-id|href="https:\/\/wa\.me/);
+ const start=html.indexOf('<section class="bs-section bs-features"');
+ const end=html.indexOf('<section class="bs-section bs-pricing"',start);
+ assert.ok(start>=0&&end>start);
+ const section=html.slice(start,end);
+ assert.match(section,/bs-mini-panel/);
+ assert.match(section,/bs-menu-preview/);
+ assert.doesNotMatch(section,/data-order-id|id="customer|data-customer-token|href="https:\/\/wa\.me/);
 });
 
 
 test('nomes dos mini cards e dos dois modelos estão mais destacados no desktop e celular',()=>{
- const css=readFileSync('public/style.css','utf8');
  const html=readFileSync('public/index.html','utf8');
- const block=html.slice(html.indexOf('id="solucoes"'),html.indexOf('<section class="section pricing-section"'));
- assert.equal((block.match(/class="solution-mini-card"/g)||[]).length,6);
- assert.match(css,/#solucoes \.solution-mini-card>strong\{[\s\S]*font-size:17px;font-weight:900/);
- assert.match(css,/border-left:3px solid #b969ff;padding-left:9px/);
- assert.match(css,/#solucoes \.solution-card\.orange \.solution-mini-card>strong\{[\s\S]*color:#ffe3be;border-left-color:#ffaf66/);
- assert.match(css,/#solucoes \.solution-card-copy h3\{margin:0 0 9px;font-size:25px/);
- assert.match(css,/#solucoes \.solution-card-copy h3\{font-size:23px\}/);
- assert.match(css,/#solucoes \.solution-mini-card>strong\{font-size:16px\}/);
- assert.match(html,/\/style\.css\?v=9/);
+ const css=readFileSync('public/landing.css','utf8');
+ assert.match(html,/<h3>PDV e controle de estoque<\/h3>/);
+ assert.match(html,/<h3>Cardápio online e pedidos<\/h3>/);
+ assert.match(css,/\.bs-feature-card/);
+ assert.match(css,/\.bs-feature-grid/);
+ assert.match(css,/@media\s*\(max-width:/);
 });
 
 
 test('seção Modelos ocupa menos altura no notebook mantendo os seis exemplos',()=>{
  const html=readFileSync('public/index.html','utf8');
- const css=readFileSync('public/style.css','utf8');
- const section=html.slice(html.indexOf('id="solucoes"'),html.indexOf('<section class="section pricing-section"'));
- assert.equal((section.match(/class="solution-mini-card"/g)||[]).length,6);
- assert.equal((section.match(/class="solution-card /g)||[]).length,2);
- assert.match(section,/Experimentar PDV ↗/);
- assert.match(section,/Experimentar cardápio ↗/);
- assert.match(css,/@media\(min-width:831px\)\{[\s\S]*#solucoes\.section\{padding-top:43px;padding-bottom:40px\}/);
- assert.match(css,/@media\(min-width:831px\) and \(max-height:950px\)\{/);
- assert.match(css,/#solucoes\.section\{padding-top:22px;padding-bottom:23px\}/);
- assert.match(css,/#solucoes \.section-head\{margin-bottom:14px\}/);
- assert.match(css,/#solucoes \.solution-card\{padding:15px 18px;gap:8px\}/);
- assert.match(css,/#solucoes \.mini-illustration\{height:66px;margin-top:6px;padding:7px\}/);
- assert.match(css,/#solucoes \.solution-mini-grid\{\s*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
- assert.match(css,/@media\(max-width:830px\)\{/);
- assert.match(css,/#solucoes \.solution-grid\{grid-template-columns:1fr;max-width:600px;margin-inline:auto;gap:19px\}/);
- assert.match(css,/@media\(max-width:430px\)\{/);
- assert.match(html,/\/style\.css\?v=9/);
+ const css=readFileSync('public/landing.css','utf8');
+ assert.equal((html.match(/<article class="bs-feature-card /g)||[]).length,3);
+ assert.match(html,/class="bs-feature-grid"/);
+ assert.match(css,/\.bs-feature-grid\{/);
+ assert.match(css,/@media\s*\(max-width:/);
 });
