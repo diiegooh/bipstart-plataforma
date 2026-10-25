@@ -29,7 +29,8 @@ test('o visual do cardápio tem título central sem banner, categorias, produtos
  for(const id of ['storeName','quickCategories','catalog','search','category','cartDrawer','cartItems','shipping','address','pay','cartTotal','sendOrder','error']){
   assert.ok(html.includes('id="'+id+'"'),id);
  }
- assert.match(html,/<div class="header-title">[\s\S]*<p class="menu-hero-heading"[^>]*>CARDÁPIO<\/p>[\s\S]*<div class="menu-hero-logo-card">[\s\S]*<img id="storeLogo"[^>]+src="\/bipstart-marca-icon\.png"[^>]*>[\s\S]*<h1 id="storeName">Sua loja<\/h1>/);
+ assert.match(html,/<div class="header-title">\s*<h1 id="storeName">Sua loja<\/h1>/);
+ assert.match(html,/<img id="storeLogo"[^>]+src="\/bipstart-marca-icon\.png"/);
  assert.doesNotMatch(html,/>CARDÁPIO <span id="storeName"|SABOR QUE CONQUISTA/);
  assert.doesNotMatch(html,/<section class="hero-green"|id="heroLogo"|id="heroOrder"|id="headerLogo"/);
  assert.doesNotMatch(html,/class="hero-copy"|CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP/);
