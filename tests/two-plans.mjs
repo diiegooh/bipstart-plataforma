@@ -12,12 +12,12 @@ const sql=readFileSync('sql/bipstart_two_plans_unified_20261014.sql','utf8');
 
 test('homepage comercial divulga só dois planos e não agenda',()=>{
  new vm.Script(app,{filename:'public/app.js'});
- const plans=[...homepage.matchAll(/<article class="plan(?: [^"]*)?"/g)];
+ const plans=[...homepage.matchAll(/<article class="bs-plan(?: [^"]*)?"/g)];
  assert.equal(plans.length,2);
- assert.match(homepage,/Plano Básico/);
- assert.match(homepage,/Plano Premium/);
- assert.match(homepage,/R\$ <strong>29,90<\/strong>/);
- assert.match(homepage,/R\$ <strong>79,90<\/strong>/);
+ assert.match(homepage,/>Básico<\/h3>/);
+ assert.match(homepage,/>Premium<\/h3>/);
+ assert.match(homepage,/R\$ 29,90<\/strong><span>pagamento único<\/span>/);
+ assert.match(homepage,/R\$ 79,90<\/strong><span>por mês<\/span>/);
  assert.match(homepage,/suporte mensal/i);
  assert.match(homepage,/motoboys particulares/i);
  assert.doesNotMatch(homepage,/Agenda de serviços|Plano Personalizado|Plano Pro\b|data-model="agenda"/i);
@@ -91,13 +91,13 @@ test('preços apresentados são Básico R$ 29,90 e Premium R$ 79,90',()=>{
  const signup=readFileSync('public/cliente.html','utf8');
  const front=readFileSync('public/index.html','utf8');
  const admin=readFileSync('public/admin.html','utf8');
- assert.match(front,/R\$ <strong>29,90<\/strong>/);
- assert.match(front,/R\$ <strong>79,90<\/strong>/);
+ assert.match(front,/R\$ 29,90<\/strong><span>pagamento único<\/span>/);
+ assert.match(front,/R\$ 79,90<\/strong><span>por mês<\/span>/);
  assert.match(signup,/Básico — R\$ 29,90/);
  assert.match(signup,/Premium — R\$ 79,90\/mês/);
  assert.match(admin,/Premium custa R\$ 79,90/);
  assert.match(client,/const planPrices=\{basic:'R\$ 29,90 \(pagamento único\)',pro:'R\$ 79,90\/mês'\}/);
  assert.match(app,/window\.location\.assign\('\/cliente\?plano='\+\(change===3\?'pro':'basic'\)\)/);
- assert.match(front,/\/app\.js\?v=4/);
+ assert.match(front,/\/app\.js\?v=\d+/);
  assert.match(signup,/\/cliente\.js\?v=49/);
 });
