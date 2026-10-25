@@ -1774,7 +1774,7 @@ function applyPdvCategoryFontSizes(){
  });
 }
 let pdvCategoriesResizePending=false;
-window.addEventListener('resize',()=>{
+if(typeof window!=='undefined' && typeof window.addEventListener==='function')window.addEventListener('resize',()=>{
  if(pdvCategoriesResizePending)return;
  pdvCategoriesResizePending=true;
  window.requestAnimationFrame(()=>{
