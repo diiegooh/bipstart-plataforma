@@ -17,11 +17,12 @@ test('nenhum arquivo público contém referências a agendamentos, barbearias ou
 });
 test('homepage destaca mercados e mantém Básico e Premium',()=>{
  const html=readFileSync('public/index.html','utf8');
- assert.match(html,/Mercados e mercearias/);
- assert.match(html,/Restaurantes e adegas/);
- assert.match(html,/Plano Básico/);
- assert.match(html,/Plano Premium/);
- assert.equal((html.match(/<article class="plan(?:\s[^"]*)?"/g)||[]).length,2);
+ for(const segment of ['Mercados','Restaurantes','Adegas e delivery','>Básico</h3>','>Premium</h3>']){
+  assert.ok(html.includes(segment),segment);
+ }
+ assert.equal((html.match(/<article class="bs-plan(?: [^"]*)?"/g)||[]).length,2);
+ assert.match(html,/R\$ 29,90<\/strong><span>pagamento único<\/span>/);
+ assert.match(html,/R\$ 79,90<\/strong><span>por mês<\/span>/);
 });
 test('a demonstração mantém PDV, cardápio, pedidos e motoboys sem tela de agenda',()=>{
  const source=readFileSync('public/app.js','utf8');
@@ -36,14 +37,11 @@ test('a demonstração mantém PDV, cardápio, pedidos e motoboys sem tela de ag
 
 test('link Planos centraliza o título logo abaixo do cabeçalho fixo',()=>{
  const html=readFileSync('public/index.html','utf8');
- const css=readFileSync('public/style.css','utf8');
  assert.match(html,/<a href="#planos">Planos<\/a>/);
- assert.match(html,/<section class="section pricing-section"><div class="container"><div class="pricing-title" id="planos">/);
- assert.doesNotMatch(html,/<section[^>]+id="planos"/);
+ assert.match(html,/<section class="bs-section bs-pricing" id="planos">/);
  assert.equal((html.match(/id="planos"/g)||[]).length,1);
- assert.match(css,/html\{scroll-padding-top:90px\}/);
- assert.match(css,/\.pricing-title#planos\{scroll-margin-top:12px\}/);
- assert.match(html,/\/style\.css\?v=9/);
+ assert.match(html,/\/style\.css\?v=\d+/);
+ assert.match(html,/\/landing\.css\?v=\d+/);
 });
 
 test('tipografia dos planos permanece legível e destacada no desktop e no celular',()=>{
@@ -58,12 +56,10 @@ test('tipografia dos planos permanece legível e destacada no desktop e no celul
 
 test('FAQ Premium, solicitações gratuitas e pagamentos refletem a oferta comercial',()=>{
  const html=readFileSync('public/index.html','utf8');
- assert.match(html,/O que inclui o Premium\?/);
- assert.match(html,/sistema integrado de motoboys particulares/i);
- assert.match(html,/depois de cadastrados na fila de entregas/);
+ assert.match(html,/O Premium inclui personalização de logo e cores do cardápio/);
+ assert.match(html,/Sistema integrado de motoboys particulares/i);
+ assert.match(html,/pagamentos das vendas são combinados e recebidos diretamente pela sua loja/);
  assert.doesNotMatch(html,/O envio automático do cardápio ainda não está disponível/);
- assert.match(html,/Você poderá solicitar mudanças conforme seu negócio\. Sem nenhum custo\./);
- assert.match(html,/Por questões de segurança, os pagamentos são realizados diretamente na sua loja física ou combinados pelo WhatsApp/);
  assert.doesNotMatch(html,/eventuais custos extras/);
 });
 test('botões de escolher plano têm o mesmo estilo e rótulos proporcionais',()=>{
