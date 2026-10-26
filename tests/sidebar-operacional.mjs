@@ -17,8 +17,8 @@ test('sidebar mantém engrenagem de configurações e botão Sair no rodapé',()
  assert.doesNotMatch(html,/id="sideColor"|id="sideColorPremium"|Alterar cor/);
  assert.doesNotMatch(html,/id="modeChooser"|id="backToModes"/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\\.js\\?v=\\d+/);
- assert.match(html,/cliente\\.css\\?v=\\d+/);
+ assert.ok(html.includes('/cliente.js?v='));
+ assert.ok(html.includes('/cliente.css?v='));
 });
 
 test('coluna mantém cardápio oficial e remove atalho de edição lateral',()=>{
