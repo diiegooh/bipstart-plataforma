@@ -99,7 +99,7 @@ test('lojista define senha com confirmação e nunca salva a senha no banco da l
  assert.match(linked,/Deixe vazio para manter a senha/);
  const legacy=render({id:'a',account_id:'x',login_managed:false,phone:'11999999999'});
  assert.doesNotMatch(legacy,/login_password/);
- assert.match(legacy,/conta por convite/);
+ assert.match(legacy,/Esta conta foi criada no sistema antigo/);
  assert.match(client,/A confirmação da senha do motoboy não confere/);
  assert.match(client,/provisionCourierAccess/);
  assert.match(client,/functions\/v1\/bipstart-courier-credentials/);
