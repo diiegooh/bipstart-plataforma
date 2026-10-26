@@ -179,10 +179,17 @@ test('o cardápio multiplica o total no card e não abre o carrinho ao adicionar
  assert.match(css,/\.product-quantity\{/);
 });
 
-test('vitrine pública sem botão de menu e sem botão Gerenciar cardápio',()=>{
- assert.doesNotMatch(html,/id="ownerNav"|id="ownerEditorLink"|Gerenciar cardápio|id="jumpCategories"|☰/);
+test('vitrine pública oferece opções informativas sem controles administrativos',()=>{
+ assert.match(html,/id="openStoreOptions"[^>]*aria-label="Abrir opções da loja"/);
+ assert.match(html,/id="storeOptions"[^>]*aria-label="Opções da loja"/);
+ assert.match(html,/id="closeStoreOptions"/);
+ assert.match(html,/id="storeLocation"/);
+ assert.match(html,/id="openingHours"/);
+ assert.match(html,/id="toggleMenuNight"/);
+ assert.match(js,/function setStoreOptions\(open\)/);
+ assert.match(js,/aria-expanded/);
+ assert.doesNotMatch(html,/id="ownerNav"|id="ownerEditorLink"|Gerenciar cardápio|id="jumpCategories"/);
  assert.doesNotMatch(js,/revealOwnerNavigation|ownerNav|jumpCategories/);
- assert.doesNotMatch(css,/\.owner-nav|\.owner-editor-link|\.menu-btn/);
  assert.doesNotMatch(html,/id="bottomCategories"/);
  assert.doesNotMatch(js,/bottomCategories/);
  assert.match(client,/function publicShopUrl\(\)/);
