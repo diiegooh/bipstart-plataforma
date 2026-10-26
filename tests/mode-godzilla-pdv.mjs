@@ -36,16 +36,16 @@ function pdv(props={}){
     {id:'c',name:'Café',category:'Bebidas',price:4,stock:8,active:true,image_path:null}
    ],
    cart:[{id:'a',name:'Coxinha especial',price:15,qty:2}],
-   pdvQuery:'',pdvCategory:'',pdvShowBestSellers:false,pdvInStockOnly:true,pdvPayment:'pix',pdvCardFeePercent:'3.99',...props
+   pdvQuery:'',pdvCategory:'',pdvShowBestSellers:false,pdvInStockOnly:true,pdvQuantityEntryProductId:null,pdvCheckoutOpen:false,pdvPayment:'pix',pdvCardFeePercent:'3.99',...props
  };
  const escapeHtml=x=>String(x??'').replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
  }[c]));
  return new Function(
-  'products','cart','pdvQuery','pdvCategory','pdvShowBestSellers','pdvInStockOnly','pdvPayment','pdvCardFeePercent','esc','fmt','imageUrl','publicShopUrl',
+  'products','cart','pdvQuery','pdvCategory','pdvShowBestSellers','pdvInStockOnly','pdvQuantityEntryProductId','pdvCheckoutOpen','floatingSaleEnabled','productCategoryStyle','lastReceipt','shop','pdvPayment','pdvCardFeePercent','esc','fmt','imageUrl','publicShopUrl',
   source+';return {filteredPdvProducts,pdvProductCards,renderGodzillaPDV,selectPdvPayment,currentPayment:()=>pdvPayment};'
  )(...[
-  data.products,data.cart,data.pdvQuery,data.pdvCategory,data.pdvShowBestSellers,data.pdvInStockOnly,data.pdvPayment,data.pdvCardFeePercent,
+  data.products,data.cart,data.pdvQuery,data.pdvCategory,data.pdvShowBestSellers,data.pdvInStockOnly,data.pdvQuantityEntryProductId,data.pdvCheckoutOpen,()=>false,()=>({color:'#eeeeee',text:'#111111',icon:'📦'}),null,{id:'test-shop'},data.pdvPayment,data.pdvCardFeePercent,
   escapeHtml,n=>'R$ '+Number(n).toFixed(2),path=>'https://cdn.bipstart.example/'+path,
   ()=>'https://bipstart.example/cardapio?loja=loja-de-teste'
  ]);
