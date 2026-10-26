@@ -143,6 +143,9 @@ test('motoboy entregue finaliza status do pedido sem alterar pagamento nem cance
  assert.match(sync,/set status='fulfilled'/);
  assert.match(sync,/o\.id=new\.online_order_id and o\.shop_id=new\.shop_id/);
  assert.match(sync,/o\.status not in \('cancelled','fulfilled'\)/);
+ assert.match(sync,/o\.shop_id=new\.shop_id/);
+ assert.match(sync,/o\.delivery_method='delivery'/);
+ assert.match(sync,/o\.status in \('awaiting_confirmation','confirmed','preparing'\)/);
  assert.match(sync,/new\.status='a_caminho'/);
  assert.match(sync,/set status='out_for_delivery'/);
  assert.doesNotMatch(sync,/set payment_status|update public\.shop_sales|delete from public\.shop_online_orders/i);
