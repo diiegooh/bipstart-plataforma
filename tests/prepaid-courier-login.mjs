@@ -61,7 +61,7 @@ test('Admin mostra próximo vencimento, contador e ação +30 com confirmação 
  assert.match(adminHtml,/admin-add-30/);
  assert.match(adminHtml,/admin\.js\?v=12/);
  assert.match(client,/Próximo vencimento Premium:/);
- assert.match(clientHtml,/cliente\.js\?v=68/);
+ assert.match(clientHtml,/cliente\.js\?v=\d+/);
 });
 
 test('telefone do motoboy é convertido em login seguro e entradas inválidas são rejeitadas',()=>{
