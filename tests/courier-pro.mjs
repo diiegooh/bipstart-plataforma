@@ -48,26 +48,22 @@ test('fila de entregas protege dados do cliente e oferece ações por status',()
  assert.match(driver,/await rpc\\('bipstart_courier_set_status'/);
  assert.match(driver,/window\\.open\\(mapUrl\\(destination\\)/);
 });
-test('painel motoboy oferece convite seguro e link de login com botões de compartilhar',()=>{
- const a=client.indexOf('function courierAccessUrl('),b=client.indexOf('function renderPage(){',a);
+test('painel compartilha link de login do motoboy sem convite',()=>{
+ const a=client.indexOf('function courierAccessUrl('),b=client.indexOf('function stockImportPanel()',a);
  assert.ok(a>=0&&b>a);
- const url=new Function(client.slice(a,b)+';return courierAccessUrl;')();
- assert.equal(url({invite_code:'convite-teste',account_id:null},'https://bipstart.example'),
-  'https://bipstart.example/motoboy?convite=convite-teste');
- assert.equal(url({invite_code:null,account_id:'conta-vinculada'},'https://bipstart.example'),
-  'https://bipstart.example/motoboy');
+ const url=new Function('location',client.slice(a,b)+';return courierAccessUrl;')({origin:'https://bipstart.example'});
+ assert.equal(url({account_id:'conta-vinculada'},'https://bipstart.example'),'https://bipstart.example/motoboy');
  assert.match(client,/data-share-courier/);
  assert.match(client,/data-copy-invite/);
  assert.match(client,/Compartilhar link/);
  assert.match(client,/Copiar link/);
  assert.match(client,/Link de login do motoboy/);
- assert.match(client,/if\(tab!=='motoboys'\|\|!proAccess\(\)\)return/);
- assert.match(client,/navigator\.share/);
- assert.match(client,/navigator\.clipboard\.writeText\(link\)/);
+ assert.match(client,/navigator\\.share/);
+ assert.match(client,/navigator\\.clipboard\\.writeText\\(link\\)/);
  assert.match(client,/case 'courierForm'/);
- assert.match(driver,/new URLSearchParams\(location\.search\)\.get\('convite'\)/);
+ assert.match(page,/name="login"/);
+ assert.doesNotMatch(page,/id="inviteForm"/);
 });
-
 test('os motoboys aparecem somente em Pro com acesso vigente',()=>{
  const start=client.indexOf('function trialValid(){');
  const stop=client.indexOf('function contactUrl(',start);
