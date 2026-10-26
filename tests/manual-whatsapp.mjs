@@ -105,7 +105,7 @@ test('admin mostra e-mail cadastrado por loja, com escape de HTML e RPC autoriza
  assert.match(sql,/join auth\.users u on u\.id=s\.owner_id/);
  assert.match(sql,/a\.user_id=auth\.uid\(\)/);
  assert.match(sql,/revoke all on function public\.bipstart_admin_list_shops_with_emails\(\) from public,anon/);
- assert.match(admin,/request\('bipstart_admin_list_shops_with_emails'\)/);
+ assert.match(admin,/request\('bipstart_admin_list_shops_with_contacts'\)/);
  assert.match(admin,/escapeHtml\(item\.owner_email/);
  assert.match(readFileSync('public/admin.html','utf8'),/admin\.js\?v=8/);
 });
