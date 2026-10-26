@@ -349,7 +349,7 @@ async function refreshOnlineOrdersIfVisible(){
    const previousIds=knownOnlineOrderIds;
    const newOrders=previousIds===null?[]:latest.filter(o=>!previousIds.has(o.id));
    knownOnlineOrderIds=new Set(latest.map(o=>o.id));
-   const sig=rows=>rows.map(o=>o.id+':'+o.status+':'+o.payment_status).join('|');
+   const sig=rows=>rows.map(o=>[o.id,o.status,o.payment_status,o.delivery_method,o.customer_name,o.customer_phone,o.delivery_address,o.total,JSON.stringify(o.items||[])].join(':')).join('|');
    const changed=sig(latest)!==sig(onlineOrders);
    if(newOrders.length){
      playNewOrderSound();
