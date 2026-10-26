@@ -155,7 +155,7 @@ test('Painel Premium permite vincular pedido pelo botão e acompanhar mudanças 
  assert.match(client,/e\.target\.matches\('#deliveryForm select\[name="online_order_id"\]'\)/);
  assert.match(client,/refreshOnlineOrdersIfVisible/);
  assert.match(client,/setInterval\(\(\)=>\{void refreshOnlineOrdersIfVisible\(\)\},15000\)/);
- assert.match(client,/onlineOrders=latest;renderPage\(\)/);
+ assert.match(client,/if\(changed\)\{onlineOrders=latest;if\(tab==='pedidos'\|\|tab==='entregas'\)renderPage\(\);else renderNav\(\);\}/);
  assert.match(client,/if\(!proAccess\(\)\)return msg\('Entregas com motoboys são exclusivas do Premium\.'/);
  const tracker=readFileSync('public/acompanhar.js','utf8');
  assert.match(tracker,/setInterval\(refreshTracking,20000\)/);
