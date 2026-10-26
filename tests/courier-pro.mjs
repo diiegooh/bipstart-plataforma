@@ -47,6 +47,9 @@ test('fila de entregas protege dados do cliente e oferece ações por status',()
  assert.match(mapUrl(row.address),/destination=Rua%20A/);
  assert.match(driver,/await rpc\('bipstart_courier_set_status'/);
  assert.match(driver,/window\.open\(mapUrl\(destination\)/);
+ const statusCall=driver.indexOf("await rpc('bipstart_courier_set_status'",driver.indexOf("document.addEventListener('click'"));
+ const mapOpen=driver.indexOf('window.open(mapUrl(destination)',statusCall);
+ assert.ok(statusCall>=0&&mapOpen>statusCall,'a rota deve abrir após a confirmação do servidor');
 });
 test('painel compartilha link de login do motoboy sem convite',()=>{
  const a=client.indexOf('function courierAccessUrl('),b=client.indexOf('function stockImportPanel()',a);
