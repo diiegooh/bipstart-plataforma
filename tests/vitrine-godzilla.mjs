@@ -297,7 +297,7 @@ test('cardápio online oferece somente formas de pagamento configuradas, sem A c
  const end=js.indexOf('const categories=categoryNames();',start);
  assert.ok(start>0&&end>start);
  // O trecho dinâmico só inclui as formas habilitadas na loja.
- assert.match(js.slice(start,end),/Object\.entries\(paymentLabels\)\.filter/);
+ assert.match(js.slice(start,end),/\.filter\(x=>Object\.hasOwn\(paymentLabels,x\)\)/);
  assert.match(js.slice(start,end),/menu\.payment_methods/);
  assert.doesNotMatch(js.slice(start,end),/A combinar|a_combinar/);
 });
