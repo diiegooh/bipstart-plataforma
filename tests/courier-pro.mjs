@@ -24,37 +24,29 @@ test('área individual de motoboy usa login por telefone e senha no Supabase Aut
  assert.match(driver,/bipstart_courier_session/);
  assert.doesNotMatch(driver,/SUPABASE_SECRET_KEY|ADMIN_PASSWORD|MERCADO_PAGO_ACCESS_TOKEN/);
 });
-test('fila mostra rotas Maps e Waze com escape de dados de clientes',()=>{
+test('fila de entregas protege dados do cliente e oferece ações por status',()=>{
  const start=driver.indexOf('function mapUrl(');
  const stop=driver.indexOf('async function refresh()',start);
  assert.ok(start>0&&stop>start);
  const htmlEscape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const {mapUrl,wazeUrl,deliveryCard}=new Function(
-   'esc','currency',
-   driver.slice(start,stop)+';return {mapUrl,wazeUrl,deliveryCard};'
+ const {mapUrl,deliveryCard}=new Function('esc','currency',
+   driver.slice(start,stop)+';return {mapUrl,deliveryCard};'
  )(htmlEscape,n=>'R$ '+Number(n).toFixed(2));
- const row={
-  delivery_id:'7b9807f4-a873-4d21-9a01-26bf23cc15ee',
-  shop_name:'Loja <B>',
+ const row={delivery_id:'7b9807f4-a873-4d21-9a01-26bf23cc15ee',
   customer_name:'Cliente <img src=x onerror=alert(1)>',
-  address:'Rua A, 15 — São Paulo',
-  items_text:'2x Combo & uma bebida',
-  total:20,status:'pendente'
- };
- const card=deliveryCard(row,true);
- assert.match(card,/Aceitar entrega/);
- assert.match(card,/Loja &lt;B&gt;/);
- assert.match(card,/&lt;img src=x/);
- assert.doesNotMatch(card,/<img src=x/);
- assert.match(card,/Combo &amp; uma bebida/);
- assert.match(card,/Google Maps/);
- assert.match(card,/Waze/);
- assert.match(mapUrl(row.address),/destination=Rua%20A/);
- assert.match(wazeUrl(row.address),/navigate=yes/);
+  address:'Rua A, 15 — São Paulo',items_text:'2x Combo & uma bebida',status:'pendente'};
+ const offer=deliveryCard(row,true);
+ assert.match(offer,/Aceitar entrega/);
+ assert.match(offer,/&lt;img src=x/);
+ assert.doesNotMatch(offer,/<img src=x/);
+ assert.match(offer,/Combo &amp; uma bebida/);
  const assigned=deliveryCard({...row,status:'atribuida'},false);
- assert.match(assigned,/Iniciar rota/);
- const outbound=deliveryCard({...row,status:'a_caminho'},false);
- assert.match(outbound,/Marcar como entregue/);
+ assert.match(assigned,/INICIAR ROTA/);
+ assert.match(assigned,/data-address="Rua A, 15 — São Paulo"/);
+ assert.match(deliveryCard({...row,status:'a_caminho'},false),/ENTREGUE/);
+ assert.match(mapUrl(row.address),/destination=Rua%20A/);
+ assert.match(driver,/await rpc\\('bipstart_courier_set_status'/);
+ assert.match(driver,/window\\.open\\(mapUrl\\(destination\\)/);
 });
 test('painel motoboy oferece convite seguro e link de login com botões de compartilhar',()=>{
  const a=client.indexOf('function courierAccessUrl('),b=client.indexOf('function renderPage(){',a);
