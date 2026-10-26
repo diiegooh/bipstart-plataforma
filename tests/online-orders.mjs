@@ -24,7 +24,7 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrine,/checkoutMessage\(receipt\.id\)/);
  assert.match(vitrine,/showCheckoutNextStep\(receipt\)/);
  assert.match(vitrineHtml,/id="trackingReady"/);
- assert.match(vitrineHtml,/id="copyTrackingUrl"/);
+ assert.match(vitrineHtml,/id="trackingUrl"/);
  assert.match(vitrineHtml,/id="sendPreparedWhatsapp"/);
  assert.match(vitrine,/trackingLinkFor\(receipt\.id,orderToken\)/);
  assert.doesNotMatch(vitrine,/location\.assign\(url\)/);
