@@ -62,7 +62,9 @@ test('PDV estilo Godzilla tem busca, categoria, grade de produtos e caixa lado a
  assert.match(markup,/class="pdv-panel pdv-catalog"/);
  assert.match(markup,/class="pdv-panel pdv-sale-panel"/);
  assert.match(markup,/id="pdvSearch"/);
- assert.match(markup,/id="pdvCategory"/);
+ assert.match(markup,/class="pdv-category-tiles"/);
+ assert.match(markup,/data-pdv-category="Bebidas"/);
+ assert.match(markup,/data-pdv-best-sellers/);
  assert.match(markup,/id="pdvProducts"/);
  assert.match(markup,/data-cart="a"/);
  assert.match(markup,/data-qty-less="a"/);
