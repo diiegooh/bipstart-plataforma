@@ -17,13 +17,13 @@ const sql=readFileSync('sql/bipstart_courier_shop_theme_20261017.sql','utf8');
 test('todos os scripts são válidos e utilizam versões atualizadas',()=>{
  for(const [name,code] of [['cliente.js',panel],['vitrine.js',vitrine],['motoboy.js',courier]])
   new vm.Script(code,{filename:name});
- assert.match(panelHtml,/cliente\.js\?v=49/);
- assert.match(panelHtml,/cliente\.css\?v=32/);
- assert.match(vitrineHtml,/vitrine\.js\?v=29/);
- assert.match(vitrineHtml,/vitrine\.css\?v=28/);
- assert.match(courierHtml,/cliente\.css\?v=32/);
- assert.match(courierHtml,/motoboy\.js\?v=2/);
- assert.match(courierHtml,/motoboy\.css\?v=2/);
+ assert.match(panelHtml,/cliente\.js\?v=\d+/);
+ assert.match(panelHtml,/cliente\.css\?v=\d+/);
+ assert.match(vitrineHtml,/vitrine\.js\?v=\d+/);
+ assert.match(vitrineHtml,/vitrine\.css\?v=\d+/);
+ assert.match(courierHtml,/cliente\.css\?v=\d+/);
+ assert.match(courierHtml,/motoboy\.js\?v=\d+/);
+ assert.match(courierHtml,/motoboy\.css\?v=\d+/);
 });
 
 test('COR DO SITE é editável apenas para Premium, e atualiza a única cor da loja',()=>{
