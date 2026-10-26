@@ -8,20 +8,19 @@ const driver=readFileSync('public/motoboy.js','utf8');
 const page=readFileSync('public/motoboy.html','utf8');
 const server=readFileSync('server.mjs','utf8');
 
-test('área individual de motoboy com login, convite e acesso por Supabase Auth',()=>{
+test('área individual de motoboy usa login por telefone e senha no Supabase Auth',()=>{
  new vm.Script(driver,{filename:'public/motoboy.js'});
- for(const id of ['loginForm','signupForm','inviteForm','offers','assignments','refresh','logout']){
+ for(const id of ['loginForm','authPanel','dashboard','deliveries','refresh','logout']){
   assert.ok(page.includes('id="'+id+'"'),id);
  }
- assert.match(driver,/auth\/v1\/token\?grant_type=password/);
- assert.match(driver,/auth\/v1\/signup\?redirect_to=/);
- assert.match(driver,/gotrue_meta_security/);
- assert.match(driver,/bipstart_courier_claim_invite/);
+ assert.match(page,/name="login"/);
+ assert.match(page,/name="password"/);
+ assert.match(driver,/auth\\/v1\\/token\\?grant_type=password/);
+ assert.match(driver,/courierLoginEmail/);
  assert.match(driver,/bipstart_courier_my_shops/);
  assert.match(driver,/bipstart_courier_queue/);
  assert.match(driver,/bipstart_courier_accept/);
  assert.match(driver,/bipstart_courier_set_status/);
- assert.match(driver,/window\.turnstile\.render/);
  assert.match(driver,/bipstart_courier_session/);
  assert.doesNotMatch(driver,/SUPABASE_SECRET_KEY|ADMIN_PASSWORD|MERCADO_PAGO_ACCESS_TOKEN/);
 });
