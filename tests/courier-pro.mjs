@@ -58,8 +58,8 @@ test('painel compartilha link de login do motoboy sem convite',()=>{
  assert.match(client,/Compartilhar link/);
  assert.match(client,/Copiar link/);
  assert.match(client,/Link de login do motoboy/);
- assert.match(client,/navigator\\.share/);
- assert.match(client,/navigator\\.clipboard\\.writeText\\(link\\)/);
+ assert.match(client,/navigator\.share/);
+ assert.match(client,/navigator\.clipboard\.writeText\(link\)/);
  assert.match(client,/case 'courierForm'/);
  assert.match(page,/name="login"/);
  assert.doesNotMatch(page,/id="inviteForm"/);
