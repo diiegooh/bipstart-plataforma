@@ -43,12 +43,12 @@ function mockNav(premium){
  const start=js.indexOf('function operationalMenuItems(){');
  const end=js.indexOf('function heading(',start);
  assert.ok(start>=0&&end>start);
- const create=new Function("$","esc","tab","shop","proAccess","canCustomize","imageUrl","publicShopUrl","document",
+ const create=new Function("$","esc","tab","shop","proAccess","canCustomize","imageUrl","publicShopUrl","document","onlineOrders",
   js.slice(start,end)+';return renderNav;');
  const render=create(node,x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
   'caixa',{name:'Adega <Teste>',logo_path:'loja-id/logo.png'},()=>premium,()=>premium,
   path=>'https://images.example/'+path,()=>'https://bipstart.example/cardapio?loja=adega-teste',
-  {documentElement:{style:{setProperty(){}}},querySelector(){return null;}});
+  {documentElement:{style:{setProperty(){}}},querySelector(){return null;}},[]);
  render();
  return {node};
 }
