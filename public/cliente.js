@@ -356,7 +356,7 @@ async function refreshOnlineOrdersIfVisible(){
      renderNav();
      if(tab!=='pedidos')msg('🔔 Novo pedido online recebido!');
    }
-   if(changed){onlineOrders=latest;if(tab==='pedidos')renderPage();else renderNav();}
+   if(changed){onlineOrders=latest;if(tab==='pedidos'||tab==='entregas')renderPage();else renderNav();}
  }catch(error){console.warn('Atualização de pedidos indisponível:',error.message);}
  finally{onlineOrdersPolling=false;}
 }
