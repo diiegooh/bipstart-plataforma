@@ -95,7 +95,7 @@ test('preços apresentados são Básico R$ 29,90 e Premium R$ 79,90',()=>{
  assert.match(front,/R\$ 79,90<\/strong><span>por mês<\/span>/);
  assert.match(signup,/Básico — R\$ 29,90/);
  assert.match(signup,/Premium — R\$ 79,90\/mês/);
- assert.match(admin,/Premium custa R\$ 79,90/);
+ assert.match(admin,/Premium pago custa R\$ 79,90 por mês/);
  assert.match(client,/const planPrices=\{basic:'R\$ 29,90 \(pagamento único\)',pro:'R\$ 79,90\/mês'\}/);
  assert.match(app,/window\.location\.assign\('\/cliente\?plano='\+\(change===3\?'pro':'basic'\)\)/);
  assert.match(front,/\/app\.js\?v=\d+/);
