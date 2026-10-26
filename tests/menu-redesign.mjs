@@ -13,14 +13,14 @@ test('arquivos frontend e servidor sem erros de sintaxe',()=>{
 });
 const escaped=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function publicHelpers(){
- const a=publicJS.indexOf('function categoryGroups('),b=publicJS.indexOf('function totalItems(){');
+ const a=publicJS.indexOf('function categoryGroups('),b=publicJS.indexOf('function renderCatalog(){');
  assert.ok(a>=0&&b>a);
- return new Function('esc','money','menu',
-  publicJS.slice(a,b)+';return {categoryGroups,categoryCard,productCard,normalizeWhatsApp};'
- )(escaped,v=>Number(v).toFixed(2),{src:'https://cdn.exemplo'});
+ return new Function('esc','money','imageUrl',
+  publicJS.slice(a,b)+';return {categoryGroups,productCard};'
+ )(escaped,v=>'R$ '+Number(v).toFixed(2),path=>'https://cdn.exemplo/'+path);
 }
-test('categorias são separadas por loja e aparecem fechadas',()=>{
- const {categoryGroups,categoryCard}=publicHelpers();
+test('categorias são separadas e produtos exibidos com escape de HTML',()=>{
+ const {categoryGroups,productCard}=publicHelpers();
  const data={categories:[{name:'Combos'},{name:'Bebidas'}],
   items:[{id:'1',category:'Combos',name:'Combo <teste>',price:20,description:'Pão & bacon'},
          {id:'2',category:'Bebidas',name:'Suco',price:8},
@@ -28,37 +28,45 @@ test('categorias são separadas por loja e aparecem fechadas',()=>{
  const groups=categoryGroups(data);
  assert.deepEqual(groups.map(c=>c.name),['Combos','Bebidas','Novidades']);
  assert.equal(groups[0].items.length,1);
- const menuHtml=categoryCard(groups[0]);
- assert.match(menuHtml,/<details class="category"><summary>/);
- assert.doesNotMatch(menuHtml,/<details[^>]*open/);
- assert.match(menuHtml,/Combo &lt;teste&gt;/);
- assert.match(menuHtml,/Pão &amp; bacon/);
- assert.doesNotMatch(menuHtml,/stock|estoque/i);
+ const productHtml=productCard(groups[0].items[0]);
+ assert.match(productHtml,/Combo &lt;teste&gt;/);
+ assert.match(productHtml,/Pão &amp; bacon/);
+ assert.match(productHtml,/data-add="1"/);
+ assert.doesNotMatch(productHtml,/stock|estoque/i);
+ assert.match(publicJS,/data-category/);
+ assert.match(publicJS,/categoryChips/);
 });
-test('carrinho calcula quantidade, taxa de entrega e resumo WhatsApp',()=>{
+test('carrinho calcula quantidade, entrega e mensagem WhatsApp com validação',()=>{
  const start=publicJS.indexOf('function totalItems(){');
- const end=publicJS.indexOf("document.addEventListener('click'",start);
- assert.ok(start>0&&end>start);
+ const end=publicJS.indexOf('function render(){',start);
+ const msgStart=publicJS.indexOf('function checkoutMessage(');
+ const msgEnd=publicJS.indexOf('async function placeOnlineOrder(',msgStart);
+ assert.ok(start>=0&&end>start&&msgStart>end&&msgEnd>msgStart);
  const elements={
   shippingMode:{value:'delivery'},
   deliveryAddress:{value:'Rua Exemplo, 123 - Centro'},
+  customerName:{value:'Cliente Teste'},
+  customerPhone:{value:'11999999999'},
+  paymentMethod:{value:'pix'},
   orderNotes:{value:'Sem cebola'}
  };
  const cart=new Map([['a',2],['b',1]]);
  const menu={name:'gamalperfumes',delivery_fee:6,items:[{id:'a',name:'Combo',price:15},{id:'b',name:'Suco',price:8}]};
- const methods=new Function('$','cart','menu','money',publicJS.slice(start,end)+
-   ';return {totalItems,subtotal,deliveryCost,checkoutMessage};')(
-   id=>elements[id],cart,menu,v=>'R$ '+Number(v).toFixed(2));
+ const methods=new Function('$','cart','menu','money','paymentLabels',
+  publicJS.slice(start,end)+publicJS.slice(msgStart,msgEnd)+
+  ';return {totalItems,subtotal,deliveryCost,checkoutMessage};')(
+  id=>elements[id],cart,menu,v=>'R$ '+Number(v).toFixed(2),{pix:'Pix'});
  assert.equal(methods.totalItems(),3);
  assert.equal(methods.subtotal(),38);
  assert.equal(methods.deliveryCost(),6);
- const message=methods.checkoutMessage();
+ const message=methods.checkoutMessage('abc12345','https://exemplo.test/pedido/abc12345');
  assert.match(message,/2x Combo/);
- assert.match(message,/Total: R\$ 44\.00/);
+ assert.match(message,/Total: R\\$ 44\\.00/);
  assert.match(message,/Rua Exemplo, 123/);
  assert.match(message,/Sem cebola/);
+ assert.match(message,/Cliente Teste/);
  elements.deliveryAddress.value='';
- assert.throws(()=>methods.checkoutMessage(),/endereço completo/);
+ assert.throws(()=>methods.checkoutMessage('abc12345','https://exemplo.test'),/endereço completo/);
 });
 test('painel do lojista mantém estoque no PDV, não no cardápio',()=>{
  const start=client.indexOf('function productForm(');
