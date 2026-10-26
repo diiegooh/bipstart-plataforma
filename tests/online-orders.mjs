@@ -82,7 +82,7 @@ test('dashboard apresenta dados e controles de pagamento; escapa nome/endereço 
  assert.doesNotMatch(card,/<script>/);
  assert.match(card,/Rua &lt;img/);
  assert.match(card,/11987654321/);
- assert.match(card,/<strong class="online-phone-line">[\s\S]*?class="online-order-whatsapp"/);
+ assert.match(card,/<a href="tel:\+5511987654321">11987654321<\/a>/);
  assert.match(card,/href="https:\/\/wa\.me\/5511987654321"/);
  assert.match(card,/aria-label="Conversar com João &lt;script&gt;alert\(1\)&lt;\/script&gt; no WhatsApp"/);
  assert.match(card,/<svg viewBox="0 0 24 24"/);
