@@ -64,7 +64,7 @@ test('Admin mostra próximo vencimento, contador e ação +30 com confirmação 
  assert.match(clientHtml,/cliente\.js\?v=68/);
 });
 
-test('telefone do motoboy vira login seguro; conta antiga por e-mail continua funcionando',()=>{
+test('telefone do motoboy é convertido em login seguro e entradas inválidas são rejeitadas',()=>{
  new vm.Script(driver);
  const start=driver.indexOf('function courierLoginEmail(input){');
  const stop=driver.indexOf("$('loginForm').onsubmit",start);
@@ -72,16 +72,12 @@ test('telefone do motoboy vira login seguro; conta antiga por e-mail continua fu
  const login=new Function(driver.slice(start,stop)+';return courierLoginEmail;')();
  assert.equal(login('11 98888-7777'),'courier-5511988887777@login.bipstart.example');
  assert.equal(login('+55 (11) 98888-7777'),'courier-5511988887777@login.bipstart.example');
- assert.equal(login('11 98888-7777'),'courier-5511988887777@login.bipstart.example');
- assert.equal(login('entregador@example.org'),'entregador@example.org');
- assert.throws(()=>login('abc'),/Informe seu telefone/);
- assert.match(driverHtml,/Telefone com DDD ou e-mail antigo/);
+ assert.throws(()=>login('entregador@example.org'),/telefone com DDD/);
+ assert.throws(()=>login('abc'),/telefone com DDD/);
  assert.match(driverHtml,/name="login"/);
  assert.match(driverHtml,/autocomplete="current-password"/);
  assert.match(driver,/courierLoginEmail\(form\.elements\.namedItem\('login'\)\.value\)/);
  assert.match(driver,/auth\/v1\/token\?grant_type=password/);
- assert.match(driver,/bipstart_courier_claim_invite/);
- assert.match(driverHtml,/Tenho convite antigo/);
 });
 
 test('lojista define senha com confirmação e nunca salva a senha no banco da loja',()=>{
