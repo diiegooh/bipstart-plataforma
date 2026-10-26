@@ -192,14 +192,14 @@ document.addEventListener('click',async e=>{
  try{
   if(action==='accept')await rpc('bipstart_courier_accept',{p_delivery_id:id});
   else {
-   if(action==='start'){
-    const destination=button.dataset.address||'';
-    if(destination.trim())window.open(mapUrl(destination),'_blank','noopener,noreferrer');
-   }
    await rpc('bipstart_courier_set_status',{
     p_delivery_id:id,
     p_status:action==='start'?'a_caminho':'entregue'
    });
+   if(action==='start'){
+    const destination=button.dataset.address||'';
+    if(destination.trim())window.open(mapUrl(destination),'_blank','noopener,noreferrer');
+   }
   }
   message(action==='accept'?'Entrega aceita com sucesso.':
    action==='start'?'Rota iniciada. Boa entrega!':'Entrega concluída e pedido finalizado.');
