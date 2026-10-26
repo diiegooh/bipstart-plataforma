@@ -53,7 +53,7 @@ test('cada vitrine consulta o cardápio da própria loja no Supabase',()=>{
  assert.match(js,/menu\.logo_path/);
  assert.match(js,/function displayStoreLogo\(\)/);
  assert.match(html,/id="storeLogo"/);
- assert.match(js,/menu\.brand_color/);
+ assert.match(js,/menu\?\.brand_color\|\|menu\?\.menu_theme_color/);
  assert.match(js,/categoryNames\(\)/);
  assert.match(js,/imageUrl\(item\.image_path\)/);
  assert.match(js,/encodeURIComponent\(checkoutMessage\(receipt\.id\)\)/);
