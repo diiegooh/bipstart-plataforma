@@ -15,7 +15,7 @@ test('área individual de motoboy usa login por telefone e senha no Supabase Aut
  }
  assert.match(page,/name="login"/);
  assert.match(page,/name="password"/);
- assert.match(driver,/auth\\/v1\\/token\\?grant_type=password/);
+ assert.match(driver,/auth\/v1\/token\?grant_type=password/);
  assert.match(driver,/courierLoginEmail/);
  assert.match(driver,/bipstart_courier_my_shops/);
  assert.match(driver,/bipstart_courier_queue/);
@@ -45,8 +45,8 @@ test('fila de entregas protege dados do cliente e oferece ações por status',()
  assert.match(assigned,/data-address="Rua A, 15 — São Paulo"/);
  assert.match(deliveryCard({...row,status:'a_caminho'},false),/ENTREGUE/);
  assert.match(mapUrl(row.address),/destination=Rua%20A/);
- assert.match(driver,/await rpc\\('bipstart_courier_set_status'/);
- assert.match(driver,/window\\.open\\(mapUrl\\(destination\\)/);
+ assert.match(driver,/await rpc\('bipstart_courier_set_status'/);
+ assert.match(driver,/window\.open\(mapUrl\(destination\)/);
 });
 test('painel compartilha link de login do motoboy sem convite',()=>{
  const a=client.indexOf('function courierAccessUrl('),b=client.indexOf('function stockImportPanel()',a);
