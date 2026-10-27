@@ -117,24 +117,25 @@ test('cards de pedidos exibem número, dados, pagamento/total, cliente e ações
   status:'out_for_delivery',items:[{qty:2,name:'Produto',total:50}],subtotal:50,delivery_fee:5,total:55};
  const card=draw(order);
  const markers=[
-  'class="online-order-top"',
-  'class="online-order-section online-order-products"',
+  'class="online-order-head"',
+  'Dados do Cliente',
+  'Itens do Pedido',
   'class="online-order-section online-order-payment"',
-  'class="online-order-total-row"',
-  'class="online-order-section online-order-customer"',
-  'class="online-order-actions"'
+  'class="online-order-section online-order-quick"'
  ];
  const positions=markers.map(x=>card.indexOf(x));
  assert.ok(positions.every(x=>x>=0));
  assert.deepEqual(positions,[...positions].sort((a,b)=>a-b));
- assert.match(card,/class="online-order-identifier"/);
- assert.match(card,/Dados do pedido/);
- assert.match(card,/Pagamento e total/);
- assert.match(card,/Dados do cliente/);
+ assert.match(card,/PEDIDO #11111111/);
+ assert.match(card,/Dados do Cliente/);
+ assert.match(card,/Itens do Pedido/);
+ assert.match(card,/Forma de Pagamento/);
+ assert.match(card,/Total do Pedido/);
+ assert.match(card,/Ações Rápidas/);
  assert.match(card,/data-order-finish=/);
  assert.match(card,/data-payment-cancel=/);
- assert.ok(card.indexOf('data-order-finish=')>card.indexOf('online-order-customer'));
- assert.ok(card.indexOf('data-payment-cancel=')>card.indexOf('online-order-customer'));
+ assert.ok(card.indexOf('data-order-finish=')>card.indexOf('Itens do Pedido'));
+ assert.ok(card.indexOf('data-payment-cancel=')>card.indexOf('Itens do Pedido'));
  assert.match(css,/#workspace \.online-order-actions-heading\{grid-column:1\/-1/);
  assert.match(css,/@media\(max-width:440px\)/);
 });
