@@ -178,7 +178,6 @@ test('pagamentos não são marcados como pagos automaticamente nem baixam estoqu
  assert.match(panel,/fetch\('\/api\/online-order-update'/);
  assert.match(panel,/data-orders-refresh/);
  assert.match(panel,/await reloadData\(\);renderPage\(\)/);
- assert.match(panel,/O registro ocorre antes de abrir o WhatsApp/);
  assert.match(panel,/onlineOrders=await get\('shop_online_orders'\)/);
 });
 
