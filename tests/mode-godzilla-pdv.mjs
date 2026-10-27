@@ -54,7 +54,7 @@ function pdv(props={}){
 test('PDV estilo Godzilla tem busca, categoria, grade de produtos e caixa lado a lado',()=>{
  const ui=pdv();
  const markup=ui.renderGodzillaPDV();
- assert.match(markup,/<div class="pdv-title"><h2>PDV<\/h2><\/div>/);
+ assert.match(markup,/<div class="pdv-title"><h2>PDV<\/h2><label class="pdv-search-label pdv-search-top">/);
  assert.doesNotMatch(markup,/VENDA PRESENCIAL|Produtos, estoque e vendas integrados ao seu cardápio\./);
  for(const text of ['Produtos da loja','Venda atual','Forma de pagamento','Dinheiro','Cartão','Pix','Crédito','Débito','Finalizar venda']){
   assert.ok(markup.includes(text),text);
