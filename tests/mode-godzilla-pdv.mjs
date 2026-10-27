@@ -42,12 +42,13 @@ function pdv(props={}){
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
  }[c]));
  return new Function(
-  'products','cart','pdvQuery','pdvCategory','pdvInStockOnly','pdvShowBestSellers','pdvPayment','pdvCardFeePercent','esc','fmt','imageUrl','publicShopUrl',
+  'products','cart','pdvQuery','pdvCategory','pdvInStockOnly','pdvShowBestSellers','pdvPayment','pdvCardFeePercent','esc','fmt','imageUrl','publicShopUrl','window',
   source+';return {filteredPdvProducts,pdvProductCards,renderGodzillaPDV,selectPdvPayment,currentPayment:()=>pdvPayment};'
  )(...[
   data.products,data.cart,data.pdvQuery,data.pdvCategory,data.pdvInStockOnly,data.pdvShowBestSellers,data.pdvPayment,data.pdvCardFeePercent,
   escapeHtml,n=>'R$ '+Number(n).toFixed(2),path=>'https://cdn.bipstart.example/'+path,
-  ()=>'https://bipstart.example/cardapio?loja=loja-de-teste'
+  ()=>'https://bipstart.example/cardapio?loja=loja-de-teste',
+ {addEventListener:()=>{}}
  ]);
 }
 test('PDV estilo Godzilla tem busca, categoria, grade de produtos e caixa lado a lado',()=>{
