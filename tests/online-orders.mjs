@@ -86,7 +86,7 @@ test('dashboard apresenta dados e controles de pagamento; escapa nome/endereço 
  assert.match(card,/<a href="tel:\+5511987654321">11987654321<\/a>/);
  assert.match(card,/href="https:\/\/wa\.me\/5511987654321"/);
  assert.match(card,/href="https:\/\/wa\.me\/5511987654321"/);
- assert.match(card,/<svg viewBox="0 0 24 24"/);
+ assert.match(card,/>WhatsApp<\/a>/);
  assert.doesNotMatch(card,/WhatsApp do cliente ↗|online-order-contact/);
  assert.match(card,/Pagamento/);
  assert.match(card,/Aguardando pagamento/);
@@ -204,7 +204,7 @@ test('situação do pedido avança por etapas e apresenta a próxima ação',()=
   delivery_method:'pickup',payment_method:'pix',status:'confirmed',payment_status:'pending',items:[],subtotal:10,delivery_fee:0,total:10};
  const ongoing=api.onlineOrderCard(order);
  assert.match(ongoing,/Iniciar preparo/);
- assert.match(ongoing,/Cancelar pedido/);
+ assert.match(ongoing,/Cancelar Pedido/);
  assert.match(ongoing,/Confirmar pagamento/);
  const delivery=api.onlineOrderCard({...order,delivery_method:'delivery',status:'preparing'});
  assert.match(delivery,/Saiu para entrega/);
