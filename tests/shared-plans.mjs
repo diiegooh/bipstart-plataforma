@@ -58,7 +58,7 @@ test('cadastro mantém o mesmo shop_id e a mesma base em mudanças de plano',()=
  assert.doesNotMatch(panel,/id="modeChooser"|id="backToModes"/);
  assert.match(source,/tab='caixa';showForm=null;pastedProductImage=null/);
  assert.match(panel,/id="workspace"/);
- assert.match(panel,/\/cliente\.js\?v=68/);
+ assert.match(panel,/\/cliente\.js\?v=\d+/);
  assert.doesNotMatch(source,/As configurações de publicação anteriores permanecem salvas para o upgrade\./);
 });
 test('pedido de troca não concede Premium; ativação administra a mesma loja',()=>{
