@@ -110,6 +110,8 @@ test('Mais vendidos é filtro de categoria, respeita estoque, destaque e escape 
  assert.match(full,/data-cart="a" disabled/);
  assert.deepEqual(pdv({products:products.map(p=>({...p,is_best_seller:false})),pdvShowBestSellers:true}).filteredPdvProducts(),[]);
  assert.ok(client.includes("closest('[data-pdv-best-sellers]')"));
+ assert.match(client,/pdvShowBestSellers=!pdvShowBestSellers/);
+ assert.match(client,/pdvShowBestSellers=false;pdvCategory=categoryTile\.dataset\.pdvCategory/);
 });
 
 test('caixa oferece Dinheiro, Cartão e Pix com botoes lado a lado e mantém crédito/débito no banco',()=>{
