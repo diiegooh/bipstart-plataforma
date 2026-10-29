@@ -2017,24 +2017,27 @@ function applyPdvCategoryFontSizes(){
  if(!root)return;
  const tiles=root.querySelectorAll('.godzilla-pdv .pdv-category-tiles .pdv-category-tile');
  tiles.forEach(tile=>{
-  // Homologação: 79 x 79 px. Fixação no DOM evita regras antigas e tamanhos em cache.
-  for(const property of ['width','min-width','max-width','height','min-height','max-height']){
-   tile.style.setProperty(property,'79px','important');
+  // Homologação: categorias retangulares 110 x 58 px, com espaço mínimo entre cards.
+  for(const property of ['width','min-width','max-width']){
+   tile.style.setProperty(property,'110px','important');
+  }
+  for(const property of ['height','min-height','max-height']){
+   tile.style.setProperty(property,'58px','important');
   }
   tile.style.setProperty('flex','none','important');
-  tile.style.setProperty('aspect-ratio','1 / 1','important');
+  tile.style.setProperty('aspect-ratio','110 / 58','important');
   tile.style.setProperty('box-sizing','border-box','important');
   tile.style.setProperty('display','flex','important');
   tile.style.setProperty('flex-direction','column','important');
   tile.style.setProperty('align-items','center','important');
   tile.style.setProperty('justify-content','center','important');
-  tile.style.setProperty('padding','5px 4px','important');
-  tile.style.setProperty('gap','3px','important');
+  tile.style.setProperty('padding','3px 4px','important');
+  tile.style.setProperty('gap','2px','important');
   tile.style.setProperty('overflow','hidden','important');
   const icon=tile.querySelector('span[aria-hidden]');
   if(icon){
    icon.style.setProperty('flex-shrink','0','important');
-   icon.style.setProperty('font-size','19px','important');
+   icon.style.setProperty('font-size','18px','important');
    icon.style.setProperty('line-height','1','important');
   }
   const name=tile.querySelector('strong');
@@ -2113,14 +2116,14 @@ function applyPdvFloatingFullWidth(){
   list.style.setProperty('display','grid','important');
   list.style.removeProperty('flex-wrap');
   const isCategory=cls==='.pdv-category-tiles';
-  const columns=isCategory?'repeat(auto-fill,79px)':
+  const columns=isCategory?'repeat(auto-fill,110px)':
     (window.matchMedia('(max-width:600px)').matches?'repeat(2,minmax(0,1fr))':'repeat(auto-fill,minmax(min(100%,144px),1fr))');
   list.style.setProperty('grid-template-columns',columns,'important');
   list.style.setProperty('align-items','start','important');
   list.style.setProperty('justify-content',isCategory?'start':'stretch','important');
   list.style.setProperty('width','100%','important');
   list.style.setProperty('max-width','none','important');
-  list.style.setProperty('gap',isCategory?'7px':'12px','important');
+  list.style.setProperty('gap',isCategory?'3px':'12px','important');
  }
 }
 
