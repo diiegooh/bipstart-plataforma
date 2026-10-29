@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { updateOnlineOrderAndNotify } from './order-notifications.mjs';
 import { notifyNewTrial } from './trial-notifications.mjs';
+import { lookupBarcode } from './barcode-lookup.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const port = Number(process.env.PORT || 3000);
@@ -96,6 +97,7 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
     return res.end(req.method === 'HEAD' ? undefined : JSON.stringify({ ok: true, app: 'BipStart', mode: 'demo' }));
   }
+  if (pathname === '/api/barcode-lookup') return lookupBarcode(req,res,requestUrl);
   if (pathname === '/api/public-config') {
     const url = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
     const key = String(process.env.SUPABASE_PUBLISHABLE_KEY || '');
