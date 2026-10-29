@@ -4861,3 +4861,39 @@ body #workspace #page .godzilla-pdv .pdv-products > .pdv-empty{
     row-gap:14px!important;
   }
 }
+
+
+/* Cadastro v175: cards Venda online e Mais vendido no modo noite. */
+body.pdv-night #workspace #page #productForm > .product-form-grid > :is(
+  .menu-price-controls,.product-best-seller-option,.online-sale-locked
+),
+body.pdv-night #workspace #page #productForm .menu-price-controls > .online-sale-price {
+ background:#22252d!important;
+ background-image:none!important;
+ border:1px solid #464152!important;
+ color:#f4f4f8!important;
+ -webkit-text-fill-color:#f4f4f8!important;
+ box-shadow:none!important;
+ color-scheme:dark!important;
+}
+body.pdv-night #workspace #page #productForm > .product-form-grid > .menu-price-controls label,
+body.pdv-night #workspace #page #productForm > .product-form-grid > .product-best-seller-option :is(span,strong,b),
+body.pdv-night #workspace #page #productForm > .product-form-grid > .online-sale-locked strong{
+ color:#f4f4f8!important;
+ -webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page #productForm > .product-form-grid > .product-best-seller-option small{
+ color:#b6bdcf!important;
+ -webkit-text-fill-color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page #productForm .menu-price-controls :is(select,input){
+ background:#191b23!important;
+ background-image:none!important;
+ border-color:#514b62!important;
+ color:#f4f4f8!important;
+ -webkit-text-fill-color:#f4f4f8!important;
+ color-scheme:dark!important;
+}
+body.pdv-night #workspace #page #productForm .product-best-seller-option input[type="checkbox"]{
+ accent-color:var(--store-accent,#8b5cf6)!important;
+}
