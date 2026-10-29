@@ -494,14 +494,15 @@ function salesDateRange(period=salesPeriod,selected=salesDay){
 function saleLineFinancial(item){
  const quantity=Number(item.quantity),unitPrice=Number(item.unit_price);
  const current=products.find(p=>p.id===item.product_id);
- const historicCost=item.unit_cost===null||item.unit_cost===undefined?null:Number(item.unit_cost);
- const canEstimate=historicCost===null&&current&&Number.isFinite(Number(current.cost));
+ const pending=item.cost_pending===true;
+ const historicCost=pending||item.unit_cost===null||item.unit_cost===undefined?null:Number(item.unit_cost);
+ const canEstimate=!pending&&historicCost===null&&current&&Number.isFinite(Number(current.cost));
  const unitCost=historicCost!==null?historicCost:canEstimate?Number(current.cost):null;
  const valid=unitCost!==null&&Number.isFinite(unitCost)&&Number.isFinite(unitPrice)&&Number.isFinite(quantity);
  const revenue=unitPrice*quantity;
  return {quantity,unitPrice,revenue,cost:valid?unitCost*quantity:null,
   profit:valid?revenue-unitCost*quantity:null,
-  estimated:historicCost===null&&canEstimate,missing:!valid};
+  estimated:historicCost===null&&canEstimate,missing:!valid,pending};
 }
 function reportFigures(lines){
  return lines.reduce((sum,entry)=>{
@@ -509,10 +510,11 @@ function reportFigures(lines){
    sum.revenue+=money.revenue;
    sum.quantity+=money.quantity;
    if(money.missing)sum.missing++;
-   else{sum.cost+=money.cost;sum.profit+=money.profit}
+   if(money.pending)sum.pending++;
+   if(!money.missing){sum.cost+=money.cost;sum.profit+=money.profit}
    if(money.estimated)sum.estimated++;
    return sum;
- },{revenue:0,cost:0,profit:0,quantity:0,estimated:0,missing:0});
+ },{revenue:0,cost:0,profit:0,quantity:0,estimated:0,missing:0,pending:0});
 }
 function cardFeeInfo(sale){
  if(!['credito','debito'].includes(sale.payment_method))return {known:true,percent:0,amount:0};
@@ -597,7 +599,7 @@ async function loadSalesReport(){
    for(let i=0;i<found.length;i+=70){
      const ids=found.slice(i,i+70).map(s=>s.id).join(',');
      const values=await salesPaginated('shop_sale_items',{
-       select:'id,sale_id,shop_id,product_id,product_name,quantity,unit_price,unit_cost',
+       select:'id,sale_id,shop_id,product_id,product_name,quantity,unit_price,unit_cost,cost_pending',
        shop_id:'eq.'+selectedShop,sale_id:'in.('+ids+')',order:'id.asc'
      },500);
      saleItems.push(...values);
@@ -642,7 +644,7 @@ function salesRecordDetails(group,day){
       (fee.percent===null?'':' ('+esc(fee.percent.toLocaleString('pt-BR',{maximumFractionDigits:2}))+'%)')+'</p>':
     '<p class="sales-inline-fee">Taxa do cartão ainda não registrada. O lucro (*) é parcial.</p>'):'';
  const rows=group.lines.map(({item,financial:x})=>{
-  const cost=x.missing?'Indisponível':fmt(x.cost)+(x.estimated?' *':'');
+  const cost=x.pending?'Aguardando reposição':x.missing?'Indisponível':fmt(x.cost)+(x.estimated?' *':'');
   return '<tr><td><strong>'+esc(item.product_name)+'</strong><small>Preço unit.: '+fmt(x.unitPrice)+'</small></td>'+
    '<td>'+esc(x.quantity)+'</td><td>'+cost+'</td><td>'+fmt(x.revenue)+'</td></tr>';
  }).join('');
@@ -867,6 +869,8 @@ function renderSalesReport(){
   tile('Total vendido',fmt(paymentTotals.gross))+
   tile('Custo',figures.missing||report.unmatchedSales.length?'—':fmt(figures.cost))+
   tile('Lucro',salesProfitLabel(calculatedProfit))+'</div>';
+ if(figures.pending)
+  content+='<p class="sales-disclaimer">Há '+figures.pending+' item(ns) vendidos sem estoque suficiente, com custo pendente. Ao atualizar o estoque do produto e informar custo maior que zero, o relatório calculará custo e lucro automaticamente ao reabrir ou atualizar Vendas.</p>';
  if(figures.estimated)
   content+='<p class="sales-disclaimer">Em '+figures.estimated+
    ' item(ns) antigos, o custo foi estimado com o cadastro atual.</p>';
