@@ -1370,14 +1370,10 @@ async function addBarcodeToCart(value){
    matches=found;
   }
   if(matches.length!==1){
-   if(matches.length>1){barcodeLastResult='Código duplicado. Corrija o cadastro do produto.';msg(barcodeLastResult,true);return;}
-   const info=await fetchPublicBarcodeInfo(code);
-   pdvExternalProduct=info;
-   barcodeLastResult=info.found?'Produto encontrado em base pública. Confira e cadastre antes de vender.':(info.message||'Produto não cadastrado.');
-   renderPage();
+   barcodeLastResult=matches.length>1?'Código duplicado. Corrija o cadastro do produto.':'Produto não cadastrado nesta loja.';
+   msg(barcodeLastResult,true);
    return;
   }
-  pdvExternalProduct=null;
   const p=matches[0];
   if(p.active===false){barcodeLastResult='Produto desativado: '+p.name;msg(barcodeLastResult,true);return;}
   const old=cart.find(c=>c.id===p.id);
@@ -1396,8 +1392,13 @@ async function addBarcodeToCart(value){
   barcodeLookupBusy=false;
   const pending=barcodeQueue.shift();
   if(pending){void addBarcodeToCart(pending);return;}
-  const input=$('pdvBarcode');
-  if(input&&tab==='caixa'){input.value='';input.focus({preventScroll:true});}
+  // O campo de pesquisa continua servindo para leitura; nenhum painel extra é exibido.
+  const input=$('pdvSearch');
+  if(input&&tab==='caixa'&&document.activeElement===input){
+   input.value='';pdvQuery='';
+   const grid=$('pdvProducts');
+   if(grid)grid.innerHTML=pdvProductCards();
+  }
  }
 }
 function pdvProductCards(){
@@ -1442,9 +1443,7 @@ function renderGodzillaPDV(){
   '" data-card-method="'+code+'" aria-pressed="'+(pdvPayment===code)+'">'+label+'</button>'
  ).join('');
  return '<div class="godzilla-pdv'+(floatingSale?' pdv-floating-layout':'')+'">'+
- '<div class="pdv-title"><h2>PDV</h2><div class="pdv-search-controls"><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Nome, categoria ou código..." value="'+esc(pdvQuery)+'" autocomplete="off"></label><label class="pdv-barcode-label"><span class="sr-only">Código de barras</span><input id="pdvBarcode" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="▥ Ler código de barras" aria-label="Ler código de barras com scanner. Pressione Enter para adicionar."></label></div></div>'+
- '<div class="pdv-barcode-feedback" role="status" aria-live="polite">'+esc(barcodeLastResult||'Leitor USB/Bluetooth: selecione “Ler código de barras” e escaneie. Também é possível usar F8.')+'</div>'+
- externalBarcodePanel()+
+ '<div class="pdv-title"><h2>PDV</h2><div class="pdv-search-controls"><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Pesquisar produtos..." value="'+esc(pdvQuery)+'" autocomplete="off"></label></div></div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
  '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
@@ -3101,18 +3100,8 @@ document.addEventListener('keydown',e=>{
  if(e.defaultPrevented||e.isComposing||!shop||tab!=='caixa'||!hasAccess())return;
  if(e.key==='F8'){
   e.preventDefault();
-  const barcode=$('pdvBarcode');
-  if(barcode){barcode.value='';barcode.focus({preventScroll:true});}
-  return;
- }
- if(e.target?.id==='pdvBarcode'){
-  if(e.key==='Enter'){
-   e.preventDefault();
-   e.stopPropagation();
-   const barcode=e.target.value;
-   e.target.value='';
-   void addBarcodeToCart(barcode);
-  }
+  const search=$('pdvSearch');
+  if(search){search.value='';pdvQuery='';search.focus({preventScroll:true});}
   return;
  }
  if(e.ctrlKey||e.altKey||e.metaKey||
@@ -3152,6 +3141,8 @@ document.addEventListener('keydown',e=>{
   const matches=products.some(p=>normalizeBarcode(p.sku)===code);
   if(matches||/^[0-9]{8,14}$/.test(code)){
    e.preventDefault();
+   e.target.value='';
+   pdvQuery='';
    void addBarcodeToCart(code);
   }
  }
