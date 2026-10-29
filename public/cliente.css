@@ -5031,3 +5031,11 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .
   gap:0.6px!important;
  }
 }
+
+/* PDV homologação: aproximar os atalhos de categoria em 70%. */
+body #workspace #page .godzilla-pdv .pdv-category-tiles,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles{
+  justify-content:flex-start!important;
+  column-gap:3px!important;
+  row-gap:3px!important;
+}
