@@ -1616,9 +1616,8 @@ function renderGodzillaPDV(){
    categoriesList.map(name=>'<option value="'+esc(name)+'"'+(pdvCategory===name?' selected':'')+'>'+esc(name)+'</option>').join('');
  const cash=pdvPayment==='dinheiro',isCard=['credito','debito'].includes(pdvPayment);
  const cartItems=cart.map(c=>{
-  const p=products.find(p=>p.id===c.id);
-  return '<div class="pdv-sale-item"><div class="pdv-sale-product"><strong>'+esc(c.name)+'</strong>'+
-   (p?'<small>Estoque: '+esc(p.stock)+'</small>':'')+'<b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div>'+
+  return '<div class="pdv-sale-item"><div class="pdv-sale-product pdv-sale-name-price"><strong>'+esc(c.name)+'</strong>'+
+   '<b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div>'+
    '<div class="pdv-sale-qty">'+
    '<button type="button" data-qty-less="'+esc(c.id)+'" aria-label="Diminuir '+esc(c.name)+'">−</button>'+
    '<input class="pdv-cart-quantity" data-cart-quantity="'+esc(c.id)+'" type="number" min="1" max="10000" step="1" inputmode="numeric" value="'+esc(c.qty)+'" aria-label="Quantidade de '+esc(c.name)+'" title="Edite a quantidade de unidades" autocomplete="off">'+
