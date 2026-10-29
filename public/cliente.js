@@ -10,6 +10,7 @@ let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99',pdvCheckoutOpen=false,pdvShowBestSellers=false;
 const pdvProductClickCounts=new Map();
 let pdvQuantityEntryProductId=null;
+let barcodeLookupBusy=false,barcodeLastResult='',barcodeKeyboardBuffer='',barcodeKeyboardAt=0;
 let stockImportRows=[],stockImportFileName='',stockImportBusy=false;
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
@@ -1283,7 +1284,41 @@ function filteredPdvProducts(){
  return products.filter(p=>p.active!==false
    &&(!pdvInStockOnly||Number(p.stock)>0)
    &&(pdvShowBestSellers?p.is_best_seller===true:(!pdvCategory||String(p.category||'Geral')===pdvCategory))
-   &&(!term||[p.name,p.category].some(value=>String(value||'').toLocaleLowerCase('pt-BR').includes(term))));
+   &&(!term||[p.name,p.category,p.sku].some(value=>String(value||'').toLocaleLowerCase('pt-BR').includes(term))));
+}
+function normalizeBarcode(value){return String(value??'').trim().replace(/\\s+/g,'');}
+async function addBarcodeToCart(value){
+ if(tab!=='caixa'||!shop||!hasAccess())return;
+ const code=normalizeBarcode(value);
+ if(!code||code.length>120){barcodeLastResult='Informe um código de barras válido.';msg(barcodeLastResult,true);return;}
+ if(barcodeLookupBusy)return;
+ barcodeLookupBusy=true;
+ try{
+  let matches=products.filter(p=>normalizeBarcode(p.sku)===code);
+  if(!matches.length){
+   const found=await rest('shop_products',{query:{select:'*',shop_id:'eq.'+shop.id,sku:'eq.'+code,limit:'2'}});
+   matches=found;
+  }
+  if(matches.length!==1){barcodeLastResult=matches.length?'Código duplicado. Corrija o cadastro do produto.':'Código '+code+' não cadastrado nesta loja.';msg(barcodeLastResult,true);return;}
+  const p=matches[0];
+  if(p.active===false){barcodeLastResult='Produto desativado: '+p.name;msg(barcodeLastResult,true);return;}
+  const old=cart.find(c=>c.id===p.id);
+  if((old?.qty||0)>=Number(p.stock||0)){barcodeLastResult='Estoque insuficiente para '+p.name;msg(barcodeLastResult,true);return;}
+  if(!products.some(q=>q.id===p.id))products.push(p);
+  if(old)old.qty++;
+  else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
+  pdvProductClickCounts.set(p.id,0);
+  pdvQuantityEntryProductId=null;
+  barcodeLastResult='✓ '+p.name+' adicionado · '+code;
+  renderPage();
+ }catch(error){
+  barcodeLastResult='Falha ao consultar código de barras.';
+  msg(error.message||barcodeLastResult,true);
+ }finally{
+  barcodeLookupBusy=false;
+  const input=$('pdvBarcode');
+  if(input&&tab==='caixa'){input.value='';input.focus({preventScroll:true});}
+ }
 }
 function pdvProductCards(){
  const available=filteredPdvProducts();
@@ -1327,7 +1362,8 @@ function renderGodzillaPDV(){
   '" data-card-method="'+code+'" aria-pressed="'+(pdvPayment===code)+'">'+label+'</button>'
  ).join('');
  return '<div class="godzilla-pdv'+(floatingSale?' pdv-floating-layout':'')+'">'+
- '<div class="pdv-title"><h2>PDV</h2><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Pesquisar produtos..." value="'+esc(pdvQuery)+'" autocomplete="off"></label></div>'+
+ '<div class="pdv-title"><h2>PDV</h2><div class="pdv-search-controls"><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Nome, categoria ou código..." value="'+esc(pdvQuery)+'" autocomplete="off"></label><label class="pdv-barcode-label"><span class="sr-only">Código de barras</span><input id="pdvBarcode" type="text" inputmode="none" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="▥ Ler código de barras" aria-label="Ler código de barras com scanner. Pressione Enter para adicionar."></label></div></div>'+
+ '<div class="pdv-barcode-feedback" role="status" aria-live="polite">'+esc(barcodeLastResult||'Leitor USB/Bluetooth: selecione “Ler código de barras” e escaneie. Também é possível usar F8.')+'</div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
  '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
