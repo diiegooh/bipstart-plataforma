@@ -5031,3 +5031,32 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .
   gap:0.6px!important;
  }
 }
+
+/* Homologação: aparência compacta real, sem espaço visual extra nos cantos. */
+body #workspace #page .godzilla-pdv .pdv-category-tiles,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles,
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles{
+ column-gap:0.6px!important;
+ row-gap:0.6px!important;
+ justify-content:flex-start!important;
+ justify-items:start!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles > .pdv-category-tile{
+ margin:0!important;
+ border-radius:2px!important;
+ box-shadow:none!important;
+ transform:none!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile:hover,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile:hover{
+ transform:none!important;
+ box-shadow:inset 0 0 0 1px var(--store-accent,#7c3aed)!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile.selected,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile.selected{
+ outline:0!important;
+ outline-offset:0!important;
+ box-shadow:inset 0 0 0 2px var(--store-accent,#7c3aed)!important;
+}
