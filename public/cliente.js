@@ -1286,7 +1286,7 @@ function filteredPdvProducts(){
    &&(pdvShowBestSellers?p.is_best_seller===true:(!pdvCategory||String(p.category||'Geral')===pdvCategory))
    &&(!term||[p.name,p.category,p.sku].some(value=>String(value||'').toLocaleLowerCase('pt-BR').includes(term))));
 }
-function normalizeBarcode(value){return String(value??'').trim().replace(/\\s+/g,'');}
+function normalizeBarcode(value){return String(value??'').trim().replace(/\s+/g,'');}
 async function addBarcodeToCart(value){
  if(tab!=='caixa'||!shop||!hasAccess())return;
  const code=normalizeBarcode(value);
