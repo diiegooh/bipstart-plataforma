@@ -28,3 +28,8 @@ html{scroll-padding-top:68px}
 .bs-price .bs-price-once{background:#eee4ff;color:#5625ae;border:1px solid #d5beff}
 .bs-price .bs-price-month{background:#6c38d0;color:#fff;border:1px solid #6531c5;font-size:15px;box-shadow:0 5px 16px #6531c52b}
 @media(max-width:720px){.bs-price .bs-price-period{font-size:12px;padding:9px 12px}.bs-price .bs-price-month{font-size:14px}}
+
+/* Logo oficial no rodapé, sem filtro que distorça as cores da marca */
+.bs-footer .bs-footer-brand{display:inline-flex;align-items:center;width:max-content;max-width:100%}
+.bs-footer .bs-footer-logo{display:block;width:190px;max-width:100%;height:auto;max-height:58px;object-fit:contain;filter:none}
+@media(max-width:720px){.bs-footer .bs-footer-logo{width:160px}}
