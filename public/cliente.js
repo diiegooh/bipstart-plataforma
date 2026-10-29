@@ -2212,7 +2212,7 @@ function renderPage(){
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +logoSection+'</div>':'')
       +(isMenu?'<section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+cardapioLayoutSettings()+receiptSettingsPanel()+categoryImagesSettings():'')+
-      '<section class="receipt-settings-panel"><h3>Zerar estoque</h3><p class="muted">Define como zero a quantidade em estoque de todos os produtos cadastrados nesta loja. Não exclui produtos, preços ou histórico de vendas. Esta ação não pode ser desfeita automaticamente.</p><button type="button" class="ghost" data-reset-stock style="border:1px solid #d14457;color:#d14457">Zerar todo o estoque</button></section>'+
+      '<section class="receipt-settings-panel"><h3>Excluir todo o estoque</h3><p class="muted">Exclui permanentemente todos os produtos cadastrados nesta loja, incluindo seus preços, imagens associadas ao cadastro e quantidades. O histórico de vendas é preservado. Esta ação não pode ser desfeita.</p><button type="button" class="ghost" data-delete-all-stock style="border:1px solid #d14457;color:#d14457">Excluir todos os produtos</button></section>'+
        '<button type="submit" class="button settings-save-button" style="background-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;border-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;color:'+getSystemAccentInk()+' !important;">Salvar</button></form></div>';
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
@@ -2790,21 +2790,28 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
-  const resetButton=e.target.closest('[data-reset-stock]');
-  if(resetButton){
+  const deleteButton=e.target.closest('[data-delete-all-stock]');
+  if(deleteButton){
     if(tab!=='configuracoes'||!shop||!hasAccess())return;
-    const confirmation=window.prompt('ATENÇÃO: todo o estoque da loja "'+shop.name+'" será zerado. Os produtos continuarão cadastrados. Para confirmar, digite ZERAR:');
-    if(confirmation!=='ZERAR')return;
-    if(!window.confirm('Confirmar a alteração de TODO o estoque desta loja para 0? Esta ação não pode ser desfeita automaticamente.'))return;
-    resetButton.disabled=true;
+    const count=products.length;
+    const confirmation=window.prompt('ATENÇÃO: você excluirá permanentemente TODOS os produtos da loja "'+shop.name+'" ('+count+' carregados). Digite EXCLUIR para continuar:');
+    if(confirmation!=='EXCLUIR')return;
+    if(!window.confirm('Confirma a EXCLUSÃO DEFINITIVA de todos os produtos desta loja? Esta ação não poderá ser desfeita.'))return;
+    deleteButton.disabled=true;
     try{
-      await rest('shop_products',{method:'PATCH',query:{shop_id:'eq.'+shop.id},body:{stock:0}});
-      products=products.map(product=>({...product,stock:0}));
+      // Exclusão restrita à loja da sessão; a política RLS do Supabase também controla a permissão.
+      await rest('shop_products',{method:'DELETE',query:{shop_id:'eq.'+shop.id}});
+      // Verifica o banco: um DELETE sem erro pode excluir zero linhas se a política RLS bloquear.
+      const remaining=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shop.id,limit:'1'}});
+      if(remaining.length)throw Error('Ainda existem produtos cadastrados. Verifique as permissões ou dependências no banco.');
+      products=[];
+      cart=[];
+      pdvQuery='';
       renderPage();
-      msg('Estoque de todos os produtos desta loja zerado com sucesso.');
+      msg('Todos os produtos desta loja foram excluídos.');
     }catch(error){
-      resetButton.disabled=false;
-      msg(error.message||'Não foi possível zerar o estoque.',true);
+      deleteButton.disabled=false;
+      msg(error.message||'Não foi possível excluir os produtos.',true);
     }
     return;
   }
