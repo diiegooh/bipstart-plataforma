@@ -4310,3 +4310,59 @@ body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > s
   max-height:154px!important;
  }
 }
+
+
+/* Configurações: superfícies claras somente no modo dia. */
+body:not(.pdv-night) #workspace #page #settingsForm :is(
+ .menu-settings,.menu-payments,.menu-logo-settings,.menu-logo-editor,
+ .menu-layout-settings,.receipt-settings-panel,.category-image-settings,
+ .category-image-settings-list,.category-image-setting-row,.menu-editor-panel,
+ .menu-layout-fields,.menu-layout-subtitle,.receipt-settings-fields,
+ .menu-price-controls,.online-sale-price,.menu-category-list,.menu-category-line,
+ .category-image-setting-info,.menu-logo-editor-heading,
+ fieldset,.settings-card,.receipt-settings-card
+){
+ background:#fff!important;background-image:none!important;
+ color:#24163d!important;border-color:#e3d8f2!important;
+ box-shadow:none!important;color-scheme:light;
+}
+body:not(.pdv-night) #workspace #page #settingsForm :is(
+ .menu-settings,.menu-payments,.menu-logo-settings,.menu-logo-editor,
+ .menu-layout-settings,.receipt-settings-panel,.category-image-settings,
+ .category-image-settings-list,.category-image-setting-row,.menu-editor-panel,
+ .menu-layout-fields,.menu-layout-subtitle,.receipt-settings-fields,
+ .menu-price-controls,.online-sale-price,.menu-category-list,.menu-category-line
+) :is(h2,h3,h4,strong,b,legend,label){
+ color:#24163d!important;-webkit-text-fill-color:#24163d!important;
+}
+body:not(.pdv-night) #workspace #page #settingsForm :is(
+ .menu-settings,.menu-payments,.menu-logo-settings,.menu-logo-editor,
+ .menu-layout-settings,.receipt-settings-panel,.category-image-settings,
+ .category-image-settings-list,.category-image-setting-row,.menu-editor-panel,
+ .receipt-settings-fields,.menu-price-controls,.online-sale-price
+) :is(p,small,.muted){
+ color:#625776!important;-webkit-text-fill-color:#625776!important;
+}
+body:not(.pdv-night) #workspace #page #settingsForm :is(
+ .receipt-settings-panel,.category-image-settings,.menu-layout-settings,.menu-settings,.menu-payments
+){border-radius:14px!important;padding:16px!important}
+body:not(.pdv-night) #workspace #page #settingsForm :is(
+ input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=file]),select,textarea
+){
+ background:#faf8ff!important;background-image:none!important;
+ color:#24163d!important;-webkit-text-fill-color:#24163d!important;
+ border-color:#d7c8ea!important;color-scheme:light;
+}
+body:not(.pdv-night) #workspace #page #settingsForm :is(input,textarea)::placeholder{
+ color:#827692!important;-webkit-text-fill-color:#827692!important;
+}
+body:not(.pdv-night) #workspace #page #settingsForm :is(
+ .category-image-actions button:not(.button),.menu-logo-editor button:not(.button),
+ .menu-settings button:not(.button)
+){background:#f5efff!important;color:#4f288f!important;
+ -webkit-text-fill-color:#4f288f!important;border-color:#d7c8ea!important}
+body:not(.pdv-night) #workspace #page #settingsForm .settings-save-button{
+ background:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;
+ -webkit-text-fill-color:var(--store-accent-ink,#fff)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+}
