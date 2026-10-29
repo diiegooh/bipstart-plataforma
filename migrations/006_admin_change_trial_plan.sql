@@ -1,3 +1,10 @@
+-- Nova ação de auditoria para trocas de plano durante o teste.
+alter table public.bipstart_access_audit
+  drop constraint if exists bipstart_access_audit_action_check;
+alter table public.bipstart_access_audit
+  add constraint bipstart_access_audit_action_check
+  check (action in ('activate','suspend','trial_upgrade','extend_30','trial_plan_change'));
+
 -- Alteração administrativa do plano DURANTE o teste grátis.
 -- Mantém a data de encerramento do teste, o status, a assinatura paga e os dias acumulados.
 create or replace function public.bipstart_admin_change_trial_plan(
