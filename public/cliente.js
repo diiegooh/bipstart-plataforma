@@ -290,6 +290,7 @@ async function openShop(){
  if(!hasAccess()){hiding('accessGate',true);renderAccessGate();return}
  await reloadData();
  lastReceipt=null;
+ pdvCartSearchClear();
  tab='caixa';showForm=null;pastedProductImage=null;selectedStockPanel='';
  const requested=new URLSearchParams(location.search);
  if(requested.get('editar')==='cardapio')tab=proAccess()?'cardapio':'configuracoes';
@@ -2895,6 +2896,10 @@ document.addEventListener('input',e=>{
   }
   return;
  }
+ if(e.target.id==='pdvCartSearch'){
+  pdvCartSearchUpdate(e.target.value);
+  return;
+ }
  if(e.target.id==='pdvSearch'){
   pdvQuery=e.target.value;
   const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();
@@ -2957,6 +2962,8 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
+  const cartSearchAdd=e.target.closest('[data-cart-search-add]');
+  if(cartSearchAdd){pdvCartSearchAdd(cartSearchAdd.dataset.cartSearchAdd);return;}
   const deleteCategories=e.target.closest('[data-delete-all-categories]');
   if(deleteCategories){
     if(tab!=='configuracoes'||!shop||!hasAccess())return;
@@ -3433,6 +3440,22 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('keydown',e=>{
  if(e.key!=='Enter')return;
+ if(e.target?.id==='pdvCartSearch'){
+  e.preventDefault();
+  const query=e.target.value.trim();
+  if(!query)return;
+  const matches=pdvCartSearchCandidates(query);
+  const exact=matches.find(p=>pdvCartSearchText(p.sku)===pdvCartSearchText(query));
+  if(exact){pdvCartSearchAdd(exact.id);return;}
+  if(matches.length===1){pdvCartSearchAdd(matches[0].id);return;}
+  if(/^[a-z0-9-]*\d[a-z0-9-]*$/i.test(query)){
+    pdvCartSearchClear();
+    void addBarcodeToCart(query);
+    return;
+  }
+  msg('Selecione um produto na lista de resultados.',true);
+  return;
+ }
  if(e.target?.matches('#productForm input[name="sku"]')){
   e.preventDefault();
   clearTimeout(barcodeRegistrationTimer);
@@ -3491,7 +3514,7 @@ $('signupForm').addEventListener('input',()=>{
 });
 $('showLogin').onclick=()=>authTab(false);
 $('showSignup').onclick=()=>authTab(true);
-$('logout').onclick=()=>{closeSideMenu();closeReceiptDialog();lastReceipt=null;session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
+$('logout').onclick=()=>{closeSideMenu();closeReceiptDialog();lastReceipt=null;pdvCartSearchClear();session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
 $('refreshAccess').onclick=async()=>{try{await openShop();msg(hasAccess()?'Seu acesso está liberado!':'Ainda aguardando liberação. Confira o WhatsApp.')}catch(e){msg(e.message,true)}};
 window.addEventListener('focus',()=>{
  if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();}
