@@ -4963,21 +4963,21 @@ body:not(.pdv-night) #workspace #page .sales-records-table .sales-record-profit.
 }
 
 
-/* Homologação: categorias compactas. 144px -> 79px por lado = ~70% menos área.
-   Apenas categorias: a grade de produtos preserva o tamanho original. */
+/* Homologação: categorias retangulares de 110 x 58px com intervalo de 3px.
+   A grade de produtos não é alterada. */
 body #workspace #page .godzilla-pdv .pdv-category-tiles,
 body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles,
 body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles,
 body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles{
  display:grid!important;
- grid-template-columns:repeat(auto-fill,79px)!important;
+ grid-template-columns:repeat(auto-fill,110px)!important;
  justify-content:start!important;
  align-content:start!important;
  align-items:start!important;
- gap:7px!important;
+ gap:3px!important;
  width:100%!important;
  max-width:100%!important;
- margin:8px 0 12px!important;
+ margin:6px 0 10px!important;
 }
 body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
 body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
@@ -4989,23 +4989,23 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pd
  flex:none!important;
  align-items:center!important;
  justify-content:center!important;
- width:79px!important;
- min-width:79px!important;
- max-width:79px!important;
- height:79px!important;
- min-height:79px!important;
- max-height:79px!important;
- aspect-ratio:1 / 1!important;
- padding:5px 4px!important;
- gap:3px!important;
- border-radius:9px!important;
+ width:110px!important;
+ min-width:110px!important;
+ max-width:110px!important;
+ height:58px!important;
+ min-height:58px!important;
+ max-height:58px!important;
+ aspect-ratio:110 / 58!important;
+ padding:3px 4px!important;
+ gap:2px!important;
+ border-radius:8px!important;
  overflow:hidden!important;
 }
 body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > span[aria-hidden],
 body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > span[aria-hidden]{
  display:block!important;
  flex:0 0 auto!important;
- font-size:19px!important;
+ font-size:18px!important;
  line-height:1!important;
 }
 body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > strong,
@@ -5027,7 +5027,7 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .
 @media(max-width:600px){
  body #workspace #page .godzilla-pdv .pdv-category-tiles,
  body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles{
-  grid-template-columns:repeat(auto-fill,79px)!important;
-  gap:7px!important;
+  grid-template-columns:repeat(auto-fill,110px)!important;
+  gap:3px!important;
  }
 }
