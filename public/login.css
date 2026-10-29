@@ -109,3 +109,35 @@ body.auth-screen .toast { z-index:100; }
   body.auth-screen .auth-card { padding:22px!important; border-radius:19px!important; }
   body.auth-screen .auth-copy h1 { margin-top:18px!important; }
 }
+
+/* Ajuda de acesso: visível apenas no formulário Entrar. */
+body.auth-screen #loginForm .login-whatsapp-support,
+body:has(#auth:not(.hidden)) #loginForm .login-whatsapp-support{
+ box-sizing:border-box;display:flex!important;align-items:center;justify-content:center;
+ gap:10px;width:100%;min-height:48px;margin:20px 0 0;padding:12px 14px;
+ background:#eaf8f0!important;color:#15583a!important;border:1px solid #9edab5!important;
+ border-radius:12px;text-align:center;text-decoration:none!important;line-height:1.35;
+ font-size:13px;font-weight:600;transition:background .15s,border-color .15s;
+}
+body.auth-screen #loginForm .login-whatsapp-support:hover,
+body:has(#auth:not(.hidden)) #loginForm .login-whatsapp-support:hover{
+ background:#ddf3e6!important;border-color:#48a777!important;
+}
+body.auth-screen #loginForm .login-whatsapp-support:focus-visible,
+body:has(#auth:not(.hidden)) #loginForm .login-whatsapp-support:focus-visible{
+ outline:3px solid #26834f;outline-offset:3px;
+}
+body.auth-screen #loginForm .login-whatsapp-support strong,
+body:has(#auth:not(.hidden)) #loginForm .login-whatsapp-support strong{
+ color:#12653b!important;font-weight:850;
+}
+body.auth-screen #loginForm .login-whatsapp-icon,
+body:has(#auth:not(.hidden)) #loginForm .login-whatsapp-icon{
+ display:block;flex:0 0 25px;width:25px;height:25px;color:#25a55c;
+}
+@media(max-width:480px){
+ body.auth-screen #loginForm .login-whatsapp-support,
+ body:has(#auth:not(.hidden)) #loginForm .login-whatsapp-support{
+  font-size:12px;padding:12px 9px;gap:7px;
+ }
+}
