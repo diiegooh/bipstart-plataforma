@@ -4961,3 +4961,18 @@ body.pdv-night #workspace #page .sales-records-table .sales-record-profit.is-los
 body:not(.pdv-night) #workspace #page .sales-records-table .sales-record-profit.is-loss{
  color:#c5223d!important;-webkit-text-fill-color:#c5223d!important;
 }
+
+
+/* Desconto fixo em reais no caixa: dinheiro, crédito e débito. */
+#workspace .pdv-discount-fields{margin:10px 0 12px;padding:12px;border:1px solid var(--line,#dcd4eb);border-radius:12px;background:var(--panel,#fff);color:var(--text,#282947)}
+#workspace .pdv-discount-fields label{display:grid;gap:8px;margin:0 0 10px;font-weight:700}
+#workspace .pdv-discount-fields input{min-height:44px;width:100%;border-radius:9px;padding:10px 12px;font-size:17px;font-variant-numeric:tabular-nums}
+#workspace .pdv-discount-fields .pdv-calculation{margin:5px 0;background:transparent!important;border:0!important;padding:3px 0}
+#workspace .pdv-discount-fields .pdv-calculation strong{font-size:16px}
+#workspace .pdv-discount-fields #pdvDiscountError:empty{display:none}
+#workspace .pdv-discount-fields #pdvDiscountError:not(:empty){display:block;margin-top:6px;color:#d14457!important}
+#workspace .pdv-total-due{margin:8px 0 12px;padding:13px 0;border-top:1px solid var(--line,#dcd4eb)}
+#workspace .pdv-total-due strong{font-size:27px;font-variant-numeric:tabular-nums}
+body.pdv-night #workspace .pdv-discount-fields{background:#22252d!important;color:#f4f4f8!important;border-color:#343741!important}
+body.pdv-night #workspace .pdv-discount-fields label{color:#f4f4f8!important}
+body.pdv-night #workspace .pdv-discount-fields input{background:#2b2f39!important;color:#f4f4f8!important;border-color:#505463!important}
