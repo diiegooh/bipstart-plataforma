@@ -1459,7 +1459,7 @@ function pdvProductCards(){
    '<span class="pdv-product-media">'+photo+'</span>'+
    '<span class="pdv-product-info"><strong class="pdv-product-name">'+esc(p.name)+'</strong>'+
    '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button>'+quantityField+'</div>';
- }).join('');
+ }).join(''):'';
 }
 function renderGodzillaPDV(){
  const floatingSale=floatingSaleEnabled();
