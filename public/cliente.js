@@ -1780,6 +1780,22 @@ function applyInventoryNightStyles(){
  paint('.inventory-card .inventory-card-body,.inventory-card .inventory-card-info,.inventory-card .inventory-card-actions',{
   'background-color':'#22252d','color':'#f4f4f8'
  });
+ // Cadastro de produtos: forçar os fundos do modo noite depois do render,
+ // evitando que as regras antigas de tema claro prevaleçam.
+ paint('#productForm .menu-price-controls,#productForm .product-best-seller-option,#productForm .online-sale-locked,#productForm .online-sale-price',{
+  'background':'#22252d','background-image':'none','border-color':'#464152',
+  'color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8','box-shadow':'none','color-scheme':'dark'
+ });
+ paint('#productForm .online-sale-question,#productForm .product-best-seller-option span,#productForm .product-best-seller-option strong,#productForm .online-sale-locked strong',{
+  'color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8'
+ });
+ paint('#productForm .product-best-seller-option small',{
+  'color':'#b6bdcf','-webkit-text-fill-color':'#b6bdcf'
+ });
+ paint('#productForm .online-sale-question select,#productForm .online-sale-price input',{
+  'background':'#191b23','border-color':'#514b62',
+  'color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8','color-scheme':'dark'
+ });
  // Painel Reposição: mesmas superfícies escuras utilizadas nos cards de Produtos.
  paint('.restock-section,.restock-item',{
   'background':'#22252d','background-image':'none',
