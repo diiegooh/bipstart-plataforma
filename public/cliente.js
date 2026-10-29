@@ -1455,6 +1455,7 @@ async function addBarcodeToCart(value){
   const p=matches[0];
   if(p.active===false){barcodeLastResult='Produto desativado: '+p.name;msg(barcodeLastResult,true);return;}
   const old=cart.find(c=>c.id===p.id);
+  if((old?.qty||0)>=10000){barcodeLastResult='Limite de 10.000 unidades para '+p.name;msg(barcodeLastResult,true);return;}
   if(!products.some(q=>q.id===p.id))products.push(p);
   if(old)old.qty++;
   else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
@@ -1579,6 +1580,7 @@ function pdvCartSearchAdd(productId){
  const p=pdvCartSearchCandidates().find(p=>String(p.id)===String(productId));
  if(!p)return;
  const already=cart.find(c=>c.id===p.id);
+ if((already?.qty||0)>=10000)return msg('Limite de 10.000 unidades por produto.',true);
  if(p.active===false){
   msg('Produto indisponível.',true);return;
  }
