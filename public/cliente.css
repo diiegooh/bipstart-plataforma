@@ -4587,3 +4587,82 @@ body.pdv-night #workspace #page #productForm .online-sale-locked{
  color:#f4e8ff!important;
  -webkit-text-fill-color:#f4e8ff!important;
 }
+
+
+/* Cadastro de produtos v172: grade única de duas colunas e GTIN no topo. */
+#workspace #page #productForm > .product-form-grid{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:12px 18px!important;
+ align-items:start;
+}
+#workspace #page #productForm > .product-form-grid > :is(label,div,fieldset){
+ width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+ margin:0;
+}
+#workspace #page #productForm > .product-form-grid > label{
+ display:block;
+ align-self:start;
+}
+#workspace #page #productForm > .product-form-grid > label :is(input:not([type=checkbox]),select,textarea){
+ width:100%;min-width:0;max-width:100%;box-sizing:border-box;
+}
+#workspace #page #productForm > .product-form-grid > .barcode-lookup-action{
+ grid-column:auto!important;
+ display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+ align-self:stretch;gap:4px;padding:0;
+}
+#workspace #page #productForm > .product-form-grid > .barcode-lookup-action button{
+ max-width:100%;min-height:41px;padding:9px 12px;
+ font-size:13px;text-align:left;
+}
+#workspace #page #productForm > .product-form-grid > .barcode-lookup-action small{
+ display:block;flex:0 0 auto;line-height:1.35;font-size:11px;
+}
+#workspace #page #productForm > .product-form-grid > .barcode-registration-info{
+ grid-column:1/-1!important;
+}
+#workspace #page #productForm > .product-form-grid > .barcode-registration-info:empty{
+ display:none!important;
+}
+#workspace #page #productForm > .product-form-grid > .menu-price-controls,
+#workspace #page #productForm > .product-form-grid > .online-sale-locked{
+ grid-column:auto!important;
+ min-height:0;
+ padding:10px 12px!important;
+ border-radius:11px;
+}
+#workspace #page #productForm > .product-form-grid > .menu-price-controls > .online-sale-question{
+ margin:0!important;
+ line-height:1.4;
+ font-size:13px;
+}
+#workspace #page #productForm > .product-form-grid > .menu-price-controls .online-sale-question select{
+ width:100%;max-width:100%;margin-top:5px;min-height:42px;
+}
+#workspace #page #productForm > .product-form-grid > .menu-price-controls .online-sale-price{
+ padding:8px 10px;margin:8px 0 0!important;
+}
+#workspace #page #productForm > .product-form-grid > .product-best-seller-option{
+ grid-column:auto!important;
+ align-self:stretch;min-height:59px;
+ padding:12px!important;
+}
+#workspace #page #productForm > .product-form-grid > .product-image-file{
+ grid-column:auto!important;
+}
+#workspace #page #productForm > .product-form-grid > .paste-area{
+ grid-column:auto!important;
+ max-width:100%;min-width:0;min-height:70px!important;
+ padding:11px 12px!important;
+ font-size:12px;line-height:1.5;
+}
+@media(max-width:780px){
+ #workspace #page #productForm > .product-form-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:11px!important;
+ }
+ #workspace #page #productForm > .product-form-grid > .barcode-registration-info{
+  grid-column:auto!important;
+ }
+}
