@@ -2146,48 +2146,59 @@ function renderPage(){
    if(tab==='caixa')applyPdvCategoryFontSizes();
 }
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
-function formShell(kind,id,inside){return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="columns">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
+function formShell(kind,id,inside){const gridClass=kind==='product'&&tab==='produtos'?'columns product-form-grid':'columns';return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="'+gridClass+'">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
 function productForm(p){
  p=p||{};
  const isMenu=tab==='cardapio';
  const categoryField=isMenu?
   '<label>Categoria<select name="category" required>'+categoryOptions(p.category||'Geral')+'</select></label>':
   field('category','Categoria','text',p.category||'Geral');
+ const bestSeller='<label class="product-best-seller-option"><input type="checkbox" name="is_best_seller" value="true"'+(p.is_best_seller===true?' checked':'')+'>'+
+  '<span><strong>★ Mais vendido</strong><small>Exibir este produto no acesso rápido do PDV.</small></span></label>';
+ const onlineControls=proAccess()?'<div class="menu-price-controls"><label class="online-sale-question">Venda online?'+
+  '<select name="online_enabled" required>'+
+   '<option value=""'+(!p.id?' selected':'')+' disabled>Selecione Sim ou Não</option>'+
+   '<option value="true"'+(p.id&&p.online_enabled!==false?' selected':'')+'>Sim — colocar no cardápio online</option>'+
+   '<option value="false"'+(p.id&&p.online_enabled===false?' selected':'')+'>Não — vender somente no PDV</option>'+
+  '</select></label>'+
+  '<div class="online-sale-price'+(p.id&&p.online_enabled!==false?'':' hidden')+'">'+
+   field('menu_price','Valor no cardápio online (R$)','number',p.menu_price??(p.id?(p.price??0):''),'min="0" max="9999999999.99" step="0.01"'+(p.id&&p.online_enabled!==false?' required':' disabled'))+
+  '</div></div>':
+  '<div class="online-sale-locked"><strong>Cardápio online exclusivo Premium</strong></div>';
+ const imageControls=
+  '<label class="product-image-file">Imagem do item (até 5 MB)<input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>'+
+  '<div class="paste-area" data-image-paste tabindex="0" role="button" aria-label="Colar imagem do produto" style="border:1px dashed #9068c8;border-radius:12px;padding:12px;cursor:pointer;min-height:70px">Clique aqui e pressione Ctrl+V para colar uma imagem copiada.<div data-image-preview aria-live="polite" style="margin-top:8px"></div></div>';
+ if(isMenu){
+  return formShell('product',p.id,
+   field('name','Nome do item','text',p.name,'required maxlength="160"')+
+   categoryField+
+   field('price','Preço de venda no PDV (R$)','number',p.price??0,'required min="0" step="0.01"')+
+   bestSeller+onlineControls+
+   '<label>Descrição<textarea name="description" maxlength="1000" placeholder="Ingredientes, opções e informações do produto">'+esc(p.description||'')+'</textarea></label>'+
+   imageControls
+  );
+ }
+ // Cadastro de estoque: todos os dados em duas colunas, com busca GTIN primeiro.
  return formShell('product',p.id,
-  field('name','Nome do item', 'text',p.name,'required maxlength="160"')+
+  field('sku','Código de barras (EAN/UPC ou código do leitor)','text',p.sku||'','maxlength="120" autocomplete="off"')+
+  '<div class="barcode-lookup-action"><button type="button" class="ghost" data-barcode-lookup>Buscar informações do código</button><small>Digite ou escaneie o GTIN para consultar nome, marca e categoria.</small></div>'+
+  '<div id="barcodeRegistrationInfo" class="barcode-registration-info" aria-live="polite"></div>'+
+  field('name','Nome do item','text',p.name,'required maxlength="160"')+
+  field('brand','Marca','text',p.brand||'','maxlength="120"')+
   categoryField+
+  field('subcategory','Subcategoria','text',p.subcategory||'','maxlength="65"')+
+  field('supplier','Fornecedor','text',p.supplier||'','maxlength="120"')+
+  field('unit','Unidade (UN, KG, CX...)','text',p.unit||'','maxlength="20"')+
   field('price','Preço de venda no PDV (R$)','number',p.price??0,'required min="0" step="0.01"')+
-  '<label class="product-best-seller-option"><input type="checkbox" name="is_best_seller" value="true"'+(p.is_best_seller===true?' checked':'')+'>'+
-  '<span><strong>★ Mais vendido</strong><small>Exibir este produto no acesso rápido do PDV.</small></span></label>'+
-  (proAccess()?'<div class="menu-price-controls"><label class="online-sale-question">Venda online?'+
-   '<select name="online_enabled" required>'+
-    '<option value=""'+(!p.id?' selected':'')+' disabled>Selecione Sim ou Não</option>'+
-    '<option value="true"'+(p.id&&p.online_enabled!==false?' selected':'')+'>Sim — colocar no cardápio online</option>'+
-    '<option value="false"'+(p.id&&p.online_enabled===false?' selected':'')+'>Não — vender somente no PDV</option>'+
-   '</select></label>'+
-   '<div class="online-sale-price'+(p.id&&p.online_enabled!==false?'':' hidden')+'">'+
-    field('menu_price','Valor no cardápio online (R$)','number',p.menu_price??(p.id?(p.price??0):''),'min="0" max="9999999999.99" step="0.01"'+(p.id&&p.online_enabled!==false?' required':' disabled'))+
-    '</div>'+
-   '</div>':
-   '<div class="online-sale-locked"><strong>Cardápio online exclusivo Premium</strong></div>')+
-  (isMenu?'<label>Descrição<textarea name="description" maxlength="1000" placeholder="Ingredientes, opções e informações do produto">'+esc(p.description||'')+'</textarea></label>':
   field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')+
+  field('wholesale_price','Preço de atacado (R$)','number',p.wholesale_price??'','min="0" step="0.01"')+
   field('stock','Quantidade em estoque','number',p.stock??0,'required min="0" step="1"')+
   field('min_stock','Estoque mínimo (unidades)','number',p.min_stock??5,'required min="0" max="999999999" step="1"')+
-  '<fieldset class="stock-extra-fields"><legend>Dados adicionais do estoque</legend><div class="columns">'+
-  field('sku','Código de barras (EAN/UPC ou código do leitor)','text',p.sku||'','maxlength="120" autocomplete="off"')+
-  '<div class="barcode-lookup-action"><button type="button" class="ghost" data-barcode-lookup>Buscar informações do código</button><small>Digite ou escaneie o GTIN. Nome, marca e categoria poderão ser preenchidos automaticamente.</small></div>'+
-  '<div id="barcodeRegistrationInfo" class="barcode-registration-info" aria-live="polite"></div>'+
-  field('brand','Marca','text',p.brand||'','maxlength="120"')+
-  field('supplier','Fornecedor','text',p.supplier||'','maxlength="120"')+
-  field('subcategory','Subcategoria','text',p.subcategory||'','maxlength="65"')+
-  field('unit','Unidade (UN, KG, CX...)','text',p.unit||'','maxlength="20"')+
-  field('wholesale_price','Preço de atacado (R$)','number',p.wholesale_price??'','min="0" step="0.01"')+
   field('lot','Lote','text',p.lot||'','maxlength="80"')+
   field('expiration_date','Vencimento','date',p.expiration_date?String(p.expiration_date).slice(0,10):'')+
-  '</div></fieldset>')+
-  '<label>Imagem do item (até 5 MB)<input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>'+
-  '<div class="paste-area" data-image-paste tabindex="0" role="button" aria-label="Colar imagem do produto" style="border:1px dashed #9068c8;border-radius:12px;padding:16px;cursor:pointer;min-height:75px">Clique aqui e pressione Ctrl+V para colar uma imagem copiada.<div data-image-preview aria-live="polite" style="margin-top:8px"></div></div>'
+  onlineControls+
+  bestSeller+
+  imageControls
  );
 }
 function courierForm(c){
