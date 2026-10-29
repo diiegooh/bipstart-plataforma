@@ -8,7 +8,7 @@ const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
 let pdvCartSearchQuery='',pdvCartSearchResults=[],pdvCartSearchLoading=false,pdvCartSearchError='',pdvCartSearchTimer=null,pdvCartSearchRequest=0;
-let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99',pdvDiscountAmount='',pdvCheckoutOpen=false,pdvShowBestSellers=false;
+let pdvQuery='',pdvCategory='',pdvInStockOnly=false,pdvPayment='pix',pdvCardFeePercent='3.99',pdvDiscountAmount='',pdvCheckoutOpen=false,pdvShowBestSellers=false;
 let bestSellerRank=new Map(),bestSellerLoading=false,bestSellerLoadedShop=null,bestSellerRequestId=0,bestSellerError='';
 const pdvProductClickCounts=new Map();
 let pdvQuantityEntryProductId=null;
@@ -1453,7 +1453,6 @@ async function addBarcodeToCart(value){
   const p=matches[0];
   if(p.active===false){barcodeLastResult='Produto desativado: '+p.name;msg(barcodeLastResult,true);return;}
   const old=cart.find(c=>c.id===p.id);
-  if((old?.qty||0)>=Number(p.stock||0)){barcodeLastResult='Estoque insuficiente para '+p.name;msg(barcodeLastResult,true);return;}
   if(!products.some(q=>q.id===p.id))products.push(p);
   if(old)old.qty++;
   else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
@@ -1481,10 +1480,9 @@ function pdvProductCards(){
  const available=filteredPdvProducts();
  return available.length?available.map(p=>{
   const count=cart.find(c=>c.id===p.id)?.qty||0;
-  const soldOut=Number(p.stock)<=count;
   const photo=p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="pdv-no-photo" aria-hidden="true">▣</div>';
   const quantityField=pdvQuantityEntryProductId===p.id?'<input class="pdv-quantity-entry" data-pdv-quantity="'+esc(p.id)+'" type="number" min="1" step="1" inputmode="numeric" aria-label="Quantidade de '+esc(p.name)+'" autocomplete="off">':'';
-  return '<div class="pdv-product-wrap"><button type="button" class="pdv-product pdv-product-clickable" data-cart="'+esc(p.id)+'" '+(soldOut?'disabled':'')+' aria-label="'+esc((soldOut?'Sem estoque: ':'Adicionar ao carrinho: ')+p.name+' — '+fmt(p.price))+'">'+
+  return '<div class="pdv-product-wrap"><button type="button" class="pdv-product pdv-product-clickable" data-cart="'+esc(p.id)+'" aria-label="'+esc('Adicionar ao carrinho: '+p.name+' — '+fmt(p.price))+'">'+
    '<span class="pdv-product-media">'+photo+'</span>'+
    '<span class="pdv-product-info"><strong class="pdv-product-name">'+esc(p.name)+'</strong>'+
    '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button>'+quantityField+'</div>';
@@ -1516,13 +1514,10 @@ function pdvCartSearchResultMarkup(){
  if(!pdvCartSearchQuery.trim())return '';
  const matches=pdvCartSearchCandidates();
  const rows=matches.map(p=>{
-  const current=cart.find(c=>c.id===p.id)?.qty||0;
-  const available=Number(p.stock||0)>current;
   return '<div class="pdv-cart-search-result">'+
    '<strong class="pdv-cart-search-name">'+esc(p.name)+'</strong>'+
    '<strong class="pdv-cart-search-price">'+fmt(p.price)+'</strong>'+
    '<button type="button" class="pdv-cart-search-add" data-cart-search-add="'+esc(p.id)+'"'+
-   (available?'':' disabled title="Sem estoque disponível"')+
    ' aria-label="'+esc('Adicionar '+p.name+' ao carrinho')+'">+ Adicionar</button>'+
    '</div>';
  }).join('');
@@ -1586,8 +1581,8 @@ function pdvCartSearchAdd(productId){
  const p=pdvCartSearchCandidates().find(p=>String(p.id)===String(productId));
  if(!p)return;
  const already=cart.find(c=>c.id===p.id);
- if(p.active===false||Number(p.stock||0)<=(already?.qty||0)){
-  msg('Estoque insuficiente ou produto indisponível.',true);return;
+ if(p.active===false){
+  msg('Produto indisponível.',true);return;
  }
  if(!products.some(item=>item.id===p.id))products.push(p);
  if(already)already.qty++;
@@ -3411,7 +3406,6 @@ document.addEventListener('click',async e=>{
   const c=e.target.closest('[data-cart]');if(c){
     const p=products.find(p=>p.id===c.dataset.cart);if(!p)return;
     const old=cart.find(x=>x.id===p.id);
-    if((old?.qty||0)>=p.stock)return msg('Estoque insuficiente',true);
     const clicks=(pdvProductClickCounts.get(p.id)||0)+1;
     pdvProductClickCounts.set(p.id,clicks);
     if(clicks>=4){
@@ -3508,10 +3502,6 @@ document.addEventListener('keydown',e=>{
  if(!p){pdvQuantityEntryProductId=null;renderPage();return}
  if(!Number.isInteger(quantity)||quantity<1){
    pdvQuantityEntryProductId=null;renderPage();return;
- }
- if((old?.qty||0)+quantity>Number(p.stock)){
-   msg('Quantidade maior que o estoque disponível.',true);
-   input.value='';input.focus();return;
  }
  if(old)old.qty+=quantity;
  else cart.push({id:p.id,name:p.name,qty:quantity,price:Number(p.price)});
