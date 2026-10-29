@@ -5032,18 +5032,31 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .
  }
 }
 
-/* PDV homologação: seis colunas de categorias no desktop, com intervalo compacto. */
+/* PDV homologação: seis colunas de categorias no desktop. */
 body #workspace #page .godzilla-pdv .pdv-category-tiles,
-body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles{
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles,
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles{
   display:grid!important;
   grid-template-columns:repeat(6,minmax(0,1fr))!important;
-  justify-content:stretch!important;
-  column-gap:3px!important;
-  row-gap:3px!important;
+  justify-content:start!important;
+  align-content:start!important;
+  gap:3px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles > .pdv-category-tile,
+body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles > .pdv-category-tile{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  flex:none!important;
 }
 @media(max-width:700px){
   body #workspace #page .godzilla-pdv .pdv-category-tiles,
-  body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles{
+  body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles,
+  body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles,
+  body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles{
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
   }
 }
