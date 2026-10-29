@@ -1327,11 +1327,11 @@ function externalCategoryInfo(data){
  const tags=Array.isArray(data.categories_tags)?data.categories_tags.join(' '):'';
  const text=barcodeWords([raw,tags,data.name,data.product_type].join(' '));
  let suggested='';
- if(/refrigerant|soda|cola|suco|juice|bebida|agua mineral|water|cerveja|beer|drink|coffee|cafe/.test(text))suggested='Bebidas';
- else if(/limpeza|detergent|cleaning|sabao em po|laundry|desinfetant|amaciant/.test(text))suggested='Limpeza';
- else if(/cosmet|shampoo|sabonete|higiene|beauty|toiletries|deodorant|perfume|skin care/.test(text))suggested='Higiene';
- else if(/petfood|cao|gato|dog food|cat food|rac[aã]o|animal/.test(text))suggested='Pet Shop';
- else if(data.product_type==='food'||/alimento|comida|biscoito|snack|food|merceria|pasta|chocolate/.test(text))suggested='Alimentos';
+ if(data.product_type==='beauty'||/cosmet|shampoo|sabonete|higiene|toothpaste|pasta de dente|creme dental|dentifric|beauty|toiletries|deodorant|perfume|skin care/.test(text))suggested='Higiene';
+ else if(data.product_type==='petfood'||/petfood|racao|cao|gato|dog food|cat food|animal/.test(text))suggested='Pet Shop';
+ else if(/limpeza|detergent|cleaning|sabao em po|laundry|desinfetant|amaciant|agua sanitaria/.test(text))suggested='Limpeza';
+ else if(/refrigerant|soda|\bcola\b|suco|juice|bebida|agua mineral|cerveja|beer|drink|coffee|cafe/.test(text))suggested='Bebidas';
+ else if(data.product_type==='food'||/alimento|comida|biscoito|snack|food|mercearia|chocolate/.test(text))suggested='Alimentos';
  const possible=[...new Set([...(Array.isArray(categories)?categories.map(c=>c.name):[]),...products.map(p=>p.category)].filter(Boolean))];
  const normalize=x=>barcodeWords(x).replace(/[^a-z0-9]/g,'');
  const aliases={Bebidas:['bebida','bebidas','refrigerantes','sucos'],Limpeza:['limpeza','produtosdelimpeza'],Higiene:['higiene','higienepessoal','perfumaria','cosmeticos'],Alimentos:['alimentos','mercearia','mercado','alimenticios'], 'Pet Shop':['pet','petshop','pets','animais']};
