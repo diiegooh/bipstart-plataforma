@@ -7,7 +7,7 @@ let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSc
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
-let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99',pdvCheckoutOpen=false,pdvShowBestSellers=false;
+let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99',pdvDiscountAmount='',pdvCheckoutOpen=false,pdvShowBestSellers=false;
 let bestSellerRank=new Map(),bestSellerLoading=false,bestSellerLoadedShop=null,bestSellerRequestId=0,bestSellerError='';
 const pdvProductClickCounts=new Map();
 let pdvQuantityEntryProductId=null;
@@ -1484,10 +1484,17 @@ function pdvProductCards(){
    '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button>'+quantityField+'</div>';
  }).join(''):'<div class="empty pdv-empty">'+(pdvShowBestSellers?(bestSellerLoading?'Calculando os produtos mais vendidos...':bestSellerError?'Não foi possível consultar o histórico de vendas: '+esc(bestSellerError):'Nenhum produto vendido encontrado entre os produtos disponíveis.'): 'Nenhum produto corresponde à busca. Cadastre produtos ou altere os filtros.')+'</div>';
 }
+function pdvCheckoutTotals(method=pdvPayment){
+ const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
+ const discount=['dinheiro','credito','debito'].includes(method)?parseMoneyInput(pdvDiscountAmount||'0'):0;
+ const valid=Number.isFinite(discount)&&discount>=0&&Math.abs(discount*100-Math.round(discount*100))<1e-6&&discount<=subtotal;
+ return {subtotal,discount,valid,total:valid?subtotal-discount:subtotal};
+}
 function renderGodzillaPDV(){
  const floatingSale=floatingSaleEnabled();
  const sum=cart.reduce((a,c)=>a+c.qty*c.price,0);
  const count=cart.reduce((a,c)=>a+c.qty,0);
+ const checkout=pdvCheckoutTotals();
  const categoriesList=[...new Set(products.map(p=>String(p.category||'Geral')))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
  const categoriesHtml='<option value="">Todas as categorias</option>'+
    categoriesList.map(name=>'<option value="'+esc(name)+'"'+(pdvCategory===name?' selected':'')+'>'+esc(name)+'</option>').join('');
@@ -1524,24 +1531,29 @@ function renderGodzillaPDV(){
  '</section><div class="pdv-floating-backdrop'+(floatingSale&&pdvCheckoutOpen?' open':'')+'" data-floating-sale-close></div><aside class="pdv-panel pdv-sale-panel'+(floatingSale?' pdv-sale-panel-floating':'')+(floatingSale&&pdvCheckoutOpen?' is-open':'')+'" aria-label="Venda atual">'+
  '<div class="pdv-sale-head"><div><span class="kicker">CAIXA</span><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
  '<div class="pdv-sale-list">'+(cartItems||'<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>')+'</div>'+
- '<div class="pdv-sale-total"><span>'+count+' item(ns) · Total</span><strong>'+fmt(sum)+'</strong></div>'+
+ '<div class="pdv-sale-total"><span>'+count+' item(ns) · Subtotal</span><strong>'+fmt(sum)+'</strong></div>'+
  '<form id="saleForm" class="pdv-payment-form">'+
  '<div class="pdv-payment-selector"><span class="pdv-payment-label" id="pdvPaymentLabel">Forma de pagamento</span>'+
  '<div class="pdv-payment-options" role="group" aria-labelledby="pdvPaymentLabel">'+paymentButtons+'</div>'+
  '<input type="hidden" name="payment_method" id="pdvPaymentMethod" value="'+esc(pdvPayment)+'"></div>'+
+ '<div id="pdvDiscountFields" class="pdv-discount-fields'+((cash||isCard)?'':' hidden')+'">'+
+ '<label>Desconto (R$)<input id="pdvDiscount" type="text" name="discount_amount" inputmode="decimal" autocomplete="off" placeholder="0,00" value="'+esc(pdvDiscountAmount)+'"></label>'+
+ '<div class="pdv-calculation">Desconto aplicado <strong id="pdvDiscountApplied">−'+fmt(checkout.valid?checkout.discount:0)+'</strong></div>'+
+ '<small class="muted" id="pdvDiscountError" role="status">'+(checkout.valid?'':'Informe um desconto de até '+fmt(sum)+'.')+'</small></div>'+
+ '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><strong id="pdvTotalDue">'+fmt(checkout.total)+'</strong></div>'+
  '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="text" inputmode="decimal" autocomplete="off" id="pdvReceived" name="received" placeholder="0,00"></label>'+
  '<div class="pdv-calculation">Troco <strong id="pdvChange">'+fmt(0)+'</strong></div></div>'+
  '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'">'+
  '<span class="pdv-card-kind-label" id="pdvCardKindLabel">Tipo de cartão</span>'+
  '<div class="pdv-card-kinds" role="group" aria-labelledby="pdvCardKindLabel">'+cardTypeButtons+'</div>'+
  '<label>Taxa da maquininha (%)<input id="pdvFeePercent" name="card_fee_percent" type="number" min="0" max="100" step="0.01" value="'+esc(pdvCardFeePercent)+'"></label>'+
- '<div class="pdv-calculation">Desconto da maquininha <strong id="pdvFeeAmount">−'+fmt(Math.round(sum*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
- '<div class="pdv-calculation">Líquido estimado <strong id="pdvNet">'+fmt(sum-Math.round(sum*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
+ '<div class="pdv-calculation">Desconto da maquininha <strong id="pdvFeeAmount">−'+fmt(Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
+ '<div class="pdv-calculation">Líquido estimado <strong id="pdvNet">'+fmt(checkout.total-Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
  '<small class="muted">Taxa registrada na venda e descontada do lucro no relatório; a BipStart não processa pagamentos.</small></div>'+
- '<button type="submit" class="button pdv-finish" '+(!cart.length?'disabled':'')+'>Finalizar venda ↗</button>'+
+ '<button type="submit" class="button pdv-finish" '+(!cart.length||!checkout.valid?'disabled':'')+'>Finalizar venda ↗</button>'+
  '</form>'+
  ((typeof lastReceipt!=='undefined'&&lastReceipt?.shopId===shop?.id)?'<button class="ghost pdv-last-receipt" type="button" data-receipt-last>🧾 Reimprimir último comprovante</button>':'')+
- '</aside></div>'+(floatingSale?'<button type="button" class="pdv-floating-sale-button" data-floating-sale-toggle aria-expanded="'+(pdvCheckoutOpen?'true':'false')+'"><span>🛒 Ver venda</span><strong>'+fmt(sum)+'</strong></button>':'')+'</div>';
+ '</aside></div>'+(floatingSale?'<button type="button" class="pdv-floating-sale-button" data-floating-sale-toggle aria-expanded="'+(pdvCheckoutOpen?'true':'false')+'"><span>🛒 Ver venda</span><strong id="pdvFloatingTotal">'+fmt(checkout.total)+'</strong></button>':'')+'</div>';
 }
 function selectPdvPayment(method){
  if(method==='cartao')pdvPayment=['credito','debito'].includes(pdvPayment)?pdvPayment:'credito';
@@ -1550,18 +1562,25 @@ function selectPdvPayment(method){
  return true;
 }
 function updatePdvEstimates(){
- const total=cart.reduce((a,c)=>a+c.qty*c.price,0);
- const received=document.getElementById('pdvReceived');
- const change=document.getElementById('pdvChange');
+ const checkout=pdvCheckoutTotals(),total=checkout.total;
+ const applied=document.getElementById('pdvDiscountApplied');
+ if(applied)applied.textContent='−'+fmt(checkout.valid?checkout.discount:0);
+ const error=document.getElementById('pdvDiscountError');
+ if(error)error.textContent=checkout.valid?'':'Informe um desconto de até '+fmt(checkout.subtotal)+'.';
+ const due=document.getElementById('pdvTotalDue');
+ if(due)due.textContent=fmt(total);
+ const floating=document.getElementById('pdvFloatingTotal');
+ if(floating)floating.textContent=fmt(total);
+ const finish=document.querySelector('#saleForm .pdv-finish');
+ if(finish)finish.disabled=!cart.length||!checkout.valid;
+ const received=document.getElementById('pdvReceived'),change=document.getElementById('pdvChange');
  if(received&&change){const amount=parseMoneyInput(received.value);change.textContent=fmt(Number.isFinite(amount)?Math.max(0,amount-total):0);}
- const fee=document.getElementById('pdvFeePercent');
- const net=document.getElementById('pdvNet');
+ const fee=document.getElementById('pdvFeePercent'),net=document.getElementById('pdvNet');
  if(fee&&net){
-   const percent=Math.min(100,Math.max(0,Number(fee.value||0)));
-   const discounted=Math.round(total*percent)/100;
-   const feeAmount=document.getElementById('pdvFeeAmount');
-   if(feeAmount)feeAmount.textContent='−'+fmt(discounted);
-   net.textContent=fmt(total-discounted);
+  const percent=Math.min(100,Math.max(0,Number(fee.value||0)));
+  const amount=Math.round(total*percent)/100,feeAmount=document.getElementById('pdvFeeAmount');
+  if(feeAmount)feeAmount.textContent='−'+fmt(amount);
+  net.textContent=fmt(total-amount);
  }
 }
 
