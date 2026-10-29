@@ -4963,7 +4963,7 @@ body:not(.pdv-night) #workspace #page .sales-records-table .sales-record-profit.
 }
 
 
-/* Homologação: categorias retangulares de 110 x 58px com intervalo de 3px.
+/* Homologação: categorias retangulares de 110 x 58px com intervalo de 0,6px.
    A grade de produtos não é alterada. */
 body #workspace #page .godzilla-pdv .pdv-category-tiles,
 body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles,
@@ -4974,7 +4974,7 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pd
  justify-content:start!important;
  align-content:start!important;
  align-items:start!important;
- gap:3px!important;
+ gap:0.6px!important;
  width:100%!important;
  max-width:100%!important;
  margin:6px 0 10px!important;
@@ -5028,6 +5028,6 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .
  body #workspace #page .godzilla-pdv .pdv-category-tiles,
  body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles{
   grid-template-columns:repeat(auto-fill,110px)!important;
-  gap:3px!important;
+  gap:0.6px!important;
  }
 }
