@@ -2509,8 +2509,8 @@ body.workspace-fullscreen #workspace .content{
   color:#293653!important;
 }
 #workspace .sales-records-section h3{color:#253251!important;font-size:20px!important;font-weight:800!important;line-height:1.3!important}
-#workspace .sales-records-section>p{color:#7885a3!important;font-size:13px!important;line-height:1.5!important}
-#workspace .sales-records-scroll{
+body:not(.pdv-night) #workspace .sales-records-section>p{color:#7885a3!important;font-size:13px!important;line-height:1.5!important}
+body:not(.pdv-night) #workspace .sales-records-scroll{
   border:1px solid #e0e6f8!important;
   border-radius:12px!important;
   background:#fff!important;
@@ -2518,7 +2518,7 @@ body.workspace-fullscreen #workspace .content{
   scrollbar-width:thin;
   scrollbar-color:#c7cdef transparent;
 }
-#workspace .sales-records-table{
+body:not(.pdv-night) #workspace .sales-records-table{
   width:100%!important;
   min-width:720px!important;
   border-collapse:separate!important;
@@ -2527,7 +2527,7 @@ body.workspace-fullscreen #workspace .content{
   color:#465574!important;
   font-variant-numeric:tabular-nums;
 }
-#workspace .sales-records-table th{
+body:not(.pdv-night) #workspace .sales-records-table th{
   padding:13px 14px!important;
   background:#f1f3ff!important;
   color:#53617f!important;
@@ -2538,30 +2538,30 @@ body.workspace-fullscreen #workspace .content{
   text-transform:uppercase;
   white-space:nowrap!important;
 }
-#workspace .sales-records-table td{
+body:not(.pdv-night) #workspace .sales-records-table td{
   padding:13px 14px!important;
   background:#fff!important;
   border-bottom:1px solid #edf0fa!important;
   color:#53617f!important;
   vertical-align:middle!important;
 }
-#workspace .sales-records-table tbody tr:nth-child(even) td{background:#fafbff!important}
-#workspace .sales-records-table tbody tr:hover td{background:#f4f5ff!important}
-#workspace .sales-records-table tr:last-child td{border-bottom:0!important}
-#workspace .sales-records-table th:nth-child(-n+2),
-#workspace .sales-records-table td:nth-child(-n+2){text-align:left!important}
-#workspace .sales-records-table td strong{color:#293653!important;font-weight:800!important}
-#workspace .sales-records-table .sales-record-profit{color:#16885b!important;font-weight:800!important}
-#workspace .sales-records-table .sales-record-toggle{
+body:not(.pdv-night) #workspace .sales-records-table tbody tr:nth-child(even) td{background:#fafbff!important}
+body:not(.pdv-night) #workspace .sales-records-table tbody tr:hover td{background:#f4f5ff!important}
+body:not(.pdv-night) #workspace .sales-records-table tr:last-child td{border-bottom:0!important}
+body:not(.pdv-night) #workspace .sales-records-table th:nth-child(-n+2),
+body:not(.pdv-night) #workspace .sales-records-table td:nth-child(-n+2){text-align:left!important}
+body:not(.pdv-night) #workspace .sales-records-table td strong{color:#293653!important;font-weight:800!important}
+body:not(.pdv-night) #workspace .sales-records-table .sales-record-profit{color:#16885b!important;font-weight:800!important}
+body:not(.pdv-night) #workspace .sales-records-table .sales-record-toggle{
   display:flex!important;align-items:center!important;gap:8px!important;
   min-height:40px!important;padding:8px 10px!important;
   border:1px solid #dfe5f8!important;border-radius:9px!important;
   background:#f4f5ff!important;color:#43519b!important;
   font-size:13px!important;font-weight:800!important;
 }
-#workspace .sales-records-table .sales-record-toggle:hover{background:#eceeff!important;color:#5135b8!important}
-#workspace .sales-records-table .sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) td{background:#f3f1ff!important}
-#workspace .sales-records-table .sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) .sales-record-toggle{background:#e9e4ff!important;border-color:#d7cbff!important;color:#5939c3!important}
+body:not(.pdv-night) #workspace .sales-records-table .sales-record-toggle:hover{background:#eceeff!important;color:#5135b8!important}
+body:not(.pdv-night) #workspace .sales-records-table .sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) td{background:#f3f1ff!important}
+body:not(.pdv-night) #workspace .sales-records-table .sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) .sales-record-toggle{background:#e9e4ff!important;border-color:#d7cbff!important;color:#5939c3!important}
 #workspace .sales-export-actions{display:flex!important;flex-wrap:wrap!important;gap:10px!important;margin:14px 0!important}
 #workspace .sales-export-actions button{min-height:40px!important;border-radius:10px!important;padding:10px 14px!important;font-weight:750!important}
 @media(max-width:700px){
@@ -4928,4 +4928,36 @@ body.pdv-night #workspace #page #productForm > .product-form-grid > .product-des
 }
 @media(max-width:780px){
  #workspace #page #productForm > .product-form-grid > .product-description-field{grid-column:auto!important}
+}
+
+
+/* Vendas v177: tabela escura no modo noite e prejuizos destacados. */
+body.pdv-night #workspace #page .sales-records-scroll{
+ background:#22252d!important;border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .sales-records-table tbody tr.sales-record-row td{
+ background:#22252d!important;color:#f4f4f8!important;
+ -webkit-text-fill-color:#f4f4f8!important;
+ border-bottom-color:#393d49!important;
+}
+body.pdv-night #workspace #page .sales-records-table tbody tr.sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) td{
+ background:#302b40!important;
+}
+body.pdv-night #workspace #page .sales-records-table .sales-record-toggle{
+ background:#2b2f39!important;color:#f4f4f8!important;
+ -webkit-text-fill-color:#f4f4f8!important;
+ border-color:#494455!important;
+}
+body.pdv-night #workspace #page .sales-records-table .sales-record-toggle strong{
+ color:#f4f4f8!important;-webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page .sales-records-table .sales-record-arrow{
+ background:#4b3b66!important;color:#e9ddff!important;
+ -webkit-text-fill-color:#e9ddff!important;
+}
+body.pdv-night #workspace #page .sales-records-table .sales-record-profit.is-loss{
+ color:#ff929a!important;-webkit-text-fill-color:#ff929a!important;
+}
+body:not(.pdv-night) #workspace #page .sales-records-table .sales-record-profit.is-loss{
+ color:#c5223d!important;-webkit-text-fill-color:#c5223d!important;
 }
