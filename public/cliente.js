@@ -1290,7 +1290,7 @@ function filteredPdvProducts(){
 function normalizeBarcode(value){return String(value??'').trim().replace(/\s+/g,'');}
 async function fetchPublicBarcodeInfo(code){
  const value=normalizeBarcode(code);
- if(!/^[0-9]{8,14}$/.test(value))return {found:false,code:value,message:'Código não cadastrado nesta loja. Para consulta externa, use um GTIN de 8 a 14 dígitos.'};
+ if(!/^[0-9]{8,14}$/.test(value))return {found:false,code:value,message:'Para consultar a base pública, digite ou escaneie um GTIN numérico de 8 a 14 dígitos.'};
  const response=await fetch('/api/barcode-lookup?code='+encodeURIComponent(value),{headers:{Accept:'application/json'}});
  const data=await response.json().catch(()=>null);
  if(!response.ok)throw Error(data?.error||'Falha ao consultar base pública.');
@@ -1308,10 +1308,38 @@ function externalBarcodePanel(){
   '<small>'+esc(found?'Base pública Open Facts — confirme os dados antes de cadastrar.':'Sem informações externas; preencha manualmente.')+'</small>'+
   '</div></div><div class="pdv-barcode-result-actions"><button type="button" class="button" data-barcode-register>Cadastrar produto</button><button type="button" class="ghost" data-barcode-dismiss>Fechar</button></div></section>';
 }
-function externalCategory(value){
- const words=String(value||'').split(',').map(x=>x.trim()).filter(Boolean);
- const last=words.at(-1)||'';
- return last.length<=65&&!/^[a-z]{2}:/.test(last)?last:'';
+function barcodeWords(value){
+ return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+}
+function externalCategoryInfo(data){
+ const raw=String(data.category||'');
+ const parts=raw.split(',').map(x=>x.trim().replace(/^[a-z]{2}:/i,'')).filter(Boolean);
+ const tags=Array.isArray(data.categories_tags)?data.categories_tags.join(' '):'';
+ const text=barcodeWords([raw,tags,data.name,data.product_type].join(' '));
+ let suggested='';
+ if(/refrigerant|soda|cola|suco|juice|bebida|agua mineral|water|cerveja|beer|drink|coffee|cafe/.test(text))suggested='Bebidas';
+ else if(/limpeza|detergent|cleaning|sabao em po|laundry|desinfetant|amaciant/.test(text))suggested='Limpeza';
+ else if(/cosmet|shampoo|sabonete|higiene|beauty|toiletries|deodorant|perfume|skin care/.test(text))suggested='Higiene';
+ else if(/petfood|cao|gato|dog food|cat food|rac[aã]o|animal/.test(text))suggested='Pet Shop';
+ else if(data.product_type==='food'||/alimento|comida|biscoito|snack|food|merceria|pasta|chocolate/.test(text))suggested='Alimentos';
+ const possible=[...new Set([...(Array.isArray(categories)?categories.map(c=>c.name):[]),...products.map(p=>p.category)].filter(Boolean))];
+ const normalize=x=>barcodeWords(x).replace(/[^a-z0-9]/g,'');
+ const aliases={Bebidas:['bebida','bebidas','refrigerantes','sucos'],Limpeza:['limpeza','produtosdelimpeza'],Higiene:['higiene','higienepessoal','perfumaria','cosmeticos'],Alimentos:['alimentos','mercearia','mercado','alimenticios'], 'Pet Shop':['pet','petshop','pets','animais']};
+ const matches=possible.find(n=>aliases[suggested]?.includes(normalize(n)));
+ const category=matches||suggested||parts.find(x=>x.length<=65)||'';
+ const subcategory=parts.slice().reverse().find(x=>x.length<=65&&normalize(x)!==normalize(category))||'';
+ return {category,subcategory};
+}
+function barcodeProductDescription(data){
+ const pieces=[];
+ const put=(title,value,max)=>{const s=String(value||'').trim();if(s)pieces.push(title+': '+s.slice(0,max));};
+ put('Descrição',data.generic_name,250);
+ put('Embalagem',data.quantity,90);
+ put('Tipo de embalagem',data.packaging,120);
+ put('Ingredientes',data.ingredients,290);
+ put('Origem',data.origins,110);
+ put('Informações da embalagem',data.labels,100);
+ return pieces.join('\n').slice(0,1000);
 }
 function useBarcodeResultInForm(data){
  const form=$('productForm');
@@ -1319,15 +1347,22 @@ function useBarcodeResultInForm(data){
  const input=k=>form.elements.namedItem(k);
  const assign=(key,value,allowDefault=false)=>{
   const el=input(key);
-  if(el&&value&&(!String(el.value||'').trim()||(allowDefault&&el.value==='Geral')))el.value=String(value).slice(0,el.maxLength>0?el.maxLength:160);
+  if(!el||!value)return;
+  const current=String(el.value||'').trim();
+  if(current&&!(allowDefault&&barcodeWords(current)==='geral'))return;
+  const limit=el.maxLength>0?el.maxLength:1000;
+  el.value=String(value).slice(0,limit);
  };
+ const {category,subcategory}=externalCategoryInfo(data);
  assign('name',data.name);
  assign('brand',data.brand);
- assign('category',externalCategory(data.category),true);
- // Mostra somente os dados nos campos; sem imagem ou cartão de resultado.
+ assign('category',category,true);
+ assign('subcategory',subcategory);
+ if(data.quantity)assign('unit','UN');
+ assign('description',barcodeProductDescription(data));
+ // Não buscar/gravar foto automaticamente; preço, custo e estoque continuam manuais.
  const slot=$('barcodeRegistrationInfo');
- if(slot)slot.replaceChildren();
-
+ if(slot)slot.textContent=data.partial?'Cadastro público incompleto: confira o nome e os dados do produto.':'';
 }
 async function lookupBarcodeForRegistration(code){
  const form=$('productForm'),value=normalizeBarcode(code);
@@ -2208,6 +2243,7 @@ function productForm(p){
   field('min_stock','Estoque mínimo (unidades)','number',p.min_stock??5,'required min="0" max="999999999" step="1"')+
   field('lot','Lote','text',p.lot||'','maxlength="80"')+
   field('expiration_date','Vencimento','date',p.expiration_date?String(p.expiration_date).slice(0,10):'')+
+  '<label class="product-description-field">Informações adicionais do produto<textarea name="description" maxlength="1000" rows="3" placeholder="Embalagem, ingredientes, origem e descrição">'+esc(p.description||'')+'</textarea></label>'+
   onlineControls+
   bestSeller+
   imageControls
@@ -2408,6 +2444,7 @@ async function handleSubmit(form,contractWindow=null){
        menu_price_enabled:proAccess()?v.online_enabled==='true':(p?.menu_price_enabled===true),
        menu_price:proAccess()?(v.online_enabled==='true'?Number(v.menu_price):p?.menu_price??null):(p?.menu_price??null),
        ...(isMenu?{description:String(v.description||'').trim()}:{
+        description:String(v.description||'').trim(),
         cost:Number(v.cost),stock:Number(v.stock),min_stock:Number(v.min_stock),
         sku:String(v.sku||'').trim()||null,
         brand:String(v.brand||'').trim()||null,
