@@ -4897,3 +4897,35 @@ body.pdv-night #workspace #page #productForm .menu-price-controls :is(select,inp
 body.pdv-night #workspace #page #productForm .product-best-seller-option input[type="checkbox"]{
  accent-color:var(--store-accent,#8b5cf6)!important;
 }
+
+
+/* Campos adicionais obtidos por GTIN: descrição legível em modo dia/noite. */
+#workspace #page #productForm > .product-form-grid > .product-description-field{
+ grid-column:1 / -1!important;
+ display:flex!important;
+ flex-direction:column!important;
+ gap:6px!important;
+ min-width:0!important;
+}
+#workspace #page #productForm > .product-form-grid > .product-description-field textarea{
+ box-sizing:border-box!important;
+ display:block!important;
+ width:100%!important;
+ height:92px!important;
+ min-height:92px!important;
+ max-width:100%!important;
+ margin:0!important;
+ padding:10px 12px!important;
+ resize:vertical!important;
+ font-size:13px!important;
+ line-height:1.4!important;
+}
+body.pdv-night #workspace #page #productForm > .product-form-grid > .product-description-field textarea{
+ background:#22252d!important;
+ color:#f4f4f8!important;
+ border-color:#393d49!important;
+ color-scheme:dark!important;
+}
+@media(max-width:780px){
+ #workspace #page #productForm > .product-form-grid > .product-description-field{grid-column:auto!important}
+}
