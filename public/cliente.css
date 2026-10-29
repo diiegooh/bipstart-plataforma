@@ -4666,3 +4666,25 @@ body.pdv-night #workspace #page #productForm .online-sale-locked{
   grid-column:auto!important;
  }
 }
+
+
+/* Prévia do cadastro por GTIN: exibir somente uma foto pequena. */
+#workspace #page #productForm .barcode-registration-info .barcode-info-card.barcode-image-only{
+ display:inline-flex!important;
+ width:auto!important;
+ max-width:100%;
+ padding:4px!important;
+ margin:3px 0 6px!important;
+ border-radius:9px!important;
+ align-items:center!important;
+ justify-content:center!important;
+}
+#workspace #page #productForm .barcode-registration-info .barcode-info-card.barcode-image-only>img{
+ display:block;
+ width:48px!important;
+ height:48px!important;
+ max-width:48px!important;
+ object-fit:contain;
+ border-radius:6px!important;
+}
+#workspace #page #productForm .barcode-registration-info:empty{display:none!important}
