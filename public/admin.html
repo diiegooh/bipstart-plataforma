@@ -54,6 +54,81 @@
 @media(max-width:700px){.admin-link-grid{grid-template-columns:1fr}}
 
 @media(max-width:640px){.customization-card{padding:14px}.customization-actions{align-items:stretch}.customization-actions button,.custom-contact{width:100%;justify-content:center}}
+
+/* Admin BipStart — layout renovado, sem alterações nas regras dos planos */
+:root{--admin-border:#49365f;--admin-panel:#1a122a;--admin-glow:#aa70f7}
+body{background:radial-gradient(ellipse 65% 35% at 50% 0%,#2c1744 0%,transparent 85%),#100b1e;color:#f7f0ff}
+.top{padding-inline:max(24px,calc((100% - 1240px)/2));border-bottom:1px solid #3b2c53;background:#100b1e}
+.admin-main{width:min(1240px,calc(100% - 48px));margin:44px auto 90px}
+.admin-header{align-items:end;gap:22px;padding:8px 0 6px}
+.admin-header h1{font-size:clamp(30px,4.2vw,44px);line-height:1.12;letter-spacing:-.035em;margin:10px 0 14px}
+.admin-header .muted{line-height:1.55;max-width:670px}
+#adminAccount{display:inline-flex;padding:9px 13px;border:1px solid #48345e;border-radius:10px;background:#211631;overflow-wrap:anywhere}
+#reload{min-height:46px;white-space:nowrap;border-radius:12px;padding:12px 20px;font-weight:800;box-shadow:0 6px 22px #7138f42c}
+.admin-tabs{border-bottom:1px solid #453353;gap:7px;margin:24px 0 22px;padding-bottom:11px}
+.admin-tabs button{min-height:46px;background:transparent;border-color:transparent;border-radius:10px;padding:12px 20px;transition:background .18s,border-color .18s}
+.admin-tabs button:hover{background:#281b3a;border-color:#674788}
+.admin-tabs button[aria-selected="true"]{background:#743ad4;border-color:#a579ec;box-shadow:inset 0 1px #ffffff29}
+.admin-main .card{background:linear-gradient(145deg,#241532,#160e26);border:1px solid #503866;border-radius:22px;box-shadow:0 18px 48px #08030f45;padding:26px;margin:0 0 20px}
+#adminMessage{margin:0 0 22px;padding:12px 15px;background:#2b1a3a;border-left:3px solid #a66bff;border-radius:9px;line-height:1.5}
+.admin-wrap{width:100%;overflow-x:auto;border:1px solid #48345f;border-radius:15px;background:#170e25}
+.admin-table{width:100%;min-width:910px;border-collapse:separate;border-spacing:0;font-size:13px}
+.admin-table th{padding:16px 14px;background:#2b1d40;color:#e4d4fa;font-size:11px;text-transform:uppercase;letter-spacing:.065em;white-space:nowrap}
+.admin-table td{padding:20px 14px;line-height:1.55;border-bottom:1px solid #443152;color:#f5eafa;vertical-align:middle}
+.admin-table tbody tr:last-child td{border-bottom:0}
+.admin-table tbody tr:hover{background:#ffffff08}
+.admin-table td:first-child{min-width:225px}
+.admin-table td:first-child>strong{font-size:16px;color:#fff;display:block;margin-bottom:5px}
+.admin-email{font-size:12px;color:#d9b8ff;line-height:1.5}
+.admin-muted{color:#b5a6c7;line-height:1.5;font-size:12px;overflow-wrap:anywhere}
+.admin-shop-whatsapp{margin-top:8px}
+.admin-shop-whatsapp a{color:#7fe3ad}
+.admin-status{font-weight:800}
+.admin-table select,.customization-actions select{width:100%;min-width:142px;border:1px solid #745b92;background:#130c21;color:#fff;border-radius:10px;padding:11px;min-height:43px}
+.admin-actions{display:flex;align-items:stretch;gap:8px}
+.admin-actions button{min-height:42px;margin:0;padding:9px 13px;font-size:12px;font-weight:800;border-radius:10px;white-space:nowrap}
+.admin-actions button:focus-visible,.admin-tabs button:focus-visible,#reload:focus-visible{outline:3px solid #d9b6ff;outline-offset:2px}
+.admin-actions [data-action="suspend"]{border:1px solid #745a8d;background:transparent;color:#e8d8f8}
+.admin-actions [data-action="suspend"]:hover{background:#382344}
+.admin-premium-payment{border-color:#3a745b;background:#112c22;border-radius:11px;margin-top:12px;padding:11px}
+.admin-premium-payment strong{font-size:12px}
+#adminShopsSection>p.muted{padding:16px 18px;border:1px solid #49365f;border-radius:12px;background:#1b1329;font-size:12px;line-height:1.7}
+.customization-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,370px),1fr));gap:16px}
+.customization-card{border-radius:16px;background:#241632;border-color:#594175;box-shadow:0 8px 24px #0a051b2b}
+.customization-details{background:#140d20}
+@media(max-width:900px){
+.admin-main{width:min(100% - 30px,780px);margin:25px auto 55px}
+.admin-main .card{padding:17px;border-radius:16px}
+.admin-header{align-items:start}
+.admin-table{min-width:0}
+.admin-table thead{display:none}
+.admin-table tbody{display:grid;gap:13px;padding:12px}
+.admin-table tbody tr{display:grid;border:1px solid #59406d;border-radius:14px;background:#20142f;overflow:hidden;padding:8px 14px}
+.admin-table td{display:grid;grid-template-columns:minmax(108px,34%) minmax(0,1fr);gap:10px;border-bottom:1px solid #49355b;padding:13px 0;min-width:0!important;align-items:start}
+.admin-table td:last-child{border-bottom:0}
+.admin-table td::before{font-weight:800;color:#bfa5e4;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding-top:4px}
+.admin-table td:nth-child(1)::before{content:"Loja"}
+.admin-table td:nth-child(2)::before{content:"Plano solicitado"}
+.admin-table td:nth-child(3)::before{content:"Status"}
+.admin-table td:nth-child(4)::before{content:"Plano para liberar"}
+.admin-table td:nth-child(5)::before{content:"Ações"}
+.admin-actions{gap:7px;flex-wrap:wrap}
+.admin-table select{width:100%}
+}
+@media(max-width:560px){
+.top{padding-inline:16px}
+.admin-main{width:calc(100% - 24px);margin-top:20px}
+.admin-header h1{font-size:29px}
+.admin-header #reload{width:100%}
+.admin-tabs{display:grid;grid-template-columns:1fr 1fr}
+.admin-tabs button{padding:12px 8px;font-size:12px}
+.admin-table tbody{padding:8px}
+.admin-table tbody tr{padding:7px 11px}
+.admin-table td{grid-template-columns:1fr;gap:5px}
+.admin-actions button{flex:1 1 90px}
+.customization-actions select{min-width:0}
+}
+
 </style></head><body>
 <header class="top"><a href="/" class="brand"><img src="/bipstart-logo.svg" alt="BipStart" width="220" height="60"></a>
 <nav><a href="/cliente">Voltar à minha loja</a></nav></header>
