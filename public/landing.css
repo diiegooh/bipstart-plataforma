@@ -33,3 +33,22 @@ html{scroll-padding-top:68px}
 .bs-footer .bs-footer-brand{display:inline-flex;align-items:center;width:max-content;max-width:100%}
 .bs-footer .bs-footer-logo{display:block;width:190px;max-width:100%;height:auto;max-height:58px;object-fit:contain;filter:none}
 @media(max-width:720px){.bs-footer .bs-footer-logo{width:160px}}
+
+/* Planos compactos: caber lado a lado em telas desktop sem alterar zoom global */
+@media(min-width:721px){
+.bs-pricing{padding-top:22px!important;padding-bottom:34px!important}
+.bs-pricing-heading{margin-bottom:16px!important}
+.bs-pricing-heading h2{font-size:clamp(28px,3vw,38px);line-height:1.08}
+.bs-plans{max-width:860px;gap:16px}
+.bs-plan{padding:21px 25px 18px;border-radius:18px}
+.bs-plan h3{margin:12px 0 4px;font-size:24px}
+.bs-plan-desc{font-size:11px}
+.bs-price{margin:13px 0 12px;gap:2px}
+.bs-price strong{font-size:31px}
+.bs-price .bs-price-period{margin-top:4px;padding:6px 10px;font-size:11px}
+.bs-price .bs-price-month{font-size:12px}
+.bs-plan ul{gap:7px;margin:13px 0 15px}
+.bs-plan li{font-size:11px;line-height:1.35}
+.bs-plan-button{min-height:40px;padding:9px 14px}
+.bs-plan-ribbon{padding:7px 11px}
+}
