@@ -2259,6 +2259,9 @@ function renderPage(){
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +logoSection+'</div>':'')
       +(isMenu?'<section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+cardapioLayoutSettings()+receiptSettingsPanel()+categoryImagesSettings():'')+
+      '<section class="receipt-settings-panel"><h3>Excluir todas as categorias</h3>'+
+      '<p class="muted">Remove as categorias cadastradas nesta loja e coloca os produtos existentes na categoria Geral. Não apaga produtos, estoque, preços nem histórico de vendas. Esta ação não pode ser desfeita automaticamente.</p>'+
+      '<button type="button" class="ghost" data-delete-all-categories style="border:1px solid #d14457;color:#d14457">Excluir todas as categorias</button></section>'+
       '<section class="receipt-settings-panel"><h3>Excluir todo o estoque</h3><p class="muted">Exclui permanentemente todos os produtos cadastrados nesta loja, incluindo seus preços, imagens associadas ao cadastro e quantidades. O histórico de vendas é preservado. Esta ação não pode ser desfeita.</p><button type="button" class="ghost" data-delete-all-stock style="border:1px solid #d14457;color:#d14457">Excluir todos os produtos</button></section>'+
        '<button type="submit" class="button settings-save-button" style="background-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;border-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;color:'+getSystemAccentInk()+' !important;">Salvar</button></form></div>';
   }else if(tab==='personalizar'){
@@ -2846,6 +2849,32 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
+  const deleteCategories=e.target.closest('[data-delete-all-categories]');
+  if(deleteCategories){
+    if(tab!=='configuracoes'||!shop||!hasAccess())return;
+    const shopId=shop.id;
+    const confirmation=window.prompt('EXCLUIR TODAS AS CATEGORIAS da loja "'+shop.name+'"? Os produtos permanecerão cadastrados na categoria Geral. Digite EXCLUIR CATEGORIAS para continuar:');
+    if(confirmation!=='EXCLUIR CATEGORIAS')return;
+    if(!window.confirm('Confirma a exclusão definitiva de todas as categorias desta loja? Os produtos serão movidos para Geral; produtos, estoque e vendas não serão apagados.'))return;
+    deleteCategories.disabled=true;
+    try{
+      const outcome=await rpc('bipstart_delete_all_categories',{p_shop_id:shopId});
+      if(shop?.id!==shopId)return;
+      await reloadData();
+      selectedCategoryFilter='all';
+      pdvCategory='';
+      pdvShowBestSellers=false;
+      renderPage();
+      const count=Number(outcome?.categories_deleted||0);
+      const updated=Number(outcome?.products_recategorized||0);
+      msg('Categorias excluídas: '+count+'. Produtos movidos para Geral: '+updated+'.');
+    }catch(error){
+      msg(error.message||'Não foi possível excluir todas as categorias.',true);
+    }finally{
+      if(deleteCategories.isConnected)deleteCategories.disabled=false;
+    }
+    return;
+  }
   const deleteButton=e.target.closest('[data-delete-all-stock]');
   if(deleteButton){
     if(tab!=='configuracoes'||!shop||!hasAccess())return;
