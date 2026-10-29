@@ -4799,3 +4799,65 @@ body #workspace #page .godzilla-pdv .pdv-products > .pdv-empty{
   padding:5px 3px!important;
  }
 }
+
+
+/* Cadastro de produtos v174: alinhamento uniforme sem botão GTIN. */
+#workspace #page #productForm > .product-form-grid {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-auto-flow:row!important;
+  column-gap:18px!important;
+  row-gap:16px!important;
+  align-items:start!important;
+}
+#workspace #page #productForm > .product-form-grid > label:not(.product-best-seller-option):not(.product-image-file){
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  gap:6px!important;
+  padding:0!important;
+  margin:0!important;
+  font-size:13px;
+  line-height:1.35!important;
+  min-width:0;
+}
+#workspace #page #productForm > .product-form-grid > label:not(.product-best-seller-option):not(.product-image-file)
+  > :is(input:not([type=checkbox]):not([type=file]),select,textarea){
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:46px!important;
+  min-height:46px!important;
+  margin:0!important;
+  padding:10px 12px!important;
+  box-sizing:border-box!important;
+  font-size:14px!important;
+  line-height:1.35!important;
+}
+#workspace #page #productForm > .product-form-grid > label.product-barcode-field > .barcode-registration-info:empty{
+  display:none!important;
+}
+#workspace #page #productForm > .product-form-grid > label.product-barcode-field > .barcode-registration-info:not(:empty){
+  display:block!important;
+  margin:0!important;
+  padding:3px 0 0!important;
+  font-weight:500!important;
+  font-size:12px!important;
+  line-height:1.4!important;
+  color:inherit;
+  overflow-wrap:anywhere;
+}
+#workspace #page #productForm > .product-form-grid > .menu-price-controls,
+#workspace #page #productForm > .product-form-grid > .product-best-seller-option,
+#workspace #page #productForm > .product-form-grid > .online-sale-locked{
+  margin:0!important;
+  min-width:0!important;
+}
+@media(max-width:780px){
+  #workspace #page #productForm > .product-form-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+    row-gap:14px!important;
+  }
+}
