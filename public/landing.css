@@ -83,3 +83,35 @@ html{scroll-padding-top:68px}
  .bs-plans{grid-template-columns:1fr;max-width:520px;gap:16px}
  .bs-plan{padding:22px}
 }
+
+/* Cards de preços compactos no desktop, sem ocultar conteúdo */
+@media(min-width:900px) and (min-height:620px){
+ #planos{scroll-margin-top:8px}
+ .bs-pricing{padding-top:10px!important;padding-bottom:22px!important}
+ .bs-pricing-heading{margin-bottom:10px!important;gap:12px}
+ .bs-pricing-heading h2{font-size:clamp(26px,2.8vw,36px)!important;line-height:1.07}
+ .bs-pricing-heading .bs-kicker{font-size:10px}
+ .bs-pricing-heading p{font-size:12px;line-height:1.4}
+ .bs-plans{gap:16px;max-width:1000px}
+ .bs-plan{padding:16px 23px!important;border-radius:17px}
+ .bs-plan-label{font-size:10px}
+ .bs-plan h3{margin:9px 0 3px!important;font-size:22px}
+ .bs-plan-desc{font-size:11px}
+ .bs-price{margin:8px 0!important;gap:5px}
+ .bs-price strong{font-size:clamp(25px,2.5vw,34px)!important;line-height:1.12}
+ .bs-price .bs-price-period{padding:3px 6px!important;font-size:11px!important}
+ .bs-plan-rule{margin:10px 0!important}
+ .bs-plan ul{margin:8px 0 12px!important;padding:0}
+ .bs-plan li{font-size:11px!important;line-height:1.25!important;margin-bottom:5px!important}
+ .bs-plan-button{min-height:38px!important;padding:8px 12px!important;font-size:12px}
+ .bs-plan-ribbon{padding:6px 10px}
+}
+@media(min-width:900px) and (max-height:760px){
+ .bs-pricing-heading{margin-bottom:8px!important}
+ .bs-pricing-heading h2{font-size:30px!important}
+ .bs-plan{padding:12px 20px!important}
+ .bs-plan h3{margin:6px 0 2px!important}
+ .bs-plan li{margin-bottom:3px!important}
+ .bs-plan-rule{margin:7px 0!important}
+ .bs-plan-button{min-height:34px!important}
+}
