@@ -141,3 +141,9 @@ body:has(#auth:not(.hidden)) #loginForm .login-whatsapp-icon{
   font-size:12px;padding:12px 9px;gap:7px;
  }
 }
+
+body.auth-screen #loginForm .login-support-security,
+body:has(#auth:not(.hidden)) #loginForm .login-support-security{
+ margin:9px 0 0!important;color:#6d647e!important;text-align:center;
+ font-size:11px;line-height:1.5;
+}
