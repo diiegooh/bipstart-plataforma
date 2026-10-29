@@ -943,7 +943,7 @@ function productCard(product){
  return '<article class="inventory-card" data-stock-state="'+state+'">'+
   '<div class="inventory-photo-wrap">'+photo+'</div>'+
   '<div class="inventory-card-body">'+
-  '<div class="inventory-card-heading"><small>'+esc(product.category||'Geral')+'</small><h3>'+esc(product.name)+'</h3></div>'+
+  '<div class="inventory-card-heading"><small>'+esc(product.category||'Geral')+(product.subcategory?' · '+esc(product.subcategory):'')+'</small><h3>'+esc(product.name)+'</h3>'+(product.sku?'<small>Código: '+esc(product.sku)+'</small>':'')+'</div>'+
   '<div class="inventory-card-prices"><strong>'+fmt(product.price)+'</strong><small>Custo: '+fmt(product.cost)+'</small></div>'+
   (product.online_enabled===false?'<small class="inventory-online-status offline">Somente PDV · Não aparece no cardápio online</small>':
    '<small class="inventory-online-status">Venda online: Sim · '+fmt(product.menu_price_enabled&&product.menu_price!=null?product.menu_price:product.price)+'</small>')+
@@ -2044,7 +2044,16 @@ function productForm(p){
   (isMenu?'<label>Descrição<textarea name="description" maxlength="1000" placeholder="Ingredientes, opções e informações do produto">'+esc(p.description||'')+'</textarea></label>':
   field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')+
   field('stock','Quantidade em estoque','number',p.stock??0,'required min="0" step="1"')+
-  field('min_stock','Estoque mínimo (unidades)','number',p.min_stock??5,'required min="0" max="999999999" step="1"'))+
+  field('min_stock','Estoque mínimo (unidades)','number',p.min_stock??5,'required min="0" max="999999999" step="1"')+
+  '<fieldset class="stock-extra-fields"><legend>Dados adicionais do estoque</legend><div class="columns">'+
+  field('sku','Código / código de barras','text',p.sku||'','maxlength="120"')+
+  field('supplier','Fornecedor','text',p.supplier||'','maxlength="120"')+
+  field('subcategory','Subcategoria','text',p.subcategory||'','maxlength="65"')+
+  field('unit','Unidade (UN, KG, CX...)','text',p.unit||'','maxlength="20"')+
+  field('wholesale_price','Preço de atacado (R$)','number',p.wholesale_price??'','min="0" step="0.01"')+
+  field('lot','Lote','text',p.lot||'','maxlength="80"')+
+  field('expiration_date','Vencimento','date',p.expiration_date?String(p.expiration_date).slice(0,10):'')+
+  '</div></fieldset>')+
   '<label>Imagem do item (até 5 MB)<input name="image" type="file" accept="image/png,image/jpeg,image/webp"></label>'+
   '<div class="paste-area" data-image-paste tabindex="0" role="button" aria-label="Colar imagem do produto" style="border:1px dashed #9068c8;border-radius:12px;padding:16px;cursor:pointer;min-height:75px">Clique aqui e pressione Ctrl+V para colar uma imagem copiada.<div data-image-preview aria-live="polite" style="margin-top:8px"></div></div>'
  );
@@ -2244,7 +2253,14 @@ async function handleSubmit(form,contractWindow=null){
        menu_price_enabled:proAccess()?v.online_enabled==='true':(p?.menu_price_enabled===true),
        menu_price:proAccess()?(v.online_enabled==='true'?Number(v.menu_price):p?.menu_price??null):(p?.menu_price??null),
        ...(isMenu?{description:String(v.description||'').trim()}:{
-        cost:Number(v.cost),stock:Number(v.stock),min_stock:Number(v.min_stock)
+        cost:Number(v.cost),stock:Number(v.stock),min_stock:Number(v.min_stock),
+        sku:String(v.sku||'').trim()||null,
+        supplier:String(v.supplier||'').trim()||null,
+        subcategory:String(v.subcategory||'').trim()||null,
+        unit:String(v.unit||'').trim().toUpperCase()||null,
+        wholesale_price:String(v.wholesale_price??'').trim()?Number(v.wholesale_price):null,
+        lot:String(v.lot||'').trim()||null,
+        expiration_date:String(v.expiration_date||'').trim()||null
        })
       };
       if(!body.name||!Number.isFinite(body.price)||body.price<0)throw Error('Confira o nome e o preço.');
@@ -2261,6 +2277,12 @@ async function handleSubmit(form,contractWindow=null){
       }else if(!Number.isInteger(body.stock)||body.stock<0||!Number.isFinite(body.cost)||body.cost<0||
         !Number.isInteger(body.min_stock)||body.min_stock<0||body.min_stock>999999999)
         throw Error('Confira custo, estoque atual e estoque mínimo.');
+      if(!isMenu&&(
+       String(body.sku||'').length>120||String(body.supplier||'').length>120||
+       String(body.subcategory||'').length>65||String(body.unit||'').length>20||
+       String(body.lot||'').length>80||
+       (body.wholesale_price!==null&&(!Number.isFinite(body.wholesale_price)||body.wholesale_price<0))
+      ))throw Error('Confira código, fornecedor, unidade, preço de atacado e lote.');
       await storeForm(form,'shop_products',body,id);
       break;
     }
