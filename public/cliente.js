@@ -1362,7 +1362,7 @@ function renderGodzillaPDV(){
   '" data-card-method="'+code+'" aria-pressed="'+(pdvPayment===code)+'">'+label+'</button>'
  ).join('');
  return '<div class="godzilla-pdv'+(floatingSale?' pdv-floating-layout':'')+'">'+
- '<div class="pdv-title"><h2>PDV</h2><div class="pdv-search-controls"><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Nome, categoria ou código..." value="'+esc(pdvQuery)+'" autocomplete="off"></label><label class="pdv-barcode-label"><span class="sr-only">Código de barras</span><input id="pdvBarcode" type="text" inputmode="none" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="▥ Ler código de barras" aria-label="Ler código de barras com scanner. Pressione Enter para adicionar."></label></div></div>'+
+ '<div class="pdv-title"><h2>PDV</h2><div class="pdv-search-controls"><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Nome, categoria ou código..." value="'+esc(pdvQuery)+'" autocomplete="off"></label><label class="pdv-barcode-label"><span class="sr-only">Código de barras</span><input id="pdvBarcode" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="▥ Ler código de barras" aria-label="Ler código de barras com scanner. Pressione Enter para adicionar."></label></div></div>'+
  '<div class="pdv-barcode-feedback" role="status" aria-live="polite">'+esc(barcodeLastResult||'Leitor USB/Bluetooth: selecione “Ler código de barras” e escaneie. Também é possível usar F8.')+'</div>'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
@@ -2327,6 +2327,10 @@ async function handleSubmit(form,contractWindow=null){
        String(body.lot||'').length>80||
        (body.wholesale_price!==null&&(!Number.isFinite(body.wholesale_price)||body.wholesale_price<0))
       ))throw Error('Confira código, fornecedor, unidade, preço de atacado e lote.');
+      if(!isMenu&&body.sku){
+       const found=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shop.id,sku:'eq.'+body.sku,limit:'2'}});
+       if(found.some(item=>item.id!==id))throw Error('Este código de barras já pertence a outro produto desta loja.');
+      }
       await storeForm(form,'shop_products',body,id);
       break;
     }
@@ -2967,6 +2971,57 @@ document.addEventListener('click',async e=>{
   }
   const rm=e.target.closest('[data-remove]');if(rm){cart=cart.filter(x=>x.id!==rm.dataset.remove);renderPage()}
 });
+/* Leitores USB/Bluetooth em modo teclado enviam o codigo seguido de Enter.
+   Se um campo estiver ativo, só o campo exclusivo de código intercepta o Enter.
+   Fora de campos, sequências rápidas (>=6 teclas) são reconhecidas como leitura. */
+document.addEventListener('keydown',e=>{
+ if(e.defaultPrevented||e.isComposing||!shop||tab!=='caixa'||!hasAccess())return;
+ if(e.key==='F8'){
+  e.preventDefault();
+  const barcode=$('pdvBarcode');
+  if(barcode){barcode.value='';barcode.focus({preventScroll:true});}
+  return;
+ }
+ if(e.target?.id==='pdvBarcode'){
+  if(e.key==='Enter'){
+   e.preventDefault();
+   e.stopPropagation();
+   const barcode=e.target.value;
+   e.target.value='';
+   void addBarcodeToCart(barcode);
+  }
+  return;
+ }
+ if(e.ctrlKey||e.altKey||e.metaKey||
+    e.target?.closest('input,textarea,select,[contenteditable="true"],button,a,[role="dialog"]')){
+  barcodeKeyboardBuffer='';
+  return;
+ }
+ const now=performance.now();
+ if(e.key==='Enter'){
+  if(barcodeKeyboardBuffer.length>=6&&now-barcodeKeyboardAt<180){
+   e.preventDefault();
+   const code=barcodeKeyboardBuffer;
+   barcodeKeyboardBuffer='';
+   void addBarcodeToCart(code);
+  }else barcodeKeyboardBuffer='';
+  return;
+ }
+ if(e.key.length!==1||!/[0-9a-zA-Z-]/.test(e.key)){
+  barcodeKeyboardBuffer='';
+  return;
+ }
+ if(now-barcodeKeyboardAt>100)barcodeKeyboardBuffer='';
+ barcodeKeyboardBuffer+=e.key;
+ barcodeKeyboardAt=now;
+ if(barcodeKeyboardBuffer.length>120)barcodeKeyboardBuffer='';
+});
+document.addEventListener('keydown',e=>{
+ if(e.key!=='Enter'||!e.target?.matches('#productForm input[name="sku"]'))return;
+ e.preventDefault();
+ e.target.closest('form')?.querySelector('input[name="supplier"]')?.focus();
+});
+
 document.addEventListener('keydown',e=>{
  const input=e.target.closest('[data-pdv-quantity]');
  if(!input||e.key!=='Enter')return;
