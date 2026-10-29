@@ -2123,7 +2123,7 @@ function applyPdvFloatingFullWidth(){
   list.style.setProperty('justify-content',isCategory?'start':'stretch','important');
   list.style.setProperty('width','100%','important');
   list.style.setProperty('max-width','none','important');
-  list.style.setProperty('gap',isCategory?'3px':'12px','important');
+  list.style.setProperty('gap',isCategory?'0.6px':'12px','important');
  }
 }
 
