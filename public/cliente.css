@@ -4666,3 +4666,136 @@ body.pdv-night #workspace #page #productForm .online-sale-locked{
   grid-column:auto!important;
  }
 }
+
+
+/* PDV v173: categorias e produtos em cards quadrados de tamanho uniforme. */
+body #workspace #page .godzilla-pdv .pdv-category-tiles,
+body #workspace #page .godzilla-pdv .pdv-products,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-products{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fill,minmax(min(100%,144px),1fr))!important;
+ align-items:start!important;
+ gap:12px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product{
+ display:flex!important;
+ flex-direction:column!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ height:auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ aspect-ratio:1 / 1!important;
+ box-sizing:border-box!important;
+ overflow:hidden!important;
+ border-radius:12px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile{
+ align-items:center!important;
+ justify-content:center!important;
+ padding:10px 8px!important;
+ gap:6px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > strong{
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ text-align:center!important;
+ line-height:1.12!important;
+ white-space:normal!important;
+ word-break:normal!important;
+ overflow-wrap:normal!important;
+ hyphens:none!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > span[aria-hidden]{
+ flex-shrink:0!important;
+}
+body #workspace #page .godzilla-pdv .pdv-products > .pdv-product-wrap,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-products > .pdv-product-wrap{
+ flex:none!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ align-self:start!important;
+}
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-media,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-media{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ flex:1 1 0!important;
+ width:100%!important;
+ height:auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ aspect-ratio:auto!important;
+ padding:0!important;
+ overflow:hidden!important;
+}
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-media img,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-media img{
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ min-height:0!important;
+ max-height:100%!important;
+ object-fit:contain!important;
+ object-position:center!important;
+ padding:2px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-info,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-info{
+ display:flex!important;
+ flex:0 0 auto!important;
+ flex-direction:column!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:2px!important;
+ width:100%!important;
+ min-width:0!important;
+ max-height:46%!important;
+ padding:6px 4px!important;
+ text-align:center!important;
+ overflow:hidden!important;
+}
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-name,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-name{
+ display:-webkit-box!important;
+ -webkit-box-orient:vertical!important;
+ -webkit-line-clamp:2!important;
+ line-clamp:2;
+ overflow:hidden!important;
+ max-height:2.45em!important;
+ font-size:12px!important;
+ line-height:1.2!important;
+ overflow-wrap:break-word!important;
+}
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-price,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-price{
+ flex-shrink:0!important;
+ font-size:13px!important;
+ line-height:1.25!important;
+ white-space:nowrap!important;
+}
+body #workspace #page .godzilla-pdv .pdv-products > .pdv-empty{
+ grid-column:1 / -1!important;
+ width:100%!important;
+}
+@media(max-width:600px){
+ body #workspace #page .godzilla-pdv .pdv-category-tiles,
+ body #workspace #page .godzilla-pdv .pdv-products,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-products{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-info{
+  padding:5px 3px!important;
+ }
+}
