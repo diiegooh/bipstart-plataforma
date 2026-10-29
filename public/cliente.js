@@ -1574,8 +1574,16 @@ async function confirmStockImport(){
  const valid=stockImportRows.filter(r=>r.valid);
  if(!valid.length)throw Error('Não há produtos válidos para importar.');
  const keyFor=p=>String(p.name||'').trim().toLocaleLowerCase('pt-BR')+'|'+String(p.category||'Geral').trim().toLocaleLowerCase('pt-BR');
- const existingNames=new Set(products.map(keyFor));
- const existingCodes=new Set(products.map(p=>String(p.sku||'').trim()).filter(Boolean));
+ // Buscar todos os produtos da loja: a lista da tela é limitada a 200 registros.
+ const allExisting=[];
+ for(let offset=0;offset<20000;offset+=500){
+  const batch=await rest('shop_products',{query:{select:'name,category,sku',shop_id:'eq.'+shop.id,order:'created_at.asc',offset:String(offset),limit:'500'}});
+  allExisting.push(...batch);
+  if(batch.length<500)break;
+  if(offset>=19500)throw Error('A loja ultrapassou o limite seguro de conferência de duplicados. Contate o suporte.');
+ }
+ const existingNames=new Set(allExisting.map(keyFor));
+ const existingCodes=new Set(allExisting.map(p=>String(p.sku||'').trim()).filter(Boolean));
  const seenNames=new Set(),seenCodes=new Set(),toInsert=[];
  let duplicates=0;
  stockImportBusy=true;renderPage();
