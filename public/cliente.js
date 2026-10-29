@@ -8,6 +8,7 @@ const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99',pdvCheckoutOpen=false,pdvShowBestSellers=false;
+let bestSellerRank=new Map(),bestSellerLoading=false,bestSellerLoadedShop=null,bestSellerRequestId=0,bestSellerError='';
 const pdvProductClickCounts=new Map();
 let pdvQuantityEntryProductId=null;
 let barcodeLookupBusy=false,barcodeLastResult='',barcodeKeyboardBuffer='',barcodeKeyboardAt=0,barcodeQueue=[];
@@ -1282,10 +1283,33 @@ function downloadReceipt(receipt){
    Todas as gravações continuam na API isolada da loja BipStart. */
 function filteredPdvProducts(){
  const term=pdvQuery.trim().toLocaleLowerCase('pt-BR');
- return products.filter(p=>p.active!==false
+ const filtered=products.filter(p=>p.active!==false
    &&(!pdvInStockOnly||Number(p.stock)>0)
-   &&(pdvShowBestSellers?p.is_best_seller===true:(!pdvCategory||String(p.category||'Geral')===pdvCategory))
+   &&(pdvShowBestSellers?bestSellerRank.has(String(p.id)):(!pdvCategory||String(p.category||'Geral')===pdvCategory))
    &&(!term||[p.name,p.category,p.sku].some(value=>String(value||'').toLocaleLowerCase('pt-BR').includes(term))));
+ return pdvShowBestSellers?filtered.sort((a,b)=>(bestSellerRank.get(String(b.id))||0)-(bestSellerRank.get(String(a.id))||0)):filtered;
+}
+async function loadBestSellers(){
+ if(!shop||!hasAccess()||bestSellerLoading)return;
+ const shopId=shop.id,request=++bestSellerRequestId;
+ bestSellerLoading=true;bestSellerError='';renderPage();
+ try{
+   const totals=new Map();
+   // Consulta todos os itens efetivamente vendidos nesta loja, em páginas.
+   for(let offset=0;offset<200000;offset+=500){
+     const rows=await rest('shop_sale_items',{query:{select:'product_id,quantity',shop_id:'eq.'+shopId,limit:'500',offset:String(offset),order:'id.asc'}});
+     if(request!==bestSellerRequestId||shop?.id!==shopId)return;
+     for(const line of rows){
+       if(!line.product_id)continue;
+       const id=String(line.product_id);
+       totals.set(id,(totals.get(id)||0)+Number(line.quantity||0));
+     }
+     if(rows.length<500)break;
+     if(offset+500>=200000)throw Error('Histórico muito extenso para calcular todos os produtos mais vendidos.');
+   }
+   bestSellerRank=totals;bestSellerLoadedShop=shopId;
+ }catch(error){bestSellerError=error.message||'Falha ao carregar mais vendidos.';}
+ finally{if(request===bestSellerRequestId){bestSellerLoading=false;if(tab==='caixa')renderPage();}}
 }
 function normalizeBarcode(value){return String(value??'').trim().replace(/\s+/g,'');}
 function barcodeVariants(raw){
@@ -1458,7 +1482,7 @@ function pdvProductCards(){
    '<span class="pdv-product-media">'+photo+'</span>'+
    '<span class="pdv-product-info"><strong class="pdv-product-name">'+esc(p.name)+'</strong>'+
    '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button>'+quantityField+'</div>';
- }).join(''):'<div class="empty pdv-empty">'+(pdvShowBestSellers?'Nenhum produto encontrado em Mais vendidos. Marque os itens desejados no cadastro de produtos.':'Nenhum produto corresponde à busca. Cadastre produtos ou altere os filtros.')+'</div>';
+ }).join(''):'<div class="empty pdv-empty">'+(pdvShowBestSellers?(bestSellerLoading?'Calculando os produtos mais vendidos...':bestSellerError?'Não foi possível consultar o histórico de vendas: '+esc(bestSellerError):'Nenhum produto vendido encontrado entre os produtos disponíveis.'): 'Nenhum produto corresponde à busca. Cadastre produtos ou altere os filtros.')+'</div>';
 }
 function renderGodzillaPDV(){
  const floatingSale=floatingSaleEnabled();
@@ -2543,6 +2567,8 @@ async function handleSubmit(form,contractWindow=null){
       }catch(error){console.warn('Detalhes da venda não disponíveis para a nota:',error.message)}
       lastReceipt=receiptSnapshot(data,v.payment_method,v.payment_method==='dinheiro'?String(parseMoneyInput(v.received)): '',sold,recorded);
       cart=[];
+      bestSellerLoadedShop=null;
+      if(pdvShowBestSellers)void loadBestSellers();
       if(receiptSettings().preview)showReceiptDialog(lastReceipt);
       msg('Venda registrada: '+fmt(data.total)+
         (cardMethod?' · Taxa: '+fmt(data.card_fee_amount||0)+' · Líquido: '+fmt(data.net_total):'')+
@@ -3017,7 +3043,7 @@ document.addEventListener('click',async e=>{
   if(e.target.closest('#sideToggle')){toggleSideMenu();return}
   if(e.target.closest('#sideBackdrop')){closeSideMenu();return}
   if(e.target.closest('#sideLogout')){closeSideMenu();$('logout').click();return}
-  if(e.target.closest('[data-pdv-best-sellers]')){pdvShowBestSellers=!pdvShowBestSellers;pdvCategory='';renderPage();return;}
+  if(e.target.closest('[data-pdv-best-sellers]')){pdvShowBestSellers=!pdvShowBestSellers;pdvCategory='';renderPage();if(pdvShowBestSellers)void loadBestSellers();return;}
   const categoryTile=e.target.closest('[data-pdv-category]');
   if(categoryTile){pdvShowBestSellers=false;pdvCategory=categoryTile.dataset.pdvCategory||'';renderPage();return;}
   const less=e.target.closest('[data-qty-less]');
