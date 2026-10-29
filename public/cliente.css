@@ -4521,3 +4521,69 @@ body.pdv-night #workspace #page .barcode-lookup-action .ghost{background:#343047
  #workspace #page :is(.pdv-barcode-result-main,.barcode-info-card){align-items:flex-start}
  #workspace #page :is(.pdv-barcode-result-main,.barcode-info-card)>img{width:54px;height:54px}
 }
+
+
+/* BipStart: cadastro de produto em modo noite — cards de seleção v171 */
+body.pdv-night #workspace #page #productForm :is(
+ .product-best-seller-option,
+ .menu-price-controls,
+ .menu-price-controls .online-sale-question,
+ .menu-price-controls .online-sale-price,
+ .online-sale-locked,
+ .stock-extra-fields
+){
+ background:#22252d!important;
+ background-image:none!important;
+ color:#ffffff!important;
+ -webkit-text-fill-color:#ffffff!important;
+ border-color:#464152!important;
+ box-shadow:none!important;
+ color-scheme:dark;
+}
+body.pdv-night #workspace #page #productForm :is(
+ .product-best-seller-option,
+ .menu-price-controls,
+ .online-sale-locked,
+ .stock-extra-fields
+) :is(label,legend,span,strong,b,h3){
+ color:#ffffff!important;
+ -webkit-text-fill-color:#ffffff!important;
+}
+body.pdv-night #workspace #page #productForm :is(
+ .product-best-seller-option,
+ .menu-price-controls,
+ .online-sale-locked,
+ .stock-extra-fields
+) :is(small,p,.muted){
+ color:#d3cce1!important;
+ -webkit-text-fill-color:#d3cce1!important;
+}
+body.pdv-night #workspace #page #productForm :is(
+ .menu-price-controls .online-sale-question select,
+ .menu-price-controls .online-sale-price input,
+ .stock-extra-fields input:not([type=checkbox]):not([type=radio]),
+ .stock-extra-fields select
+){
+ background:#191b23!important;
+ background-image:none!important;
+ border-color:#514b62!important;
+ color:#ffffff!important;
+ -webkit-text-fill-color:#ffffff!important;
+ color-scheme:dark!important;
+}
+body.pdv-night #workspace #page #productForm :is(
+ .menu-price-controls .online-sale-question select,
+ .menu-price-controls .online-sale-price input,
+ .stock-extra-fields input
+)::placeholder{
+ color:#bcb3ce!important;
+ -webkit-text-fill-color:#bcb3ce!important;
+}
+body.pdv-night #workspace #page #productForm .product-best-seller-option input[type=checkbox]{
+ accent-color:var(--store-accent,#8b5cf6)!important;
+ -webkit-text-fill-color:initial!important;
+}
+body.pdv-night #workspace #page #productForm .online-sale-locked{
+ color:#f4e8ff!important;
+ -webkit-text-fill-color:#f4e8ff!important;
+}
