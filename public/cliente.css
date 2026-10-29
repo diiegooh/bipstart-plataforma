@@ -5022,3 +5022,48 @@ body.pdv-night #workspace .godzilla-pdv .pdv-cart-search-state,body.pdv-night #w
  #workspace .godzilla-pdv .pdv-cart-search-price{grid-column:2;grid-row:1;font-size:12px!important}
  #workspace .godzilla-pdv .pdv-cart-search-add{grid-column:2;grid-row:2;min-width:82px!important;min-height:30px!important;font-size:11px!important;padding:5px 7px!important}
 }
+
+
+/* 4º clique no PDV: digitação de unidades ao lado da quantidade, dentro do carrinho. */
+#workspace .godzilla-pdv .pdv-sale-list .pdv-sale-item-quantity-edit{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ align-items:start!important;gap:8px!important;
+}
+#workspace .godzilla-pdv .pdv-sale-list .pdv-sale-item-quantity-edit .pdv-sale-qty{
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:flex-end!important;flex-wrap:wrap!important;gap:6px!important;
+ min-width:0!important;width:100%!important;
+}
+#workspace .godzilla-pdv .pdv-sale-qty .pdv-cart-quantity-entry{
+ box-sizing:border-box!important;display:block!important;flex:0 0 76px!important;
+ width:76px!important;max-width:76px!important;min-width:66px!important;
+ height:34px!important;min-height:34px!important;margin:0!important;
+ padding:5px 6px!important;text-align:center!important;
+ border:2px solid var(--store-accent,#8752dc)!important;
+ border-radius:8px!important;background:#fff!important;color:#28243e!important;
+ font-size:14px!important;font-weight:800!important;line-height:1.25!important;
+ font-variant-numeric:tabular-nums!important;
+ box-shadow:0 0 0 2px #8b5cf62a!important;
+ outline:none!important;
+}
+#workspace .godzilla-pdv .pdv-sale-qty .pdv-cart-quantity-entry:focus{
+ border-color:#7541db!important;box-shadow:0 0 0 3px #8b5cf642!important;
+}
+#workspace .godzilla-pdv .pdv-sale-qty .pdv-cart-quantity-entry::placeholder{
+ color:#776b92!important;font-size:12px!important;font-weight:650!important;opacity:1!important;
+}
+body.pdv-night #workspace .godzilla-pdv .pdv-sale-qty .pdv-cart-quantity-entry{
+ background:#31313e!important;color:#fff!important;-webkit-text-fill-color:#fff!important;
+ border-color:#a38aff!important;box-shadow:0 0 0 2px #9278ff3b!important;
+}
+body.pdv-night #workspace .godzilla-pdv .pdv-sale-qty .pdv-cart-quantity-entry::placeholder{
+ color:#c4b7d9!important;-webkit-text-fill-color:#c4b7d9!important;
+}
+@media(max-width:470px){
+ #workspace .godzilla-pdv .pdv-sale-list .pdv-sale-item-quantity-edit .pdv-sale-qty{
+  justify-content:flex-start!important;
+ }
+ #workspace .godzilla-pdv .pdv-sale-qty .pdv-cart-quantity-entry{
+  flex-basis:68px!important;width:68px!important;max-width:68px!important;
+ }
+}
