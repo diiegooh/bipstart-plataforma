@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { updateOnlineOrderAndNotify } from './order-notifications.mjs';
+import { notifyNewTrial } from './trial-notifications.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
 const port = Number(process.env.PORT || 3000);
@@ -71,6 +72,13 @@ const server = http.createServer(async (req, res) => {
   } catch {
     res.writeHead(400, { 'content-type': 'text/plain; charset=utf-8' });
     return res.end('Requisição inválida');
+  }
+  if (pathname === '/api/webhooks/new-trial') {
+    if (req.method !== 'POST') {
+      res.writeHead(405, { allow: 'POST' });
+      return res.end();
+    }
+    return notifyNewTrial(req, res);
   }
   if (pathname === '/api/online-order-update') {
     if (req.method !== 'POST') {
