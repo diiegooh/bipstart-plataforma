@@ -1325,13 +1325,9 @@ function useBarcodeResultInForm(data){
  assign('brand',data.brand);
  assign('category',externalCategory(data.category),true);
  const slot=$('barcodeRegistrationInfo');
- if(slot)slot.innerHTML='<div class="barcode-info-card">'+
-  (data.image_url?'<img src="'+esc(data.image_url)+'" alt="Foto de referência do produto" loading="lazy" referrerpolicy="no-referrer">':'')+
-  '<div><strong>'+esc(data.name)+'</strong><small>Marca: '+esc(data.brand||'não informada')+
-  ' · Embalagem: '+esc(data.quantity||'não informada')+'</small>'+
-  '<small>Encontrado na Open Facts. Preencha preço, custo, quantidade e estoque mínimo; a foto externa é apenas uma referência.</small>'+
-  (data.source_url?'<a href="'+esc(data.source_url)+'" target="_blank" rel="noopener noreferrer">Conferir fonte</a>':'')+
-  '</div></div>';
+ if(slot)slot.innerHTML=data.image_url?
+  '<div class="barcode-info-card barcode-image-only"><img src="'+esc(data.image_url)+'" alt="Imagem do produto encontrado" loading="lazy" referrerpolicy="no-referrer"></div>':'';
+
 }
 async function lookupBarcodeForRegistration(code){
  const form=$('productForm'),value=normalizeBarcode(code);
