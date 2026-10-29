@@ -11,6 +11,7 @@ let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePe
 const pdvProductClickCounts=new Map();
 let pdvQuantityEntryProductId=null;
 let barcodeLookupBusy=false,barcodeLastResult='',barcodeKeyboardBuffer='',barcodeKeyboardAt=0,barcodeQueue=[];
+let pdvExternalProduct=null,barcodeRegistrationTimer=null,barcodeRegistrationRequest=0;
 let stockImportRows=[],stockImportFileName='',stockImportBusy=false;
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
@@ -1287,6 +1288,75 @@ function filteredPdvProducts(){
    &&(!term||[p.name,p.category,p.sku].some(value=>String(value||'').toLocaleLowerCase('pt-BR').includes(term))));
 }
 function normalizeBarcode(value){return String(value??'').trim().replace(/\s+/g,'');}
+async function fetchPublicBarcodeInfo(code){
+ const value=normalizeBarcode(code);
+ if(!/^[0-9]{8,14}$/.test(value))return {found:false,code:value,message:'Código não cadastrado nesta loja. Para consulta externa, use um GTIN de 8 a 14 dígitos.'};
+ const response=await fetch('/api/barcode-lookup?code='+encodeURIComponent(value),{headers:{Accept:'application/json'}});
+ const data=await response.json().catch(()=>null);
+ if(!response.ok)throw Error(data?.error||'Falha ao consultar base pública.');
+ return data;
+}
+function externalBarcodePanel(){
+ if(!pdvExternalProduct)return '';
+ const r=pdvExternalProduct,found=r.found===true;
+ const image=found&&r.image_url?'<img src="'+esc(r.image_url)+'" alt="Imagem do produto em base pública" loading="lazy" referrerpolicy="no-referrer">':'';
+ return '<section class="pdv-barcode-result" role="status"><div class="pdv-barcode-result-main">'+image+'<div>'+
+  '<strong>'+(found?esc(r.name):'Código não localizado')+'</strong><small>Código: '+esc(r.code)+'</small>'+
+  (found&&r.brand?'<small>Marca: '+esc(r.brand)+'</small>':'')+
+  (found&&r.quantity?'<small>Embalagem: '+esc(r.quantity)+'</small>':'')+
+  (found&&r.category?'<small>Categoria sugerida: '+esc(r.category)+'</small>':'')+
+  '<small>'+esc(found?'Base pública Open Facts — confirme os dados antes de cadastrar.':'Sem informações externas; preencha manualmente.')+'</small>'+
+  '</div></div><div class="pdv-barcode-result-actions"><button type="button" class="button" data-barcode-register>Cadastrar produto</button><button type="button" class="ghost" data-barcode-dismiss>Fechar</button></div></section>';
+}
+function externalCategory(value){
+ const words=String(value||'').split(',').map(x=>x.trim()).filter(Boolean);
+ const last=words.at(-1)||'';
+ return last.length<=65&&!/^[a-z]{2}:/.test(last)?last:'';
+}
+function useBarcodeResultInForm(data){
+ const form=$('productForm');
+ if(!form||!data?.found)return;
+ const input=k=>form.elements.namedItem(k);
+ const assign=(key,value,allowDefault=false)=>{
+  const el=input(key);
+  if(el&&value&&(!String(el.value||'').trim()||(allowDefault&&el.value==='Geral')))el.value=String(value).slice(0,el.maxLength>0?el.maxLength:160);
+ };
+ assign('name',data.name);
+ assign('brand',data.brand);
+ assign('category',externalCategory(data.category),true);
+ const slot=$('barcodeRegistrationInfo');
+ if(slot)slot.innerHTML='<div class="barcode-info-card">'+
+  (data.image_url?'<img src="'+esc(data.image_url)+'" alt="Foto de referência do produto" loading="lazy" referrerpolicy="no-referrer">':'')+
+  '<div><strong>'+esc(data.name)+'</strong><small>Marca: '+esc(data.brand||'não informada')+
+  ' · Embalagem: '+esc(data.quantity||'não informada')+'</small>'+
+  '<small>Encontrado na Open Facts. Preencha preço, custo, quantidade e estoque mínimo; a foto externa é apenas uma referência.</small>'+
+  (data.source_url?'<a href="'+esc(data.source_url)+'" target="_blank" rel="noopener noreferrer">Conferir fonte</a>':'')+
+  '</div></div>';
+}
+async function lookupBarcodeForRegistration(code){
+ const form=$('productForm'),value=normalizeBarcode(code);
+ if(!form||!value||!shop||tab!=='produtos')return;
+ const serial=++barcodeRegistrationRequest;
+ const feedback=$('barcodeRegistrationInfo');
+ if(feedback)feedback.textContent='Consultando o código de barras...';
+ try{
+  const registered=await rest('shop_products',{query:{select:'id,name,sku',shop_id:'eq.'+shop.id,sku:'eq.'+value,limit:'2'}});
+  if(serial!==barcodeRegistrationRequest||!form.isConnected||normalizeBarcode(form.elements.namedItem('sku')?.value)!==value)return;
+  const ownId=form.dataset.id;
+  const other=registered.find(p=>p.id!==ownId);
+  if(other){
+   if(feedback)feedback.textContent='Este código já está cadastrado nesta loja para: '+other.name+'. Abra o produto existente para editar.';
+   return;
+  }
+  const found=await fetchPublicBarcodeInfo(value);
+  if(serial!==barcodeRegistrationRequest||!form.isConnected||normalizeBarcode(form.elements.namedItem('sku')?.value)!==value)return;
+  if(found.found)useBarcodeResultInForm(found);
+  else if(feedback)feedback.textContent=found.message||'Não encontrado. Você pode cadastrar manualmente.';
+ }catch(error){
+  if(serial===barcodeRegistrationRequest&&feedback)feedback.textContent=error.message||'Consulta indisponível. Preencha manualmente.';
+ }
+}
+
 async function addBarcodeToCart(value){
  if(tab!=='caixa'||!shop||!hasAccess())return;
  const code=normalizeBarcode(value);
@@ -1303,7 +1373,15 @@ async function addBarcodeToCart(value){
    const found=await rest('shop_products',{query:{select:'*',shop_id:'eq.'+shop.id,sku:'eq.'+code,limit:'2'}});
    matches=found;
   }
-  if(matches.length!==1){barcodeLastResult=matches.length?'Código duplicado. Corrija o cadastro do produto.':'Código '+code+' não cadastrado nesta loja.';msg(barcodeLastResult,true);return;}
+  if(matches.length!==1){
+   if(matches.length>1){barcodeLastResult='Código duplicado. Corrija o cadastro do produto.';msg(barcodeLastResult,true);return;}
+   const info=await fetchPublicBarcodeInfo(code);
+   pdvExternalProduct=info;
+   barcodeLastResult=info.found?'Produto encontrado em base pública. Confira e cadastre antes de vender.':(info.message||'Produto não cadastrado.');
+   renderPage();
+   return;
+  }
+  pdvExternalProduct=null;
   const p=matches[0];
   if(p.active===false){barcodeLastResult='Produto desativado: '+p.name;msg(barcodeLastResult,true);return;}
   const old=cart.find(c=>c.id===p.id);
@@ -1370,6 +1448,7 @@ function renderGodzillaPDV(){
  return '<div class="godzilla-pdv'+(floatingSale?' pdv-floating-layout':'')+'">'+
  '<div class="pdv-title"><h2>PDV</h2><div class="pdv-search-controls"><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Nome, categoria ou código..." value="'+esc(pdvQuery)+'" autocomplete="off"></label><label class="pdv-barcode-label"><span class="sr-only">Código de barras</span><input id="pdvBarcode" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="▥ Ler código de barras" aria-label="Ler código de barras com scanner. Pressione Enter para adicionar."></label></div></div>'+
  '<div class="pdv-barcode-feedback" role="status" aria-live="polite">'+esc(barcodeLastResult||'Leitor USB/Bluetooth: selecione “Ler código de barras” e escaneie. Também é possível usar F8.')+'</div>'+
+ externalBarcodePanel()+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
  '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
