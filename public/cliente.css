@@ -4450,3 +4450,44 @@ body.pdv-night #workspace #page .stock-extra-fields legend{color:#f4f4f8!importa
 @media(max-width:700px){
  #workspace #page .stock-extra-fields .columns{grid-template-columns:1fr}
 }
+
+
+/* PDV: campo dedicado ao leitor USB/Bluetooth de código de barras */
+#workspace #page .godzilla-pdv .pdv-search-controls{
+ display:flex;align-items:center;justify-content:flex-end;flex:1 1 auto;
+ gap:12px;min-width:0;max-width:920px;
+}
+#workspace #page .godzilla-pdv .pdv-search-controls .pdv-search-top{
+ flex:1 1 340px;min-width:140px;width:auto;max-width:none;
+}
+#workspace #page .godzilla-pdv .pdv-barcode-label{
+ display:block;flex:0 1 310px;min-width:190px;margin:0;
+}
+#workspace #page .godzilla-pdv #pdvBarcode{
+ display:block;width:100%;height:48px;min-width:0;box-sizing:border-box;
+ padding:10px 14px;border:2px solid #8c5fe8;border-radius:13px;
+ color:#251646;background:#fff;box-shadow:none;
+ font:700 15px Inter,system-ui,sans-serif;letter-spacing:.02em;
+}
+#workspace #page .godzilla-pdv #pdvBarcode:focus{
+ outline:2px solid #b99af5;outline-offset:2px;border-color:#6d36d6;
+}
+#workspace #page .godzilla-pdv .pdv-barcode-feedback{
+ flex:0 0 auto;font-size:12px;line-height:1.35;margin:4px 0 10px;
+ color:#66557e;min-height:16px;
+}
+body.pdv-night #workspace #page .godzilla-pdv #pdvBarcode{
+ background:#22252d!important;color:#f4f4f8!important;
+ border-color:#9270db!important;color-scheme:dark;
+}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-barcode-feedback{color:#c9b9ee!important}
+@media(max-width:1150px){
+ #workspace #page .godzilla-pdv .pdv-title{flex-wrap:wrap;gap:9px}
+ #workspace #page .godzilla-pdv .pdv-search-controls{flex:1 1 100%;max-width:none}
+}
+@media(max-width:600px){
+ #workspace #page .godzilla-pdv .pdv-search-controls{flex-direction:column;align-items:stretch}
+ #workspace #page .godzilla-pdv .pdv-search-controls .pdv-search-top,
+ #workspace #page .godzilla-pdv .pdv-barcode-label{flex:auto;width:100%;min-width:0}
+ #workspace #page .godzilla-pdv .pdv-barcode-feedback{margin-bottom:12px}
+}
