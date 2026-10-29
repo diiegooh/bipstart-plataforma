@@ -10,7 +10,7 @@ let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99',pdvCheckoutOpen=false,pdvShowBestSellers=false;
 const pdvProductClickCounts=new Map();
 let pdvQuantityEntryProductId=null;
-let barcodeLookupBusy=false,barcodeLastResult='',barcodeKeyboardBuffer='',barcodeKeyboardAt=0;
+let barcodeLookupBusy=false,barcodeLastResult='',barcodeKeyboardBuffer='',barcodeKeyboardAt=0,barcodeQueue=[];
 let stockImportRows=[],stockImportFileName='',stockImportBusy=false;
 let salesPeriod='day',salesDay=localReportDate(),salesReport=null,salesLoading=false,salesRequestId=0;
 const captchaTokens={login:'',signup:''},captchaWidgets={login:null,signup:null},captchaIssuedAt={login:0,signup:0},captchaWaiters={login:null,signup:null};
@@ -1291,7 +1291,11 @@ async function addBarcodeToCart(value){
  if(tab!=='caixa'||!shop||!hasAccess())return;
  const code=normalizeBarcode(value);
  if(!code||code.length>120){barcodeLastResult='Informe um código de barras válido.';msg(barcodeLastResult,true);return;}
- if(barcodeLookupBusy)return;
+ if(barcodeLookupBusy){
+  if(barcodeQueue.length>=30){msg('Fila do leitor cheia. Confira o carrinho.',true);return;}
+  barcodeQueue.push(code);
+  return;
+ }
  barcodeLookupBusy=true;
  try{
   let matches=products.filter(p=>normalizeBarcode(p.sku)===code);
@@ -1316,6 +1320,8 @@ async function addBarcodeToCart(value){
   msg(error.message||barcodeLastResult,true);
  }finally{
   barcodeLookupBusy=false;
+  const pending=barcodeQueue.shift();
+  if(pending){void addBarcodeToCart(pending);return;}
   const input=$('pdvBarcode');
   if(input&&tab==='caixa'){input.value='';input.focus({preventScroll:true});}
  }
