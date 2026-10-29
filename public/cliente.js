@@ -364,7 +364,7 @@ async function refreshOnlineOrdersIfVisible(){
 }
 function pages(){
   const a=[['resumo','Visão geral']];
-  a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['vendas','Histórico de vendas']);
+  a.push(['caixa','Frente de caixa'],['comandas','Comandas'],['produtos','Produtos e estoque'],['vendas','Histórico de vendas']);
   if(proAccess())a.push(['cardapio','Meu cardápio']);
   if(proAccess())a.push(['pedidos','Pedidos online'],['motoboys','Motoboys'],['entregas','Entregas']);
   if(canCustomize())a.push(['personalizar','Mudanças e suporte']);
@@ -374,6 +374,7 @@ function pages(){
 function operationalMenuItems(){
   return [
     ['caixa','PDV','🛒'],
+     ['comandas','Comandas','🧾'],
     ['produtos','Produtos','📦'],
     ['cardapio_publico','Cardápio online','📋'],
     ['pedidos','Pedidos online','🚚'],
@@ -2152,6 +2153,8 @@ function renderPage(){
       empty('Nenhum pedido online registrado. Compartilhe seu cardápio para receber pedidos.'))+'</div>';
     if(proAccess())content+='<div class="orders-premium"><strong>Entregas com motoboys</strong><p>Use “Criar entrega para este pedido” para vincular o motoboy. Ao marcar “Entregue”, ele finalizará o pedido online automaticamente.</p>'+
       '<button type="button" class="ghost" data-nav="entregas">Abrir fila de entregas</button></div>';
+  }else if(tab==='comandas'){
+    content=renderComandas();
   }else if(tab==='caixa'){
     content=renderGodzillaPDV();
   }else if(tab==='vendas'){
