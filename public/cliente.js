@@ -2033,6 +2033,10 @@ function applyPdvCategoryFontSizes(){
   tile.style.setProperty('justify-content','center','important');
   tile.style.setProperty('padding','3px 4px','important');
   tile.style.setProperty('gap','2px','important');
+  tile.style.setProperty('margin','0','important');
+  tile.style.setProperty('border-radius','2px','important');
+  tile.style.setProperty('box-shadow','none','important');
+  tile.style.setProperty('transform','none','important');
   tile.style.setProperty('overflow','hidden','important');
   const icon=tile.querySelector('span[aria-hidden]');
   if(icon){
