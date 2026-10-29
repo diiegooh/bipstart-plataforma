@@ -7,6 +7,7 @@ let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSc
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
+let pdvCartSearchQuery='',pdvCartSearchResults=[],pdvCartSearchLoading=false,pdvCartSearchError='',pdvCartSearchTimer=null,pdvCartSearchRequest=0;
 let pdvQuery='',pdvCategory='',pdvInStockOnly=true,pdvPayment='pix',pdvCardFeePercent='3.99',pdvDiscountAmount='',pdvCheckoutOpen=false,pdvShowBestSellers=false;
 let bestSellerRank=new Map(),bestSellerLoading=false,bestSellerLoadedShop=null,bestSellerRequestId=0,bestSellerError='';
 const pdvProductClickCounts=new Map();
@@ -1488,6 +1489,110 @@ function pdvProductCards(){
    '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button>'+quantityField+'</div>';
  }).join(''):'<div class="empty pdv-empty">'+(pdvShowBestSellers?(bestSellerLoading?'Calculando os produtos mais vendidos...':bestSellerError?'Não foi possível consultar o histórico de vendas: '+esc(bestSellerError):'Nenhum produto vendido encontrado entre os produtos disponíveis.'): 'Nenhum produto corresponde à busca. Cadastre produtos ou altere os filtros.')+'</div>';
 }
+
+function pdvCartSearchText(value){
+ return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+}
+function pdvCartSearchCandidates(query=pdvCartSearchQuery){
+ const term=pdvCartSearchText(query.trim());
+ if(!term)return [];
+ const unique=new Map();
+ for(const p of [...pdvCartSearchResults,...products]){
+  if(p.active===false)continue;
+  if(pdvCartSearchText(p.name).includes(term)||pdvCartSearchText(p.sku).includes(term))unique.set(String(p.id),p);
+ }
+ const rank=p=>{
+  const name=pdvCartSearchText(p.name),sku=pdvCartSearchText(p.sku);
+  if(sku===term)return 0;
+  if(name===term)return 1;
+  if(name.startsWith(term))return 2;
+  if(sku.startsWith(term))return 3;
+  return 4;
+ };
+ return [...unique.values()].sort((a,b)=>rank(a)-rank(b)||String(a.name).localeCompare(String(b.name),'pt-BR')).slice(0,12);
+}
+function pdvCartSearchResultMarkup(){
+ if(!pdvCartSearchQuery.trim())return '';
+ const matches=pdvCartSearchCandidates();
+ const html=matches.map(p=>{
+  const current=cart.find(c=>c.id===p.id)?.qty||0;
+  const available=Math.max(0,Number(p.stock||0)-current);
+  return '<button type="button" class="pdv-cart-search-result" data-cart-search-add="'+esc(p.id)+'"'+(!available?' disabled':'')+'>'+
+   '<span class="pdv-cart-search-item"><strong>'+esc(p.name)+'</strong>'+
+   '<small>'+(p.sku?'Código: '+esc(p.sku)+' · ':'')+(available?'Disponível: '+available:'Sem estoque')+'</small></span>'+
+   '<b>'+fmt(p.price)+'</b><span aria-hidden="true">'+(available?'+':'×')+'</span></button>';
+ }).join('');
+ return (html||(!pdvCartSearchLoading?'<p class="pdv-cart-search-empty">Nenhum produto encontrado nesta loja.</p>':''))+
+  (pdvCartSearchLoading?'<small class="pdv-cart-search-state">Consultando produtos...</small>':'')+
+  (pdvCartSearchError?'<small class="pdv-cart-search-state pdv-cart-search-error">'+esc(pdvCartSearchError)+'</small>':'');
+}
+function pdvCartSearchRefresh(){
+ const target=document.getElementById('pdvCartSearchResults');
+ if(target)target.innerHTML=pdvCartSearchResultMarkup();
+}
+function pdvCartSearchClear(){
+ clearTimeout(pdvCartSearchTimer);
+ pdvCartSearchRequest++;
+ pdvCartSearchQuery='';
+ pdvCartSearchResults=[];
+ pdvCartSearchLoading=false;
+ pdvCartSearchError='';
+}
+async function pdvCartSearchFetch(request,shopId,term){
+ try{
+  const safe=term.replace(/[,*()%_\\]/g,' ').trim().slice(0,80);
+  if(safe.length<2)return;
+  const found=await rest('shop_products',{query:{
+   select:'id,shop_id,name,sku,price,stock,active,category',
+   shop_id:'eq.'+shopId,
+   or:'(name.ilike.*'+safe+'*,sku.ilike.*'+safe+'*)',
+   limit:'40'
+  }});
+  if(request!==pdvCartSearchRequest||shop?.id!==shopId||tab!=='caixa')return;
+  pdvCartSearchResults=Array.isArray(found)?found:[];
+  pdvCartSearchError='';
+ }catch(error){
+  if(request===pdvCartSearchRequest&&shop?.id===shopId)
+   pdvCartSearchError='Busca online indisponível; resultados locais continuam disponíveis.';
+ }finally{
+  if(request===pdvCartSearchRequest&&shop?.id===shopId){
+   pdvCartSearchLoading=false;
+   if(tab==='caixa')pdvCartSearchRefresh();
+  }
+ }
+}
+function pdvCartSearchUpdate(query){
+ pdvCartSearchQuery=String(query||'').slice(0,100);
+ pdvCartSearchResults=[];
+ pdvCartSearchError='';
+ clearTimeout(pdvCartSearchTimer);
+ const request=++pdvCartSearchRequest;
+ const term=pdvCartSearchQuery.trim();
+ pdvCartSearchLoading=term.length>=2;
+ pdvCartSearchRefresh();
+ if(pdvCartSearchLoading&&shop?.id){
+  const shopId=shop.id;
+  pdvCartSearchTimer=setTimeout(()=>void pdvCartSearchFetch(request,shopId,term),250);
+ }
+}
+function pdvCartSearchAdd(productId){
+ if(!shop||!hasAccess()||tab!=='caixa')return;
+ const p=pdvCartSearchCandidates().find(p=>String(p.id)===String(productId));
+ if(!p)return;
+ const already=cart.find(c=>c.id===p.id);
+ if(p.active===false||Number(p.stock||0)<=(already?.qty||0)){
+  msg('Estoque insuficiente ou produto indisponível.',true);return;
+ }
+ if(!products.some(item=>item.id===p.id))products.push(p);
+ if(already)already.qty++;
+ else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
+ pdvProductClickCounts.set(p.id,0);
+ pdvQuantityEntryProductId=null;
+ pdvCartSearchClear();
+ renderPage();
+ document.getElementById('pdvCartSearch')?.focus({preventScroll:true});
+}
+
 function pdvCheckoutTotals(method=pdvPayment){
  const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
  const discount=['dinheiro','credito','debito'].includes(method)?parseMoneyInput(pdvDiscountAmount||'0'):0;
@@ -1534,6 +1639,9 @@ function renderGodzillaPDV(){
  '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
  '</section><div class="pdv-floating-backdrop'+(floatingSale&&pdvCheckoutOpen?' open':'')+'" data-floating-sale-close></div><aside class="pdv-panel pdv-sale-panel'+(floatingSale?' pdv-sale-panel-floating':'')+(floatingSale&&pdvCheckoutOpen?' is-open':'')+'" aria-label="Venda atual">'+
  '<div class="pdv-sale-head"><div><span class="kicker">CAIXA</span><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
+ '<div class="pdv-cart-search"><label for="pdvCartSearch">Pesquisar e adicionar produto</label>'+
+ '<input type="search" id="pdvCartSearch" placeholder="Nome ou código do produto" value="'+esc(pdvCartSearchQuery)+'" autocomplete="off" spellcheck="false" aria-controls="pdvCartSearchResults">'+
+ '<div class="pdv-cart-search-results" id="pdvCartSearchResults" aria-live="polite">'+pdvCartSearchResultMarkup()+'</div></div>'+
  '<div class="pdv-sale-list">'+(cartItems||'<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>')+'</div>'+
  '<div class="pdv-sale-total"><span>'+count+' item(ns) · Subtotal</span><strong>'+fmt(sum)+'</strong></div>'+
  '<form id="saleForm" class="pdv-payment-form">'+
