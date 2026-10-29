@@ -1931,12 +1931,11 @@ function applyPdvCategoryFontSizes(){
  if(!root)return;
  const tiles=root.querySelectorAll('.godzilla-pdv .pdv-category-tiles .pdv-category-tile');
  tiles.forEach(tile=>{
-  // Mesma altura em toda a grade, independentemente do comprimento do nome.
-  const mobile=window.matchMedia('(max-width:700px)').matches;
-  const height=mobile?'154px':'168px';
-  tile.style.setProperty('height',height,'important');
-  tile.style.setProperty('min-height',height,'important');
-  tile.style.setProperty('max-height',height,'important');
+  // Quadrado responsivo: a largura da coluna determina a altura do card.
+  tile.style.setProperty('height','auto','important');
+  tile.style.setProperty('min-height','0','important');
+  tile.style.setProperty('max-height','none','important');
+  tile.style.setProperty('aspect-ratio','1 / 1','important');
   tile.style.setProperty('box-sizing','border-box','important');
   tile.style.setProperty('padding','12px 10px','important');
   tile.style.setProperty('gap','6px','important');
@@ -2018,9 +2017,10 @@ function applyPdvFloatingFullWidth(){
  for(const cls of ['.pdv-category-tiles','.pdv-products']){
   const list=layout.querySelector(cls);
   if(!list)continue;
-  list.style.setProperty('display','flex','important');
-  list.style.setProperty('flex-wrap','wrap','important');
-  list.style.setProperty('align-items','stretch','important');
+  list.style.setProperty('display','grid','important');
+  list.style.removeProperty('flex-wrap');
+  list.style.setProperty('grid-template-columns','repeat(auto-fill,minmax(min(100%,144px),1fr))','important');
+  list.style.setProperty('align-items','start','important');
   list.style.setProperty('width','100%','important');
   list.style.setProperty('max-width','none','important');
   list.style.setProperty('gap','12px','important');
