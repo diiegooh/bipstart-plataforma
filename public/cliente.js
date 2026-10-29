@@ -1324,9 +1324,9 @@ function useBarcodeResultInForm(data){
  assign('name',data.name);
  assign('brand',data.brand);
  assign('category',externalCategory(data.category),true);
+ // Mostra somente os dados nos campos; sem imagem ou cartão de resultado.
  const slot=$('barcodeRegistrationInfo');
- if(slot)slot.innerHTML=data.image_url?
-  '<div class="barcode-info-card barcode-image-only"><img src="'+esc(data.image_url)+'" alt="Imagem do produto encontrado" loading="lazy" referrerpolicy="no-referrer"></div>':'';
+ if(slot)slot.replaceChildren();
 
 }
 async function lookupBarcodeForRegistration(code){
