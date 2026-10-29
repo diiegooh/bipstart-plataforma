@@ -2723,6 +2723,8 @@ async function handleSubmit(form,contractWindow=null){
       }catch(error){console.warn('Detalhes da venda não disponíveis para a nota:',error.message)}
       lastReceipt=receiptSnapshot(data,v.payment_method,v.payment_method==='dinheiro'?String(parseMoneyInput(v.received)): '',sold,recorded);
       cart=[];
+      pdvProductClickCounts.clear();
+      pdvQuantityEntryProductId=null;
       pdvDiscountAmount='';
       bestSellerLoadedShop=null;
       if(pdvShowBestSellers)void loadBestSellers();
@@ -3031,6 +3033,8 @@ document.addEventListener('click',async e=>{
       if(remaining.length)throw Error('Ainda existem produtos cadastrados. Verifique as permissões ou dependências no banco.');
       products=[];
       cart=[];
+      pdvProductClickCounts.clear();
+      pdvQuantityEntryProductId=null;
       pdvQuery='';
       renderPage();
       msg('Todos os produtos desta loja foram excluídos.');
@@ -3557,7 +3561,7 @@ $('signupForm').addEventListener('input',()=>{
 });
 $('showLogin').onclick=()=>authTab(false);
 $('showSignup').onclick=()=>authTab(true);
-$('logout').onclick=()=>{closeSideMenu();closeReceiptDialog();lastReceipt=null;pdvCartSearchClear();session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
+$('logout').onclick=()=>{closeSideMenu();closeReceiptDialog();lastReceipt=null;pdvCartSearchClear();pdvProductClickCounts.clear();pdvQuantityEntryProductId=null;session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
 $('refreshAccess').onclick=async()=>{try{await openShop();msg(hasAccess()?'Seu acesso está liberado!':'Ainda aguardando liberação. Confira o WhatsApp.')}catch(e){msg(e.message,true)}};
 window.addEventListener('focus',()=>{
  if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();}
