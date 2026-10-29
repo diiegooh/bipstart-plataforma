@@ -944,7 +944,7 @@ function productCard(product){
  return '<article class="inventory-card" data-stock-state="'+state+'">'+
   '<div class="inventory-photo-wrap">'+photo+'</div>'+
   '<div class="inventory-card-body">'+
-  '<div class="inventory-card-heading"><small>'+esc(product.category||'Geral')+(product.subcategory?' · '+esc(product.subcategory):'')+'</small><h3>'+esc(product.name)+'</h3>'+(product.sku?'<small>Código: '+esc(product.sku)+'</small>':'')+'</div>'+
+  '<div class="inventory-card-heading"><small>'+esc(product.category||'Geral')+(product.subcategory?' · '+esc(product.subcategory):'')+'</small><h3>'+esc(product.name)+'</h3>'+(product.sku?'<small>Cód. barras: '+esc(product.sku)+'</small>':'')+'</div>'+
   '<div class="inventory-card-prices"><strong>'+fmt(product.price)+'</strong><small>Custo: '+fmt(product.cost)+'</small></div>'+
   (product.online_enabled===false?'<small class="inventory-online-status offline">Somente PDV · Não aparece no cardápio online</small>':
    '<small class="inventory-online-status">Venda online: Sim · '+fmt(product.menu_price_enabled&&product.menu_price!=null?product.menu_price:product.price)+'</small>')+
@@ -2096,7 +2096,7 @@ function productForm(p){
   field('stock','Quantidade em estoque','number',p.stock??0,'required min="0" step="1"')+
   field('min_stock','Estoque mínimo (unidades)','number',p.min_stock??5,'required min="0" max="999999999" step="1"')+
   '<fieldset class="stock-extra-fields"><legend>Dados adicionais do estoque</legend><div class="columns">'+
-  field('sku','Código / código de barras','text',p.sku||'','maxlength="120"')+
+  field('sku','Código de barras (EAN/UPC ou código do leitor)','text',p.sku||'','maxlength="120"')+
   field('supplier','Fornecedor','text',p.supplier||'','maxlength="120"')+
   field('subcategory','Subcategoria','text',p.subcategory||'','maxlength="65"')+
   field('unit','Unidade (UN, KG, CX...)','text',p.unit||'','maxlength="20"')+
