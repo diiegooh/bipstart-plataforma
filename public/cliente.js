@@ -2872,4 +2872,4 @@ $('forgotPassword').onclick=async()=>{
   }catch(e){msg(e.message,true)}
   finally{if(attempted)resetCaptcha('login')}
 };
-begin().catch(e=>{status(e.message||'Falha ao conectar ao Supabase.');showAuth()});
+begin().catch(e=>{status(e.message||'Falha ao conectar ao Supabase.');showAuth()}).finally(()=>{document.body.classList.remove('bipstart-booting');document.getElementById('startupOverlay')?.remove()});
