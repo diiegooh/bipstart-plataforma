@@ -1427,48 +1427,101 @@ function courierAccessUrl(c,origin=location.origin){
 }
 function stockImportPanel(){
  if(!stockImportRows.length&&!stockImportFileName)return '';
- const preview=stockImportRows.slice(0,8);
- return '<section class="card stock-import-panel"><h3>Importar estoque</h3><p>Arquivo: <strong>'+esc(stockImportFileName)+'</strong> · '+stockImportRows.length+' linha(s) reconhecida(s).</p>'+
- '<p>Colunas aceitas: nome, categoria, preço/preco, custo, estoque/quantidade, estoque mínimo e imagem_url. Linhas sem nome ou com valores inválidos serão ignoradas.</p>'+
- (preview.length?'<div class="table-wrap"><table><thead><tr><th>Produto</th><th>Categoria</th><th>Venda</th><th>Estoque</th><th>Imagem</th></tr></thead><tbody>'+preview.map(r=>'<tr><td>'+esc(r.name||'—')+'</td><td>'+esc(r.category||'Geral')+'</td><td>'+esc(Number.isFinite(r.price)?fmt(r.price):'Inválido')+'</td><td>'+esc(Number.isFinite(r.stock)?r.stock:'Inválido')+'</td><td>'+ (r.image_path?'<a href="'+esc(r.image_path)+'" target="_blank" rel="noopener">Ver</a>':'—')+'</td></tr>').join('')+'</tbody></table></div>':'')+
- '<p class="muted small">Prévia das primeiras 8 linhas. Produtos com mesmo nome e categoria já existentes serão ignorados. Fotos só são importadas quando a planilha contém uma URL pública na coluna imagem_url/foto_url.</p>'+
- '<button type="button" class="button" data-stock-import-confirm '+(stockImportBusy||!stockImportRows.some(r=>r.valid)?'disabled':'')+'>'+ (stockImportBusy?'Importando…':'Confirmar importação')+'</button> <button type="button" class="ghost" data-stock-import-cancel '+(stockImportBusy?'disabled':'')+'>Cancelar</button></section>';
+ const preview=stockImportRows.slice(0,8), valid=stockImportRows.filter(r=>r.valid).length;
+ return '<section class="card stock-import-panel"><h3>Importar estoque</h3>'+
+ '<p>Arquivo: <strong>'+esc(stockImportFileName)+'</strong> · <strong>'+valid+'</strong> de '+stockImportRows.length+' linha(s) válida(s).</p>'+
+ '<p>Modelo BipStart: CÓDIGO, DESCRIÇÃO, FORNECEDOR, CATEGORIA, SUBCATEGORIA, UNIDADE, CUSTO, VAREJO, ATACADO, LOTE, ESTOQUE MÍNIMO, QUANTIDADE e VENCIMENTO. A planilha antiga também é aceita.</p>'+
+ (preview.length?'<div class="table-wrap"><table><thead><tr><th>Linha</th><th>Código</th><th>Produto</th><th>Categoria</th><th>Varejo</th><th>Quantidade</th><th>Resultado</th></tr></thead><tbody>'+
+ preview.map(r=>'<tr><td>'+r.rowNumber+'</td><td>'+esc(r.sku||'—')+'</td><td>'+esc(r.name||'—')+'</td><td>'+esc(r.category||'—')+'</td><td>'+esc(Number.isFinite(r.price)?fmt(r.price):'—')+'</td><td>'+esc(Number.isFinite(r.stock)?r.stock:'—')+'</td><td>'+esc(r.valid?'Pronto':r.errors.join('; '))+'</td></tr>').join('')+'</tbody></table></div>':'')+
+ '<p class="muted small">Prévia das primeiras 8 linhas. Os demais campos da planilha também serão gravados, incluindo fornecedor, unidade, atacado, lote e vencimento. Códigos e produtos já existentes nesta loja não serão duplicados. A importação nunca altera os produtos existentes. Células vazias de quantidade assumem 0; estoque mínimo vazio assume 5.</p>'+
+ (valid<stockImportRows.length?'<p class="warn">Existem '+(stockImportRows.length-valid)+' linha(s) inválida(s), que serão ignoradas. Corrija o arquivo para incluí-las.</p>':'')+
+ '<button type="button" class="button" data-stock-import-confirm '+(stockImportBusy||!valid?'disabled':'')+'>'+ (stockImportBusy?'Importando…':'Confirmar importação')+'</button> <button type="button" class="ghost" data-stock-import-cancel '+(stockImportBusy?'disabled':'')+'>Cancelar</button></section>';
 }
 function importHeaderKey(value){
- return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+ return String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 }
 function importNumber(value,defaultValue=0){
  if(value===null||value===undefined||String(value).trim()==='')return defaultValue;
  if(typeof value==='number')return value;
- let v=String(value).trim().replace(/\s/g,'');
+ let v=String(value).trim().replace(/\s/g,'').replace(/^R\$/i,'');
  if(v.includes(','))v=v.replace(/\./g,'').replace(',','.');
  const n=Number(v);return Number.isFinite(n)?n:NaN;
 }
+function importCode(value){
+ if(value==null||String(value).trim()==='')return '';
+ if(typeof value==='number')return Number.isFinite(value)?String(value):'';
+ const code=String(value).trim();
+ if(/^\d+(?:[.,]\d+)?e\+?\d+$/i.test(code)){
+  const number=Number(code.replace(',','.'));
+  if(Number.isSafeInteger(number))return String(number);
+ }
+ return code.replace(/\.0$/,'');
+}
+function importExpiration(value){
+ if(value==null||String(value).trim()==='')return null;
+ const v=String(value).trim();
+ let y,m,d;
+ let match=v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+ if(match){d=Number(match[1]);m=Number(match[2]);y=Number(match[3]);}
+ else if((match=v.match(/^(\d{4})-(\d{2})-(\d{2})$/))){y=Number(match[1]);m=Number(match[2]);d=Number(match[3]);}
+ else return false;
+ const date=new Date(Date.UTC(y,m-1,d));
+ if(date.getUTCFullYear()!==y||date.getUTCMonth()!==m-1||date.getUTCDate()!==d)return false;
+ return String(y).padStart(4,'0')+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+}
 function parseImportRows(rows){
+ if(!rows.length)return [];
  const aliases={
   name:['nome','produto','name','item','descricao','descricaoproduto'],
+  sku:['codigo','codigodebarras','codigobarras','ean','gtin','sku','referencia'],
+  supplier:['fornecedor','fabricante','marca'],
   category:['categoria','category','grupo','departamento','secao'],
-  price:['preco','precovenda','venda','precounitario','price','valorvenda'],
+  subcategory:['subcategoria','subgrupo'],
+  unit:['unidade','un','und'],
+  price:['preco','precovenda','venda','varejo','precounitario','price','valorvenda'],
   cost:['custo','precocusto','cost','valorcusto'],
+  wholesale_price:['atacado','precoatacado','valoratacado'],
+  lot:['lote','codigolote','numerolote'],
   stock:['estoque','quantidade','saldo','qtd','stock','quantidadeestoque'],
   min_stock:['estoqueminimo','minimo','estoquemin','minstock','estoqueminimoquantidade'],
+  expiration_date:['vencimento','validade','datavencimento','datadevalidade'],
   image_path:['imagemurl','fotourl','imageurl','imagem','foto','imagepath','urlimagem']
  };
- if(!rows.length)return [];
- const headers=rows[0].map(importHeaderKey);
- const findIndex=keys=>headers.findIndex(h=>keys.includes(h));
- const idx=Object.fromEntries(Object.entries(aliases).map(([k,v])=>[k,findIndex(v)]));
- if(idx.name<0||idx.price<0)throw Error('A planilha precisa ter pelo menos as colunas Nome e Preço de venda.');
- return rows.slice(1).map(cells=>{
-  const get=k=>idx[k]>=0?cells[idx[k]]:'';
-  const name=String(get('name')??'').trim(),price=importNumber(get('price'),NaN),cost=importNumber(get('cost'),0),stock=importNumber(get('stock'),0),min_stock=importNumber(get('min_stock'),5);
+ const headers=(rows[0]||[]).map(importHeaderKey);
+ const idx=Object.fromEntries(Object.entries(aliases).map(([key,options])=>[key,headers.findIndex(h=>options.includes(h))]));
+ if(idx.name<0||idx.price<0)throw Error('A planilha precisa ter DESCRIÇÃO/NOME e VAREJO/PREÇO DE VENDA no cabeçalho.');
+ const newModel=headers.includes('varejo')&&headers.includes('descricao');
+ return rows.slice(1).map((cells,index)=>{
+  const get=key=>idx[key]>=0?cells[idx[key]]:'';
+  const name=String(get('name')??'').trim();
+  const sku=importCode(get('sku'));
+  const supplier=String(get('supplier')??'').trim().slice(0,120);
   const category=String(get('category')||'Geral').trim().slice(0,65)||'Geral';
+  const subcategory=String(get('subcategory')??'').trim().slice(0,65);
+  const unit=String(get('unit')??'').trim().slice(0,20).toUpperCase();
+  const lot=String(get('lot')??'').trim().slice(0,80);
+  const price=importNumber(get('price'),NaN);
+  const cost=importNumber(get('cost'),newModel?NaN:0);
+  const stock=importNumber(get('stock'),0);
+  const min_stock=importNumber(get('min_stock'),5);
+  const wholesale_price=importNumber(get('wholesale_price'),null);
+  const expiration_date=importExpiration(get('expiration_date'));
   const image=String(get('image_path')||'').trim();
   let image_path=null;
   try{if(image){const u=new URL(image);if(['https:','http:'].includes(u.protocol))image_path=u.href;}}catch{}
-  const valid=!!name&&name.length<=160&&Number.isFinite(price)&&price>=0&&Number.isFinite(cost)&&cost>=0&&Number.isInteger(stock)&&stock>=0&&Number.isInteger(min_stock)&&min_stock>=0;
-  return {name,category,price,cost,stock,min_stock,image_path,valid};
- }).filter(r=>r.name||Number.isFinite(r.price));
+  const errors=[];
+  if(!name||name.length>160)errors.push('descrição obrigatória (máx. 160)');
+  if(sku.length>120)errors.push('código muito longo');
+  if(newModel&&idx.category>=0&&!String(get('category')||'').trim())errors.push('categoria obrigatória');
+  if(newModel&&!unit)errors.push('unidade obrigatória');
+  if(!Number.isFinite(price)||price<0)errors.push('varejo inválido');
+  if(!Number.isFinite(cost)||cost<0)errors.push('custo inválido');
+  if(!Number.isInteger(stock)||stock<0)errors.push('quantidade inválida');
+  if(!Number.isInteger(min_stock)||min_stock<0||min_stock>999999999)errors.push('estoque mínimo inválido');
+  if(wholesale_price!==null&&(!Number.isFinite(wholesale_price)||wholesale_price<0))errors.push('atacado inválido');
+  if(expiration_date===false)errors.push('vencimento inválido (DD/MM/AAAA)');
+  return {rowNumber:index+2,name,sku,supplier,category,subcategory,unit,lot,price,cost,stock,min_stock,wholesale_price,expiration_date,image_path,valid:!errors.length,errors};
+ }).filter(r=>r.name||r.sku||Number.isFinite(r.price));
 }
 async function loadStockImportFile(file){
  if(!file)return;
