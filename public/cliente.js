@@ -2215,7 +2215,8 @@ function renderPage(){
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +logoSection+'</div>':'')
       +(isMenu?'<section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+cardapioLayoutSettings()+receiptSettingsPanel()+categoryImagesSettings():'')+
-      '<button type="submit" class="button settings-save-button" style="background-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;border-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;color:'+getSystemAccentInk()+' !important;">Salvar</button></form></div>';
+      '<section class="receipt-settings-panel"><h3>Zerar estoque</h3><p class="muted">Define como zero a quantidade em estoque de todos os produtos cadastrados nesta loja. Não exclui produtos, preços ou histórico de vendas. Esta ação não pode ser desfeita automaticamente.</p><button type="button" class="ghost" data-reset-stock style="border:1px solid #d14457;color:#d14457">Zerar todo o estoque</button></section>'+
+       '<button type="submit" class="button settings-save-button" style="background-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;border-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;color:'+getSystemAccentInk()+' !important;">Salvar</button></form></div>';
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
       +'<div class="data-form"><form id="customForm"><label>Descreva sua solicitação<textarea name="details" minlength="10" maxlength="3000" placeholder="Envie sua logo e conte as mudanças desejadas..." required></textarea></label><button class="button">Enviar solicitação</button></form></div>'
@@ -2792,6 +2793,24 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
+  const resetButton=e.target.closest('[data-reset-stock]');
+  if(resetButton){
+    if(tab!=='configuracoes'||!shop||!hasAccess())return;
+    const confirmation=window.prompt('ATENÇÃO: todo o estoque da loja "'+shop.name+'" será zerado. Os produtos continuarão cadastrados. Para confirmar, digite ZERAR:');
+    if(confirmation!=='ZERAR')return;
+    if(!window.confirm('Confirmar a alteração de TODO o estoque desta loja para 0? Esta ação não pode ser desfeita automaticamente.'))return;
+    resetButton.disabled=true;
+    try{
+      await rest('shop_products',{method:'PATCH',query:{shop_id:'eq.'+shop.id},body:{stock:0}});
+      products=products.map(product=>({...product,stock:0}));
+      renderPage();
+      msg('Estoque de todos os produtos desta loja zerado com sucesso.');
+    }catch(error){
+      resetButton.disabled=false;
+      msg(error.message||'Não foi possível zerar o estoque.',true);
+    }
+    return;
+  }
   if(e.target.closest('[data-floating-sale-toggle]')){pdvCheckoutOpen=!pdvCheckoutOpen;renderPage();return;}
   if(e.target.closest('[data-floating-sale-close]')){pdvCheckoutOpen=false;renderPage();return;}
   const paymentButton=e.target.closest('[data-payment-option]');
