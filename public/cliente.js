@@ -1565,43 +1565,55 @@ async function confirmStockImport(){
  if(stockImportBusy)return;
  const valid=stockImportRows.filter(r=>r.valid);
  if(!valid.length)throw Error('Não há produtos válidos para importar.');
- const existing=new Set(products.map(p=>String(p.name||'').trim().toLocaleLowerCase('pt-BR')+'|'+String(p.category||'Geral').trim().toLocaleLowerCase('pt-BR')));
- const seen=new Set(),toInsert=[];
- for(const r of valid){
-  const key=r.name.trim().toLocaleLowerCase('pt-BR')+'|'+r.category.trim().toLocaleLowerCase('pt-BR');
-  if(existing.has(key)||seen.has(key))continue;
-  seen.add(key);
-  let image_path=null;
-  if(r.image_path){
-   try{
-    const imageResponse=await fetch(r.image_path);
-    if(imageResponse.ok){
-     const blob=await imageResponse.blob();
-     if(['image/jpeg','image/png','image/webp'].includes(blob.type)&&blob.size<=5*1024*1024){
-      const file=new File([blob],(r.name||'produto').replace(/[^a-z0-9_-]/gi,'_')+'.'+({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[blob.type]),{type:blob.type});
-      image_path=await uploadImage(file);
-     }
-    }
-   }catch(error){console.warn('Foto não importada para '+r.name+':',error.message);}
-  }
-  toInsert.push({shop_id:shop.id,name:r.name,category:r.category,price:r.price,cost:r.cost,stock:r.stock,min_stock:r.min_stock,image_path,is_best_seller:false,online_enabled:false,menu_price_enabled:false,menu_price:null});
- }
- if(!toInsert.length)throw Error('Todos os produtos válidos já existem nesta loja. Nenhum item foi duplicado.');
+ const keyFor=p=>String(p.name||'').trim().toLocaleLowerCase('pt-BR')+'|'+String(p.category||'Geral').trim().toLocaleLowerCase('pt-BR');
+ const existingNames=new Set(products.map(keyFor));
+ const existingCodes=new Set(products.map(p=>String(p.sku||'').trim()).filter(Boolean));
+ const seenNames=new Set(),seenCodes=new Set(),toInsert=[];
+ let duplicates=0;
  stockImportBusy=true;renderPage();
  let inserted=0;
  try{
+  for(const r of valid){
+   const nameKey=keyFor(r),codeKey=r.sku?.trim()||'';
+   if(existingNames.has(nameKey)||seenNames.has(nameKey)||(codeKey&&(existingCodes.has(codeKey)||seenCodes.has(codeKey)))){duplicates++;continue;}
+   seenNames.add(nameKey);
+   if(codeKey)seenCodes.add(codeKey);
+   let image_path=null;
+   if(r.image_path){
+    try{
+     const imageResponse=await fetch(r.image_path);
+     if(imageResponse.ok){
+      const blob=await imageResponse.blob();
+      if(['image/jpeg','image/png','image/webp'].includes(blob.type)&&blob.size<=5*1024*1024){
+       const file=new File([blob],(r.name||'produto').replace(/[^a-z0-9_-]/gi,'_')+'.'+({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[blob.type]),{type:blob.type});
+       image_path=await uploadImage(file);
+      }
+     }
+    }catch(error){console.warn('Foto não importada para '+r.name+':',error.message);}
+   }
+   toInsert.push({
+    shop_id:shop.id,sku:r.sku||null,name:r.name,category:r.category,
+    supplier:r.supplier||null,subcategory:r.subcategory||null,unit:r.unit||null,
+    price:r.price,cost:r.cost,wholesale_price:r.wholesale_price,
+    lot:r.lot||null,expiration_date:r.expiration_date||null,
+    stock:r.stock,min_stock:r.min_stock,image_path,
+    is_best_seller:false,online_enabled:false,menu_price_enabled:false,menu_price:null
+   });
+  }
+  if(!toInsert.length)throw Error('Todos os produtos válidos já existem nesta loja. Nenhum item foi duplicado.');
   for(let i=0;i<toInsert.length;i+=100){
    const batch=toInsert.slice(i,i+100);
    await rest('shop_products',{method:'POST',body:batch});
    inserted+=batch.length;
   }
+  const ignored=stockImportRows.length-valid.length;
   stockImportRows=[];stockImportFileName='';
   await reloadData();renderPage();
-  msg('Importação concluída: '+inserted+' produto(s) adicionados. '+(valid.length-inserted)+' ignorado(s) por duplicidade ou dados inválidos.');
+  msg('Importação concluída: '+inserted+' produto(s) novo(s). '+duplicates+' duplicado(s) e '+ignored+' linha(s) inválida(s) ignorados.');
  }catch(error){
   await reloadData().catch(()=>{});
   renderPage();
-  throw Error('A importação parou após '+inserted+' produto(s). '+error.message+' Você pode importar novamente; os itens já criados serão identificados como duplicados.');
+  throw Error('A importação parou após '+inserted+' produto(s). '+error.message+(inserted?' Você pode importar novamente sem duplicar os produtos já criados.':''));
  }finally{stockImportBusy=false;renderPage();}
 }
 
