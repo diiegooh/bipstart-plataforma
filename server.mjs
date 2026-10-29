@@ -36,6 +36,7 @@ const routes = {
   '/cliente.html': ['cliente.html', 'text/html; charset=utf-8'],
   '/cliente.css': ['cliente.css', 'text/css; charset=utf-8'],
   '/cliente-area.css': ['cliente-area.css', 'text/css; charset=utf-8'],
+  '/bipstart-favicon.svg': ['bipstart-favicon.svg', 'image/svg+xml; charset=utf-8'],
   '/bipstart-logo.svg': ['bipstart-logo.svg', 'image/svg+xml; charset=utf-8'],
   '/bipstart-marca-icon.png': ['bipstart-marca-icon.png', 'image/png'],
   '/todos-nove-circulos.png': ['todos-nove-circulos.png', 'image/png'],
