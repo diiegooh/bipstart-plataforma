@@ -1515,15 +1515,27 @@ function pdvCartSearchCandidates(query=pdvCartSearchQuery){
 function pdvCartSearchResultMarkup(){
  if(!pdvCartSearchQuery.trim())return '';
  const matches=pdvCartSearchCandidates();
- const html=matches.map(p=>{
+ const rows=matches.map(p=>{
   const current=cart.find(c=>c.id===p.id)?.qty||0;
   const available=Math.max(0,Number(p.stock||0)-current);
-  return '<button type="button" class="pdv-cart-search-result" data-cart-search-add="'+esc(p.id)+'"'+(!available?' disabled':'')+'>'+
-   '<span class="pdv-cart-search-item"><strong>'+esc(p.name)+'</strong>'+
-   '<small>'+(p.sku?'Código: '+esc(p.sku)+' · ':'')+(available?'Disponível: '+available:'Sem estoque')+'</small></span>'+
-   '<b>'+fmt(p.price)+'</b><span aria-hidden="true">'+(available?'+':'×')+'</span></button>';
+  const photo=p.image_path?
+   '<img class="pdv-cart-search-thumb-image" src="'+esc(imageUrl(p.image_path))+'" alt="" loading="lazy">':
+   '<span class="pdv-cart-search-thumb-fallback" aria-hidden="true">📦</span>';
+  const stock=available?
+   '<span class="pdv-cart-search-stock is-available"><span aria-hidden="true">●</span> Em estoque ('+available+')</span>':
+   '<span class="pdv-cart-search-stock is-unavailable"><span aria-hidden="true">●</span> Sem estoque</span>';
+  const code=p.sku?'<span class="pdv-cart-search-code">Código: '+esc(p.sku)+'</span>':'';
+  return '<button type="button" class="pdv-cart-search-result'+(!available?' is-unavailable':'')+
+   '" data-cart-search-add="'+esc(p.id)+'"'+(!available?' disabled':'')+
+   ' aria-label="'+esc(available?'Adicionar '+p.name+' ao carrinho':'Sem estoque: '+p.name)+'">'+
+   '<span class="pdv-cart-search-thumb">'+photo+'</span>'+
+   '<span class="pdv-cart-search-item"><strong class="pdv-cart-search-name">'+esc(p.name)+'</strong>'+
+   '<span class="pdv-cart-search-details">'+code+stock+'</span></span>'+
+   '<span class="pdv-cart-search-price-col"><strong class="pdv-cart-search-price">'+fmt(p.price)+'</strong>'+
+   '<span class="pdv-cart-search-action'+(!available?' is-unavailable':'')+'">'+(available?'+ Adicionar':'Indisponível')+'</span></span>'+
+   '</button>';
  }).join('');
- return (html||(!pdvCartSearchLoading?'<p class="pdv-cart-search-empty">Nenhum produto encontrado nesta loja.</p>':''))+
+ return (rows||(!pdvCartSearchLoading?'<p class="pdv-cart-search-empty">Nenhum produto encontrado nesta loja.</p>':''))+
   (pdvCartSearchLoading?'<small class="pdv-cart-search-state">Consultando produtos...</small>':'')+
   (pdvCartSearchError?'<small class="pdv-cart-search-state pdv-cart-search-error">'+esc(pdvCartSearchError)+'</small>':'');
 }
@@ -1544,7 +1556,7 @@ async function pdvCartSearchFetch(request,shopId,term){
   const safe=term.replace(/[,*()%_\\]/g,' ').trim().slice(0,80);
   if(safe.length<2)return;
   const found=await rest('shop_products',{query:{
-   select:'id,shop_id,name,sku,price,stock,active,category',
+   select:'id,shop_id,name,sku,price,stock,active,category,image_path',
    shop_id:'eq.'+shopId,
    or:'(name.ilike.*'+safe+'*,sku.ilike.*'+safe+'*)',
    limit:'40'
@@ -1571,6 +1583,8 @@ function pdvCartSearchUpdate(query){
  const term=pdvCartSearchQuery.trim();
  pdvCartSearchLoading=term.length>=2;
  pdvCartSearchRefresh();
+ const clearButton=document.querySelector('[data-cart-search-clear]');
+ if(clearButton)clearButton.hidden=!pdvCartSearchQuery;
  if(pdvCartSearchLoading&&shop?.id){
   const shopId=shop.id;
   pdvCartSearchTimer=setTimeout(()=>void pdvCartSearchFetch(request,shopId,term),250);
@@ -1641,7 +1655,9 @@ function renderGodzillaPDV(){
  '</section><div class="pdv-floating-backdrop'+(floatingSale&&pdvCheckoutOpen?' open':'')+'" data-floating-sale-close></div><aside class="pdv-panel pdv-sale-panel'+(floatingSale?' pdv-sale-panel-floating':'')+(floatingSale&&pdvCheckoutOpen?' is-open':'')+'" aria-label="Venda atual">'+
  '<div class="pdv-sale-head"><div><span class="kicker">CAIXA</span><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
  '<div class="pdv-cart-search"><label for="pdvCartSearch">Pesquisar e adicionar produto</label>'+
+ '<div class="pdv-cart-search-input-wrap"><span class="pdv-cart-search-loupe" aria-hidden="true"></span>'+
  '<input type="search" id="pdvCartSearch" placeholder="Nome ou código do produto" value="'+esc(pdvCartSearchQuery)+'" autocomplete="off" spellcheck="false" aria-controls="pdvCartSearchResults">'+
+ '<button type="button" class="pdv-cart-search-clear" data-cart-search-clear aria-label="Limpar pesquisa"'+(pdvCartSearchQuery?'':' hidden')+'>×</button></div>'+
  '<div class="pdv-cart-search-results" id="pdvCartSearchResults" aria-live="polite">'+pdvCartSearchResultMarkup()+'</div></div>'+
  '<div class="pdv-sale-list">'+(cartItems||'<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>')+'</div>'+
  '<div class="pdv-sale-total"><span>'+count+' item(ns) · Subtotal</span><strong>'+fmt(sum)+'</strong></div>'+
@@ -2962,6 +2978,15 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
+  const cartSearchClear=e.target.closest('[data-cart-search-clear]');
+  if(cartSearchClear&&tab==='caixa'){
+    pdvCartSearchClear();
+    const input=document.getElementById('pdvCartSearch');
+    if(input){input.value='';input.focus({preventScroll:true});}
+    pdvCartSearchRefresh();
+    cartSearchClear.hidden=true;
+    return;
+  }
   const cartSearchAdd=e.target.closest('[data-cart-search-add]');
   if(cartSearchAdd){pdvCartSearchAdd(cartSearchAdd.dataset.cartSearchAdd);return;}
   const deleteCategories=e.target.closest('[data-delete-all-categories]');
