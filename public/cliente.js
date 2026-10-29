@@ -1517,23 +1517,14 @@ function pdvCartSearchResultMarkup(){
  const matches=pdvCartSearchCandidates();
  const rows=matches.map(p=>{
   const current=cart.find(c=>c.id===p.id)?.qty||0;
-  const available=Math.max(0,Number(p.stock||0)-current);
-  const photo=p.image_path?
-   '<img class="pdv-cart-search-thumb-image" src="'+esc(imageUrl(p.image_path))+'" alt="" loading="lazy">':
-   '<span class="pdv-cart-search-thumb-fallback" aria-hidden="true">📦</span>';
-  const stock=available?
-   '<span class="pdv-cart-search-stock is-available"><span aria-hidden="true">●</span> Em estoque ('+available+')</span>':
-   '<span class="pdv-cart-search-stock is-unavailable"><span aria-hidden="true">●</span> Sem estoque</span>';
-  const code=p.sku?'<span class="pdv-cart-search-code">Código: '+esc(p.sku)+'</span>':'';
-  return '<button type="button" class="pdv-cart-search-result'+(!available?' is-unavailable':'')+
-   '" data-cart-search-add="'+esc(p.id)+'"'+(!available?' disabled':'')+
-   ' aria-label="'+esc(available?'Adicionar '+p.name+' ao carrinho':'Sem estoque: '+p.name)+'">'+
-   '<span class="pdv-cart-search-thumb">'+photo+'</span>'+
-   '<span class="pdv-cart-search-item"><strong class="pdv-cart-search-name">'+esc(p.name)+'</strong>'+
-   '<span class="pdv-cart-search-details">'+code+stock+'</span></span>'+
-   '<span class="pdv-cart-search-price-col"><strong class="pdv-cart-search-price">'+fmt(p.price)+'</strong>'+
-   '<span class="pdv-cart-search-action'+(!available?' is-unavailable':'')+'">'+(available?'+ Adicionar':'Indisponível')+'</span></span>'+
-   '</button>';
+  const available=Number(p.stock||0)>current;
+  return '<div class="pdv-cart-search-result">'+
+   '<strong class="pdv-cart-search-name">'+esc(p.name)+'</strong>'+
+   '<strong class="pdv-cart-search-price">'+fmt(p.price)+'</strong>'+
+   '<button type="button" class="pdv-cart-search-add" data-cart-search-add="'+esc(p.id)+'"'+
+   (available?'':' disabled title="Sem estoque disponível"')+
+   ' aria-label="'+esc('Adicionar '+p.name+' ao carrinho')+'">+ Adicionar</button>'+
+   '</div>';
  }).join('');
  return (rows||(!pdvCartSearchLoading?'<p class="pdv-cart-search-empty">Nenhum produto encontrado nesta loja.</p>':''))+
   (pdvCartSearchLoading?'<small class="pdv-cart-search-state">Consultando produtos...</small>':'')+
@@ -1556,7 +1547,7 @@ async function pdvCartSearchFetch(request,shopId,term){
   const safe=term.replace(/[,*()%_\\]/g,' ').trim().slice(0,80);
   if(safe.length<2)return;
   const found=await rest('shop_products',{query:{
-   select:'id,shop_id,name,sku,price,stock,active,category,image_path',
+   select:'id,shop_id,name,sku,price,stock,active,category',
    shop_id:'eq.'+shopId,
    or:'(name.ilike.*'+safe+'*,sku.ilike.*'+safe+'*)',
    limit:'40'
