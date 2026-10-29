@@ -5032,10 +5032,18 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .
  }
 }
 
-/* PDV homologação: aproximar os atalhos de categoria em 70%. */
+/* PDV homologação: seis colunas de categorias no desktop, com intervalo compacto. */
 body #workspace #page .godzilla-pdv .pdv-category-tiles,
 body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles{
-  justify-content:flex-start!important;
+  display:grid!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  justify-content:stretch!important;
   column-gap:3px!important;
   row-gap:3px!important;
+}
+@media(max-width:700px){
+  body #workspace #page .godzilla-pdv .pdv-category-tiles,
+  body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
 }
