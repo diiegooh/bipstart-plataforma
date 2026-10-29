@@ -28,7 +28,7 @@ function normalizeProduct(p,code,kind='food'){
  const name=choose(p.product_name_pt,p.product_name,p.abbreviated_product_name,p.generic_name_pt,p.generic_name);
  const brand=textTags(p.brands).slice(0,120);
  const category=textTags(p.categories).slice(0,300);
- const quantity=choose(p.quantity,typeof p.product_quantity==='string'?p.product_quantity+' '+clean(p.product_quantity_unit):'').slice(0,90);
+ const quantity=choose(p.quantity,(typeof p.product_quantity==='number'||typeof p.product_quantity==='string')?String(p.product_quantity)+' '+clean(p.product_quantity_unit):'').slice(0,90);
  const generic=choose(p.generic_name_pt,p.generic_name);
  const ingredients=choose(p.ingredients_text_pt,p.ingredients_text);
  const packaging=textTags(p.packaging_text||p.packaging).slice(0,160);
