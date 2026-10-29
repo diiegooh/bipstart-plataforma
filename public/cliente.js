@@ -1490,7 +1490,7 @@ function renderGodzillaPDV(){
   '" data-card-method="'+code+'" aria-pressed="'+(pdvPayment===code)+'">'+label+'</button>'
  ).join('');
  return '<div class="godzilla-pdv'+(floatingSale?' pdv-floating-layout':'')+'">'+
- '<div class="pdv-title"><h2>PDV</h2><div class="pdv-search-controls"><label class="pdv-search-label pdv-search-top"><span class="sr-only">Buscar produtos</span><input type="search" id="pdvSearch" placeholder="Pesquisar produtos..." value="'+esc(pdvQuery)+'" autocomplete="off"></label></div></div>'+
+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
  '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
