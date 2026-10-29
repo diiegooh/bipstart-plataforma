@@ -2017,17 +2017,26 @@ function applyPdvCategoryFontSizes(){
  if(!root)return;
  const tiles=root.querySelectorAll('.godzilla-pdv .pdv-category-tiles .pdv-category-tile');
  tiles.forEach(tile=>{
-  // Quadrado responsivo: a largura da coluna determina a altura do card.
-  tile.style.setProperty('height','auto','important');
-  tile.style.setProperty('min-height','0','important');
-  tile.style.setProperty('max-height','none','important');
+  // Homologação: 79 x 79 px. Fixação no DOM evita regras antigas e tamanhos em cache.
+  for(const property of ['width','min-width','max-width','height','min-height','max-height']){
+   tile.style.setProperty(property,'79px','important');
+  }
+  tile.style.setProperty('flex','none','important');
   tile.style.setProperty('aspect-ratio','1 / 1','important');
   tile.style.setProperty('box-sizing','border-box','important');
-  tile.style.setProperty('padding','12px 10px','important');
-  tile.style.setProperty('gap','6px','important');
+  tile.style.setProperty('display','flex','important');
+  tile.style.setProperty('flex-direction','column','important');
+  tile.style.setProperty('align-items','center','important');
+  tile.style.setProperty('justify-content','center','important');
+  tile.style.setProperty('padding','5px 4px','important');
+  tile.style.setProperty('gap','3px','important');
   tile.style.setProperty('overflow','hidden','important');
   const icon=tile.querySelector('span[aria-hidden]');
-  if(icon)icon.style.setProperty('flex-shrink','0','important');
+  if(icon){
+   icon.style.setProperty('flex-shrink','0','important');
+   icon.style.setProperty('font-size','19px','important');
+   icon.style.setProperty('line-height','1','important');
+  }
   const name=tile.querySelector('strong');
   if(!name)return;
   name.style.setProperty('display','block','important');
@@ -2042,21 +2051,19 @@ function applyPdvCategoryFontSizes(){
   name.style.setProperty('word-break','normal','important');
   name.style.setProperty('hyphens','none','important');
   name.style.setProperty('text-overflow','clip','important');
-  name.style.setProperty('overflow','visible','important');
-  // Calcula o espaço real disponível depois do ícone e do padding.
+  name.style.setProperty('overflow','hidden','important');
   const st=window.getComputedStyle(tile);
   const pad=parseFloat(st.paddingTop)+parseFloat(st.paddingBottom);
   const gap=parseFloat(st.rowGap)||0;
   const availableHeight=tile.clientHeight-pad-(icon?.offsetHeight||0)-(icon?gap:0);
   let fits=false;
-  for(const size of [30,28,26,24,22,20,18,16,14,12]){
+  for(const size of [12,11,10]){
    name.style.setProperty('font-size',size+'px','important');
    if(name.scrollWidth<=name.clientWidth+1 && name.scrollHeight<=availableHeight+1){
     fits=true;
     break;
    }
   }
-  // Apenas nomes extraordinariamente longos são truncados, sem partir palavras.
   if(!fits){
    name.style.setProperty('white-space','nowrap','important');
    name.style.setProperty('text-overflow','ellipsis','important');
@@ -2105,12 +2112,15 @@ function applyPdvFloatingFullWidth(){
   if(!list)continue;
   list.style.setProperty('display','grid','important');
   list.style.removeProperty('flex-wrap');
-  const columns=window.matchMedia('(max-width:600px)').matches?'repeat(2,minmax(0,1fr))':'repeat(auto-fill,minmax(min(100%,144px),1fr))';
+  const isCategory=cls==='.pdv-category-tiles';
+  const columns=isCategory?'repeat(auto-fill,79px)':
+    (window.matchMedia('(max-width:600px)').matches?'repeat(2,minmax(0,1fr))':'repeat(auto-fill,minmax(min(100%,144px),1fr))');
   list.style.setProperty('grid-template-columns',columns,'important');
   list.style.setProperty('align-items','start','important');
+  list.style.setProperty('justify-content',isCategory?'start':'stretch','important');
   list.style.setProperty('width','100%','important');
   list.style.setProperty('max-width','none','important');
-  list.style.setProperty('gap','12px','important');
+  list.style.setProperty('gap',isCategory?'7px':'12px','important');
  }
 }
 
