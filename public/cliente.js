@@ -1613,35 +1613,45 @@ function applySettingsNightStyles(){
  const form=$('settingsForm');
  if(!form)return;
  const dark=document.body.classList.contains('pdv-night');
- const paint=(selector,styles)=>{
+ const surfaces=[
+  '.menu-settings','.menu-payments','.menu-logo-settings','.menu-logo-editor',
+  '.menu-layout-settings','.menu-layout-fields','.menu-layout-subtitle',
+  '.receipt-settings-panel','.receipt-settings-fields',
+  '.category-image-settings','.category-image-settings-list','.category-image-setting-row',
+  '.category-image-setting-info','.menu-editor-panel','.menu-price-controls',
+  '.online-sale-price','.menu-category-list','.menu-category-line',
+  '.menu-logo-editor-heading','.settings-card','.receipt-settings-card'
+ ].join(',');
+ const set=(selector,day,night)=>{
   form.querySelectorAll(selector).forEach(el=>{
-   for(const [key,value] of Object.entries(styles)){
-    if(dark)el.style.setProperty(key,value,'important');
-    else el.style.removeProperty(key);
-   }
+   const values=dark?night:day;
+   for(const [key,value] of Object.entries(values))el.style.setProperty(key,value,'important');
   });
  };
- paint('.receipt-settings-panel,.category-image-settings,.category-image-settings-list,.category-image-setting-row',{
-  'background':'#22252d','background-image':'none',
-  'border-color':'#393d49','color':'#f4f4f8','box-shadow':'none'
- });
- paint('.receipt-settings-fields,.category-image-setting-info',{
-  'background':'transparent','background-image':'none','color':'#f4f4f8'
- });
- paint('.receipt-settings-panel h3,.category-image-settings h3,.category-image-setting-info strong',{
-  'color':'#ffffff','-webkit-text-fill-color':'#ffffff'
- });
- paint('.receipt-settings-panel p,.receipt-settings-panel label,.category-image-settings p,.category-image-setting-info small',{
-  'color':'#b6bdcf','-webkit-text-fill-color':'#b6bdcf'
- });
- paint('.receipt-settings-panel input:not([type=checkbox]),.receipt-settings-panel select',{
-  'background':'#181a20','background-image':'none','border-color':'#393d49',
-  'color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8','color-scheme':'dark'
- });
- paint('.category-image-setting-row .category-image-actions button,.category-image-setting-row .category-image-file',{
-  'background':'#2b2f39','background-image':'none',
-  'border-color':'#454957','color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8'
- });
+ set(surfaces,
+  {'background':'#ffffff','background-image':'none','border-color':'#e2d8ee','color':'#24163d','box-shadow':'none','color-scheme':'light'},
+  {'background':'#22252d','background-image':'none','border-color':'#393d49','color':'#f4f4f8','box-shadow':'none','color-scheme':'dark'}
+ );
+ set('.menu-editor-meta button,.category-image-file',
+  {'background':'#f8f5ff','background-image':'none','color':'#24163d','border-color':'#d9cbea'},
+  {'background':'#2b2f39','background-image':'none','color':'#f4f4f8','border-color':'#454957'}
+ );
+ set(surfaces+' :is(h2,h3,h4,label,legend,strong,b)',
+  {'color':'#24163d','-webkit-text-fill-color':'#24163d'},
+  {'color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8'}
+ );
+ set(surfaces+' :is(p,small,.muted)',
+  {'color':'#625776','-webkit-text-fill-color':'#625776'},
+  {'color':'#b6bdcf','-webkit-text-fill-color':'#b6bdcf'}
+ );
+ set('input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=file]),select,textarea',
+  {'background':'#faf8ff','background-image':'none','border-color':'#d7c8ea','color':'#24163d','-webkit-text-fill-color':'#24163d','color-scheme':'light'},
+  {'background':'#181a20','background-image':'none','border-color':'#393d49','color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8','color-scheme':'dark'}
+ );
+ set('.category-image-actions button:not(.button),.menu-logo-editor button:not(.button),.menu-settings button:not(.button)',
+  {'background':'#f4efff','background-image':'none','border-color':'#d7c8ea','color':'#4f288f','-webkit-text-fill-color':'#4f288f'},
+  {'background':'#2b2f39','background-image':'none','border-color':'#454957','color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8'}
+ );
 }
 window.applySettingsNightStyles=applySettingsNightStyles;
 
