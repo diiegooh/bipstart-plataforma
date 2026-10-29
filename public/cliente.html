@@ -194,8 +194,17 @@ body.pdv-night #workspace #pdvNightToggle[aria-pressed=true]{
 body #workspace #pdvNightToggle[aria-pressed=true] .night-switch,
 body #workspace #pdvNightToggle[aria-pressed=true] .night-switch{background:color-mix(in srgb,var(--store-accent,#7c3aed) 70%,#fff)!important}
 </style>
+<style>
+body.bipstart-booting>.top,body.bipstart-booting>.shell{visibility:hidden!important}
+#startupOverlay{display:none}
+body.bipstart-booting #startupOverlay{position:fixed;inset:0;z-index:10000;background:#10091d;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;color:#e7d6ff;font:600 15px Inter,system-ui,sans-serif}
+.startup-spinner{width:42px;height:42px;border:4px solid #5a3c83;border-top-color:#b684ff;border-radius:50%;animation:bipstart-spin .8s linear infinite}
+@keyframes bipstart-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.startup-spinner{animation:none;border-color:#b684ff}}
+</style>
 </head>
-<body>
+<body class="bipstart-booting">
+<div id="startupOverlay" role="status" aria-live="polite"><span class="startup-spinner" aria-hidden="true"></span><span>Carregando sua loja…</span></div>
 <header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-logo.svg" alt="BipStart" width="242" height="68"></a><nav><button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
 <main class="shell">
   <div id="notice" class="notice hidden" role="alert"></div>
