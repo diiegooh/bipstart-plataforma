@@ -4418,3 +4418,35 @@ body:not(.pdv-night) #workspace #page #settingsForm .menu-logo-editor-preview {
   background:#f8f5ff!important;
   border:1px solid #e3d8f1!important;
 }
+
+
+/* Cadastro de produtos: campos adicionais do novo modelo de estoque. */
+#workspace #page .stock-extra-fields {
+ margin:14px 0 18px;
+ padding:16px;
+ min-width:0;
+ border:1px solid #d9cbea;
+ border-radius:12px;
+ background:#faf8ff;
+ color:#24163d;
+}
+#workspace #page .stock-extra-fields legend {
+ padding:0 7px;
+ color:#3e2870;
+ font-size:13px;
+ font-weight:800;
+}
+#workspace #page .stock-extra-fields .columns{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:0 14px;
+}
+body.pdv-night #workspace #page .stock-extra-fields{
+ background:#22252d!important;
+ color:#f4f4f8!important;
+ border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .stock-extra-fields legend{color:#f4f4f8!important}
+@media(max-width:700px){
+ #workspace #page .stock-extra-fields .columns{grid-template-columns:1fr}
+}
