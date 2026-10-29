@@ -1636,11 +1636,11 @@ function applySettingsNightStyles(){
   {'background':'#f8f5ff','background-image':'none','color':'#24163d','border-color':'#d9cbea'},
   {'background':'#2b2f39','background-image':'none','color':'#f4f4f8','border-color':'#454957'}
  );
- set(surfaces+' :is(h2,h3,h4,label,legend,strong,b)',
+ set(':is('+surfaces+') :is(h2,h3,h4,label,legend,strong,b)',
   {'color':'#24163d','-webkit-text-fill-color':'#24163d'},
   {'color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8'}
  );
- set(surfaces+' :is(p,small,.muted)',
+ set(':is('+surfaces+') :is(p,small,.muted)',
   {'color':'#625776','-webkit-text-fill-color':'#625776'},
   {'color':'#b6bdcf','-webkit-text-fill-color':'#b6bdcf'}
  );
