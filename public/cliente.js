@@ -1523,6 +1523,19 @@ function parseImportRows(rows){
   return {rowNumber:index+2,name,sku,supplier,category,subcategory,unit,lot,price,cost,stock,min_stock,wholesale_price,expiration_date,image_path,valid:!errors.length,errors};
  }).filter(r=>r.name||r.sku||Number.isFinite(r.price));
 }
+async function ensureStockXlsxReader(){
+ if(window.XLSX)return window.XLSX;
+ if(!window.bipstartXlsxLoading){
+  window.bipstartXlsxLoading=new Promise((resolve,reject)=>{
+   const script=document.createElement('script');
+   script.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+   script.onload=()=>window.XLSX?resolve(window.XLSX):reject(Error('Leitor Excel indisponível.'));
+   script.onerror=()=>reject(Error('Não foi possível carregar o leitor de Excel.'));
+   document.head.append(script);
+  }).catch(error=>{window.bipstartXlsxLoading=null;throw error;});
+ }
+ return window.bipstartXlsxLoading;
+}
 async function loadStockImportFile(file){
  if(!file)return;
  if(file.size>15*1024*1024)throw Error('O arquivo deve ter até 15 MB.');
@@ -1534,12 +1547,7 @@ async function loadStockImportFile(file){
   const delimiter=(first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length?';':',';
   rows=parseDelimitedImport(text,delimiter);
  }else if(ext==='xlsx'||ext==='xls'){
-  if(!window.XLSX){
-   await new Promise((resolve,reject)=>{
-    const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';script.onload=resolve;script.onerror=()=>reject(Error('Não foi possível carregar o leitor de Excel. Tente exportar a planilha como CSV.'));
-    document.head.append(script);
-   });
-  }
+  await ensureStockXlsxReader();
   const buffer=await file.arrayBuffer(),book=window.XLSX.read(buffer,{type:'array'}),sheet=book.Sheets[book.SheetNames[0]];
   rows=window.XLSX.utils.sheet_to_json(sheet,{header:1,defval:'',raw:false});
  }else throw Error('Escolha um arquivo Excel (.xlsx/.xls) ou CSV (.csv).');
@@ -2803,9 +2811,18 @@ document.addEventListener('click',async e=>{
   const pasteArea=e.target.closest('[data-image-paste]');if(pasteArea){pasteArea.focus();return}
   const importTemplate=e.target.closest('[data-stock-import-template]');
   if(importTemplate){
-    const csv='nome,categoria,preco_venda,custo,estoque,estoque_minimo,imagem_url\nExemplo de produto,Geral,19.90,10.00,25,5,https://exemplo.com/foto.jpg\n';
-    const blob=new Blob(['\uFEFF',csv],{type:'text/csv;charset=utf-8;'});
-    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='modelo-importacao-bipstart.csv';a.click();URL.revokeObjectURL(url);return;
+   try{
+    const XLSX=await ensureStockXlsxReader();
+    const headers=['CODIGO','DESCRIÇÃO*','FORNECEDOR','CATEGORIA*','SUBCATEGORIA','UNIDADE*','CUSTO*','VAREJO*','ATACADO','LOTE','ESTOQUE MINIMO','QUANTIDADE','VENCIMENTO'];
+    const sample=['7891234567890','PRODUTO EXEMPLO','FORNECEDOR EXEMPLO','MERCEARIA','GERAL','UN',4.50,8.90,7.50,'L001',5,20,'30/12/2026'];
+    const sheet=XLSX.utils.aoa_to_sheet([headers,sample]);
+    sheet['!cols']=[{wch:18},{wch:30},{wch:22},{wch:20},{wch:18},{wch:12},{wch:14},{wch:14},{wch:14},{wch:16},{wch:18},{wch:15},{wch:16}];
+    sheet['A2'].t='s';
+    const book=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book,sheet,'Estoque');
+    XLSX.writeFile(book,'BIPSTART_MODELO_ESTOQUE.xlsx',{compression:true});
+   }catch(error){msg(error.message||'Não foi possível gerar a planilha modelo.',true)}
+   return;
   }
   const importOpen=e.target.closest('[data-stock-import-open]');
   if(importOpen){
