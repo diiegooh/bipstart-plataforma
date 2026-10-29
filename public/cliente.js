@@ -526,14 +526,15 @@ function salesPaymentTotals(salesList){
   const gross=Number(sale.total||0),fee=cardFeeInfo(sale);
   sum.gross+=gross;
   sum.cardFees+=fee.amount;
+  sum.discounts+=Number(sale.discount_amount||0);
   sum.net+=gross-fee.amount;
   if(!fee.known)sum.unknownFees++;
   return sum;
- },{gross:0,cardFees:0,net:0,unknownFees:0});
+ },{gross:0,cardFees:0,discounts:0,net:0,unknownFees:0});
 }
 function salesProfitInfo(figures,paymentTotals,missingSales=0){
  // Uma taxa histórica não informada não bloqueia o valor que já é calculável.
- return {value:figures.missing||missingSales?null:figures.profit-paymentTotals.cardFees,
+ return {value:figures.missing||missingSales?null:figures.profit-paymentTotals.cardFees-paymentTotals.discounts,
   partial:!!(figures.estimated||paymentTotals.unknownFees)};
 }
 function salesProfitLabel(info){
@@ -585,7 +586,7 @@ async function loadSalesReport(){
  try{
    const range=salesDateRange(period,reference);
    const found=await salesPaginated('shop_sales',{
-     select:'id,shop_id,total,payment_method,card_fee_percent,card_fee_amount,created_at',
+     select:'id,shop_id,total,payment_method,card_fee_percent,card_fee_amount,discount_amount,created_at',
      shop_id:'eq.'+selectedShop,
      and:'(created_at.gte.'+range.start+',created_at.lt.'+range.end+')',
      order:'created_at.desc'
@@ -612,7 +613,7 @@ async function loadSalesReport(){
 function salesRecordInfo(group,day){
  const sale=group.sale,fee=cardFeeInfo(sale),summary=group.total;
  const unknownCost=summary.missing>0||!group.lines.length;
- const netProfit=salesProfitInfo(summary,{cardFees:fee.amount,unknownFees:fee.known?0:1},unknownCost?1:0);
+ const netProfit=salesProfitInfo(summary,{cardFees:fee.amount,discounts:Number(sale.discount_amount||0),unknownFees:fee.known?0:1},unknownCost?1:0);
  return {
   number:group.number,
   date:day,
@@ -651,6 +652,7 @@ function salesRecordDetails(group,day){
    '<tbody>'+rows+'</tbody></table></div>':
    '<p class="sales-checkout-empty">Os itens desta venda não estão disponíveis no histórico detalhado.</p>')+
   feeLine+
+  (Number(sale.discount_amount)>0?'<p class="sales-inline-fee">Desconto concedido: −'+fmt(sale.discount_amount)+'</p>':'')+
   '<div class="sales-inline-summary">'+
   '<span>Unidades vendidas: <strong>'+info.units+'</strong></span>'+
   '<span>Total vendido: <strong>'+fmt(info.gross)+'</strong></span>'+
@@ -731,6 +733,7 @@ function salesPrintableHtml(report,format,storeName,rangeLabel){
     '<table class="a4-products"><thead><tr><th>Produto</th><th>Qtd.</th><th>Preço un.</th><th>Custo</th><th>Vendido</th>'+
     '</tr></thead><tbody>'+products+'</tbody></table>':
     '<p>Produtos não disponíveis no histórico detalhado.</p>')+
+   (Number(sale.discount_amount)>0?'<p class="a4-fee">Desconto concedido: −'+fmt(sale.discount_amount)+'</p>':'')+
    (['credito','debito'].includes(sale.payment_method)?
      '<p class="a4-fee">'+(fee.known?
        'Taxa da maquininha: '+money(fee.amount)+(fee.percent===null?'':' ('+
