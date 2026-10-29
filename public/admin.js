@@ -279,6 +279,7 @@ $('adminRows').addEventListener('click',async event=>{
     '? O teste continuará até '+originalDeadline+
     ', mantendo todos os dias já utilizados. Nenhuma cobrança será registrada.'))return;
  busy=true;button.disabled=true;$('reload').disabled=true;
+ let feedback='',feedbackError=false;
  try{
   const result=await request('bipstart_admin_change_trial_plan',{
    p_shop_id:shopId,p_plan:target
@@ -286,13 +287,15 @@ $('adminRows').addEventListener('click',async event=>{
   if(!result||result.plan_code!==target||result.status!=='trialing'||
      Date.parse(result.trial_until)!==Date.parse(item.trial_until))
     throw Error('Não foi possível comprovar que o prazo original permaneceu intacto.');
-  message('Plano de teste alterado para '+PLAN[target]+'. Encerramento original preservado: '+
-    originalDeadline+'. Nenhuma cobrança registrada.');
+  feedback='Plano de teste alterado para '+PLAN[target]+'. Encerramento original preservado: '+
+    originalDeadline+'. Nenhuma cobrança registrada.';
  }catch(error){
-  message('Não foi possível alterar o plano durante o teste: '+error.message,true);
+  feedback='Não foi possível alterar o plano durante o teste: '+error.message;
+  feedbackError=true;
  }finally{
   busy=false;button.disabled=false;$('reload').disabled=false;
   await load();
+  if(feedback)message(feedback,feedbackError);
  }
 });
 $('adminRows').addEventListener('click',async e=>{
