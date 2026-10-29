@@ -2176,9 +2176,9 @@ function productForm(p){
  }
  // Cadastro de estoque: todos os dados em duas colunas, com busca GTIN primeiro.
  return formShell('product',p.id,
-  field('sku','Código de barras (EAN/UPC ou código do leitor)','text',p.sku||'','maxlength="120" autocomplete="off"')+
-  '<div class="barcode-lookup-action"><button type="button" class="ghost" data-barcode-lookup>Buscar informações do código</button></div>'+
-  '<div id="barcodeRegistrationInfo" class="barcode-registration-info" aria-live="polite"></div>'+
+  '<label class="product-barcode-field">Código de barras (EAN/UPC ou código do leitor)'+
+  '<input type="text" name="sku" value="'+esc(p.sku||'')+'" maxlength="120" autocomplete="off" spellcheck="false">'+
+  '<small id="barcodeRegistrationInfo" class="barcode-registration-info" role="status" aria-live="polite"></small></label>'+
   field('name','Nome do item','text',p.name,'required maxlength="160"')+
   field('brand','Marca','text',p.brand||'','maxlength="120"')+
   categoryField+
@@ -3044,11 +3044,6 @@ document.addEventListener('click',async e=>{
    renderPage();
    if(info.found)useBarcodeResultInForm(info);
    document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});
-   return;
-  }
-  if(e.target.closest('[data-barcode-lookup]')){
-   const form=$('productForm');
-   if(form)void lookupBarcodeForRegistration(form.elements.namedItem('sku')?.value);
    return;
   }
   const deleteProductButton=e.target.closest('[data-product-delete]');
