@@ -2019,7 +2019,8 @@ function applyPdvFloatingFullWidth(){
   if(!list)continue;
   list.style.setProperty('display','grid','important');
   list.style.removeProperty('flex-wrap');
-  list.style.setProperty('grid-template-columns','repeat(auto-fill,minmax(min(100%,144px),1fr))','important');
+  const columns=window.matchMedia('(max-width:600px)').matches?'repeat(2,minmax(0,1fr))':'repeat(auto-fill,minmax(min(100%,144px),1fr))';
+  list.style.setProperty('grid-template-columns',columns,'important');
   list.style.setProperty('align-items','start','important');
   list.style.setProperty('width','100%','important');
   list.style.setProperty('max-width','none','important');
