@@ -83,11 +83,23 @@ function row(item){
  const status=expiredTrial?'Teste expirado':expiredPaid?'Plano vencido':item.access_status;
  const plan=PLAN[item.requested_plan]?item.requested_plan:'basic';
  const option=Object.entries(PLAN).map(([value,label])=>'<option value="'+value+'"'+(value===plan?' selected':'')+'>'+label+'</option>').join('');
+ const trialEditable=item.access_status==='trialing'&&
+   Number.isFinite(Date.parse(item.trial_until))&&Date.parse(item.trial_until)>Date.now();
+ const trialPlan=PLAN[item.plan_code]?item.plan_code:'basic';
+ const trialOptions=Object.entries(PLAN).map(([value,label])=>
+  '<option value="'+value+'"'+(value===trialPlan?' selected':'')+'>'+label+'</option>').join('');
+ const trialControl=trialEditable?
+  '<div class="admin-trial-change" data-trial-plan><label for="trial-plan-'+escapeHtml(item.shop_id)+'">Plano durante o teste</label>'+
+  '<select class="admin-trial-select" id="trial-plan-'+escapeHtml(item.shop_id)+'" aria-label="Novo plano de teste da loja '+escapeHtml(item.shop_name)+'">'+trialOptions+'</select>'+
+  '<button type="button" class="button admin-trial-save" data-trial-change-plan disabled>Salvar plano do teste</button>'+
+  '<small>Até '+new Date(item.trial_until).toLocaleString('pt-BR')+'. O prazo original não muda.</small>'+
+  '</div>':'';
+ 
  return '<tr data-shop-id="'+escapeHtml(item.shop_id)+'"><td><strong>'+escapeHtml(item.shop_name)+'</strong><div class="admin-email">'+escapeHtml(item.owner_email||'E-mail não disponível')+'</div>'+whatsappLine+'<div class="admin-muted">'+escapeHtml(item.shop_id)+'</div></td>'+
    '<td>'+escapeHtml(PLAN[item.requested_plan]||item.requested_plan)+'<div class="admin-muted">'+(item.signup_choice==='trial'?'Teste solicitado':'WhatsApp')+'</div></td>'+
    '<td class="admin-status">'+escapeHtml(status)+'<div class="admin-muted">'+(item.active_until?'Até '+new Date(item.active_until).toLocaleDateString('pt-BR'):(item.trial_until&&item.access_status==='trialing'?'Teste até '+new Date(item.trial_until).toLocaleString('pt-BR'):''))+'</div>'+
    ((item.plan_code==='pro'||item.requested_plan==='pro')?premiumPaymentSummary(item):'')+'</td>'+
-   '<td><select aria-label="Plano para ativar">'+option+'</select></td><td><div class="admin-actions">'+
+   '<td><label class="admin-plan-activation-label">Plano para ativação paga<select class="admin-plan-activation" aria-label="Plano para ativar">'+option+'</select></label>'+trialControl+'</td><td><div class="admin-actions">'+
    '<button type="button" class="button" data-action="activate">Ativar</button>'+
    ((item.plan_code==='pro'||item.requested_plan==='pro')?
     '<button type="button" class="button admin-add-30" data-renew-30>+30 dias</button>':'')+
@@ -239,9 +251,53 @@ async function load(){
  finally{busy=false;$('reload').disabled=false}
 }
 $('reload').addEventListener('click',load);
+// Durante o teste, apenas o plano muda: dias usados continuam contando.
+$('adminRows').addEventListener('change',event=>{
+ const select=event.target.closest('.admin-trial-select');
+ if(!select)return;
+ const row=select.closest('[data-shop-id]');
+ const item=adminShopRecords.find(x=>x.shop_id===row?.dataset.shopId);
+ const button=row?.querySelector('[data-trial-change-plan]');
+ if(!button)return;
+ const canChange=!!item&&item.access_status==='trialing'&&
+  Number.isFinite(Date.parse(item.trial_until))&&Date.parse(item.trial_until)>Date.now();
+ button.disabled=!canChange||busy||select.value===item.plan_code;
+});
+$('adminRows').addEventListener('click',async event=>{
+ const button=event.target.closest('[data-trial-change-plan]');
+ if(!button||busy||button.disabled)return;
+ const row=button.closest('[data-shop-id]');
+ const shopId=row?.dataset.shopId;
+ const item=adminShopRecords.find(x=>x.shop_id===shopId);
+ const target=row?.querySelector('.admin-trial-select')?.value;
+ if(!item||!PLAN[target]||target===item.plan_code||
+    item.access_status!=='trialing'||!Number.isFinite(Date.parse(item.trial_until))||
+    Date.parse(item.trial_until)<=Date.now())return;
+ const originalDeadline=new Date(item.trial_until).toLocaleString('pt-BR');
+ if(!window.confirm('Alterar o teste grátis da loja "'+item.shop_name+'" de '+
+    (PLAN[item.plan_code]||item.plan_code)+' para '+PLAN[target]+
+    '? O teste continuará até '+originalDeadline+
+    ', mantendo todos os dias já utilizados. Nenhuma cobrança será registrada.'))return;
+ busy=true;button.disabled=true;$('reload').disabled=true;
+ try{
+  const result=await request('bipstart_admin_change_trial_plan',{
+   p_shop_id:shopId,p_plan:target
+  });
+  if(!result||result.plan_code!==target||result.status!=='trialing'||
+     Date.parse(result.trial_until)!==Date.parse(item.trial_until))
+    throw Error('Não foi possível comprovar que o prazo original permaneceu intacto.');
+  message('Plano de teste alterado para '+PLAN[target]+'. Encerramento original preservado: '+
+    originalDeadline+'. Nenhuma cobrança registrada.');
+ }catch(error){
+  message('Não foi possível alterar o plano durante o teste: '+error.message,true);
+ }finally{
+  busy=false;button.disabled=false;$('reload').disabled=false;
+  await load();
+ }
+});
 $('adminRows').addEventListener('click',async e=>{
  const btn=e.target.closest('[data-action]');if(!btn||busy)return;
- const tr=btn.closest('tr');const shopId=tr?.dataset.shopId,plan=tr?.querySelector('select')?.value;
+ const tr=btn.closest('tr');const shopId=tr?.dataset.shopId,plan=tr?.querySelector('.admin-plan-activation')?.value;
  const action=btn.dataset.action;
  if(!shopId||!PLAN[plan]||!['activate','suspend'].includes(action))return;
  const text=action==='activate'
