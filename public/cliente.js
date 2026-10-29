@@ -1483,13 +1483,11 @@ async function addBarcodeToCart(value){
 function pdvProductCards(){
  const available=filteredPdvProducts();
  return available.length?available.map(p=>{
-  const count=cart.find(c=>c.id===p.id)?.qty||0;
   const photo=p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="pdv-no-photo" aria-hidden="true">▣</div>';
-  const quantityField=pdvQuantityEntryProductId===p.id?'<input class="pdv-quantity-entry" data-pdv-quantity="'+esc(p.id)+'" type="number" min="1" step="1" inputmode="numeric" aria-label="Quantidade de '+esc(p.name)+'" autocomplete="off">':'';
   return '<div class="pdv-product-wrap"><button type="button" class="pdv-product pdv-product-clickable" data-cart="'+esc(p.id)+'" aria-label="'+esc('Adicionar ao carrinho: '+p.name+' — '+fmt(p.price))+'">'+
    '<span class="pdv-product-media">'+photo+'</span>'+
    '<span class="pdv-product-info"><strong class="pdv-product-name">'+esc(p.name)+'</strong>'+
-   '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button>'+quantityField+'</div>';
+   '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button></div>';
  }).join(''):'<div class="empty pdv-empty">'+(pdvShowBestSellers?(bestSellerLoading?'Calculando os produtos mais vendidos...':bestSellerError?'Não foi possível consultar o histórico de vendas: '+esc(bestSellerError):'Nenhum produto vendido encontrado entre os produtos disponíveis.'): 'Nenhum produto corresponde à busca. Cadastre produtos ou altere os filtros.')+'</div>';
 }
 
@@ -1623,11 +1621,16 @@ function renderGodzillaPDV(){
  const cash=pdvPayment==='dinheiro',isCard=['credito','debito'].includes(pdvPayment);
  const cartItems=cart.map(c=>{
   const p=products.find(p=>p.id===c.id);
-  return '<div class="pdv-sale-item"><div class="pdv-sale-product"><strong>'+esc(c.name)+'</strong>'+
+  const quantityEdit=pdvQuantityEntryProductId===c.id;
+  const quantityInput=quantityEdit?
+   '<input class="pdv-quantity-entry pdv-cart-quantity-entry" data-pdv-quantity="'+esc(c.id)+
+   '" type="number" min="1" max="10000" step="1" inputmode="numeric" placeholder="+ qtd"'+
+   ' aria-label="Adicionar mais unidades de '+esc(c.name)+'" title="Digite quantas unidades adicionar e pressione Enter" autocomplete="off">':'';
+  return '<div class="pdv-sale-item'+(quantityEdit?' pdv-sale-item-quantity-edit':'')+'"><div class="pdv-sale-product"><strong>'+esc(c.name)+'</strong>'+
    (p?'<small>Estoque: '+esc(p.stock)+'</small>':'')+'<b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div>'+
    '<div class="pdv-sale-qty">'+
    '<button type="button" data-qty-less="'+esc(c.id)+'" aria-label="Diminuir '+esc(c.name)+'">−</button>'+
-   '<b>'+c.qty+'</b><button type="button" data-cart="'+esc(c.id)+'" aria-label="Aumentar '+esc(c.name)+'">+</button>'+
+   '<b>'+c.qty+'</b>'+quantityInput+'<button type="button" data-cart="'+esc(c.id)+'" aria-label="Aumentar '+esc(c.name)+'">+</button>'+
    '<button type="button" data-remove="'+esc(c.id)+'" aria-label="Remover '+esc(c.name)+'">×</button>'+
    '</div></div>';
  }).join('');
@@ -3245,7 +3248,15 @@ document.addEventListener('click',async e=>{
   const less=e.target.closest('[data-qty-less]');
   if(less){
     const found=cart.find(c=>c.id===less.dataset.qtyLess);
-    if(found){found.qty--;if(found.qty<=0)cart=cart.filter(c=>c.id!==found.id);renderPage();}
+    if(found){
+      found.qty--;
+      if(found.qty<=0){
+        cart=cart.filter(c=>c.id!==found.id);
+        pdvProductClickCounts.delete(found.id);
+        if(pdvQuantityEntryProductId===found.id)pdvQuantityEntryProductId=null;
+      }
+      renderPage();
+    }
     return;
   }
   const share=e.target.closest('[data-share-shop]');
@@ -3413,16 +3424,22 @@ document.addEventListener('click',async e=>{
     const clicks=(pdvProductClickCounts.get(p.id)||0)+1;
     pdvProductClickCounts.set(p.id,clicks);
     if(clicks>=4){
+      // O campo aparece no carrinho, ao lado da quantidade, e não no catálogo.
       pdvQuantityEntryProductId=p.id;
+      if(floatingSaleEnabled())pdvCheckoutOpen=true;
       renderPage();
       const input=document.querySelector('[data-pdv-quantity="'+CSS.escape(p.id)+'"]');
-      if(input)input.focus();
+      if(input){input.focus({preventScroll:true});input.select();}
       return;
     }
     if(old)old.qty++;else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
     renderPage();return
   }
-  const rm=e.target.closest('[data-remove]');if(rm){cart=cart.filter(x=>x.id!==rm.dataset.remove);renderPage()}
+  const rm=e.target.closest('[data-remove]');if(rm){
+    if(pdvQuantityEntryProductId===rm.dataset.remove)pdvQuantityEntryProductId=null;
+    pdvProductClickCounts.delete(rm.dataset.remove);
+    cart=cart.filter(x=>x.id!==rm.dataset.remove);renderPage();
+  }
 });
 /* Leitores USB/Bluetooth em modo teclado enviam o codigo seguido de Enter.
    Se um campo estiver ativo, só o campo exclusivo de código intercepta o Enter.
@@ -3497,18 +3514,27 @@ document.addEventListener('keydown',e=>{
 
 document.addEventListener('keydown',e=>{
  const input=e.target.closest('[data-pdv-quantity]');
- if(!input||e.key!=='Enter')return;
+ if(!input||!['Enter','Escape'].includes(e.key))return;
  e.preventDefault();
  const productId=input.dataset.pdvQuantity;
- const p=products.find(item=>item.id===productId);
+ if(e.key==='Escape'){
+   pdvProductClickCounts.set(productId,0);
+   pdvQuantityEntryProductId=null;
+   renderPage();
+   return;
+ }
+ const product=products.find(item=>item.id===productId);
+ const current=cart.find(item=>item.id===productId);
  const quantity=Number(input.value);
- const old=cart.find(item=>item.id===productId);
- if(!p){pdvQuantityEntryProductId=null;renderPage();return}
- if(!Number.isInteger(quantity)||quantity<1){
+ if(!product||!current){
+   pdvProductClickCounts.set(productId,0);
    pdvQuantityEntryProductId=null;renderPage();return;
  }
- if(old)old.qty+=quantity;
- else cart.push({id:p.id,name:p.name,qty:quantity,price:Number(p.price)});
+ if(!Number.isInteger(quantity)||quantity<1||quantity>10000||current.qty+quantity>10000){
+   msg('Informe de 1 a 10.000 unidades, respeitando o limite total do item.',true);
+   input.focus({preventScroll:true});input.select();return;
+ }
+ current.qty+=quantity;
  pdvProductClickCounts.set(productId,0);
  pdvQuantityEntryProductId=null;
  renderPage();
