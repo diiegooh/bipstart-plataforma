@@ -945,7 +945,7 @@ function productCard(product){
  return '<article class="inventory-card" data-stock-state="'+state+'">'+
   '<div class="inventory-photo-wrap">'+photo+'</div>'+
   '<div class="inventory-card-body">'+
-  '<div class="inventory-card-heading"><small>'+esc(product.category||'Geral')+(product.subcategory?' · '+esc(product.subcategory):'')+'</small><h3>'+esc(product.name)+'</h3>'+(product.sku?'<small>Cód. barras: '+esc(product.sku)+'</small>':'')+'</div>'+
+  '<div class="inventory-card-heading"><small>'+esc(product.category||'Geral')+(product.subcategory?' · '+esc(product.subcategory):'')+'</small><h3>'+esc(product.name)+'</h3>'+(product.sku?'<small>Cód. barras: '+esc(product.sku)+'</small>':'')+(product.brand?'<small>Marca: '+esc(product.brand)+'</small>':'')+'</div>'+
   '<div class="inventory-card-prices"><strong>'+fmt(product.price)+'</strong><small>Custo: '+fmt(product.cost)+'</small></div>'+
   (product.online_enabled===false?'<small class="inventory-online-status offline">Somente PDV · Não aparece no cardápio online</small>':
    '<small class="inventory-online-status">Venda online: Sim · '+fmt(product.menu_price_enabled&&product.menu_price!=null?product.menu_price:product.price)+'</small>')+
@@ -2175,7 +2175,10 @@ function productForm(p){
   field('stock','Quantidade em estoque','number',p.stock??0,'required min="0" step="1"')+
   field('min_stock','Estoque mínimo (unidades)','number',p.min_stock??5,'required min="0" max="999999999" step="1"')+
   '<fieldset class="stock-extra-fields"><legend>Dados adicionais do estoque</legend><div class="columns">'+
-  field('sku','Código de barras (EAN/UPC ou código do leitor)','text',p.sku||'','maxlength="120"')+
+  field('sku','Código de barras (EAN/UPC ou código do leitor)','text',p.sku||'','maxlength="120" autocomplete="off"')+
+  '<div class="barcode-lookup-action"><button type="button" class="ghost" data-barcode-lookup>Buscar informações do código</button><small>Digite ou escaneie o GTIN. Nome, marca e categoria poderão ser preenchidos automaticamente.</small></div>'+
+  '<div id="barcodeRegistrationInfo" class="barcode-registration-info" aria-live="polite"></div>'+
+  field('brand','Marca','text',p.brand||'','maxlength="120"')+
   field('supplier','Fornecedor','text',p.supplier||'','maxlength="120"')+
   field('subcategory','Subcategoria','text',p.subcategory||'','maxlength="65"')+
   field('unit','Unidade (UN, KG, CX...)','text',p.unit||'','maxlength="20"')+
@@ -2384,6 +2387,7 @@ async function handleSubmit(form,contractWindow=null){
        ...(isMenu?{description:String(v.description||'').trim()}:{
         cost:Number(v.cost),stock:Number(v.stock),min_stock:Number(v.min_stock),
         sku:String(v.sku||'').trim()||null,
+        brand:String(v.brand||'').trim()||null,
         supplier:String(v.supplier||'').trim()||null,
         subcategory:String(v.subcategory||'').trim()||null,
         unit:String(v.unit||'').trim().toUpperCase()||null,
@@ -2407,7 +2411,7 @@ async function handleSubmit(form,contractWindow=null){
         !Number.isInteger(body.min_stock)||body.min_stock<0||body.min_stock>999999999)
         throw Error('Confira custo, estoque atual e estoque mínimo.');
       if(!isMenu&&(
-       String(body.sku||'').length>120||String(body.supplier||'').length>120||
+       String(body.sku||'').length>120||String(body.brand||'').length>120||String(body.supplier||'').length>120||
        String(body.subcategory||'').length>65||String(body.unit||'').length>20||
        String(body.lot||'').length>80||
        (body.wholesale_price!==null&&(!Number.isFinite(body.wholesale_price)||body.wholesale_price<0))
@@ -2620,6 +2624,16 @@ document.addEventListener('paste',e=>{
   msg('Imagem colada! Agora salve o produto.');
 });
 document.addEventListener('input',e=>{
+ if(e.target.matches?.('#productForm input[name="sku"]')){
+  clearTimeout(barcodeRegistrationTimer);
+  const code=normalizeBarcode(e.target.value);
+  const slot=$('barcodeRegistrationInfo');
+  if(slot)slot.textContent='';
+  if(/^[0-9]{8,14}$/.test(code)){
+   barcodeRegistrationTimer=setTimeout(()=>void lookupBarcodeForRegistration(code),900);
+  }
+  return;
+ }
  if(e.target.id==='pdvSearch'){
   pdvQuery=e.target.value;
   const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();
@@ -3013,6 +3027,23 @@ document.addEventListener('click',async e=>{
     return
   }
   const add=e.target.closest('[data-new]');if(add){if(tab==='cardapio'&&!proAccess())return msg('Cardápio online exclusivo Premium.',true);if(tab==='produtos'&&add.dataset.new==='product')selectedStockPanel='all';showForm={kind:add.dataset.new,value:null};pastedProductImage=null;renderPage();if(add.dataset.new==='product')document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(e.target.closest('[data-barcode-dismiss]')){pdvExternalProduct=null;barcodeLastResult='';renderPage();return;}
+  if(e.target.closest('[data-barcode-register]')){
+   if(!pdvExternalProduct)return;
+   const info=pdvExternalProduct;
+   tab='produtos';selectedStockPanel='all';
+   showForm={kind:'product',value:{sku:info.code||'',name:info.found?info.name:'',brand:info.found?info.brand:'',category:'Geral',stock:0,cost:0,price:0,min_stock:5}};
+   pdvExternalProduct=null;pastedProductImage=null;
+   renderPage();
+   if(info.found)useBarcodeResultInForm(info);
+   document.getElementById('productForm')?.scrollIntoView({behavior:'smooth',block:'start'});
+   return;
+  }
+  if(e.target.closest('[data-barcode-lookup]')){
+   const form=$('productForm');
+   if(form)void lookupBarcodeForRegistration(form.elements.namedItem('sku')?.value);
+   return;
+  }
   const deleteProductButton=e.target.closest('[data-product-delete]');
   if(deleteProductButton){
     if(tab!=='produtos'||!shop||!hasAccess())return;
@@ -3102,9 +3133,21 @@ document.addEventListener('keydown',e=>{
  if(barcodeKeyboardBuffer.length>120)barcodeKeyboardBuffer='';
 });
 document.addEventListener('keydown',e=>{
- if(e.key!=='Enter'||!e.target?.matches('#productForm input[name="sku"]'))return;
- e.preventDefault();
- e.target.closest('form')?.querySelector('input[name="supplier"]')?.focus();
+ if(e.key!=='Enter')return;
+ if(e.target?.matches('#productForm input[name="sku"]')){
+  e.preventDefault();
+  clearTimeout(barcodeRegistrationTimer);
+  void lookupBarcodeForRegistration(e.target.value);
+  return;
+ }
+ if(e.target?.id==='pdvSearch'&&normalizeBarcode(e.target.value)){
+  const code=normalizeBarcode(e.target.value);
+  const matches=products.some(p=>normalizeBarcode(p.sku)===code);
+  if(matches||/^[0-9]{8,14}$/.test(code)){
+   e.preventDefault();
+   void addBarcodeToCart(code);
+  }
+ }
 });
 
 document.addEventListener('keydown',e=>{
