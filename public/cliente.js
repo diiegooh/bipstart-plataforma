@@ -1174,9 +1174,9 @@ function receiptSnapshot(sale,method,received,sold,recorded){
  return {
   shopId:shop.id,shopName:String(shop.name||''),address:String(shop.location_text||''),
   whatsapp:String(shop.whatsapp||''),id:String(sale?.sale_id||''),
-  issuedAt:new Date().toISOString(),payment:method,items,total:validTotal,
+  issuedAt:new Date().toISOString(),payment:method,items,total:validTotal,discount:Number(sale?.discount_amount||0),
   received:method==='dinheiro'&&received!==''?Number(received):null,
-  priceVerified:serverItems&&Math.abs(computed-validTotal)<.011
+  priceVerified:serverItems&&Math.abs(computed-Number(sale?.discount_amount||0)-validTotal)<.011
  };
 }
 function receiptMarkup(receipt){
@@ -1198,6 +1198,7 @@ function receiptMarkup(receipt){
   '</tbody></table>'+
   '<div class="receipt-meta"><span>Itens</span><strong>'+receipt.items.reduce((sum,item)=>sum+item.qty,0)+'</strong></div>'+
   '<div class="receipt-meta"><span>Subtotal dos itens</span><strong>'+fmt(subtotal)+'</strong></div>'+
+  (Number(receipt.discount)>0?'<div class="receipt-meta"><span>Desconto</span><strong>−'+fmt(receipt.discount)+'</strong></div>':'')+
   '<div class="receipt-meta receipt-grand"><span>TOTAL DA VENDA</span><strong>'+fmt(receipt.total)+'</strong></div>'+
   '<div class="receipt-meta"><span>Pagamento</span><strong>'+esc(pay[receipt.payment]||receipt.payment)+'</strong></div>'+
   (cash?'<div class="receipt-meta"><span>Valor recebido</span><strong>'+fmt(receipt.received)+'</strong></div>'+
@@ -2563,8 +2564,13 @@ async function handleSubmit(form,contractWindow=null){
     }
     case 'saleForm':{
       if(!cart.length)throw Error('Adicione produtos ao carrinho.');
+      const subtotal=cart.reduce((a,c)=>a+c.qty*c.price,0);
+      const discountAmount=['dinheiro','credito','debito'].includes(v.payment_method)?parseMoneyInput(v.discount_amount||'0'):0;
+      if(!Number.isFinite(discountAmount)||discountAmount<0||
+         Math.abs(discountAmount*100-Math.round(discountAmount*100))>1e-6||discountAmount>subtotal)
+        throw Error('Desconto inválido ou maior que o subtotal da venda.');
+      const total=subtotal-discountAmount;
       if(v.payment_method==='dinheiro'){
-        const total=cart.reduce((a,c)=>a+c.qty*c.price,0);
         const receivedAmount=parseMoneyInput(v.received);
         if(!Number.isFinite(receivedAmount)||receivedAmount<0||receivedAmount+0.001<total)
           throw Error('Informe um valor recebido suficiente para finalizar a venda em dinheiro.');
@@ -2577,7 +2583,7 @@ async function handleSubmit(form,contractWindow=null){
       pdvPayment=v.payment_method;
       const sold=cart.map(c=>({id:c.id,name:c.name,qty:c.qty,price:c.price}));
       const data=await rpc('bipstart_complete_sale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),
-        p_payment_method:v.payment_method,p_card_fee_percent:feePercent});
+        p_payment_method:v.payment_method,p_card_fee_percent:feePercent,p_discount_amount:discountAmount});
       let recorded=[];
       try{
         if(data?.sale_id)recorded=await rest('shop_sale_items',{query:{
@@ -2586,10 +2592,11 @@ async function handleSubmit(form,contractWindow=null){
       }catch(error){console.warn('Detalhes da venda não disponíveis para a nota:',error.message)}
       lastReceipt=receiptSnapshot(data,v.payment_method,v.payment_method==='dinheiro'?String(parseMoneyInput(v.received)): '',sold,recorded);
       cart=[];
+      pdvDiscountAmount='';
       bestSellerLoadedShop=null;
       if(pdvShowBestSellers)void loadBestSellers();
       if(receiptSettings().preview)showReceiptDialog(lastReceipt);
-      msg('Venda registrada: '+fmt(data.total)+
+      msg('Venda registrada: '+fmt(data.total)+(discountAmount?' · Desconto: '+fmt(discountAmount):'')+
         (cardMethod?' · Taxa: '+fmt(data.card_fee_amount||0)+' · Líquido: '+fmt(data.net_total):'')+
         '. Comprovante disponível para impressão.');
       break;
@@ -2777,10 +2784,11 @@ document.addEventListener('input',e=>{
  if(e.target.id==='pdvSearch'){
   pdvQuery=e.target.value;
   const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();
- }else if(e.target.id==='pdvReceived'||e.target.id==='pdvFeePercent'){
-   if(e.target.id==='pdvReceived'){
+ }else if(['pdvReceived','pdvFeePercent','pdvDiscount'].includes(e.target.id)){
+   if(e.target.id==='pdvReceived'||e.target.id==='pdvDiscount'){
      const formatted=formatCurrencyDigits(e.target.value);
      if(formatted!==e.target.value){e.target.value=formatted; e.target.setSelectionRange(formatted.length,formatted.length);}
+     if(e.target.id==='pdvDiscount')pdvDiscountAmount=e.target.value;
    }else pdvCardFeePercent=e.target.value;
    updatePdvEstimates();
  }
