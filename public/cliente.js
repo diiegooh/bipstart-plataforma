@@ -675,7 +675,7 @@ function salesRecordRow(group,day){
   '<td>'+esc(date+' '+item.time)+'</td>'+
   '<td>'+item.units+'</td><td>'+fmt(item.gross)+'</td>'+
   '<td>'+(item.cost===null?'—':fmt(item.cost))+'</td>'+
-  '<td class="sales-record-profit">'+salesProfitLabel({value:item.profit,partial:item.profitPartial})+'</td></tr>'+
+  '<td class="sales-record-profit'+(item.profit!==null&&item.profit<0?' is-loss':'')+'">'+salesProfitLabel({value:item.profit,partial:item.profitPartial})+'</td></tr>'+
   '<tr class="sales-record-details-row" id="'+esc(detailsId)+'" hidden>'+
    '<td colspan="6">'+salesRecordDetails(group,day)+'</td></tr>';
 }
@@ -1942,6 +1942,29 @@ function applySalesNightStyles(){
   'background':'#2b2f39','border-color':'#393d49',
   'color':'#dce1ed','-webkit-text-fill-color':'#dce1ed'
  });
+ paint('.sales-records-table tbody tr.sales-record-row td',{
+  'background':'#22252d','background-image':'none',
+  'border-color':'#393d49','color':'#f4f4f8',
+  '-webkit-text-fill-color':'#f4f4f8'
+ });
+ paint('.sales-records-table tbody tr.sales-record-row:has(.sales-record-toggle[aria-expanded="true"]) td',{
+  'background':'#302b40'
+ });
+ paint('.sales-records-table .sales-record-toggle',{
+  'background':'#2b2f39','background-image':'none',
+  'color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8',
+  'border-color':'#494455'
+ });
+ paint('.sales-records-table .sales-record-toggle strong',{
+  'color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8'
+ });
+ paint('.sales-records-table .sales-record-arrow',{
+  'background':'#4b3b66','color':'#e9ddff',
+  '-webkit-text-fill-color':'#e9ddff'
+ });
+ paint('.sales-records-table .sales-record-profit.is-loss',{
+  'color':'#ff929a','-webkit-text-fill-color':'#ff929a'
+ });
 
  // Detalhes da venda: estilização direta para sobrepor o CSS antigo.
  paint('.sales-record-details-row>td,.sales-inline-detail,.sales-inline-scroll,.sales-inline-products',{
@@ -2793,6 +2816,7 @@ document.addEventListener('click',async e=>{
       if(opened)opened.hidden=true;
     });
     if(!expanded){detail.hidden=false;button.setAttribute('aria-expanded','true');}
+    applySalesNightStyles();
     return;
   }
   const feeSaveButton=e.target.closest('[data-sales-save-fee]');
