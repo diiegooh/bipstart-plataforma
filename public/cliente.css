@@ -4418,3 +4418,514 @@ body:not(.pdv-night) #workspace #page #settingsForm .menu-logo-editor-preview {
   background:#f8f5ff!important;
   border:1px solid #e3d8f1!important;
 }
+
+
+/* Cadastro de produtos: campos adicionais do novo modelo de estoque. */
+#workspace #page .stock-extra-fields {
+ margin:14px 0 18px;
+ padding:16px;
+ min-width:0;
+ border:1px solid #d9cbea;
+ border-radius:12px;
+ background:#faf8ff;
+ color:#24163d;
+}
+#workspace #page .stock-extra-fields legend {
+ padding:0 7px;
+ color:#3e2870;
+ font-size:13px;
+ font-weight:800;
+}
+#workspace #page .stock-extra-fields .columns{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:0 14px;
+}
+body.pdv-night #workspace #page .stock-extra-fields{
+ background:#22252d!important;
+ color:#f4f4f8!important;
+ border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .stock-extra-fields legend{color:#f4f4f8!important}
+@media(max-width:700px){
+ #workspace #page .stock-extra-fields .columns{grid-template-columns:1fr}
+}
+
+
+/* PDV: campo dedicado ao leitor USB/Bluetooth de código de barras */
+#workspace #page .godzilla-pdv .pdv-search-controls{
+ display:flex;align-items:center;justify-content:flex-end;flex:1 1 auto;
+ gap:12px;min-width:0;max-width:920px;
+}
+#workspace #page .godzilla-pdv .pdv-search-controls .pdv-search-top{
+ flex:1 1 340px;min-width:140px;width:auto;max-width:none;
+}
+#workspace #page .godzilla-pdv .pdv-barcode-label{
+ display:block;flex:0 1 310px;min-width:190px;margin:0;
+}
+#workspace #page .godzilla-pdv #pdvBarcode{
+ display:block;width:100%;height:48px;min-width:0;box-sizing:border-box;
+ padding:10px 14px;border:2px solid #8c5fe8;border-radius:13px;
+ color:#251646;background:#fff;box-shadow:none;
+ font:700 15px Inter,system-ui,sans-serif;letter-spacing:.02em;
+}
+#workspace #page .godzilla-pdv #pdvBarcode:focus{
+ outline:2px solid #b99af5;outline-offset:2px;border-color:#6d36d6;
+}
+#workspace #page .godzilla-pdv .pdv-barcode-feedback{
+ flex:0 0 auto;font-size:12px;line-height:1.35;margin:4px 0 10px;
+ color:#66557e;min-height:16px;
+}
+body.pdv-night #workspace #page .godzilla-pdv #pdvBarcode{
+ background:#22252d!important;color:#f4f4f8!important;
+ border-color:#9270db!important;color-scheme:dark;
+}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-barcode-feedback{color:#c9b9ee!important}
+@media(max-width:1150px){
+ #workspace #page .godzilla-pdv .pdv-title{flex-wrap:wrap;gap:9px}
+ #workspace #page .godzilla-pdv .pdv-search-controls{flex:1 1 100%;max-width:none}
+}
+@media(max-width:600px){
+ #workspace #page .godzilla-pdv .pdv-search-controls{flex-direction:column;align-items:stretch}
+ #workspace #page .godzilla-pdv .pdv-search-controls .pdv-search-top,
+ #workspace #page .godzilla-pdv .pdv-barcode-label{flex:auto;width:100%;min-width:0}
+ #workspace #page .godzilla-pdv .pdv-barcode-feedback{margin-bottom:12px}
+}
+
+
+/* Consultar GTIN: informações sugeridas sem sobrescrever preço ou estoque */
+#workspace #page .barcode-lookup-action,
+#workspace #page .barcode-registration-info{grid-column:1/-1;min-width:0}
+#workspace #page .barcode-lookup-action{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:1px 0 7px}
+#workspace #page .barcode-lookup-action .ghost{min-height:38px;border:1px solid #ac90e4;color:#553294;background:#f5efff;border-radius:10px;padding:8px 12px}
+#workspace #page .barcode-lookup-action small{flex:1 1 220px;color:#675a7a;line-height:1.4}
+#workspace #page .barcode-registration-info{line-height:1.45;color:#665675}
+#workspace #page .barcode-info-card{display:flex;gap:13px;align-items:flex-start;border:1px solid #d6c5ed;background:#faf7ff;border-radius:13px;padding:12px;margin:8px 0 12px;max-width:100%}
+#workspace #page .barcode-info-card>img{width:74px;height:74px;flex-shrink:0;object-fit:contain;border-radius:9px;background:#fff}
+#workspace #page .barcode-info-card>div{display:grid;gap:5px;min-width:0}
+#workspace #page .barcode-info-card strong{overflow-wrap:anywhere;color:#261744}
+#workspace #page .barcode-info-card small{color:#645772;line-height:1.4}
+#workspace #page .barcode-info-card a{color:#6038af;font-weight:700}
+#workspace #page .pdv-barcode-result{border:1px solid #cdb9ef;background:#f9f6ff;border-radius:14px;padding:12px 16px;margin:4px 0 12px;display:grid;gap:10px}
+#workspace #page .pdv-barcode-result-main{display:flex;align-items:center;gap:13px;min-width:0}
+#workspace #page .pdv-barcode-result-main>img{width:78px;height:78px;flex-shrink:0;object-fit:contain;border-radius:9px;background:#fff}
+#workspace #page .pdv-barcode-result-main>div{display:grid;gap:4px;min-width:0}
+#workspace #page .pdv-barcode-result-main strong{font-size:15px;overflow-wrap:anywhere;color:#25163b}
+#workspace #page .pdv-barcode-result-main small{color:#665873;line-height:1.35}
+#workspace #page .pdv-barcode-result-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+#workspace #page .pdv-barcode-result-actions button{min-height:38px;padding:8px 13px;border-radius:9px}
+body.pdv-night #workspace #page :is(.pdv-barcode-result,.barcode-info-card){background:#22252d!important;color:#f4f4f8!important;border-color:#494355!important}
+body.pdv-night #workspace #page :is(.pdv-barcode-result,.barcode-info-card) :is(strong,small){color:#f4f4f8!important}
+body.pdv-night #workspace #page .barcode-lookup-action .ghost{background:#343047!important;color:#eee4ff!important}
+@media(max-width:600px){
+ #workspace #page :is(.pdv-barcode-result-main,.barcode-info-card){align-items:flex-start}
+ #workspace #page :is(.pdv-barcode-result-main,.barcode-info-card)>img{width:54px;height:54px}
+}
+
+
+/* BipStart: cadastro de produto em modo noite — cards de seleção v171 */
+body.pdv-night #workspace #page #productForm :is(
+ .product-best-seller-option,
+ .menu-price-controls,
+ .menu-price-controls .online-sale-question,
+ .menu-price-controls .online-sale-price,
+ .online-sale-locked,
+ .stock-extra-fields
+){
+ background:#22252d!important;
+ background-image:none!important;
+ color:#ffffff!important;
+ -webkit-text-fill-color:#ffffff!important;
+ border-color:#464152!important;
+ box-shadow:none!important;
+ color-scheme:dark;
+}
+body.pdv-night #workspace #page #productForm :is(
+ .product-best-seller-option,
+ .menu-price-controls,
+ .online-sale-locked,
+ .stock-extra-fields
+) :is(label,legend,span,strong,b,h3){
+ color:#ffffff!important;
+ -webkit-text-fill-color:#ffffff!important;
+}
+body.pdv-night #workspace #page #productForm :is(
+ .product-best-seller-option,
+ .menu-price-controls,
+ .online-sale-locked,
+ .stock-extra-fields
+) :is(small,p,.muted){
+ color:#d3cce1!important;
+ -webkit-text-fill-color:#d3cce1!important;
+}
+body.pdv-night #workspace #page #productForm :is(
+ .menu-price-controls .online-sale-question select,
+ .menu-price-controls .online-sale-price input,
+ .stock-extra-fields input:not([type=checkbox]):not([type=radio]),
+ .stock-extra-fields select
+){
+ background:#191b23!important;
+ background-image:none!important;
+ border-color:#514b62!important;
+ color:#ffffff!important;
+ -webkit-text-fill-color:#ffffff!important;
+ color-scheme:dark!important;
+}
+body.pdv-night #workspace #page #productForm :is(
+ .menu-price-controls .online-sale-question select,
+ .menu-price-controls .online-sale-price input,
+ .stock-extra-fields input
+)::placeholder{
+ color:#bcb3ce!important;
+ -webkit-text-fill-color:#bcb3ce!important;
+}
+body.pdv-night #workspace #page #productForm .product-best-seller-option input[type=checkbox]{
+ accent-color:var(--store-accent,#8b5cf6)!important;
+ -webkit-text-fill-color:initial!important;
+}
+body.pdv-night #workspace #page #productForm .online-sale-locked{
+ color:#f4e8ff!important;
+ -webkit-text-fill-color:#f4e8ff!important;
+}
+
+
+/* Cadastro de produtos v172: grade única de duas colunas e GTIN no topo. */
+#workspace #page #productForm > .product-form-grid{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:12px 18px!important;
+ align-items:start;
+}
+#workspace #page #productForm > .product-form-grid > :is(label,div,fieldset){
+ width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+ margin:0;
+}
+#workspace #page #productForm > .product-form-grid > label{
+ display:block;
+ align-self:start;
+}
+#workspace #page #productForm > .product-form-grid > label :is(input:not([type=checkbox]),select,textarea){
+ width:100%;min-width:0;max-width:100%;box-sizing:border-box;
+}
+#workspace #page #productForm > .product-form-grid > .barcode-lookup-action{
+ grid-column:auto!important;
+ display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+ align-self:stretch;gap:4px;padding:0;
+}
+#workspace #page #productForm > .product-form-grid > .barcode-lookup-action button{
+ max-width:100%;min-height:41px;padding:9px 12px;
+ font-size:13px;text-align:left;
+}
+#workspace #page #productForm > .product-form-grid > .barcode-lookup-action small{
+ display:block;flex:0 0 auto;line-height:1.35;font-size:11px;
+}
+#workspace #page #productForm > .product-form-grid > .barcode-registration-info{
+ grid-column:1/-1!important;
+}
+#workspace #page #productForm > .product-form-grid > .barcode-registration-info:empty{
+ display:none!important;
+}
+#workspace #page #productForm > .product-form-grid > .menu-price-controls,
+#workspace #page #productForm > .product-form-grid > .online-sale-locked{
+ grid-column:auto!important;
+ min-height:0;
+ padding:10px 12px!important;
+ border-radius:11px;
+}
+#workspace #page #productForm > .product-form-grid > .menu-price-controls > .online-sale-question{
+ margin:0!important;
+ line-height:1.4;
+ font-size:13px;
+}
+#workspace #page #productForm > .product-form-grid > .menu-price-controls .online-sale-question select{
+ width:100%;max-width:100%;margin-top:5px;min-height:42px;
+}
+#workspace #page #productForm > .product-form-grid > .menu-price-controls .online-sale-price{
+ padding:8px 10px;margin:8px 0 0!important;
+}
+#workspace #page #productForm > .product-form-grid > .product-best-seller-option{
+ grid-column:auto!important;
+ align-self:stretch;min-height:59px;
+ padding:12px!important;
+}
+#workspace #page #productForm > .product-form-grid > .product-image-file{
+ grid-column:auto!important;
+}
+#workspace #page #productForm > .product-form-grid > .paste-area{
+ grid-column:auto!important;
+ max-width:100%;min-width:0;min-height:70px!important;
+ padding:11px 12px!important;
+ font-size:12px;line-height:1.5;
+}
+@media(max-width:780px){
+ #workspace #page #productForm > .product-form-grid{
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:11px!important;
+ }
+ #workspace #page #productForm > .product-form-grid > .barcode-registration-info{
+  grid-column:auto!important;
+ }
+}
+
+
+/* PDV v173: categorias e produtos em cards quadrados de tamanho uniforme. */
+body #workspace #page .godzilla-pdv .pdv-category-tiles,
+body #workspace #page .godzilla-pdv .pdv-products,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-products{
+ display:grid!important;
+ grid-template-columns:repeat(auto-fill,minmax(min(100%,144px),1fr))!important;
+ align-items:start!important;
+ gap:12px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product{
+ display:flex!important;
+ flex-direction:column!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ height:auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ aspect-ratio:1 / 1!important;
+ box-sizing:border-box!important;
+ overflow:hidden!important;
+ border-radius:12px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile{
+ align-items:center!important;
+ justify-content:center!important;
+ padding:10px 8px!important;
+ gap:6px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > strong{
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ text-align:center!important;
+ line-height:1.12!important;
+ white-space:normal!important;
+ word-break:normal!important;
+ overflow-wrap:normal!important;
+ hyphens:none!important;
+}
+body #workspace #page .godzilla-pdv .pdv-category-tiles > .pdv-category-tile > span[aria-hidden]{
+ flex-shrink:0!important;
+}
+body #workspace #page .godzilla-pdv .pdv-products > .pdv-product-wrap,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-products > .pdv-product-wrap{
+ flex:none!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ align-self:start!important;
+}
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-media,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-media{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ flex:1 1 0!important;
+ width:100%!important;
+ height:auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ aspect-ratio:auto!important;
+ padding:0!important;
+ overflow:hidden!important;
+}
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-media img,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-media img{
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ min-height:0!important;
+ max-height:100%!important;
+ object-fit:contain!important;
+ object-position:center!important;
+ padding:2px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-info,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-info{
+ display:flex!important;
+ flex:0 0 auto!important;
+ flex-direction:column!important;
+ align-items:center!important;
+ justify-content:center!important;
+ gap:2px!important;
+ width:100%!important;
+ min-width:0!important;
+ max-height:46%!important;
+ padding:6px 4px!important;
+ text-align:center!important;
+ overflow:hidden!important;
+}
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-name,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-name{
+ display:-webkit-box!important;
+ -webkit-box-orient:vertical!important;
+ -webkit-line-clamp:2!important;
+ line-clamp:2;
+ overflow:hidden!important;
+ max-height:2.45em!important;
+ font-size:12px!important;
+ line-height:1.2!important;
+ overflow-wrap:break-word!important;
+}
+body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-price,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-price{
+ flex-shrink:0!important;
+ font-size:13px!important;
+ line-height:1.25!important;
+ white-space:nowrap!important;
+}
+body #workspace #page .godzilla-pdv .pdv-products > .pdv-empty{
+ grid-column:1 / -1!important;
+ width:100%!important;
+}
+@media(max-width:600px){
+ body #workspace #page .godzilla-pdv .pdv-category-tiles,
+ body #workspace #page .godzilla-pdv .pdv-products,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-products{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-product-wrap > .pdv-product .pdv-product-info{
+  padding:5px 3px!important;
+ }
+}
+
+
+/* Cadastro de produtos v174: alinhamento uniforme sem botão GTIN. */
+#workspace #page #productForm > .product-form-grid {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-auto-flow:row!important;
+  column-gap:18px!important;
+  row-gap:16px!important;
+  align-items:start!important;
+}
+#workspace #page #productForm > .product-form-grid > label:not(.product-best-seller-option):not(.product-image-file){
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  gap:6px!important;
+  padding:0!important;
+  margin:0!important;
+  font-size:13px;
+  line-height:1.35!important;
+  min-width:0;
+}
+#workspace #page #productForm > .product-form-grid > label:not(.product-best-seller-option):not(.product-image-file)
+  > :is(input:not([type=checkbox]):not([type=file]),select,textarea){
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  height:46px!important;
+  min-height:46px!important;
+  margin:0!important;
+  padding:10px 12px!important;
+  box-sizing:border-box!important;
+  font-size:14px!important;
+  line-height:1.35!important;
+}
+#workspace #page #productForm > .product-form-grid > label.product-barcode-field > .barcode-registration-info:empty{
+  display:none!important;
+}
+#workspace #page #productForm > .product-form-grid > label.product-barcode-field > .barcode-registration-info:not(:empty){
+  display:block!important;
+  margin:0!important;
+  padding:3px 0 0!important;
+  font-weight:500!important;
+  font-size:12px!important;
+  line-height:1.4!important;
+  color:inherit;
+  overflow-wrap:anywhere;
+}
+#workspace #page #productForm > .product-form-grid > .menu-price-controls,
+#workspace #page #productForm > .product-form-grid > .product-best-seller-option,
+#workspace #page #productForm > .product-form-grid > .online-sale-locked{
+  margin:0!important;
+  min-width:0!important;
+}
+@media(max-width:780px){
+  #workspace #page #productForm > .product-form-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+    row-gap:14px!important;
+  }
+}
+
+
+/* Cadastro v175: cards Venda online e Mais vendido no modo noite. */
+body.pdv-night #workspace #page #productForm > .product-form-grid > :is(
+  .menu-price-controls,.product-best-seller-option,.online-sale-locked
+),
+body.pdv-night #workspace #page #productForm .menu-price-controls > .online-sale-price {
+ background:#22252d!important;
+ background-image:none!important;
+ border:1px solid #464152!important;
+ color:#f4f4f8!important;
+ -webkit-text-fill-color:#f4f4f8!important;
+ box-shadow:none!important;
+ color-scheme:dark!important;
+}
+body.pdv-night #workspace #page #productForm > .product-form-grid > .menu-price-controls label,
+body.pdv-night #workspace #page #productForm > .product-form-grid > .product-best-seller-option :is(span,strong,b),
+body.pdv-night #workspace #page #productForm > .product-form-grid > .online-sale-locked strong{
+ color:#f4f4f8!important;
+ -webkit-text-fill-color:#f4f4f8!important;
+}
+body.pdv-night #workspace #page #productForm > .product-form-grid > .product-best-seller-option small{
+ color:#b6bdcf!important;
+ -webkit-text-fill-color:#b6bdcf!important;
+}
+body.pdv-night #workspace #page #productForm .menu-price-controls :is(select,input){
+ background:#191b23!important;
+ background-image:none!important;
+ border-color:#514b62!important;
+ color:#f4f4f8!important;
+ -webkit-text-fill-color:#f4f4f8!important;
+ color-scheme:dark!important;
+}
+body.pdv-night #workspace #page #productForm .product-best-seller-option input[type="checkbox"]{
+ accent-color:var(--store-accent,#8b5cf6)!important;
+}
+
+
+/* Campos adicionais obtidos por GTIN: descrição legível em modo dia/noite. */
+#workspace #page #productForm > .product-form-grid > .product-description-field{
+ grid-column:1 / -1!important;
+ display:flex!important;
+ flex-direction:column!important;
+ gap:6px!important;
+ min-width:0!important;
+}
+#workspace #page #productForm > .product-form-grid > .product-description-field textarea{
+ box-sizing:border-box!important;
+ display:block!important;
+ width:100%!important;
+ height:92px!important;
+ min-height:92px!important;
+ max-width:100%!important;
+ margin:0!important;
+ padding:10px 12px!important;
+ resize:vertical!important;
+ font-size:13px!important;
+ line-height:1.4!important;
+}
+body.pdv-night #workspace #page #productForm > .product-form-grid > .product-description-field textarea{
+ background:#22252d!important;
+ color:#f4f4f8!important;
+ border-color:#393d49!important;
+ color-scheme:dark!important;
+}
+@media(max-width:780px){
+ #workspace #page #productForm > .product-form-grid > .product-description-field{grid-column:auto!important}
+}
