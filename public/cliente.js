@@ -1288,6 +1288,16 @@ function filteredPdvProducts(){
    &&(!term||[p.name,p.category,p.sku].some(value=>String(value||'').toLocaleLowerCase('pt-BR').includes(term))));
 }
 function normalizeBarcode(value){return String(value??'').trim().replace(/\s+/g,'');}
+function barcodeVariants(raw){
+ const value=normalizeBarcode(raw);
+ if(/^\d{12}$/.test(value))return [value,'0'+value];
+ if(/^0\d{12}$/.test(value))return [value,value.slice(1)];
+ return [value];
+}
+function barcodeSkuFilter(raw){
+ const codes=barcodeVariants(raw).filter(Boolean);
+ return codes.length===1?'eq.'+codes[0]:'in.('+codes.join(',')+')';
+}
 async function fetchPublicBarcodeInfo(code){
  const value=normalizeBarcode(code);
  if(!/^[0-9]{8,14}$/.test(value))return {found:false,code:value,message:'Para consultar a base pública, digite ou escaneie um GTIN numérico de 8 a 14 dígitos.'};
@@ -1371,7 +1381,7 @@ async function lookupBarcodeForRegistration(code){
  const feedback=$('barcodeRegistrationInfo');
  if(feedback)feedback.textContent='Consultando o código de barras...';
  try{
-  const registered=await rest('shop_products',{query:{select:'id,name,sku',shop_id:'eq.'+shop.id,sku:'eq.'+value,limit:'2'}});
+  const registered=await rest('shop_products',{query:{select:'id,name,sku',shop_id:'eq.'+shop.id,sku:barcodeSkuFilter(value),limit:'3'}});
   if(serial!==barcodeRegistrationRequest||!form.isConnected||normalizeBarcode(form.elements.namedItem('sku')?.value)!==value)return;
   const ownId=form.dataset.id;
   const other=registered.find(p=>p.id!==ownId);
@@ -1382,7 +1392,7 @@ async function lookupBarcodeForRegistration(code){
   const found=await fetchPublicBarcodeInfo(value);
   if(serial!==barcodeRegistrationRequest||!form.isConnected||normalizeBarcode(form.elements.namedItem('sku')?.value)!==value)return;
   if(found.found)useBarcodeResultInForm(found);
-  else if(feedback)feedback.textContent=found.message||'Não encontrado. Você pode cadastrar manualmente.';
+  else if(feedback)feedback.textContent=(found.barcode_valid===false?'O código pode ter dígito verificador incorreto. ':'')+(found.message||'Não encontrado. Você pode cadastrar manualmente.');
  }catch(error){
   if(serial===barcodeRegistrationRequest&&feedback)feedback.textContent=error.message||'Consulta indisponível. Preencha manualmente.';
  }
@@ -1399,9 +1409,10 @@ async function addBarcodeToCart(value){
  }
  barcodeLookupBusy=true;
  try{
-  let matches=products.filter(p=>normalizeBarcode(p.sku)===code);
+  const candidates=new Set(barcodeVariants(code));
+  let matches=products.filter(p=>candidates.has(normalizeBarcode(p.sku)));
   if(!matches.length){
-   const found=await rest('shop_products',{query:{select:'*',shop_id:'eq.'+shop.id,sku:'eq.'+code,limit:'2'}});
+   const found=await rest('shop_products',{query:{select:'*',shop_id:'eq.'+shop.id,sku:barcodeSkuFilter(code),limit:'3'}});
    matches=found;
   }
   if(matches.length!==1){
@@ -2477,7 +2488,7 @@ async function handleSubmit(form,contractWindow=null){
        (body.wholesale_price!==null&&(!Number.isFinite(body.wholesale_price)||body.wholesale_price<0))
       ))throw Error('Confira código, fornecedor, unidade, preço de atacado e lote.');
       if(!isMenu&&body.sku){
-       const found=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shop.id,sku:'eq.'+body.sku,limit:'2'}});
+       const found=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shop.id,sku:barcodeSkuFilter(body.sku),limit:'3'}});
        if(found.some(item=>item.id!==id))throw Error('Este código de barras já pertence a outro produto desta loja.');
       }
       await storeForm(form,'shop_products',body,id);
