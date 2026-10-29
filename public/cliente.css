@@ -4366,3 +4366,55 @@ body:not(.pdv-night) #workspace #page #settingsForm .settings-save-button{
  -webkit-text-fill-color:var(--store-accent-ink,#fff)!important;
  border-color:var(--store-accent,#7c3aed)!important;
 }
+
+
+/* BipStart settings: daylight upload controls v167 */
+body:not(.pdv-night) #workspace #page #settingsForm :is(
+  input[type="file"]:not([hidden]),
+  label.category-image-file,
+  .category-image-actions button:not(.button)
+) {
+  background:#f8f5ff!important;
+  background-image:none!important;
+  color:#392451!important;
+  -webkit-text-fill-color:#392451!important;
+  border:1px solid #d7c8ea!important;
+  box-shadow:none!important;
+  color-scheme:light!important;
+}
+body:not(.pdv-night) #workspace #page #settingsForm input[type="file"]:not([hidden]) {
+  width:100%;
+  max-width:100%;
+  padding:8px!important;
+  border-radius:10px!important;
+  font-size:12px;
+}
+body:not(.pdv-night) #workspace #page #settingsForm input[type="file"]::file-selector-button {
+  padding:8px 11px;
+  margin-right:12px;
+  border:1px solid #d8c6f2;
+  border-radius:8px;
+  background:#eee5ff;
+  color:#452781;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+}
+body:not(.pdv-night) #workspace #page #settingsForm .category-image-file:hover,
+body:not(.pdv-night) #workspace #page #settingsForm .category-image-actions button:not(.button):hover {
+  background:#ebe1ff!important;
+  border-color:var(--store-accent,#7c3aed)!important;
+}
+body:not(.pdv-night) #workspace #page #settingsForm .category-image-setting-row {
+  background:#fcfaff!important;
+}
+body:not(.pdv-night) #workspace #page #settingsForm .category-image-empty {
+  background:#f2ecff!important;
+  color:#6846ac!important;
+  border-color:#d7c8ea!important;
+}
+body:not(.pdv-night) #workspace #page #settingsForm .menu-logo-preview,
+body:not(.pdv-night) #workspace #page #settingsForm .menu-logo-editor-preview {
+  background:#f8f5ff!important;
+  border:1px solid #e3d8f1!important;
+}
