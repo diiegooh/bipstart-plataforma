@@ -2025,6 +2025,25 @@ function applyPdvCategoryFontSizes(){
   categoryGrid.style.setProperty('gap','3px','important');
   categoryGrid.style.setProperty('width','100%','important');
  }
+ const productGrid=root.querySelector('.godzilla-pdv .pdv-products');
+ if(productGrid){
+  const productColumns=window.matchMedia('(max-width:700px)').matches
+   ?'repeat(2,minmax(0,1fr))'
+   :'repeat(5,minmax(0,1fr))';
+  productGrid.style.setProperty('display','grid','important');
+  productGrid.style.setProperty('grid-template-columns',productColumns,'important');
+  productGrid.style.setProperty('grid-auto-rows','145px','important');
+  productGrid.style.setProperty('gap','8px','important');
+  productGrid.style.setProperty('max-height','451px','important');
+  productGrid.style.setProperty('overflow-y','auto','important');
+  productGrid.style.setProperty('align-content','start','important');
+ }
+ root.querySelectorAll('.godzilla-pdv .pdv-product-wrap > .pdv-product').forEach(card=>{
+  card.style.setProperty('height','145px','important');
+  card.style.setProperty('min-height','145px','important');
+  card.style.setProperty('max-height','145px','important');
+  card.style.setProperty('aspect-ratio','auto','important');
+ });
  const tiles=root.querySelectorAll('.godzilla-pdv .pdv-category-tiles .pdv-category-tile');
  tiles.forEach(tile=>{
   // Homologação: categorias retangulares 110 x 58 px, com espaço mínimo entre cards.
