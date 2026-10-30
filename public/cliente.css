@@ -5141,3 +5141,28 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-product-wrap > .pd
   gap:8px!important;
  }
 }
+
+/* Modo noite: o card do desconto mantém fundo e texto escuros legíveis no checkout. */
+body.pdv-night.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form > #pdvDiscountFields:not(.hidden){
+ background:#22252d!important;
+ color:#f4f4f8!important;
+ border:1px solid #343741!important;
+}
+body.pdv-night.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form > #pdvDiscountFields:not(.hidden) label,
+body.pdv-night.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form > #pdvDiscountFields:not(.hidden) small{
+ color:#f4f4f8!important;
+}
+body.pdv-night.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form > #pdvDiscountFields:not(.hidden) input{
+ background:#2b2f39!important;
+ color:#f4f4f8!important;
+ border:1px solid #505463!important;
+}
+body.pdv-night.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form > #pdvDiscountFields:not(.hidden) input:focus{
+ border-color:#aa88ff!important;
+ outline:2px solid #9877ff45!important;
+}
+body.pdv-night.workspace-fullscreen #workspace .pdv-sale-panel .pdv-payment-form > #pdvDiscountFields:not(.hidden) .pdv-calculation{
+ background:transparent!important;
+ color:#f4f4f8!important;
+ border:0!important;
+}
