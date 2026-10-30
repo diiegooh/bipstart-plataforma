@@ -5233,3 +5233,11 @@ body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvDiscountFields
 #workspace #page .godzilla-pdv .pdv-total-editor-actions button{flex:1;min-height:39px;padding:8px 10px;}
 body.pdv-night #workspace #page .godzilla-pdv .pdv-total-editor{background:#22252d!important;border-color:#343741!important;color:#f4f4f8!important;}
 body.pdv-night #workspace #page .godzilla-pdv .pdv-total-editor input{background:#2b2f39!important;color:#fff!important;border-color:#505463!important;}
+
+
+/* Editor do total: rótulo e campo alinhados na mesma linha. */
+#workspace #page .godzilla-pdv .pdv-total-editor{display:grid!important;grid-template-columns:max-content minmax(0,1fr)!important;align-items:center!important;column-gap:12px!important;row-gap:8px!important;}
+#workspace #page .godzilla-pdv .pdv-total-editor label{display:block!important;width:auto!important;white-space:nowrap!important;margin:0!important;}
+#workspace #page .godzilla-pdv .pdv-total-editor input{width:100%!important;min-width:0!important;margin:0!important;}
+#workspace #page .godzilla-pdv .pdv-total-editor-actions{grid-column:1/-1!important;width:100%!important;margin-top:0!important;}
+@media(max-width:380px){#workspace #page .godzilla-pdv .pdv-total-editor{grid-template-columns:1fr!important;row-gap:5px!important;}#workspace #page .godzilla-pdv .pdv-total-editor-actions{grid-column:1!important;}}
