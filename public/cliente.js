@@ -1656,7 +1656,7 @@ function renderGodzillaPDV(){
  '<div class="pdv-payment-options" role="group" aria-labelledby="pdvPaymentLabel">'+paymentButtons+'</div>'+
  '<input type="hidden" name="payment_method" id="pdvPaymentMethod" value="'+esc(pdvPayment)+'"></div>'+
  '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><strong id="pdvTotalDue">'+fmt(checkout.total)+'</strong><button type="button" class="pdv-total-edit" data-pdv-total-edit aria-label="Editar total da venda" title="Editar total">✎</button></div>'+
- '<div class="pdv-total-editor hidden" id="pdvTotalEditor"><label for="pdvTotalEditInput">Novo total (R$)</label><input id="pdvTotalEditInput" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"><div class="pdv-total-editor-actions"><button type="button" class="button" data-pdv-total-save>Aplicar</button><button type="button" class="ghost" data-pdv-total-cancel>Cancelar</button></div></div>'+
+ '<div class="pdv-total-editor hidden" id="pdvTotalEditor"><div class="pdv-total-edit-row"><label for="pdvTotalEditInput">Novo total (R$)</label><input id="pdvTotalEditInput" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></div><div class="pdv-total-editor-actions"><button type="button" class="button" data-pdv-total-save>Aplicar</button><button type="button" class="ghost" data-pdv-total-cancel>Cancelar</button></div></div>'+
  '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="text" inputmode="decimal" autocomplete="off" id="pdvReceived" name="received" placeholder="0,00"></label>'+
  '<div class="pdv-calculation">Troco <strong id="pdvChange">'+fmt(0)+'</strong></div></div>'+
  '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'">'+
