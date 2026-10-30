@@ -2279,9 +2279,7 @@ function formShell(kind,id,inside){const gridClass=kind==='product'&&tab==='prod
 function productForm(p){
  p=p||{};
  const isMenu=tab==='cardapio';
- const categoryField=isMenu?
-  '<label>Categoria<select name="category" required>'+categoryOptions(p.category||'Geral')+'</select></label>':
-  field('category','Categoria','text',p.category||'Geral');
+ const categoryField='<label>Categoria<select name="category" required>'+categoryOptions(p.category||'Geral')+'</select></label>';
  const bestSeller='<label class="product-best-seller-option"><input type="checkbox" name="is_best_seller" value="true"'+(p.is_best_seller===true?' checked':'')+'>'+
   '<span><strong>★ Mais vendido</strong><small>Exibir este produto no acesso rápido do PDV.</small></span></label>';
  const onlineControls=proAccess()?'<div class="menu-price-controls"><label class="online-sale-question">Venda online?'+
