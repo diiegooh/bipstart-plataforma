@@ -5264,3 +5264,8 @@ body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total
 body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row label{display:block!important;flex:0 0 auto!important;width:auto!important;white-space:nowrap!important;margin:0!important;color:#f4f4f8!important;}
 body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row input{display:block!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;margin:0!important;background:#2b2f39!important;color:#fff!important;border-color:#505463!important;}
 body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions{display:flex!important;flex:0 0 auto!important;gap:8px!important;width:100%!important;margin:0!important;}
+
+
+/* Cor fixa do card de edição do total no tema escuro. */
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor:not(.hidden){background:#22252d!important;background-image:none!important;border-color:#343741!important;color:#f4f4f8!important;box-shadow:none!important;}
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row{background:transparent!important;color:#f4f4f8!important;}
