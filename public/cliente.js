@@ -1665,7 +1665,7 @@ function renderGodzillaPDV(){
  '<label>Taxa da maquininha (%)<input id="pdvFeePercent" name="card_fee_percent" type="number" min="0" max="100" step="0.01" value="'+esc(pdvCardFeePercent)+'"></label>'+
  '<div class="pdv-calculation hidden">Desconto da maquininha <strong id="pdvFeeAmount">−'+fmt(Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
  '<div class="pdv-calculation hidden">Líquido estimado <strong id="pdvNet">'+fmt(checkout.total-Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
- '<small class="muted">Taxa registrada na venda e descontada do lucro no relatório; a BipStart não processa pagamentos.</small></div>'+
+ '</div>'+
  '<button type="submit" class="button pdv-finish" '+(!cart.length||!checkout.valid?'disabled':'')+'>Finalizar venda ↗</button>'+
  '</form>'+
  ((typeof lastReceipt!=='undefined'&&lastReceipt?.shopId===shop?.id)?'<button class="ghost pdv-last-receipt" type="button" data-receipt-last>🧾 Reimprimir último comprovante</button>':'')+
