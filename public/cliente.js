@@ -1657,7 +1657,7 @@ function renderGodzillaPDV(){
  '<input type="hidden" name="payment_method" id="pdvPaymentMethod" value="'+esc(pdvPayment)+'"></div>'+
  '<div id="pdvDiscountFields" class="pdv-discount-fields'+((cash||isCard)?'':' hidden')+'">'+
  '<label>Desconto (R$)<input id="pdvDiscount" type="text" name="discount_amount" inputmode="decimal" autocomplete="off" placeholder="0,00" value="'+esc(pdvDiscountAmount)+'"></label>'+
- '<div class="pdv-calculation">Desconto aplicado <strong id="pdvDiscountApplied">−'+fmt(checkout.valid?checkout.discount:0)+'</strong></div>'+
+
  '<small class="muted" id="pdvDiscountError" role="status">'+(checkout.valid?'':'Informe um desconto de até '+fmt(sum)+'.')+'</small></div>'+
  '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><strong id="pdvTotalDue">'+fmt(checkout.total)+'</strong></div>'+
  '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="text" inputmode="decimal" autocomplete="off" id="pdvReceived" name="received" placeholder="0,00"></label>'+
