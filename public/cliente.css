@@ -5256,3 +5256,11 @@ body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-edito
 body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) input{background:#2b2f39!important;background-image:none!important;color:#fff!important;border-color:#505463!important;}
 body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) [data-pdv-total-cancel],
 body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) [data-pdv-total-cancel]{background:#2b2f39!important;color:#eeeaf8!important;border-color:#505463!important;}
+
+
+/* Editor do total: linha fixa para rótulo e campo lado a lado. */
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor:not(.hidden){display:flex!important;flex-direction:column!important;gap:10px!important;background:#22252d!important;background-image:none!important;border:1px solid #343741!important;border-radius:12px!important;padding:11px!important;color:#f4f4f8!important;}
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;width:100%!important;min-width:0!important;}
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row label{display:block!important;flex:0 0 auto!important;width:auto!important;white-space:nowrap!important;margin:0!important;color:#f4f4f8!important;}
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row input{display:block!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;margin:0!important;background:#2b2f39!important;color:#fff!important;border-color:#505463!important;}
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions{display:flex!important;flex:0 0 auto!important;gap:8px!important;width:100%!important;margin:0!important;}
