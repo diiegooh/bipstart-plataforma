@@ -7,9 +7,9 @@ let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSc
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
-let pdvQuery='',pdvCategory='',pdvInStockOnly=false,pdvPayment='pix',pdvCardFeePercent='3.99',pdvCheckoutOpen=false,pdvShowBestSellers=true;
-const pdvProductClickCounts=new Map();
-let pdvQuantityEntryProductId=null;
+let pdvCartSearchQuery='',pdvCartSearchResults=[],pdvCartSearchLoading=false,pdvCartSearchError='',pdvCartSearchTimer=null,pdvCartSearchRequest=0;
+let pdvQuery='',pdvCategory='',pdvInStockOnly=false,pdvPayment='pix',pdvCardFeePercent='3.99',pdvDiscountAmount='',pdvCheckoutOpen=false,pdvShowBestSellers=true;
+let bestSellerRank=new Map(),bestSellerLoading=false,bestSellerLoadedShop=null,bestSellerRequestId=0,bestSellerError='';
 let barcodeLookupBusy=false,barcodeLastResult='',barcodeKeyboardBuffer='',barcodeKeyboardAt=0,barcodeQueue=[];
 let pdvExternalProduct=null,barcodeRegistrationTimer=null,barcodeRegistrationRequest=0;
 let stockImportRows=[],stockImportFileName='',stockImportBusy=false;
@@ -288,6 +288,7 @@ async function openShop(){
  if(!hasAccess()){hiding('accessGate',true);renderAccessGate();return}
  await reloadData();
  lastReceipt=null;
+ pdvCartSearchClear();
  tab='caixa';showForm=null;pastedProductImage=null;selectedStockPanel='';
  const requested=new URLSearchParams(location.search);
  if(requested.get('editar')==='cardapio')tab=proAccess()?'cardapio':'configuracoes';
@@ -364,7 +365,7 @@ async function refreshOnlineOrdersIfVisible(){
 }
 function pages(){
   const a=[['resumo','Visão geral']];
-  a.push(['caixa','Frente de caixa'],['comandas','Comandas'],['produtos','Produtos e estoque'],['vendas','Histórico de vendas']);
+  a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['vendas','Histórico de vendas']);
   if(proAccess())a.push(['cardapio','Meu cardápio']);
   if(proAccess())a.push(['pedidos','Pedidos online'],['motoboys','Motoboys'],['entregas','Entregas']);
   if(canCustomize())a.push(['personalizar','Mudanças e suporte']);
@@ -374,7 +375,6 @@ function pages(){
 function operationalMenuItems(){
   return [
     ['caixa','PDV','🛒'],
-     ['comandas','Comandas','🧾'],
     ['produtos','Produtos','📦'],
     ['cardapio_publico','Cardápio online','📋'],
     ['pedidos','Pedidos online','🚚'],
@@ -492,14 +492,15 @@ function salesDateRange(period=salesPeriod,selected=salesDay){
 function saleLineFinancial(item){
  const quantity=Number(item.quantity),unitPrice=Number(item.unit_price);
  const current=products.find(p=>p.id===item.product_id);
- const historicCost=item.unit_cost===null||item.unit_cost===undefined?null:Number(item.unit_cost);
- const canEstimate=historicCost===null&&current&&Number.isFinite(Number(current.cost));
+ const pending=item.cost_pending===true;
+ const historicCost=pending||item.unit_cost===null||item.unit_cost===undefined?null:Number(item.unit_cost);
+ const canEstimate=!pending&&historicCost===null&&current&&Number.isFinite(Number(current.cost));
  const unitCost=historicCost!==null?historicCost:canEstimate?Number(current.cost):null;
  const valid=unitCost!==null&&Number.isFinite(unitCost)&&Number.isFinite(unitPrice)&&Number.isFinite(quantity);
  const revenue=unitPrice*quantity;
  return {quantity,unitPrice,revenue,cost:valid?unitCost*quantity:null,
   profit:valid?revenue-unitCost*quantity:null,
-  estimated:historicCost===null&&canEstimate,missing:!valid};
+  estimated:historicCost===null&&canEstimate,missing:!valid,pending};
 }
 function reportFigures(lines){
  return lines.reduce((sum,entry)=>{
@@ -507,10 +508,11 @@ function reportFigures(lines){
    sum.revenue+=money.revenue;
    sum.quantity+=money.quantity;
    if(money.missing)sum.missing++;
-   else{sum.cost+=money.cost;sum.profit+=money.profit}
+   if(money.pending)sum.pending++;
+   if(!money.missing){sum.cost+=money.cost;sum.profit+=money.profit}
    if(money.estimated)sum.estimated++;
    return sum;
- },{revenue:0,cost:0,profit:0,quantity:0,estimated:0,missing:0});
+ },{revenue:0,cost:0,profit:0,quantity:0,estimated:0,missing:0,pending:0});
 }
 function cardFeeInfo(sale){
  if(!['credito','debito'].includes(sale.payment_method))return {known:true,percent:0,amount:0};
@@ -526,14 +528,15 @@ function salesPaymentTotals(salesList){
   const gross=Number(sale.total||0),fee=cardFeeInfo(sale);
   sum.gross+=gross;
   sum.cardFees+=fee.amount;
+  sum.discounts+=Number(sale.discount_amount||0);
   sum.net+=gross-fee.amount;
   if(!fee.known)sum.unknownFees++;
   return sum;
- },{gross:0,cardFees:0,net:0,unknownFees:0});
+ },{gross:0,cardFees:0,discounts:0,net:0,unknownFees:0});
 }
 function salesProfitInfo(figures,paymentTotals,missingSales=0){
  // Uma taxa histórica não informada não bloqueia o valor que já é calculável.
- return {value:figures.missing||missingSales?null:figures.profit-paymentTotals.cardFees,
+ return {value:figures.missing||missingSales?null:figures.profit-paymentTotals.cardFees-paymentTotals.discounts,
   partial:!!(figures.estimated||paymentTotals.unknownFees)};
 }
 function salesProfitLabel(info){
@@ -585,7 +588,7 @@ async function loadSalesReport(){
  try{
    const range=salesDateRange(period,reference);
    const found=await salesPaginated('shop_sales',{
-     select:'id,shop_id,total,payment_method,card_fee_percent,card_fee_amount,created_at',
+     select:'id,shop_id,total,payment_method,card_fee_percent,card_fee_amount,discount_amount,created_at',
      shop_id:'eq.'+selectedShop,
      and:'(created_at.gte.'+range.start+',created_at.lt.'+range.end+')',
      order:'created_at.desc'
@@ -594,7 +597,7 @@ async function loadSalesReport(){
    for(let i=0;i<found.length;i+=70){
      const ids=found.slice(i,i+70).map(s=>s.id).join(',');
      const values=await salesPaginated('shop_sale_items',{
-       select:'id,sale_id,shop_id,product_id,product_name,quantity,unit_price,unit_cost',
+       select:'id,sale_id,shop_id,product_id,product_name,quantity,unit_price,unit_cost,cost_pending',
        shop_id:'eq.'+selectedShop,sale_id:'in.('+ids+')',order:'id.asc'
      },500);
      saleItems.push(...values);
@@ -612,7 +615,7 @@ async function loadSalesReport(){
 function salesRecordInfo(group,day){
  const sale=group.sale,fee=cardFeeInfo(sale),summary=group.total;
  const unknownCost=summary.missing>0||!group.lines.length;
- const netProfit=salesProfitInfo(summary,{cardFees:fee.amount,unknownFees:fee.known?0:1},unknownCost?1:0);
+ const netProfit=salesProfitInfo(summary,{cardFees:fee.amount,discounts:Number(sale.discount_amount||0),unknownFees:fee.known?0:1},unknownCost?1:0);
  return {
   number:group.number,
   date:day,
@@ -639,7 +642,7 @@ function salesRecordDetails(group,day){
       (fee.percent===null?'':' ('+esc(fee.percent.toLocaleString('pt-BR',{maximumFractionDigits:2}))+'%)')+'</p>':
     '<p class="sales-inline-fee">Taxa do cartão ainda não registrada. O lucro (*) é parcial.</p>'):'';
  const rows=group.lines.map(({item,financial:x})=>{
-  const cost=x.missing?'Indisponível':fmt(x.cost)+(x.estimated?' *':'');
+  const cost=x.pending?'Aguardando reposição':x.missing?'Indisponível':fmt(x.cost)+(x.estimated?' *':'');
   return '<tr><td><strong>'+esc(item.product_name)+'</strong><small>Preço unit.: '+fmt(x.unitPrice)+'</small></td>'+
    '<td>'+esc(x.quantity)+'</td><td>'+cost+'</td><td>'+fmt(x.revenue)+'</td></tr>';
  }).join('');
@@ -651,6 +654,7 @@ function salesRecordDetails(group,day){
    '<tbody>'+rows+'</tbody></table></div>':
    '<p class="sales-checkout-empty">Os itens desta venda não estão disponíveis no histórico detalhado.</p>')+
   feeLine+
+  (Number(sale.discount_amount)>0?'<p class="sales-inline-fee">Desconto concedido: −'+fmt(sale.discount_amount)+'</p>':'')+
   '<div class="sales-inline-summary">'+
   '<span>Unidades vendidas: <strong>'+info.units+'</strong></span>'+
   '<span>Total vendido: <strong>'+fmt(info.gross)+'</strong></span>'+
@@ -731,6 +735,7 @@ function salesPrintableHtml(report,format,storeName,rangeLabel){
     '<table class="a4-products"><thead><tr><th>Produto</th><th>Qtd.</th><th>Preço un.</th><th>Custo</th><th>Vendido</th>'+
     '</tr></thead><tbody>'+products+'</tbody></table>':
     '<p>Produtos não disponíveis no histórico detalhado.</p>')+
+   (Number(sale.discount_amount)>0?'<p class="a4-fee">Desconto concedido: −'+fmt(sale.discount_amount)+'</p>':'')+
    (['credito','debito'].includes(sale.payment_method)?
      '<p class="a4-fee">'+(fee.known?
        'Taxa da maquininha: '+money(fee.amount)+(fee.percent===null?'':' ('+
@@ -862,6 +867,8 @@ function renderSalesReport(){
   tile('Total vendido',fmt(paymentTotals.gross))+
   tile('Custo',figures.missing||report.unmatchedSales.length?'—':fmt(figures.cost))+
   tile('Lucro',salesProfitLabel(calculatedProfit))+'</div>';
+ if(figures.pending)
+  content+='<p class="sales-disclaimer">Há '+figures.pending+' item(ns) vendidos sem estoque suficiente, com custo pendente. Ao atualizar o estoque do produto e informar custo maior que zero, o relatório calculará custo e lucro automaticamente ao reabrir ou atualizar Vendas.</p>';
  if(figures.estimated)
   content+='<p class="sales-disclaimer">Em '+figures.estimated+
    ' item(ns) antigos, o custo foi estimado com o cadastro atual.</p>';
@@ -1174,9 +1181,9 @@ function receiptSnapshot(sale,method,received,sold,recorded){
  return {
   shopId:shop.id,shopName:String(shop.name||''),address:String(shop.location_text||''),
   whatsapp:String(shop.whatsapp||''),id:String(sale?.sale_id||''),
-  issuedAt:new Date().toISOString(),payment:method,items,total:validTotal,
+  issuedAt:new Date().toISOString(),payment:method,items,total:validTotal,discount:Number(sale?.discount_amount||0),
   received:method==='dinheiro'&&received!==''?Number(received):null,
-  priceVerified:serverItems&&Math.abs(computed-validTotal)<.011
+  priceVerified:serverItems&&Math.abs(computed-Number(sale?.discount_amount||0)-validTotal)<.011
  };
 }
 function receiptMarkup(receipt){
@@ -1198,6 +1205,7 @@ function receiptMarkup(receipt){
   '</tbody></table>'+
   '<div class="receipt-meta"><span>Itens</span><strong>'+receipt.items.reduce((sum,item)=>sum+item.qty,0)+'</strong></div>'+
   '<div class="receipt-meta"><span>Subtotal dos itens</span><strong>'+fmt(subtotal)+'</strong></div>'+
+  (Number(receipt.discount)>0?'<div class="receipt-meta"><span>Desconto</span><strong>−'+fmt(receipt.discount)+'</strong></div>':'')+
   '<div class="receipt-meta receipt-grand"><span>TOTAL DA VENDA</span><strong>'+fmt(receipt.total)+'</strong></div>'+
   '<div class="receipt-meta"><span>Pagamento</span><strong>'+esc(pay[receipt.payment]||receipt.payment)+'</strong></div>'+
   (cash?'<div class="receipt-meta"><span>Valor recebido</span><strong>'+fmt(receipt.received)+'</strong></div>'+
@@ -1283,10 +1291,33 @@ function downloadReceipt(receipt){
    Todas as gravações continuam na API isolada da loja BipStart. */
 function filteredPdvProducts(){
  const term=pdvQuery.trim().toLocaleLowerCase('pt-BR');
- return products.filter(p=>p.active!==false
+ const filtered=products.filter(p=>p.active!==false
    &&(!pdvInStockOnly||Number(p.stock)>0)
-   &&(pdvShowBestSellers?p.is_best_seller===true:(!pdvCategory||String(p.category||'Geral')===pdvCategory))
+   &&(pdvShowBestSellers?bestSellerRank.has(String(p.id)):(!pdvCategory||String(p.category||'Geral')===pdvCategory))
    &&(!term||[p.name,p.category,p.sku].some(value=>String(value||'').toLocaleLowerCase('pt-BR').includes(term))));
+ return pdvShowBestSellers?filtered.sort((a,b)=>(bestSellerRank.get(String(b.id))||0)-(bestSellerRank.get(String(a.id))||0)):filtered;
+}
+async function loadBestSellers(){
+ if(!shop||!hasAccess()||bestSellerLoading)return;
+ const shopId=shop.id,request=++bestSellerRequestId;
+ bestSellerLoading=true;bestSellerError='';renderPage();
+ try{
+   const totals=new Map();
+   // Consulta todos os itens efetivamente vendidos nesta loja, em páginas.
+   for(let offset=0;offset<200000;offset+=500){
+     const rows=await rest('shop_sale_items',{query:{select:'product_id,quantity',shop_id:'eq.'+shopId,limit:'500',offset:String(offset),order:'id.asc'}});
+     if(request!==bestSellerRequestId||shop?.id!==shopId)return;
+     for(const line of rows){
+       if(!line.product_id)continue;
+       const id=String(line.product_id);
+       totals.set(id,(totals.get(id)||0)+Number(line.quantity||0));
+     }
+     if(rows.length<500)break;
+     if(offset+500>=200000)throw Error('Histórico muito extenso para calcular todos os produtos mais vendidos.');
+   }
+   bestSellerRank=totals;bestSellerLoadedShop=shopId;
+ }catch(error){bestSellerError=error.message||'Falha ao carregar mais vendidos.';}
+ finally{if(request===bestSellerRequestId){bestSellerLoading=false;if(tab==='caixa')renderPage();}}
 }
 function normalizeBarcode(value){return String(value??'').trim().replace(/\s+/g,'');}
 function barcodeVariants(raw){
@@ -1424,12 +1455,10 @@ async function addBarcodeToCart(value){
   const p=matches[0];
   if(p.active===false){barcodeLastResult='Produto desativado: '+p.name;msg(barcodeLastResult,true);return;}
   const old=cart.find(c=>c.id===p.id);
-  if((old?.qty||0)>=Number(p.stock||0)){barcodeLastResult='Estoque insuficiente para '+p.name;msg(barcodeLastResult,true);return;}
+  if((old?.qty||0)>=10000){barcodeLastResult='Limite de 10.000 unidades para '+p.name;msg(barcodeLastResult,true);return;}
   if(!products.some(q=>q.id===p.id))products.push(p);
   if(old)old.qty++;
   else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
-  pdvProductClickCounts.set(p.id,0);
-  pdvQuantityEntryProductId=null;
   barcodeLastResult='✓ '+p.name+' adicionado · '+code;
   renderPage();
  }catch(error){
@@ -1451,31 +1480,147 @@ async function addBarcodeToCart(value){
 function pdvProductCards(){
  const available=filteredPdvProducts();
  return available.length?available.map(p=>{
-  const count=cart.find(c=>c.id===p.id)?.qty||0;
-  const soldOut=Number(p.stock)<=count;
   const photo=p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="pdv-no-photo" aria-hidden="true">▣</div>';
-  const quantityField=pdvQuantityEntryProductId===p.id?'<input class="pdv-quantity-entry" data-pdv-quantity="'+esc(p.id)+'" type="number" min="1" step="1" inputmode="numeric" aria-label="Quantidade de '+esc(p.name)+'" autocomplete="off">':'';
-  return '<div class="pdv-product-wrap"><button type="button" class="pdv-product pdv-product-clickable" data-cart="'+esc(p.id)+'" '+(soldOut?'disabled':'')+' aria-label="'+esc((soldOut?'Sem estoque: ':'Adicionar ao carrinho: ')+p.name+' — '+fmt(p.price))+'">'+
+  return '<div class="pdv-product-wrap"><button type="button" class="pdv-product pdv-product-clickable" data-cart="'+esc(p.id)+'" aria-label="'+esc('Adicionar ao carrinho: '+p.name+' — '+fmt(p.price))+'">'+
    '<span class="pdv-product-media">'+photo+'</span>'+
    '<span class="pdv-product-info"><strong class="pdv-product-name">'+esc(p.name)+'</strong>'+
-   '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button>'+quantityField+'</div>';
- }).join(''):'';
+   '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button></div>';
+ }).join(''):'';}
+
+function pdvCartSearchText(value){
+ return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+}
+function pdvCartSearchCandidates(query=pdvCartSearchQuery){
+ const term=pdvCartSearchText(query.trim());
+ if(!term)return [];
+ const unique=new Map();
+ for(const p of [...pdvCartSearchResults,...products]){
+  if(p.active===false)continue;
+  if(pdvCartSearchText(p.name).includes(term)||pdvCartSearchText(p.sku).includes(term))unique.set(String(p.id),p);
+ }
+ const rank=p=>{
+  const name=pdvCartSearchText(p.name),sku=pdvCartSearchText(p.sku);
+  if(sku===term)return 0;
+  if(name===term)return 1;
+  if(name.startsWith(term))return 2;
+  if(sku.startsWith(term))return 3;
+  return 4;
+ };
+ return [...unique.values()].sort((a,b)=>rank(a)-rank(b)||String(a.name).localeCompare(String(b.name),'pt-BR')).slice(0,12);
+}
+function pdvCartSearchResultMarkup(){
+ if(!pdvCartSearchQuery.trim())return '';
+ const matches=pdvCartSearchCandidates();
+ const rows=matches.map(p=>{
+  return '<div class="pdv-cart-search-result">'+
+   '<strong class="pdv-cart-search-name">'+esc(p.name)+'</strong>'+
+   '<strong class="pdv-cart-search-price">'+fmt(p.price)+'</strong>'+
+   '<button type="button" class="pdv-cart-search-add" data-cart-search-add="'+esc(p.id)+'"'+
+   ' aria-label="'+esc('Adicionar '+p.name+' ao carrinho')+'">+ Adicionar</button>'+
+   '</div>';
+ }).join('');
+ return (rows||(!pdvCartSearchLoading?'<p class="pdv-cart-search-empty">Nenhum produto encontrado nesta loja.</p>':''))+
+  (pdvCartSearchLoading?'<small class="pdv-cart-search-state">Consultando produtos...</small>':'')+
+  (pdvCartSearchError?'<small class="pdv-cart-search-state pdv-cart-search-error">'+esc(pdvCartSearchError)+'</small>':'');
+}
+function pdvCartSearchRefresh(){
+ const target=document.getElementById('pdvCartSearchResults');
+ if(target)target.innerHTML=pdvCartSearchResultMarkup();
+}
+function pdvCartSearchClear(){
+ clearTimeout(pdvCartSearchTimer);
+ pdvCartSearchRequest++;
+ pdvCartSearchQuery='';
+ pdvCartSearchResults=[];
+ pdvCartSearchLoading=false;
+ pdvCartSearchError='';
+}
+async function pdvCartSearchFetch(request,shopId,term){
+ try{
+  const safe=term.replace(/[,*()%_\\]/g,' ').trim().slice(0,80);
+  if(safe.length<2)return;
+  const found=await rest('shop_products',{query:{
+   select:'id,shop_id,name,sku,price,stock,active,category',
+   shop_id:'eq.'+shopId,
+   or:'(name.ilike.*'+safe+'*,sku.ilike.*'+safe+'*)',
+   limit:'40'
+  }});
+  if(request!==pdvCartSearchRequest||shop?.id!==shopId||tab!=='caixa')return;
+  pdvCartSearchResults=Array.isArray(found)?found:[];
+  pdvCartSearchError='';
+ }catch(error){
+  if(request===pdvCartSearchRequest&&shop?.id===shopId)
+   pdvCartSearchError='Busca online indisponível; resultados locais continuam disponíveis.';
+ }finally{
+  if(request===pdvCartSearchRequest&&shop?.id===shopId){
+   pdvCartSearchLoading=false;
+   if(tab==='caixa')pdvCartSearchRefresh();
+  }
+ }
+}
+function pdvCartSearchUpdate(query){
+ pdvCartSearchQuery=String(query||'').slice(0,100);
+ pdvCartSearchResults=[];
+ pdvCartSearchError='';
+ clearTimeout(pdvCartSearchTimer);
+ const request=++pdvCartSearchRequest;
+ const term=pdvCartSearchQuery.trim();
+ pdvCartSearchLoading=term.length>=2;
+ pdvCartSearchRefresh();
+ const clearButton=document.querySelector('[data-cart-search-clear]');
+ if(clearButton)clearButton.hidden=!pdvCartSearchQuery;
+ if(pdvCartSearchLoading&&shop?.id){
+  const shopId=shop.id;
+  pdvCartSearchTimer=setTimeout(()=>void pdvCartSearchFetch(request,shopId,term),250);
+ }
+}
+function pdvCartSearchAdd(productId){
+ if(!shop||!hasAccess()||tab!=='caixa')return;
+ const p=pdvCartSearchCandidates().find(p=>String(p.id)===String(productId));
+ if(!p)return;
+ const already=cart.find(c=>c.id===p.id);
+ if((already?.qty||0)>=10000)return msg('Limite de 10.000 unidades por produto.',true);
+ if(p.active===false){
+  msg('Produto indisponível.',true);return;
+ }
+ if(!products.some(item=>item.id===p.id))products.push(p);
+ if(already)already.qty++;
+ else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
+ pdvCartSearchClear();
+ renderPage();
+ document.getElementById('pdvCartSearch')?.focus({preventScroll:true});
+}
+
+function pdvCheckoutTotals(method=pdvPayment){
+ const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
+ const discount=parseMoneyInput(pdvDiscountAmount||'0');
+ const valid=Number.isFinite(discount)&&discount>=0&&Math.abs(discount*100-Math.round(discount*100))<1e-6&&discount<=subtotal;
+ return {subtotal,discount,valid,total:valid?subtotal-discount:subtotal};
+}
+function ensurePdvCartSearchVisualStyles(){
+ if(document.getElementById('bipstart-pdv-cart-search-visual-v2'))return;
+ const style=document.createElement('style');
+ style.id='bipstart-pdv-cart-search-visual-v2';
+ style.textContent="\n/* Estilo crítico da pesquisa do carrinho, entregue junto com o JS para evitar cache CSS antigo. */\nbody #workspace #page .godzilla-pdv .pdv-cart-search{\n display:block!important;width:100%!important;min-width:0!important;margin:8px 0 14px!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search>label{\n display:block!important;margin:0 0 9px!important;font-size:13px!important;font-weight:750!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-input-wrap{\n box-sizing:border-box!important;display:flex!important;position:relative!important;\n align-items:center!important;width:100%!important;min-width:0!important;height:48px!important;\n margin:0!important;padding:0!important;border:1px solid #a99cc6!important;\n border-radius:12px!important;background:#fff!important;color:#30283c!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-input-wrap:focus-within{\n border-color:#8e67ee!important;box-shadow:0 0 0 2px #8463de40!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-input-wrap>input{\n box-sizing:border-box!important;display:block!important;position:relative!important;\n flex:1 1 auto!important;min-width:0!important;width:100%!important;height:100%!important;\n max-width:none!important;margin:0!important;padding:10px 45px 10px 42px!important;\n border:0!important;outline:none!important;box-shadow:none!important;\n background:transparent!important;color:inherit!important;font-size:15px!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-input-wrap input::-webkit-search-cancel-button{\n -webkit-appearance:none!important;appearance:none!important;display:none!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-input-wrap>.pdv-cart-search-loupe{\n display:block!important;position:absolute!important;left:15px!important;top:50%!important;\n width:13px!important;height:13px!important;margin-top:-9px!important;\n border:2px solid currentColor!important;border-radius:50%!important;\n pointer-events:none!important;opacity:.75!important;box-sizing:content-box!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-input-wrap>.pdv-cart-search-loupe::after{\n content:\"\";position:absolute;right:-6px;bottom:-4px;width:7px;height:2px;\n background:currentColor;border-radius:2px;transform:rotate(45deg);\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-input-wrap>.pdv-cart-search-clear{\n box-sizing:border-box!important;display:flex!important;align-items:center!important;\n justify-content:center!important;position:absolute!important;right:7px!important;\n top:50%!important;left:auto!important;bottom:auto!important;transform:translateY(-50%)!important;\n float:none!important;width:32px!important;min-width:32px!important;max-width:32px!important;\n height:32px!important;min-height:32px!important;margin:0!important;padding:0!important;\n border:0!important;border-radius:8px!important;box-shadow:none!important;\n background:transparent!important;color:#62586f!important;\n font-size:23px!important;font-weight:500!important;line-height:1!important;\n cursor:pointer!important;z-index:3!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-input-wrap>.pdv-cart-search-clear[hidden]{\n display:none!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results:not(:empty){\n box-sizing:border-box!important;display:flex!important;flex-direction:column!important;\n flex-wrap:nowrap!important;gap:7px!important;width:100%!important;min-width:0!important;\n max-height:250px!important;margin:8px 0 0!important;padding:7px!important;\n border:1px solid #ddd4e9!important;border-radius:12px!important;\n background:#f7f4fd!important;overflow-y:auto!important;overflow-x:hidden!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results:empty{\n display:none!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results>.pdv-cart-search-result{\n box-sizing:border-box!important;display:grid!important;\n grid-template-columns:minmax(0,1fr) max-content max-content!important;align-items:center!important;\n gap:12px!important;width:100%!important;min-width:0!important;max-width:none!important;\n min-height:54px!important;margin:0!important;padding:9px 11px!important;\n border:1px solid #e5def0!important;border-radius:10px!important;\n background:#fff!important;color:#28253a!important;text-align:left!important;\n white-space:normal!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results .pdv-cart-search-name{\n display:block!important;min-width:0!important;max-width:none!important;overflow-wrap:anywhere!important;\n font-size:13px!important;line-height:1.35!important;font-weight:800!important;\n color:inherit!important;-webkit-text-fill-color:currentColor!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results .pdv-cart-search-price{\n display:block!important;min-width:72px!important;margin:0!important;\n text-align:right!important;white-space:nowrap!important;\n font-size:14px!important;font-weight:850!important;color:inherit!important;\n -webkit-text-fill-color:currentColor!important;font-variant-numeric:tabular-nums!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results .pdv-cart-search-add{\n box-sizing:border-box!important;display:inline-flex!important;position:static!important;\n flex:none!important;align-items:center!important;justify-content:center!important;\n justify-self:end!important;width:auto!important;min-width:97px!important;min-height:36px!important;\n max-width:none!important;margin:0!important;padding:8px 12px!important;\n border:1px solid #8050dd!important;border-radius:9px!important;\n background:#7950d9!important;color:#fff!important;-webkit-text-fill-color:#fff!important;\n font-size:12px!important;font-weight:800!important;line-height:1!important;\n white-space:nowrap!important;cursor:pointer!important;opacity:1!important;\n box-shadow:none!important;filter:none!important;\n}\nbody #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results .pdv-cart-search-add:disabled{\n cursor:not-allowed!important;opacity:.52!important;filter:grayscale(.65)!important;\n}\nbody.pdv-night #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-input-wrap{\n background:#2b2e39!important;color:#fff!important;border-color:#777088!important;\n}\nbody.pdv-night #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-input-wrap>input{\n background:transparent!important;color:#fff!important;-webkit-text-fill-color:#fff!important;\n}\nbody.pdv-night #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-input-wrap>.pdv-cart-search-clear{\n color:#ece8f4!important;-webkit-text-fill-color:#ece8f4!important;\n}\nbody.pdv-night #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results:not(:empty){\n background:#1e2029!important;border-color:#424354!important;\n}\nbody.pdv-night #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results>.pdv-cart-search-result{\n background:#2b2e38!important;border-color:#414552!important;color:#f5f4fb!important;\n}\nbody.pdv-night #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results .pdv-cart-search-add{\n background:#7550d7!important;border-color:#9b7cf3!important;color:#fff!important;\n}\n@media(max-width:530px){\n body #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results>.pdv-cart-search-result{\n  grid-template-columns:minmax(0,1fr) max-content!important;gap:7px!important;\n }\n body #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results .pdv-cart-search-name{\n  grid-row:1 / span 2!important;\n }\n body #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results .pdv-cart-search-price{\n  grid-column:2!important;grid-row:1!important;\n }\n body #workspace #page .godzilla-pdv .pdv-cart-search .pdv-cart-search-results .pdv-cart-search-add{\n  grid-column:2!important;grid-row:2!important;min-height:30px!important;padding:6px 8px!important;\n }\n}\n";
+ document.head.appendChild(style);
 }
 function renderGodzillaPDV(){
+ ensurePdvCartSearchVisualStyles();
  const floatingSale=floatingSaleEnabled();
  const sum=cart.reduce((a,c)=>a+c.qty*c.price,0);
  const count=cart.reduce((a,c)=>a+c.qty,0);
+ const checkout=pdvCheckoutTotals();
  const categoriesList=[...new Set(products.map(p=>String(p.category||'Geral')))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
  const categoriesHtml='<option value="">Todas as categorias</option>'+
    categoriesList.map(name=>'<option value="'+esc(name)+'"'+(pdvCategory===name?' selected':'')+'>'+esc(name)+'</option>').join('');
  const cash=pdvPayment==='dinheiro',isCard=['credito','debito'].includes(pdvPayment);
  const cartItems=cart.map(c=>{
-  const p=products.find(p=>p.id===c.id);
-  return '<div class="pdv-sale-item"><div class="pdv-sale-product"><strong>'+esc(c.name)+'</strong>'+
-   (p?'<small>Estoque: '+esc(p.stock)+'</small>':'')+'<b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div>'+
+  return '<div class="pdv-sale-item"><div class="pdv-sale-product pdv-sale-name-price"><strong>'+esc(c.name)+'</strong>'+
+   '<b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div>'+
    '<div class="pdv-sale-qty">'+
    '<button type="button" data-qty-less="'+esc(c.id)+'" aria-label="Diminuir '+esc(c.name)+'">−</button>'+
-   '<b>'+c.qty+'</b><button type="button" data-cart="'+esc(c.id)+'" aria-label="Aumentar '+esc(c.name)+'">+</button>'+
+   '<input class="pdv-cart-quantity" data-cart-quantity="'+esc(c.id)+'" type="number" min="1" max="10000" step="1" inputmode="numeric" value="'+esc(c.qty)+'" aria-label="Quantidade de '+esc(c.name)+'" title="Edite a quantidade de unidades" autocomplete="off">'+
+   '<button type="button" data-cart="'+esc(c.id)+'" aria-label="Aumentar '+esc(c.name)+'">+</button>'+
    '<button type="button" data-remove="'+esc(c.id)+'" aria-label="Remover '+esc(c.name)+'">×</button>'+
    '</div></div>';
  }).join('');
@@ -1490,34 +1635,41 @@ function renderGodzillaPDV(){
   '" data-card-method="'+code+'" aria-pressed="'+(pdvPayment===code)+'">'+label+'</button>'
  ).join('');
  return '<div class="godzilla-pdv'+(floatingSale?' pdv-floating-layout':'')+'">'+
-
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
- '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers title="Mais vendidos" aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:12px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
- categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'" title="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:12px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">'+esc(name)+'</strong></button>';}).join('')+
+ '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
+ categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">'+esc(name)+'</strong></button>';}).join('')+
  '</div>'+
+ 
  '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
  '</section><div class="pdv-floating-backdrop'+(floatingSale&&pdvCheckoutOpen?' open':'')+'" data-floating-sale-close></div><aside class="pdv-panel pdv-sale-panel'+(floatingSale?' pdv-sale-panel-floating':'')+(floatingSale&&pdvCheckoutOpen?' is-open':'')+'" aria-label="Venda atual">'+
  '<div class="pdv-sale-head"><div><span class="kicker">CAIXA</span><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
+ '<div class="pdv-cart-search"><label for="pdvCartSearch">Pesquisar e adicionar produto</label>'+
+ '<div class="pdv-cart-search-input-wrap"><span class="pdv-cart-search-loupe" aria-hidden="true"></span>'+
+ '<input type="search" id="pdvCartSearch" placeholder="Nome ou código do produto" value="'+esc(pdvCartSearchQuery)+'" autocomplete="off" spellcheck="false" aria-controls="pdvCartSearchResults">'+
+ '<button type="button" class="pdv-cart-search-clear" data-cart-search-clear aria-label="Limpar pesquisa"'+(pdvCartSearchQuery?'':' hidden')+'>×</button></div>'+
+ '<div class="pdv-cart-search-results" id="pdvCartSearchResults" aria-live="polite">'+pdvCartSearchResultMarkup()+'</div></div>'+
  '<div class="pdv-sale-list">'+(cartItems||'<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>')+'</div>'+
- '<div class="pdv-sale-total"><span>'+count+' item(ns) · Total</span><strong>'+fmt(sum)+'</strong></div>'+
+ '<div class="pdv-sale-total"><span id="pdvCartCount">'+count+' item(ns) · Subtotal</span><strong id="pdvCartSubtotal">'+fmt(sum)+'</strong></div>'+
  '<form id="saleForm" class="pdv-payment-form">'+
  '<div class="pdv-payment-selector"><span class="pdv-payment-label" id="pdvPaymentLabel">Forma de pagamento</span>'+
  '<div class="pdv-payment-options" role="group" aria-labelledby="pdvPaymentLabel">'+paymentButtons+'</div>'+
  '<input type="hidden" name="payment_method" id="pdvPaymentMethod" value="'+esc(pdvPayment)+'"></div>'+
+ '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><strong id="pdvTotalDue">'+fmt(checkout.total)+'</strong><button type="button" class="pdv-total-edit" data-pdv-total-edit aria-label="Editar total da venda" title="Editar total">✎</button></div>'+
+ '<div class="pdv-total-editor hidden" id="pdvTotalEditor" style="background:#22252d!important;background-image:none!important;border:1px solid #343741!important;border-radius:12px!important;color:#f4f4f8!important;box-shadow:none!important"><div class="pdv-total-edit-row" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:10px!important;width:100%!important"><label for="pdvTotalEditInput" style="display:block!important;flex:0 0 auto!important;width:max-content!important;white-space:nowrap!important;margin:0!important">Novo valor</label><input id="pdvTotalEditInput" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" style="display:block!important;flex:1 1 0!important;width:0!important;min-width:0!important;margin:0!important"></div><div class="pdv-total-editor-actions" style="display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;position:relative!important;width:100%!important;min-height:42px!important;box-sizing:border-box!important"><button type="button" class="button" data-pdv-total-save style="position:static!important;display:inline-flex!important;flex:0 0 auto!important;float:none!important;transform:none!important;width:auto!important;min-width:96px!important;max-width:none!important;margin:0!important;vertical-align:middle!important">Aplicar</button><button type="button" class="ghost" data-pdv-total-cancel style="position:static!important;display:inline-flex!important;flex:0 0 auto!important;float:none!important;transform:none!important;width:auto!important;min-width:96px!important;max-width:none!important;margin:0!important;vertical-align:middle!important">Cancelar</button></div></div>'+
  '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="text" inputmode="decimal" autocomplete="off" id="pdvReceived" name="received" placeholder="0,00"></label>'+
  '<div class="pdv-calculation">Troco <strong id="pdvChange">'+fmt(0)+'</strong></div></div>'+
  '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'">'+
  '<span class="pdv-card-kind-label" id="pdvCardKindLabel">Tipo de cartão</span>'+
  '<div class="pdv-card-kinds" role="group" aria-labelledby="pdvCardKindLabel">'+cardTypeButtons+'</div>'+
  '<label>Taxa da maquininha (%)<input id="pdvFeePercent" name="card_fee_percent" type="number" min="0" max="100" step="0.01" value="'+esc(pdvCardFeePercent)+'"></label>'+
- '<div class="pdv-calculation">Desconto da maquininha <strong id="pdvFeeAmount">−'+fmt(Math.round(sum*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
- '<div class="pdv-calculation">Líquido estimado <strong id="pdvNet">'+fmt(sum-Math.round(sum*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
- '<small class="muted">Taxa registrada na venda e descontada do lucro no relatório; a BipStart não processa pagamentos.</small></div>'+
- '<button type="submit" class="button pdv-finish" '+(!cart.length?'disabled':'')+'>Finalizar venda ↗</button>'+
+ '<div class="pdv-calculation hidden">Desconto da maquininha <strong id="pdvFeeAmount">−'+fmt(Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
+ '<div class="pdv-calculation hidden">Líquido estimado <strong id="pdvNet">'+fmt(checkout.total-Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
+ '</div>'+
+ '<button type="submit" class="button pdv-finish" '+(!cart.length||!checkout.valid?'disabled':'')+'>Finalizar venda ↗</button>'+
  '</form>'+
  ((typeof lastReceipt!=='undefined'&&lastReceipt?.shopId===shop?.id)?'<button class="ghost pdv-last-receipt" type="button" data-receipt-last>🧾 Reimprimir último comprovante</button>':'')+
- '</aside></div>'+(floatingSale?'<button type="button" class="pdv-floating-sale-button" data-floating-sale-toggle aria-expanded="'+(pdvCheckoutOpen?'true':'false')+'"><span>🛒 Ver venda</span><strong>'+fmt(sum)+'</strong></button>':'')+'</div>';
+ '</aside></div>'+(floatingSale?'<button type="button" class="pdv-floating-sale-button" data-floating-sale-toggle aria-expanded="'+(pdvCheckoutOpen?'true':'false')+'"><span>🛒 Ver venda</span><strong id="pdvFloatingTotal">'+fmt(checkout.total)+'</strong></button>':'')+'</div>';
 }
 function selectPdvPayment(method){
  if(method==='cartao')pdvPayment=['credito','debito'].includes(pdvPayment)?pdvPayment:'credito';
@@ -1526,18 +1678,29 @@ function selectPdvPayment(method){
  return true;
 }
 function updatePdvEstimates(){
- const total=cart.reduce((a,c)=>a+c.qty*c.price,0);
- const received=document.getElementById('pdvReceived');
- const change=document.getElementById('pdvChange');
+ const count=cart.reduce((sum,item)=>sum+item.qty,0);
+ const countEl=document.getElementById('pdvCartCount'),subtotalEl=document.getElementById('pdvCartSubtotal');
+ if(countEl)countEl.textContent=count+' item(ns) · Subtotal';
+ if(subtotalEl)subtotalEl.textContent=fmt(cart.reduce((sum,item)=>sum+item.qty*item.price,0));
+ const checkout=pdvCheckoutTotals(),total=checkout.total;
+ const applied=document.getElementById('pdvDiscountApplied');
+ if(applied)applied.textContent='−'+fmt(checkout.valid?checkout.discount:0);
+ const error=document.getElementById('pdvDiscountError');
+ if(error)error.textContent=checkout.valid?'':'Informe um desconto de até '+fmt(checkout.subtotal)+'.';
+ const due=document.getElementById('pdvTotalDue');
+ if(due)due.textContent=fmt(total);
+ const floating=document.getElementById('pdvFloatingTotal');
+ if(floating)floating.textContent=fmt(total);
+ const finish=document.querySelector('#saleForm .pdv-finish');
+ if(finish)finish.disabled=!cart.length||!checkout.valid;
+ const received=document.getElementById('pdvReceived'),change=document.getElementById('pdvChange');
  if(received&&change){const amount=parseMoneyInput(received.value);change.textContent=fmt(Number.isFinite(amount)?Math.max(0,amount-total):0);}
- const fee=document.getElementById('pdvFeePercent');
- const net=document.getElementById('pdvNet');
+ const fee=document.getElementById('pdvFeePercent'),net=document.getElementById('pdvNet');
  if(fee&&net){
-   const percent=Math.min(100,Math.max(0,Number(fee.value||0)));
-   const discounted=Math.round(total*percent)/100;
-   const feeAmount=document.getElementById('pdvFeeAmount');
-   if(feeAmount)feeAmount.textContent='−'+fmt(discounted);
-   net.textContent=fmt(total-discounted);
+  const percent=Math.min(100,Math.max(0,Number(fee.value||0)));
+  const amount=Math.round(total*percent)/100,feeAmount=document.getElementById('pdvFeeAmount');
+  if(feeAmount)feeAmount.textContent='−'+fmt(amount);
+  net.textContent=fmt(total-amount);
  }
 }
 
@@ -2014,36 +2177,29 @@ window.applySalesNightStyles=applySalesNightStyles;
 function applyPdvCategoryFontSizes(){
  const root=$('page');
  if(!root)return;
+ const narrow=window.matchMedia('(max-width:700px)').matches;
  const categoryGrid=root.querySelector('.godzilla-pdv .pdv-category-tiles');
  if(categoryGrid){
-  const columns=window.matchMedia('(max-width:700px)').matches
-   ?'repeat(2,minmax(0,1fr))'
-   :'repeat(6,minmax(0,1fr))';
   categoryGrid.style.setProperty('display','grid','important');
-  categoryGrid.style.setProperty('grid-template-columns',columns,'important');
-  categoryGrid.style.setProperty('justify-content','start','important');
-  categoryGrid.style.setProperty('gap','3px','important');
-  categoryGrid.style.setProperty('width','100%','important');
+  categoryGrid.style.setProperty('grid-template-columns',narrow?'repeat(2,minmax(0,1fr))':'repeat(6,minmax(0,1fr))','important');
+  categoryGrid.style.setProperty('gap',narrow?'8px':'3px','important');
  }
  const productGrid=root.querySelector('.godzilla-pdv .pdv-products');
  if(productGrid){
-  const productColumns=window.matchMedia('(max-width:700px)').matches
-   ?'repeat(2,minmax(0,1fr))'
-   :'repeat(5,minmax(0,1fr))';
   productGrid.style.setProperty('display','grid','important');
-  productGrid.style.setProperty('grid-template-columns',productColumns,'important');
+  productGrid.style.setProperty('grid-template-columns',narrow?'repeat(2,minmax(0,1fr))':'repeat(5,minmax(0,1fr))','important');
   productGrid.style.setProperty('grid-auto-rows','145px','important');
   productGrid.style.setProperty('gap','8px','important');
   productGrid.style.setProperty('max-height','451px','important');
   productGrid.style.setProperty('overflow-y','auto','important');
   productGrid.style.setProperty('align-content','start','important');
+  root.querySelectorAll('.godzilla-pdv .pdv-product-wrap > .pdv-product').forEach(card=>{
+   card.style.setProperty('height','145px','important');
+   card.style.setProperty('min-height','145px','important');
+   card.style.setProperty('max-height','145px','important');
+   card.style.setProperty('aspect-ratio','auto','important');
+  });
  }
- root.querySelectorAll('.godzilla-pdv .pdv-product-wrap > .pdv-product').forEach(card=>{
-  card.style.setProperty('height','145px','important');
-  card.style.setProperty('min-height','145px','important');
-  card.style.setProperty('max-height','145px','important');
-  card.style.setProperty('aspect-ratio','auto','important');
- });
  const tiles=root.querySelectorAll('.godzilla-pdv .pdv-category-tiles .pdv-category-tile');
  tiles.forEach(tile=>{
   // Homologação: categorias retangulares 110 x 58 px, com espaço mínimo entre cards.
@@ -2565,8 +2721,13 @@ async function handleSubmit(form,contractWindow=null){
     }
     case 'saleForm':{
       if(!cart.length)throw Error('Adicione produtos ao carrinho.');
+      const subtotal=cart.reduce((a,c)=>a+c.qty*c.price,0);
+      const discountAmount=parseMoneyInput(pdvDiscountAmount||'0');
+      if(!Number.isFinite(discountAmount)||discountAmount<0||
+         Math.abs(discountAmount*100-Math.round(discountAmount*100))>1e-6||discountAmount>subtotal)
+        throw Error('Desconto inválido ou maior que o subtotal da venda.');
+      const total=subtotal-discountAmount;
       if(v.payment_method==='dinheiro'){
-        const total=cart.reduce((a,c)=>a+c.qty*c.price,0);
         const receivedAmount=parseMoneyInput(v.received);
         if(!Number.isFinite(receivedAmount)||receivedAmount<0||receivedAmount+0.001<total)
           throw Error('Informe um valor recebido suficiente para finalizar a venda em dinheiro.');
@@ -2579,7 +2740,7 @@ async function handleSubmit(form,contractWindow=null){
       pdvPayment=v.payment_method;
       const sold=cart.map(c=>({id:c.id,name:c.name,qty:c.qty,price:c.price}));
       const data=await rpc('bipstart_complete_sale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),
-        p_payment_method:v.payment_method,p_card_fee_percent:feePercent});
+        p_payment_method:v.payment_method,p_card_fee_percent:feePercent,p_discount_amount:discountAmount});
       let recorded=[];
       try{
         if(data?.sale_id)recorded=await rest('shop_sale_items',{query:{
@@ -2588,8 +2749,11 @@ async function handleSubmit(form,contractWindow=null){
       }catch(error){console.warn('Detalhes da venda não disponíveis para a nota:',error.message)}
       lastReceipt=receiptSnapshot(data,v.payment_method,v.payment_method==='dinheiro'?String(parseMoneyInput(v.received)): '',sold,recorded);
       cart=[];
+      pdvDiscountAmount='';
+      bestSellerLoadedShop=null;
+      if(pdvShowBestSellers)void loadBestSellers();
       if(receiptSettings().preview)showReceiptDialog(lastReceipt);
-      msg('Venda registrada: '+fmt(data.total)+
+      msg('Venda registrada: '+fmt(data.total)+(discountAmount?' · Desconto: '+fmt(discountAmount):'')+
         (cardMethod?' · Taxa: '+fmt(data.card_fee_amount||0)+' · Líquido: '+fmt(data.net_total):'')+
         '. Comprovante disponível para impressão.');
       break;
@@ -2763,7 +2927,31 @@ document.addEventListener('paste',e=>{
   preview.append(img,document.createTextNode(' Imagem pronta para salvar'));
   msg('Imagem colada! Agora salve o produto.');
 });
+function updatePdvCartQuantity(input,commit=false){
+ if(tab!=='caixa'||!shop||!hasAccess())return;
+ const item=cart.find(c=>String(c.id)===input.dataset.cartQuantity);
+ if(!item)return;
+ const raw=String(input.value).trim();
+ const quantity=Number(raw);
+ if(!/^\d+$/.test(raw)||!Number.isInteger(quantity)||quantity<1||quantity>10000){
+   if(commit){
+     input.value=String(item.qty);
+     msg('Informe uma quantidade inteira entre 1 e 10.000.',true);
+   }
+   return;
+ }
+ if(item.qty===quantity)return;
+ item.qty=quantity;
+ const row=input.closest('.pdv-sale-item');
+ const lineTotal=row?.querySelector('.pdv-sale-line-total');
+ if(lineTotal)lineTotal.textContent=fmt(item.qty*item.price);
+ updatePdvEstimates();
+}
 document.addEventListener('input',e=>{
+ if(e.target.matches?.('[data-cart-quantity]')){
+   updatePdvCartQuantity(e.target);
+   return;
+ }
  if(e.target.matches?.('#productForm input[name="sku"]')){
   clearTimeout(barcodeRegistrationTimer);
   const code=normalizeBarcode(e.target.value);
@@ -2774,18 +2962,26 @@ document.addEventListener('input',e=>{
   }
   return;
  }
+ if(e.target.id==='pdvCartSearch'){
+  pdvCartSearchUpdate(e.target.value);
+  return;
+ }
  if(e.target.id==='pdvSearch'){
   pdvQuery=e.target.value;
   const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();
- }else if(e.target.id==='pdvReceived'||e.target.id==='pdvFeePercent'){
-   if(e.target.id==='pdvReceived'){
+ }else if(['pdvReceived','pdvFeePercent','pdvTotalEditInput'].includes(e.target.id)){
+   if(e.target.id==='pdvReceived'||e.target.id==='pdvTotalEditInput'){
      const formatted=formatCurrencyDigits(e.target.value);
      if(formatted!==e.target.value){e.target.value=formatted; e.target.setSelectionRange(formatted.length,formatted.length);}
    }else pdvCardFeePercent=e.target.value;
-   updatePdvEstimates();
+   if(e.target.id!=='pdvTotalEditInput')updatePdvEstimates();
  }
 });
 document.addEventListener('change',e=>{
+ if(e.target.matches?.('[data-cart-quantity]')){
+   updatePdvCartQuantity(e.target,true);
+   return;
+ }
  if(e.target.id==='floatingSaleToggle'){
   try{localStorage.setItem(floatingSaleKey(),e.target.checked?'true':'false');pdvCheckoutOpen=false;renderPage();msg(e.target.checked?'Botão flutuante ativado.':'Botão flutuante desativado.');}
   catch{msg('Não foi possível salvar a configuração neste navegador.',true);}
@@ -2835,22 +3031,85 @@ document.addEventListener('change',async event=>{
  await loadSalesReport();
 });
 document.addEventListener('click',async e=>{
-  const resetButton=e.target.closest('[data-reset-stock]');
-  if(resetButton){
+  const cartSearchClear=e.target.closest('[data-cart-search-clear]');
+  if(cartSearchClear&&tab==='caixa'){
+    pdvCartSearchClear();
+    const input=document.getElementById('pdvCartSearch');
+    if(input){input.value='';input.focus({preventScroll:true});}
+    pdvCartSearchRefresh();
+    cartSearchClear.hidden=true;
+    return;
+  }
+  const cartSearchAdd=e.target.closest('[data-cart-search-add]');
+  if(cartSearchAdd){pdvCartSearchAdd(cartSearchAdd.dataset.cartSearchAdd);return;}
+  const deleteCategories=e.target.closest('[data-delete-all-categories]');
+  if(deleteCategories){
     if(tab!=='configuracoes'||!shop||!hasAccess())return;
-    const confirmation=window.prompt('ATENÇÃO: todo o estoque da loja "'+shop.name+'" será zerado. Os produtos continuarão cadastrados. Para confirmar, digite ZERAR:');
-    if(confirmation!=='ZERAR')return;
-    if(!window.confirm('Confirmar a alteração de TODO o estoque desta loja para 0? Esta ação não pode ser desfeita automaticamente.'))return;
-    resetButton.disabled=true;
+    const shopId=shop.id;
+    const confirmation=window.prompt('EXCLUIR TODAS AS CATEGORIAS da loja "'+shop.name+'"? Os produtos permanecerão cadastrados na categoria Geral. Digite EXCLUIR CATEGORIAS para continuar:');
+    if(confirmation!=='EXCLUIR CATEGORIAS')return;
+    if(!window.confirm('Confirma a exclusão definitiva de todas as categorias desta loja? Os produtos serão movidos para Geral; produtos, estoque e vendas não serão apagados.'))return;
+    deleteCategories.disabled=true;
     try{
-      await rest('shop_products',{method:'PATCH',query:{shop_id:'eq.'+shop.id},body:{stock:0}});
-      products=products.map(product=>({...product,stock:0}));
+      const outcome=await rpc('bipstart_delete_all_categories',{p_shop_id:shopId});
+      if(shop?.id!==shopId)return;
+      await reloadData();
+      selectedCategoryFilter='all';
+      pdvCategory='';
+      pdvShowBestSellers=false;
       renderPage();
-      msg('Estoque de todos os produtos desta loja zerado com sucesso.');
+      const count=Number(outcome?.categories_deleted||0);
+      const updated=Number(outcome?.products_recategorized||0);
+      msg('Categorias excluídas: '+count+'. Produtos movidos para Geral: '+updated+'.');
     }catch(error){
-      resetButton.disabled=false;
-      msg(error.message||'Não foi possível zerar o estoque.',true);
+      msg(error.message||'Não foi possível excluir todas as categorias.',true);
+    }finally{
+      if(deleteCategories.isConnected)deleteCategories.disabled=false;
     }
+    return;
+  }
+  const deleteButton=e.target.closest('[data-delete-all-stock]');
+  if(deleteButton){
+    if(tab!=='configuracoes'||!shop||!hasAccess())return;
+    const count=products.length;
+    const confirmation=window.prompt('ATENÇÃO: você excluirá permanentemente TODOS os produtos da loja "'+shop.name+'" ('+count+' carregados). Digite EXCLUIR para continuar:');
+    if(confirmation!=='EXCLUIR')return;
+    if(!window.confirm('Confirma a EXCLUSÃO DEFINITIVA de todos os produtos desta loja? Esta ação não poderá ser desfeita.'))return;
+    deleteButton.disabled=true;
+    try{
+      // Exclusão restrita à loja da sessão; a política RLS do Supabase também controla a permissão.
+      await rest('shop_products',{method:'DELETE',query:{shop_id:'eq.'+shop.id}});
+      // Verifica o banco: um DELETE sem erro pode excluir zero linhas se a política RLS bloquear.
+      const remaining=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shop.id,limit:'1'}});
+      if(remaining.length)throw Error('Ainda existem produtos cadastrados. Verifique as permissões ou dependências no banco.');
+      products=[];
+      cart=[];
+      pdvQuery='';
+      renderPage();
+      msg('Todos os produtos desta loja foram excluídos.');
+    }catch(error){
+      deleteButton.disabled=false;
+      msg(error.message||'Não foi possível excluir os produtos.',true);
+    }
+    return;
+  }
+  const totalEdit=e.target.closest('[data-pdv-total-edit]');
+  if(totalEdit){
+    const editor=document.getElementById('pdvTotalEditor'),input=document.getElementById('pdvTotalEditInput');
+    if(editor&&input){input.value=formatCurrencyDigits(String(Math.round(pdvCheckoutTotals().total*100)));editor.classList.remove('hidden');input.focus();}
+    return;
+  }
+  if(e.target.closest('[data-pdv-total-cancel]')){document.getElementById('pdvTotalEditor')?.classList.add('hidden');return;}
+  if(e.target.closest('[data-pdv-total-save]')){
+    const input=document.getElementById('pdvTotalEditInput'),subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
+    const desired=parseMoneyInput(input?.value||'');
+    if(!Number.isFinite(desired)||desired<0||desired>subtotal||Math.abs(desired*100-Math.round(desired*100))>1e-6){
+      msg('Informe um total entre R$ 0,00 e o subtotal, com até duas casas decimais.',true);return;
+    }
+    pdvDiscountAmount=formatCurrencyDigits(String(Math.round((subtotal-desired)*100)));
+    updatePdvEstimates();
+    document.getElementById('pdvTotalEditor')?.classList.add('hidden');
+    msg('Total da venda atualizado.');
     return;
   }
   if(e.target.closest('[data-floating-sale-toggle]')){pdvCheckoutOpen=!pdvCheckoutOpen;renderPage();return;}
@@ -3055,13 +3314,19 @@ document.addEventListener('click',async e=>{
   if(e.target.closest('#sideToggle')){toggleSideMenu();return}
   if(e.target.closest('#sideBackdrop')){closeSideMenu();return}
   if(e.target.closest('#sideLogout')){closeSideMenu();$('logout').click();return}
-  if(e.target.closest('[data-pdv-best-sellers]')){pdvShowBestSellers=!pdvShowBestSellers;pdvCategory='';renderPage();return;}
+  if(e.target.closest('[data-pdv-best-sellers]')){pdvShowBestSellers=!pdvShowBestSellers;pdvCategory='';renderPage();if(pdvShowBestSellers)void loadBestSellers();return;}
   const categoryTile=e.target.closest('[data-pdv-category]');
   if(categoryTile){pdvShowBestSellers=false;pdvCategory=categoryTile.dataset.pdvCategory||'';pdvQuery='';renderPage();return;}
   const less=e.target.closest('[data-qty-less]');
   if(less){
     const found=cart.find(c=>c.id===less.dataset.qtyLess);
-    if(found){found.qty--;if(found.qty<=0)cart=cart.filter(c=>c.id!==found.id);renderPage();}
+    if(found){
+      found.qty--;
+      if(found.qty<=0){
+        cart=cart.filter(c=>c.id!==found.id);
+      }
+      renderPage();
+    }
     return;
   }
   const share=e.target.closest('[data-share-shop]');
@@ -3226,20 +3491,13 @@ document.addEventListener('click',async e=>{
   const c=e.target.closest('[data-cart]');if(c){
     const p=products.find(p=>p.id===c.dataset.cart);if(!p)return;
     const old=cart.find(x=>x.id===p.id);
-    if((old?.qty||0)>=p.stock)return msg('Estoque insuficiente',true);
-    const clicks=(pdvProductClickCounts.get(p.id)||0)+1;
-    pdvProductClickCounts.set(p.id,clicks);
-    if(clicks>=4){
-      pdvQuantityEntryProductId=p.id;
-      renderPage();
-      const input=document.querySelector('[data-pdv-quantity="'+CSS.escape(p.id)+'"]');
-      if(input)input.focus();
-      return;
-    }
+    if((old?.qty||0)>=10000)return msg('Limite de 10.000 unidades por produto.',true);
     if(old)old.qty++;else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
     renderPage();return
   }
-  const rm=e.target.closest('[data-remove]');if(rm){cart=cart.filter(x=>x.id!==rm.dataset.remove);renderPage()}
+  const rm=e.target.closest('[data-remove]');if(rm){
+    cart=cart.filter(x=>x.id!==rm.dataset.remove);renderPage();
+  }
 });
 /* Leitores USB/Bluetooth em modo teclado enviam o codigo seguido de Enter.
    Se um campo estiver ativo, só o campo exclusivo de código intercepta o Enter.
@@ -3248,8 +3506,8 @@ document.addEventListener('keydown',e=>{
  if(e.defaultPrevented||e.isComposing||!shop||tab!=='caixa'||!hasAccess())return;
  if(e.key==='F8'){
   e.preventDefault();
-  const search=$('pdvSearch');
-  if(search){search.value='';pdvQuery='';search.focus({preventScroll:true});}
+  const search=$('pdvCartSearch');
+  if(search){pdvCartSearchClear();search.value='';pdvCartSearchRefresh();search.focus({preventScroll:true});}
   return;
  }
  if(e.ctrlKey||e.altKey||e.metaKey||
@@ -3278,6 +3536,22 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('keydown',e=>{
  if(e.key!=='Enter')return;
+ if(e.target?.id==='pdvCartSearch'){
+  e.preventDefault();
+  const query=e.target.value.trim();
+  if(!query)return;
+  const matches=pdvCartSearchCandidates(query);
+  const exact=matches.find(p=>pdvCartSearchText(p.sku)===pdvCartSearchText(query));
+  if(exact){pdvCartSearchAdd(exact.id);return;}
+  if(matches.length===1){pdvCartSearchAdd(matches[0].id);return;}
+  if(/^[a-z0-9-]*\d[a-z0-9-]*$/i.test(query)){
+    pdvCartSearchClear();
+    void addBarcodeToCart(query);
+    return;
+  }
+  msg('Selecione um produto na lista de resultados.',true);
+  return;
+ }
  if(e.target?.matches('#productForm input[name="sku"]')){
   e.preventDefault();
   clearTimeout(barcodeRegistrationTimer);
@@ -3297,26 +3571,16 @@ document.addEventListener('keydown',e=>{
 });
 
 document.addEventListener('keydown',e=>{
- const input=e.target.closest('[data-pdv-quantity]');
- if(!input||e.key!=='Enter')return;
+ const input=e.target.closest?.('[data-cart-quantity]');
+ if(!input||!['Enter','Escape'].includes(e.key))return;
  e.preventDefault();
- const productId=input.dataset.pdvQuantity;
- const p=products.find(item=>item.id===productId);
- const quantity=Number(input.value);
- const old=cart.find(item=>item.id===productId);
- if(!p){pdvQuantityEntryProductId=null;renderPage();return}
- if(!Number.isInteger(quantity)||quantity<1){
-   pdvQuantityEntryProductId=null;renderPage();return;
+ if(e.key==='Escape'){
+   const item=cart.find(c=>String(c.id)===input.dataset.cartQuantity);
+   if(item)input.value=String(item.qty);
+ }else{
+   updatePdvCartQuantity(input,true);
+   input.blur();
  }
- if((old?.qty||0)+quantity>Number(p.stock)){
-   msg('Quantidade maior que o estoque disponível.',true);
-   input.value='';input.focus();return;
- }
- if(old)old.qty+=quantity;
- else cart.push({id:p.id,name:p.name,qty:quantity,price:Number(p.price)});
- pdvProductClickCounts.set(productId,0);
- pdvQuantityEntryProductId=null;
- renderPage();
 });
 // Validação instantânea antes de enviar o cadastro para o Supabase.
 $('signupForm').addEventListener('input',()=>{
@@ -3336,7 +3600,7 @@ $('signupForm').addEventListener('input',()=>{
 });
 $('showLogin').onclick=()=>authTab(false);
 $('showSignup').onclick=()=>authTab(true);
-$('logout').onclick=()=>{closeSideMenu();closeReceiptDialog();lastReceipt=null;session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
+$('logout').onclick=()=>{closeSideMenu();closeReceiptDialog();lastReceipt=null;pdvCartSearchClear();session=null;shop=null;cart=[];saveSession();showAuth();msg('Você saiu com segurança.')};
 $('refreshAccess').onclick=async()=>{try{await openShop();msg(hasAccess()?'Seu acesso está liberado!':'Ainda aguardando liberação. Confira o WhatsApp.')}catch(e){msg(e.message,true)}};
 window.addEventListener('focus',()=>{
  if(shop&&ent&&!hasAccess()){hiding('workspace',false);hiding('accessGate',true);renderAccessGate();}
