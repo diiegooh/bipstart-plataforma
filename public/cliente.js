@@ -1485,7 +1485,7 @@ function pdvProductCards(){
    '<span class="pdv-product-media">'+photo+'</span>'+
    '<span class="pdv-product-info"><strong class="pdv-product-name">'+esc(p.name)+'</strong>'+
    '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button></div>';
- }}).join(''):'';}
+ }).join(''):'';}
 
 function pdvCartSearchText(value){
  return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
