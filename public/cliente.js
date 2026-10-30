@@ -1593,7 +1593,7 @@ function pdvCartSearchAdd(productId){
 
 function pdvCheckoutTotals(method=pdvPayment){
  const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
- const discount=['dinheiro','credito','debito'].includes(method)?parseMoneyInput(pdvDiscountAmount||'0'):0;
+ const discount=parseMoneyInput(pdvDiscountAmount||'0');
  const valid=Number.isFinite(discount)&&discount>=0&&Math.abs(discount*100-Math.round(discount*100))<1e-6&&discount<=subtotal;
  return {subtotal,discount,valid,total:valid?subtotal-discount:subtotal};
 }
@@ -1655,11 +1655,8 @@ function renderGodzillaPDV(){
  '<div class="pdv-payment-selector"><span class="pdv-payment-label" id="pdvPaymentLabel">Forma de pagamento</span>'+
  '<div class="pdv-payment-options" role="group" aria-labelledby="pdvPaymentLabel">'+paymentButtons+'</div>'+
  '<input type="hidden" name="payment_method" id="pdvPaymentMethod" value="'+esc(pdvPayment)+'"></div>'+
- '<div id="pdvDiscountFields" class="pdv-discount-fields'+((cash||isCard)?'':' hidden')+'">'+
- '<label>Desconto (R$)<input id="pdvDiscount" type="text" name="discount_amount" inputmode="decimal" autocomplete="off" placeholder="0,00" value="'+esc(pdvDiscountAmount)+'"></label>'+
-
- '<small class="muted" id="pdvDiscountError" role="status">'+(checkout.valid?'':'Informe um desconto de até '+fmt(sum)+'.')+'</small></div>'+
- '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><strong id="pdvTotalDue">'+fmt(checkout.total)+'</strong></div>'+
+ '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><strong id="pdvTotalDue">'+fmt(checkout.total)+'</strong><button type="button" class="pdv-total-edit" data-pdv-total-edit aria-label="Editar total da venda" title="Editar total">✎</button></div>'+
+ '<div class="pdv-total-editor hidden" id="pdvTotalEditor"><label for="pdvTotalEditInput">Novo total (R$)</label><input id="pdvTotalEditInput" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"><div class="pdv-total-editor-actions"><button type="button" class="button" data-pdv-total-save>Aplicar</button><button type="button" class="ghost" data-pdv-total-cancel>Cancelar</button></div></div>'+
  '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="text" inputmode="decimal" autocomplete="off" id="pdvReceived" name="received" placeholder="0,00"></label>'+
  '<div class="pdv-calculation">Troco <strong id="pdvChange">'+fmt(0)+'</strong></div></div>'+
  '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'">'+
@@ -2725,7 +2722,7 @@ async function handleSubmit(form,contractWindow=null){
     case 'saleForm':{
       if(!cart.length)throw Error('Adicione produtos ao carrinho.');
       const subtotal=cart.reduce((a,c)=>a+c.qty*c.price,0);
-      const discountAmount=['dinheiro','credito','debito'].includes(v.payment_method)?parseMoneyInput(v.discount_amount||'0'):0;
+      const discountAmount=parseMoneyInput(pdvDiscountAmount||'0');
       if(!Number.isFinite(discountAmount)||discountAmount<0||
          Math.abs(discountAmount*100-Math.round(discountAmount*100))>1e-6||discountAmount>subtotal)
         throw Error('Desconto inválido ou maior que o subtotal da venda.');
@@ -2972,13 +2969,12 @@ document.addEventListener('input',e=>{
  if(e.target.id==='pdvSearch'){
   pdvQuery=e.target.value;
   const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();
- }else if(['pdvReceived','pdvFeePercent','pdvDiscount'].includes(e.target.id)){
-   if(e.target.id==='pdvReceived'||e.target.id==='pdvDiscount'){
+ }else if(['pdvReceived','pdvFeePercent','pdvTotalEditInput'].includes(e.target.id)){
+   if(e.target.id==='pdvReceived'||e.target.id==='pdvTotalEditInput'){
      const formatted=formatCurrencyDigits(e.target.value);
      if(formatted!==e.target.value){e.target.value=formatted; e.target.setSelectionRange(formatted.length,formatted.length);}
-     if(e.target.id==='pdvDiscount')pdvDiscountAmount=e.target.value;
    }else pdvCardFeePercent=e.target.value;
-   updatePdvEstimates();
+   if(e.target.id!=='pdvTotalEditInput')updatePdvEstimates();
  }
 });
 document.addEventListener('change',e=>{
@@ -3095,6 +3091,25 @@ document.addEventListener('click',async e=>{
       deleteButton.disabled=false;
       msg(error.message||'Não foi possível excluir os produtos.',true);
     }
+    return;
+  }
+  const totalEdit=e.target.closest('[data-pdv-total-edit]');
+  if(totalEdit){
+    const editor=document.getElementById('pdvTotalEditor'),input=document.getElementById('pdvTotalEditInput');
+    if(editor&&input){input.value=formatCurrencyDigits(String(Math.round(pdvCheckoutTotals().total*100)));editor.classList.remove('hidden');input.focus();}
+    return;
+  }
+  if(e.target.closest('[data-pdv-total-cancel]')){document.getElementById('pdvTotalEditor')?.classList.add('hidden');return;}
+  if(e.target.closest('[data-pdv-total-save]')){
+    const input=document.getElementById('pdvTotalEditInput'),subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
+    const desired=parseMoneyInput(input?.value||'');
+    if(!Number.isFinite(desired)||desired<0||desired>subtotal||Math.abs(desired*100-Math.round(desired*100))>1e-6){
+      msg('Informe um total entre R$ 0,00 e o subtotal, com até duas casas decimais.',true);return;
+    }
+    pdvDiscountAmount=formatCurrencyDigits(String(Math.round((subtotal-desired)*100)));
+    updatePdvEstimates();
+    document.getElementById('pdvTotalEditor')?.classList.add('hidden');
+    msg('Total da venda atualizado.');
     return;
   }
   if(e.target.closest('[data-floating-sale-toggle]')){pdvCheckoutOpen=!pdvCheckoutOpen;renderPage();return;}
