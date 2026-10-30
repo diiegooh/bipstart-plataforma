@@ -5218,3 +5218,18 @@ body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvDiscountFields
 body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvDiscountFields:not(.hidden) input:focus{
  border-color:#aa88ff!important;outline:2px solid #9877ff45!important;
 }
+
+
+/* PDV: edição manual do total pelo botão de lápis no carrinho. */
+#workspace #page .godzilla-pdv .pdv-total-due{display:flex!important;align-items:center!important;gap:9px!important;}
+#workspace #page .godzilla-pdv .pdv-total-due>span{flex:1 1 auto!important;}
+#workspace #page .godzilla-pdv .pdv-total-edit{display:inline-grid!important;place-items:center!important;flex:0 0 36px!important;width:36px!important;height:36px!important;min-height:36px!important;padding:0!important;border:1px solid #8062bd!important;border-radius:9px!important;background:#35264d!important;color:#fff!important;font-size:19px!important;line-height:1!important;cursor:pointer!important;}
+#workspace #page .godzilla-pdv .pdv-total-edit:hover{background:#49356a!important;border-color:#b18cff!important;}
+#workspace #page .godzilla-pdv .pdv-total-editor{margin:0 0 12px;padding:11px;border:1px solid #604880;border-radius:11px;background:#1b1428;color:#f4f4f8;}
+#workspace #page .godzilla-pdv .pdv-total-editor.hidden{display:none!important;}
+#workspace #page .godzilla-pdv .pdv-total-editor label{margin:0 0 6px;font-size:13px;}
+#workspace #page .godzilla-pdv .pdv-total-editor input{margin:0;}
+#workspace #page .godzilla-pdv .pdv-total-editor-actions{display:flex;gap:8px;margin-top:9px;}
+#workspace #page .godzilla-pdv .pdv-total-editor-actions button{flex:1;min-height:39px;padding:8px 10px;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-total-editor{background:#22252d!important;border-color:#343741!important;color:#f4f4f8!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-total-editor input{background:#2b2f39!important;color:#fff!important;border-color:#505463!important;}
