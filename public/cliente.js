@@ -2205,17 +2205,30 @@ function applyPdvCategoryFontSizes(){
  }
  const tiles=root.querySelectorAll('.godzilla-pdv .pdv-category-tiles .pdv-category-tile');
  tiles.forEach(tile=>{
-  // Quadrado responsivo: a largura da coluna determina a altura do card.
-  tile.style.setProperty('height','auto','important');
-  tile.style.setProperty('min-height','0','important');
-  tile.style.setProperty('max-height','none','important');
-  tile.style.setProperty('aspect-ratio','1 / 1','important');
+  // Homologação: categorias retangulares 110 x 58 px, com espaço mínimo entre cards.
+  for(const property of ['width','min-width','max-width']){
+   tile.style.setProperty(property,'100%','important');
+  }
+  for(const property of ['height','min-height','max-height']){
+   tile.style.setProperty(property,'58px','important');
+  }
+  tile.style.setProperty('flex','none','important');
+  tile.style.setProperty('aspect-ratio','auto','important');
   tile.style.setProperty('box-sizing','border-box','important');
-  tile.style.setProperty('padding','12px 10px','important');
-  tile.style.setProperty('gap','6px','important');
+  tile.style.setProperty('display','flex','important');
+  tile.style.setProperty('flex-direction','column','important');
+  tile.style.setProperty('align-items','center','important');
+  tile.style.setProperty('justify-content','center','important');
+  tile.style.setProperty('padding','3px 4px','important');
+  tile.style.setProperty('gap','2px','important');
+  tile.style.setProperty('border-radius','8px','important');
   tile.style.setProperty('overflow','hidden','important');
   const icon=tile.querySelector('span[aria-hidden]');
-  if(icon)icon.style.setProperty('flex-shrink','0','important');
+  if(icon){
+   icon.style.setProperty('flex-shrink','0','important');
+   icon.style.setProperty('font-size','18px','important');
+   icon.style.setProperty('line-height','1','important');
+  }
   const name=tile.querySelector('strong');
   if(!name)return;
   name.style.setProperty('display','block','important');
@@ -2230,21 +2243,19 @@ function applyPdvCategoryFontSizes(){
   name.style.setProperty('word-break','normal','important');
   name.style.setProperty('hyphens','none','important');
   name.style.setProperty('text-overflow','clip','important');
-  name.style.setProperty('overflow','visible','important');
-  // Calcula o espaço real disponível depois do ícone e do padding.
+  name.style.setProperty('overflow','hidden','important');
   const st=window.getComputedStyle(tile);
   const pad=parseFloat(st.paddingTop)+parseFloat(st.paddingBottom);
   const gap=parseFloat(st.rowGap)||0;
   const availableHeight=tile.clientHeight-pad-(icon?.offsetHeight||0)-(icon?gap:0);
   let fits=false;
-  for(const size of [30,28,26,24,22,20,18,16,14,12]){
+  for(const size of [12,11,10]){
    name.style.setProperty('font-size',size+'px','important');
    if(name.scrollWidth<=name.clientWidth+1 && name.scrollHeight<=availableHeight+1){
     fits=true;
     break;
    }
   }
-  // Apenas nomes extraordinariamente longos são truncados, sem partir palavras.
   if(!fits){
    name.style.setProperty('white-space','nowrap','important');
    name.style.setProperty('text-overflow','ellipsis','important');
@@ -2294,29 +2305,15 @@ function applyPdvFloatingFullWidth(){
   list.style.setProperty('display','grid','important');
   list.style.removeProperty('flex-wrap');
   const isCategory=cls==='.pdv-category-tiles';
-  const narrow=window.matchMedia('(max-width:700px)').matches;
   const columns=isCategory
-   ?(narrow?'repeat(2,minmax(0,1fr))':'repeat(6,minmax(0,1fr))')
-   :(narrow?'repeat(2,minmax(0,1fr))':'repeat(5,minmax(0,1fr))');
+    ?(window.matchMedia('(max-width:700px)').matches?'repeat(2,minmax(0,1fr))':'repeat(6,minmax(0,1fr))')
+    :(window.matchMedia('(max-width:700px)').matches?'repeat(2,minmax(0,1fr))':'repeat(5,minmax(0,1fr))');
   list.style.setProperty('grid-template-columns',columns,'important');
-  if(isCategory){
-   list.style.setProperty('gap','3px','important');
-  }else{
-   list.style.setProperty('grid-auto-rows','145px','important');
-   list.style.setProperty('gap','8px','important');
-   list.style.setProperty('max-height','451px','important');
-   list.style.setProperty('overflow-y','auto','important');
-   layout.querySelectorAll('.pdv-product-wrap > .pdv-product').forEach(card=>{
-    card.style.setProperty('height','145px','important');
-    card.style.setProperty('min-height','145px','important');
-    card.style.setProperty('max-height','145px','important');
-    card.style.setProperty('aspect-ratio','auto','important');
-   });
-  }
   list.style.setProperty('align-items','start','important');
+  list.style.setProperty('justify-content',isCategory?'start':'stretch','important');
   list.style.setProperty('width','100%','important');
   list.style.setProperty('max-width','none','important');
-  list.style.setProperty('gap','12px','important');
+  list.style.setProperty('gap',isCategory?'3px':'8px','important');
  }
 }
 
@@ -2359,6 +2356,8 @@ function renderPage(){
       empty('Nenhum pedido online registrado. Compartilhe seu cardápio para receber pedidos.'))+'</div>';
     if(proAccess())content+='<div class="orders-premium"><strong>Entregas com motoboys</strong><p>Use “Criar entrega para este pedido” para vincular o motoboy. Ao marcar “Entregue”, ele finalizará o pedido online automaticamente.</p>'+
       '<button type="button" class="ghost" data-nav="entregas">Abrir fila de entregas</button></div>';
+  }else if(tab==='comandas'){
+    content=renderComandas();
   }else if(tab==='caixa'){
     content=renderGodzillaPDV();
   }else if(tab==='vendas'){
@@ -2419,10 +2418,7 @@ function renderPage(){
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +logoSection+'</div>':'')
       +(isMenu?'<section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+cardapioLayoutSettings()+receiptSettingsPanel()+categoryImagesSettings():'')+
-      '<section class="receipt-settings-panel"><h3>Excluir todas as categorias</h3>'+
-      '<p class="muted">Remove as categorias cadastradas nesta loja e coloca os produtos existentes na categoria Geral. Não apaga produtos, estoque, preços nem histórico de vendas. Esta ação não pode ser desfeita automaticamente.</p>'+
-      '<button type="button" class="ghost" data-delete-all-categories style="border:1px solid #d14457;color:#d14457">Excluir todas as categorias</button></section>'+
-      '<section class="receipt-settings-panel"><h3>Excluir todo o estoque</h3><p class="muted">Exclui permanentemente todos os produtos cadastrados nesta loja, incluindo seus preços, imagens associadas ao cadastro e quantidades. O histórico de vendas é preservado. Esta ação não pode ser desfeita.</p><button type="button" class="ghost" data-delete-all-stock style="border:1px solid #d14457;color:#d14457">Excluir todos os produtos</button></section>'+
+      '<section class="receipt-settings-panel"><h3>Zerar estoque</h3><p class="muted">Define como zero a quantidade em estoque de todos os produtos cadastrados nesta loja. Não exclui produtos, preços ou histórico de vendas. Esta ação não pode ser desfeita automaticamente.</p><button type="button" class="ghost" data-reset-stock style="border:1px solid #d14457;color:#d14457">Zerar todo o estoque</button></section>'+
        '<button type="submit" class="button settings-save-button" style="background-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;border-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;color:'+getSystemAccentInk()+' !important;">Salvar</button></form></div>';
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
