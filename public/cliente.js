@@ -2014,6 +2014,17 @@ window.applySalesNightStyles=applySalesNightStyles;
 function applyPdvCategoryFontSizes(){
  const root=$('page');
  if(!root)return;
+ const categoryGrid=root.querySelector('.godzilla-pdv .pdv-category-tiles');
+ if(categoryGrid){
+  const columns=window.matchMedia('(max-width:700px)').matches
+   ?'repeat(2,minmax(0,1fr))'
+   :'repeat(6,minmax(0,1fr))';
+  categoryGrid.style.setProperty('display','grid','important');
+  categoryGrid.style.setProperty('grid-template-columns',columns,'important');
+  categoryGrid.style.setProperty('justify-content','start','important');
+  categoryGrid.style.setProperty('gap','3px','important');
+  categoryGrid.style.setProperty('width','100%','important');
+ }
  const tiles=root.querySelectorAll('.godzilla-pdv .pdv-category-tiles .pdv-category-tile');
  tiles.forEach(tile=>{
   // Homologação: categorias retangulares 110 x 58 px, com espaço mínimo entre cards.
