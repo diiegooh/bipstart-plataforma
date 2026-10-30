@@ -2129,13 +2129,13 @@ function applyPdvFloatingFullWidth(){
   const isCategory=cls==='.pdv-category-tiles';
   const columns=isCategory
     ?(window.matchMedia('(max-width:700px)').matches?'repeat(2,minmax(0,1fr))':'repeat(6,minmax(0,1fr))')
-    :(window.matchMedia('(max-width:600px)').matches?'repeat(2,minmax(0,1fr))':'repeat(auto-fill,minmax(min(100%,144px),1fr))');
+    :(window.matchMedia('(max-width:700px)').matches?'repeat(2,minmax(0,1fr))':'repeat(5,minmax(0,1fr))');
   list.style.setProperty('grid-template-columns',columns,'important');
   list.style.setProperty('align-items','start','important');
   list.style.setProperty('justify-content',isCategory?'start':'stretch','important');
   list.style.setProperty('width','100%','important');
   list.style.setProperty('max-width','none','important');
-  list.style.setProperty('gap',isCategory?'3px':'12px','important');
+  list.style.setProperty('gap',isCategory?'3px':'8px','important');
  }
 }
 
