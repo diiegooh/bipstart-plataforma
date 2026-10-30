@@ -5060,3 +5060,25 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pd
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
   }
 }
+
+/* Homologação: grade compacta de 5 colunas por 3 fileiras no PDV. */
+body #workspace #page .godzilla-pdv .pdv-products,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-products{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-products > .pdv-product-wrap > .pdv-product,
+body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-products > .pdv-product-wrap > .pdv-product{
+  aspect-ratio:auto!important;
+  height:145px!important;
+  min-height:145px!important;
+  max-height:145px!important;
+}
+@media(max-width:700px){
+  body #workspace #page .godzilla-pdv .pdv-products,
+  body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-products{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+}
