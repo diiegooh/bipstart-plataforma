@@ -1666,8 +1666,8 @@ function renderGodzillaPDV(){
  '<span class="pdv-card-kind-label" id="pdvCardKindLabel">Tipo de cartão</span>'+
  '<div class="pdv-card-kinds" role="group" aria-labelledby="pdvCardKindLabel">'+cardTypeButtons+'</div>'+
  '<label>Taxa da maquininha (%)<input id="pdvFeePercent" name="card_fee_percent" type="number" min="0" max="100" step="0.01" value="'+esc(pdvCardFeePercent)+'"></label>'+
- '<div class="pdv-calculation">Desconto da maquininha <strong id="pdvFeeAmount">−'+fmt(Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
- '<div class="pdv-calculation">Líquido estimado <strong id="pdvNet">'+fmt(checkout.total-Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
+ '<div class="pdv-calculation hidden">Desconto da maquininha <strong id="pdvFeeAmount">−'+fmt(Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
+ '<div class="pdv-calculation hidden">Líquido estimado <strong id="pdvNet">'+fmt(checkout.total-Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
  '<small class="muted">Taxa registrada na venda e descontada do lucro no relatório; a BipStart não processa pagamentos.</small></div>'+
  '<button type="submit" class="button pdv-finish" '+(!cart.length||!checkout.valid?'disabled':'')+'>Finalizar venda ↗</button>'+
  '</form>'+
