@@ -5241,3 +5241,18 @@ body.pdv-night #workspace #page .godzilla-pdv .pdv-total-editor input{background
 #workspace #page .godzilla-pdv .pdv-total-editor input{width:100%!important;min-width:0!important;margin:0!important;}
 #workspace #page .godzilla-pdv .pdv-total-editor-actions{grid-column:1/-1!important;width:100%!important;margin-top:0!important;}
 @media(max-width:380px){#workspace #page .godzilla-pdv .pdv-total-editor{grid-template-columns:1fr!important;row-gap:5px!important;}#workspace #page .godzilla-pdv .pdv-total-editor-actions{grid-column:1!important;}}
+
+
+/* Editor do total: harmoniza o card aberto com o carrinho em modo noite. */
+body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden),
+body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden){
+ background:#22252d!important;background-image:none!important;border:1px solid #343741!important;border-radius:12px!important;color:#f4f4f8!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden)>label,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) .pdv-total-editor-actions,
+body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden)>label,
+body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) .pdv-total-editor-actions{background:transparent!important;color:#f4f4f8!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) input,
+body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) input{background:#2b2f39!important;background-image:none!important;color:#fff!important;border-color:#505463!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) [data-pdv-total-cancel],
+body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) [data-pdv-total-cancel]{background:#2b2f39!important;color:#eeeaf8!important;border-color:#505463!important;}
