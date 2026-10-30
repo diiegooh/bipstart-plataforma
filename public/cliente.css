@@ -5200,3 +5200,21 @@ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles > .
   grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;
  }
 }
+
+
+/* Carrinho em modo noite: acabamento específico do card de desconto. */
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvDiscountFields:not(.hidden){
+ background:#22252d!important;background-image:none!important;color:#f4f4f8!important;border:1px solid #343741!important;border-radius:12px!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvDiscountFields:not(.hidden) label,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvDiscountFields:not(.hidden) small,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvDiscountFields:not(.hidden) .pdv-calculation,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvDiscountFields:not(.hidden) .pdv-calculation strong{
+ background:transparent!important;color:#f4f4f8!important;-webkit-text-fill-color:#f4f4f8!important;border-color:transparent!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvDiscountFields:not(.hidden) input{
+ background:#2b2f39!important;color:#f4f4f8!important;-webkit-text-fill-color:#f4f4f8!important;border:1px solid #505463!important;border-radius:9px!important;
+}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvDiscountFields:not(.hidden) input:focus{
+ border-color:#aa88ff!important;outline:2px solid #9877ff45!important;
+}
