@@ -5269,3 +5269,12 @@ body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total
 /* Cor fixa do card de edição do total no tema escuro. */
 body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor:not(.hidden){background:#22252d!important;background-image:none!important;border-color:#343741!important;color:#f4f4f8!important;box-shadow:none!important;}
 body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row{background:transparent!important;color:#f4f4f8!important;}
+
+
+/* PDV: compacta e alinha o editor de total dentro dos limites do carrinho. */
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor:not(.hidden){box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:7px 0 9px!important;padding:8px!important;gap:7px!important;overflow:hidden!important;}
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row{box-sizing:border-box!important;width:100%!important;min-width:0!important;gap:8px!important;overflow:hidden!important;}
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row label{box-sizing:border-box!important;flex:0 0 82px!important;width:82px!important;min-width:0!important;padding:0!important;line-height:1.2!important;}
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row input{box-sizing:border-box!important;flex:1 1 0!important;width:0!important;min-width:0!important;height:42px!important;min-height:42px!important;padding:8px 10px!important;}
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions{box-sizing:border-box!important;justify-content:flex-start!important;align-items:center!important;gap:7px!important;min-height:36px!important;}
+body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions button{flex:0 1 auto!important;width:auto!important;min-height:36px!important;margin:0!important;padding:7px 13px!important;}
