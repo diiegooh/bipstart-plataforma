@@ -2036,7 +2036,7 @@ function applySettingsNightStyles(){
  if(!form)return;
  const dark=document.body.classList.contains('pdv-night');
  const surfaces=[
-  '.menu-settings','.menu-payments','.menu-logo-settings','.menu-logo-editor',
+  '.settings-category','.menu-settings','.menu-payments','.menu-logo-settings','.menu-logo-editor',
   '.menu-layout-settings','.menu-layout-fields','.menu-layout-subtitle',
   '.receipt-settings-panel','.receipt-settings-fields',
   '.category-image-settings','.category-image-settings-list','.category-image-setting-row',
@@ -2402,20 +2402,23 @@ function renderPage(){
     content=heading('Configurações da loja','')
       +planManagementCard()
       +'<div class="data-form"><form id="settingsForm">'
+      +'<section class="settings-category" aria-labelledby="settings-store-title"><h2 id="settings-store-title">Dados da loja</h2><div class="settings-category-fields">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
       +(isMenu?establishmentTypeField():'')
+      +'</div></section>'
+      +((canCustomize()||logoAllowed)?'<section class="settings-category" aria-labelledby="settings-brand-title"><h2 id="settings-brand-title">Aparência</h2>'+logoSection:'')
       +(canCustomize()?field('brand_color','COR DO SISTEMA','color',shop.brand_color||'#7c3aed')+'<p class="muted small">Cor aplicada aos botões, seleções, destaques e cardápio online.</p>':'')
-      
-      +(isMenu?'<div class="menu-settings">'
+      +((canCustomize()||logoAllowed)?'</section>':'')
+      +(isMenu?'<section class="settings-category" aria-labelledby="settings-service-title"><h2 id="settings-service-title">Atendimento e entrega</h2><div class="settings-category-fields">'
        +field('opening_hours','Horário de atendimento','text',shop.opening_hours||'','maxlength="160" placeholder="Ex.: Segunda a sábado, 18h às 23h"')
        +field('location_text','Localização ou endereço','text',shop.location_text||'','maxlength="240" placeholder="Ex.: Rua das Flores, 100 — Centro"')
        +field('delivery_fee','Taxa de entrega (R$)','number',shop.delivery_fee??0,'min="0" max="9999.99" step="0.01"')
-       +'<fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
+       +'</div></section><section class="settings-category" aria-labelledby="settings-payment-title"><h2 id="settings-payment-title">Pagamentos</h2><fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
-       +logoSection+'</div>':'')
-      +(isMenu?'<section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+cardapioLayoutSettings()+receiptSettingsPanel()+categoryImagesSettings():'')+
-      '<section class="receipt-settings-panel"><h3>Zerar estoque</h3><p class="muted">Define como zero a quantidade em estoque de todos os produtos cadastrados nesta loja. Não exclui produtos, preços ou histórico de vendas. Esta ação não pode ser desfeita automaticamente.</p><button type="button" class="ghost" data-reset-stock style="border:1px solid #d14457;color:#d14457">Zerar todo o estoque</button></section>'+
+       +'</section>':'')
+      +(isMenu?'<section class="settings-category" aria-labelledby="settings-pdv-title"><h2 id="settings-pdv-title">PDV e comprovantes</h2><section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+receiptSettingsPanel()+'</section><section class="settings-category" aria-labelledby="settings-menu-title"><h2 id="settings-menu-title">Cardápio e categorias</h2>'+cardapioLayoutSettings()+categoryImagesSettings()+'</section>':'')+
+      '<section class="settings-category" aria-labelledby="settings-stock-title"><h2 id="settings-stock-title">Estoque</h2><section class="receipt-settings-panel"><h3>Zerar estoque</h3><p class="muted">Define como zero a quantidade em estoque de todos os produtos cadastrados nesta loja. Não exclui produtos, preços ou histórico de vendas. Esta ação não pode ser desfeita automaticamente.</p><button type="button" class="ghost" data-reset-stock style="border:1px solid #d14457;color:#d14457">Zerar todo o estoque</button></section></section>'+
        '<button type="submit" class="button settings-save-button" style="background-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;border-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;color:'+getSystemAccentInk()+' !important;">Salvar</button></form></div>';
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
