@@ -5293,3 +5293,15 @@ body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total
 #settingsForm .settings-category-fields input{width:100%;box-sizing:border-box}
 body.pdv-night #settingsForm > .settings-category > h2{border-color:#393d49}
 @media(max-width:640px){#settingsForm > .settings-category{padding:16px}#settingsForm .settings-category-fields{grid-template-columns:1fr}}
+
+/* Navegação das configurações: lateral no topo e compacta no celular. */
+.settings-layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:20px;align-items:start}
+.settings-layout > .data-form{min-width:0;margin:0}
+.settings-category-nav{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid #e2d8ee;border-radius:14px;background:#faf8ff}
+.settings-category-nav button{width:100%;text-align:left;padding:12px;border:1px solid transparent;border-radius:9px;background:transparent;color:#24163d;font:inherit;cursor:pointer}
+.settings-category-nav button.is-active{background:var(--store-accent,#7c3aed);color:var(--store-accent-ink,#fff);font-weight:700}
+.settings-category-nav button:focus-visible{outline:2px solid var(--store-accent,#7c3aed);outline-offset:2px}
+#settingsForm > .settings-category[hidden]{display:none!important}
+body.pdv-night .settings-category-nav{background:#22252d;border-color:#393d49}
+body.pdv-night .settings-category-nav button:not(.is-active){color:#f4f4f8}
+@media(max-width:800px){.settings-layout{grid-template-columns:1fr}.settings-category-nav{flex-direction:row;overflow-x:auto}.settings-category-nav button{width:auto;flex-shrink:0;white-space:nowrap}}
