@@ -2030,6 +2030,45 @@ function applyInventoryNightStyles(){
 }
 window.applyInventoryNightStyles=applyInventoryNightStyles;
 
+let settingsCategoryId='settings-store-title';
+function setupSettingsCategories(){
+ const form=$('settingsForm');
+ if(!form)return;
+ const panels=Array.from(form.querySelectorAll(':scope > .settings-category'));
+ const layout=document.createElement('div');
+ layout.className='settings-layout';
+ form.parentElement.before(layout);
+ const navigation=document.createElement('nav');
+ navigation.className='settings-category-nav';
+ navigation.setAttribute('aria-label','Categorias das configurações');
+ layout.append(navigation,form.parentElement);
+ const select=id=>{
+  settingsCategoryId=id;
+  panels.forEach(panel=>{panel.hidden=panel.getAttribute('aria-labelledby')!==id;});
+  navigation.querySelectorAll('button').forEach(button=>{
+   const active=button.dataset.settingsCategory===id;
+   button.classList.toggle('is-active',active);
+   if(active)button.setAttribute('aria-current','true');
+   else button.removeAttribute('aria-current');
+  });
+ };
+ panels.forEach((panel,index)=>{
+  panel.id='settings-panel-'+index;
+  const button=document.createElement('button');
+  button.type='button';
+  button.textContent=panel.querySelector('h2').textContent;
+  button.dataset.settingsCategory=panel.getAttribute('aria-labelledby');
+  button.setAttribute('aria-controls',panel.id);
+  button.addEventListener('click',()=>select(button.dataset.settingsCategory));
+  navigation.append(button);
+ });
+ form.addEventListener('invalid',event=>{
+  const panel=event.target.closest('.settings-category');
+  if(panel)select(panel.getAttribute('aria-labelledby'));
+ },true);
+ select(panels.some(panel=>panel.getAttribute('aria-labelledby')===settingsCategoryId)?settingsCategoryId:panels[0].getAttribute('aria-labelledby'));
+}
+
 /* Configurações da loja: padronização real dos cards ao ativar o modo noite. */
 function applySettingsNightStyles(){
  const form=$('settingsForm');
@@ -2428,7 +2467,7 @@ function renderPage(){
   }
   $('page').innerHTML=content;
   if(tab==='produtos')applyInventoryNightStyles();
-   if(tab==='configuracoes')applySettingsNightStyles();
+   if(tab==='configuracoes'){setupSettingsCategories();applySettingsNightStyles();}
    if(tab==='vendas')applySalesNightStyles();
    if(tab==='caixa')applyPdvFloatingFullWidth();
    if(tab==='caixa')applyPdvCategoryFontSizes();
