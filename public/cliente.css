@@ -5284,3 +5284,12 @@ body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total
 body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions{display:grid!important;grid-template-columns:max-content max-content!important;grid-auto-flow:column!important;justify-content:start!important;align-items:center!important;column-gap:10px!important;row-gap:0!important;position:relative!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;min-height:40px!important;}
 body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions>button{position:static!important;display:inline-flex!important;float:none!important;transform:none!important;box-sizing:border-box!important;flex:none!important;width:auto!important;min-width:90px!important;max-width:100%!important;margin:0!important;}
 @media(max-width:340px){body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;}body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions>button{min-width:0!important;}}
+
+/* Categorias das configurações da loja. */
+#settingsForm > .settings-category{display:grid;gap:16px;padding:20px;border:1px solid #e2d8ee;border-radius:16px;margin:0 0 20px;min-width:0}
+#settingsForm > .settings-category > h2{font-size:20px;line-height:1.3;margin:0;padding-bottom:12px;border-bottom:1px solid #e2d8ee}
+#settingsForm .settings-category-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;min-width:0}
+#settingsForm .settings-category-fields > label{min-width:0;margin:0}
+#settingsForm .settings-category-fields input{width:100%;box-sizing:border-box}
+body.pdv-night #settingsForm > .settings-category > h2{border-color:#393d49}
+@media(max-width:640px){#settingsForm > .settings-category{padding:16px}#settingsForm .settings-category-fields{grid-template-columns:1fr}}
