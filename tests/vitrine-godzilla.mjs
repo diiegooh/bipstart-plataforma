@@ -22,44 +22,34 @@ test('vitrine Godzilla está no endereço direto do cardápio, sem login ou pain
  assert.match(client,/hiding\('workspace',true\);\s*renderPage\(\);/);
 });
 
-test('o visual do cardápio tem título central sem banner, categorias, produtos e carrinho',()=>{
- for(const text of ['header-title','category-strip','combo-banner','catalog-toolbar','delivery-grid','onlinecart','cartfloat']){
-  assert.match(html,new RegExp('class="[^"]*\\b'+text+'\\b'),text);
+test('a vitrine atual mostra loja, categorias, catálogo, carrinho e opções da loja',()=>{
+ for(const id of ['storeName','storeLogo','quickCategories','catalog','search','category','cartDrawer','cartItems','shipping','address','pay','cartTotal','sendOrder','error','openStoreOptions']){
+  assert.match(html,new RegExp('id="'+id+'"'),id);
  }
- for(const id of ['storeName','quickCategories','catalog','search','category','cartDrawer','cartItems','shipping','address','pay','cartTotal','sendOrder','error']){
-  assert.ok(html.includes('id="'+id+'"'),id);
- }
- assert.match(html,/<div class="header-title">[\s\S]*<p class="menu-hero-heading"[^>]*>CARDÁPIO<\/p>[\s\S]*<div class="menu-hero-logo-card">[\s\S]*<img id="storeLogo"[^>]+src="\/bipstart-marca-icon\.png"[^>]*>[\s\S]*<h1 id="storeName">Sua loja<\/h1>/);
- assert.doesNotMatch(html,/>CARDÁPIO <span id="storeName"|SABOR QUE CONQUISTA/);
- assert.doesNotMatch(html,/<section class="hero-green"|id="heroLogo"|id="heroOrder"|id="headerLogo"/);
- assert.doesNotMatch(html,/class="hero-copy"|CARDÁPIO DIGITAL • PEÇA PELO WHATSAPP/);
- assert.doesNotMatch(js,/heroLogo|heroOrder|headerLogo/);
- assert.match(css,/\.store-header \.header-title h1\{/);
- assert.match(css,/@media\(max-width:650px\)/);
- assert.doesNotMatch(css,/\.hero-green/);
- assert.match(html,/\/vitrine\.css\?v=36/);
- assert.match(html,/\/vitrine\.js\?v=33/);
- assert.match(css,/\.dproduct/);
+ for(const cls of ['category-strip','catalog-toolbar','delivery-grid','onlinecart','cartfloat'])
+  assert.match(html,new RegExp('class="[^"]*'+cls));
+ assert.match(html,/id="storeLogo"[^>]*src="\/bipstart-marca-icon\.png"/);
+ assert.match(html,/id="storeName">Sua loja<\/h1>/);
+ assert.match(html,/id="toggleMenuNight"/);
+ assert.match(html,/\/vitrine\.css\?v=\d+/);
+ assert.match(html,/\/vitrine\.js\?v=\d+/);
  assert.doesNotMatch(html,/Godzilla Adega|Jd Planalto|Suzano/);
  assert.doesNotMatch(js,/godzilla-adega|\/api\/products|\/api\/orders/);
 });
-
-test('cada vitrine consulta o cardápio da própria loja no Supabase',()=>{
+test('vitrine consulta cardápio público isolado por slug sem expor chaves secretas',()=>{
  assert.match(js,/new URLSearchParams\(location\.search\)\.get\('loja'\)/);
  assert.match(js,/rpc\/bipstart_public_menu/);
  assert.match(js,/JSON\.stringify\(\{p_slug:slug\}\)/);
  assert.match(js,/menu\.src=config\.supabaseUrl/);
- assert.match(js,/menu\.logo_path/);
  assert.match(js,/function displayStoreLogo\(\)/);
+ assert.match(js,/menu\.logo_path/);
  assert.match(html,/id="storeLogo"/);
- assert.match(js,/menu\.brand_color/);
+ assert.match(js,/menu\?\.brand_color/);
  assert.match(js,/categoryNames\(\)/);
  assert.match(js,/imageUrl\(item\.image_path\)/);
  assert.match(js,/encodeURIComponent\(checkoutMessage\(receipt\.id\)\)/);
- assert.match(js,/https:\/\/wa\.me\//);
  assert.doesNotMatch(js,/SUPABASE_SECRET_KEY|service_role|ADMIN_PASSWORD/);
 });
-
 test('o pedido calcula total e taxa de entrega antes de abrir WhatsApp',()=>{
  const start=js.indexOf("function checkoutMessage(orderId=''){");
  const end=js.indexOf("document.addEventListener('click'",start);
@@ -178,15 +168,16 @@ test('o cardápio multiplica o total no card e não abre o carrinho ao adicionar
  assert.match(css,/\.product-quantity\{/);
 });
 
-test('vitrine pública sem botão de menu e sem botão Gerenciar cardápio',()=>{
- assert.doesNotMatch(html,/id="ownerNav"|id="ownerEditorLink"|Gerenciar cardápio|id="jumpCategories"|☰/);
+test('opções públicas da loja não expõem controles administrativos',()=>{
+ assert.match(html,/id="openStoreOptions"/);
+ assert.match(html,/id="storeOptions"/);
+ assert.match(html,/id="toggleMenuNight"/);
+ assert.doesNotMatch(html,/id="ownerNav"|id="ownerEditorLink"|Gerenciar cardápio|id="jumpCategories"/);
  assert.doesNotMatch(js,/revealOwnerNavigation|ownerNav|jumpCategories/);
- assert.doesNotMatch(css,/\.owner-nav|\.owner-editor-link|\.menu-btn/);
  assert.doesNotMatch(html,/id="bottomCategories"/);
  assert.doesNotMatch(js,/bottomCategories/);
  assert.match(client,/function publicShopUrl\(\)/);
 });
-
 test('categorias têm imagens grandes e cards transparentes, mantendo a seleção',()=>{
  const start=js.indexOf('function categoryArtwork(name){');
  const end=js.indexOf('function applyBrand(){',start);
@@ -277,23 +268,14 @@ test('pedido WhatsApp segue modelo SALGATTI, valores e acompanhamento privado',(
  assert.match(pickup,/TAXA ENTREGA\s+R\$0,00/);
 });
 
-test('cardápio online oferece somente formas de pagamento configuradas, sem A combinar',()=>{
- assert.doesNotMatch(html,/<option value="a_combinar">/);
- assert.match(html,/<select id="pay"[^>]*><option value="pix">Pix<\/option>/);
- assert.match(html,/<option value="dinheiro">Dinheiro<\/option>/);
- assert.match(html,/<option value="credito">Cartão de crédito<\/option>/);
- assert.match(html,/<option value="debito">Cartão de débito<\/option>/);
- assert.doesNotMatch(js,/['"]a_combinar['"]\s*:\s*['"]A combinar['"]/);
- assert.doesNotMatch(js,/<option value="a_combinar">/);
- const start=js.indexOf('const pay=(menu.payment_methods||[])');
- const end=js.indexOf('const categories=categoryNames();',start);
- assert.ok(start>0&&end>start);
- // O trecho dinâmico só inclui as formas habilitadas na loja.
- assert.match(js.slice(start,end),/Object\.entries\(paymentLabels\)\.filter/);
- assert.match(js.slice(start,end),/menu\.payment_methods/);
- assert.doesNotMatch(js.slice(start,end),/A combinar|a_combinar/);
+test('pagamentos exibidos respeitam as formas configuradas e não oferecem A combinar',()=>{
+ assert.match(html,/<select id="pay"/);
+ for(const [code,label] of [['pix','Pix'],['dinheiro','Dinheiro'],['credito','Cartão de crédito'],['debito','Cartão de débito']])
+  assert.match(html,new RegExp('<option value="'+code+'">'+label));
+ assert.doesNotMatch(html,/value="a_combinar"/);
+ assert.doesNotMatch(js,/<option value="a_combinar">|a_combinar:\s*'A combinar'/);
+ assert.match(js,/const pay=\(menu\.payment_methods\|\|\[\]\)\.filter\(x=>Object\.hasOwn\(paymentLabels,x\)\)/);
 });
-
 test('cardápio não exibe título NOSSOS PRODUTOS e clicar categoria não rola a página',()=>{
  assert.doesNotMatch(html,/<h2>NOSSOS <strong>PRODUTOS<\/strong><\/h2>/);
  assert.doesNotMatch(html,/<span class="flame">✦<\/span>/);

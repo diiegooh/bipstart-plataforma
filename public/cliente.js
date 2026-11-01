@@ -1730,8 +1730,8 @@ function onlineOrderCard(order){
  const orderOpen=status!=='cancelled'&&status!=='fulfilled';
  const awaiting=status==='awaiting_confirmation';
  const items=Array.isArray(order.items)?order.items:[];
- const phone=String(order.customer_phone||'').replace(/\\D/g,'');
- const phoneValid=/^\\d{10,13}$/.test(phone);
+ const phone=String(order.customer_phone||'').replace(/\D/g,'');
+ const phoneValid=/^\d{10,13}$/.test(phone);
  const phoneUri=phoneValid?'<a href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone||'Não informado');
  const contact=phoneValid?' <a target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'">WhatsApp</a>':'';
  const delivery=order.delivery_method==='delivery';
@@ -2028,7 +2028,7 @@ function applyInventoryNightStyles(){
   'border-bottom-color':'#393d49'
  });
 }
-window.applyInventoryNightStyles=applyInventoryNightStyles;
+if(typeof window!=='undefined')window.applyInventoryNightStyles=applyInventoryNightStyles;
 
 /* Configurações da loja: padronização real dos cards ao ativar o modo noite. */
 function applySettingsNightStyles(){
@@ -2075,7 +2075,7 @@ function applySettingsNightStyles(){
   {'background':'#2b2f39','background-image':'none','border-color':'#454957','color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8'}
  );
 }
-window.applySettingsNightStyles=applySettingsNightStyles;
+if(typeof window!=='undefined')window.applySettingsNightStyles=applySettingsNightStyles;
 
 
 /* Histórico de vendas: aplicar o tema noite também aos cards reconstruídos por renderPage. */
@@ -2169,7 +2169,7 @@ function applySalesNightStyles(){
   '-webkit-text-fill-color':'#fff','color-scheme':'dark'
  });
 }
-window.applySalesNightStyles=applySalesNightStyles;
+if(typeof window!=='undefined')window.applySalesNightStyles=applySalesNightStyles;
 
 
 /* Cards de categorias do PDV: aplicar tamanho diretamente ao DOM,
@@ -2262,17 +2262,19 @@ function applyPdvCategoryFontSizes(){
  });
 }
 let pdvCategoriesResizePending=false;
-window.addEventListener('resize',()=>{
- if(pdvCategoriesResizePending)return;
- pdvCategoriesResizePending=true;
- window.requestAnimationFrame(()=>{
-  pdvCategoriesResizePending=false;
-  if(tab==='caixa'){
-   applyPdvFloatingFullWidth();
-   applyPdvCategoryFontSizes();
-  }
+if(typeof window!=='undefined' && typeof window.addEventListener==='function'){
+ window.addEventListener('resize',()=>{
+  if(pdvCategoriesResizePending)return;
+  pdvCategoriesResizePending=true;
+  window.requestAnimationFrame(()=>{
+   pdvCategoriesResizePending=false;
+   if(tab==='caixa'){
+    applyPdvFloatingFullWidth();
+    applyPdvCategoryFontSizes();
+   }
+  });
  });
-});
+}
 
 /* Quando o carrinho flutuante substitui a coluna de caixa, ocupar toda a linha.
    Flex wrap preenche inclusive a última linha com menos cards. */
