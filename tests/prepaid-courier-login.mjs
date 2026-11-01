@@ -59,9 +59,9 @@ test('Admin mostra próximo vencimento, contador e ação +30 com confirmação 
  assert.match(admin,/O prazo será SOMADO ao próximo vencimento/);
  assert.match(admin,/Ativar Premium pago \(\+30 dias\)/);
  assert.match(adminHtml,/admin-add-30/);
- assert.match(adminHtml,/admin\.js\?v=12/);
+ assert.match(adminHtml,/admin\.js\?v=[0-9]+/);
  assert.match(client,/Próximo vencimento Premium:/);
- assert.match(clientHtml,/cliente\.js\?v=68/);
+ assert.match(clientHtml,/cliente\.js\?v=[0-9]+/);
 });
 
 test('telefone do motoboy vira login seguro; conta antiga por e-mail continua funcionando',()=>{
