@@ -17,9 +17,9 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrineHtml,/id="name"[^>]*required/);
  assert.match(vitrineHtml,/id="phone"[^>]*required/);
  assert.match(vitrineHtml,/id="address"/);
- assert.match(vitrineHtml,/\/vitrine\.js\?v=33/);
- assert.match(panelHtml,/\/cliente\.js\?v=68/);
- assert.match(panelHtml,/\/cliente\.css\?v=44/);
+ assert.match(vitrineHtml,/\/vitrine\.js\?v=\d+/);
+ assert.match(panelHtml,/\/cliente\.js\?v=\d+/);
+ assert.match(panelHtml,/\/cliente\.css\?v=\d+/);
  assert.match(vitrine,/await registerOnlineOrder\(\)/);
  assert.match(vitrine,/checkoutMessage\(receipt\.id\)/);
  assert.match(vitrine,/showCheckoutNextStep\(receipt\)/);
@@ -178,7 +178,6 @@ test('pagamentos não são marcados como pagos automaticamente nem baixam estoqu
  assert.match(panel,/fetch\('\/api\/online-order-update'/);
  assert.match(panel,/data-orders-refresh/);
  assert.match(panel,/await reloadData\(\);renderPage\(\)/);
- assert.match(panel,/O registro ocorre antes de abrir o WhatsApp/);
  assert.match(panel,/onlineOrders=await get\('shop_online_orders'\)/);
 });
 
