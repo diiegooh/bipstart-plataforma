@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "version": "2026-10-01",
+  "effective_date": "2026-10-01",
+  "reviewed_date": "2026-11-05",
+  "approved": true,
+  "review_status": "Tabela de referência baseada em fontes secundárias que citam a Central do Vendedor; confirme as condições da sua conta",
+  "source_url": "https://seller.shopee.com.br/edu/article/26839",
+  "notes": "Regras de referência. Custos de campanhas, anúncios, tributos, fretes e subsídios não estão incluídos automaticamente; preencha nos campos. O adicional de CPF e a regra abaixo de R$ 9 exigem conferência no extrato da loja.",
+  "low_price_below": 9,
+  "low_price_fixed_fraction": 0.5,
+  "cpf_extra": 3,
+  "cpf_extra_below": 12,
+  "cpf_extra_fraction_below": 0.25,
+  "bands": [
+    {
+      "min_cents": 900,
+      "max_cents": 7999,
+      "rate": 0.2,
+      "fixed": 4.5
+    },
+    {
+      "min_cents": 8000,
+      "max_cents": 9999,
+      "rate": 0.14,
+      "fixed": 16
+    },
+    {
+      "min_cents": 10000,
+      "max_cents": 19999,
+      "rate": 0.14,
+      "fixed": 20
+    },
+    {
+      "min_cents": 20000,
+      "max_cents": null,
+      "rate": 0.14,
+      "fixed": 26
+    }
+  ]
+}
