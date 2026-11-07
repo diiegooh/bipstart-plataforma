@@ -5571,3 +5571,41 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
   pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;
  }
 }
+
+
+/* Homologação: botão de menu fixo e gaveta acima de todo o conteúdo no mobile. */
+@media(max-width:1000px){
+ body.workspace-fullscreen #workspace .pdv-mobile-menu,
+ #workspace .pdv-mobile-menu{
+  display:flex!important;position:fixed!important;
+  top:calc(env(safe-area-inset-top,0px) + 8px)!important;left:8px!important;
+  z-index:1502!important;width:auto!important;min-height:0!important;margin:0!important;padding:0!important;
+  visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-mobile-menu #sideToggle,
+ #workspace .pdv-mobile-menu #sideToggle{
+  display:inline-flex!important;position:relative!important;z-index:1503!important;
+  min-height:48px!important;max-width:calc(100vw - 16px)!important;
+  visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+  touch-action:manipulation!important;cursor:pointer!important;
+ }
+ body.workspace-fullscreen #workspace .side,
+ #workspace .side{
+  display:flex!important;flex-direction:column!important;position:fixed!important;
+  inset:0 auto 0 0!important;width:min(300px,88vw)!important;height:100dvh!important;
+  min-height:0!important;max-height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;
+  z-index:1501!important;border-radius:0 16px 16px 0!important;
+  transform:translateX(-105%)!important;visibility:hidden!important;pointer-events:none!important;
+  overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;
+ }
+ body.workspace-fullscreen #workspace .side.open,
+ #workspace .side.open{
+  display:flex!important;transform:translateX(0)!important;visibility:visible!important;
+  pointer-events:auto!important;
+ }
+ body.workspace-fullscreen #workspace .side-backdrop:not(.hidden),
+ #workspace .side-backdrop:not(.hidden){
+  display:block!important;position:fixed!important;inset:0!important;z-index:1500!important;
+  pointer-events:auto!important;
+ }
+}

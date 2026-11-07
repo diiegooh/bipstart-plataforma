@@ -439,6 +439,16 @@ function toggleSideMenu(){
   $('sideToggle').setAttribute('aria-label',show?'Fechar menu da loja':'Abrir menu da loja');
   document.body.classList.toggle('sidebar-open',show);
 }
+function bindSideMenuToggle(){
+  const button=$('sideToggle');
+  if(!button||button.dataset.directMenuBinding==='true')return;
+  button.dataset.directMenuBinding='true';
+  button.addEventListener('click',event=>{
+    event.preventDefault();
+    toggleSideMenu();
+  });
+}
+bindSideMenuToggle();
 function heading(title,subtitle,action=''){return '<div class="toolbar"><div><h2>'+esc(title)+'</h2>'+(subtitle?'<p class="muted">'+esc(subtitle)+'</p>':'')+'</div>'+action+'</div>'}
 function empty(t='Nenhum registro até agora.'){return '<div class="empty">'+esc(t)+'</div>'}
 function tile(t,v,sub){return '<div class="tile"><small>'+esc(t)+'</small><strong>'+esc(v)+'</strong><small>'+esc(sub||'')+'</small></div>'}
@@ -3499,7 +3509,7 @@ document.addEventListener('click',async e=>{
     try{await reloadData();renderPage();msg('Pedidos atualizados.');}catch(error){msg(error.message,true);}
     return;
   }
-  if(e.target.closest('#sideToggle')){toggleSideMenu();return}
+  if(e.target.closest('#sideToggle'))return
   if(e.target.closest('#sideBackdrop')){closeSideMenu();return}
   if(e.target.closest('#sideLogout')){closeSideMenu();$('logout').click();return}
   if(e.target.closest('[data-pdv-best-sellers]')){pdvShowBestSellers=!pdvShowBestSellers;pdvCategory='';renderPage();if(pdvShowBestSellers)void loadBestSellers();return;}
