@@ -5220,70 +5220,48 @@ body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvDiscountFields
 }
 
 
-/* PDV: edição manual do total pelo botão de lápis no carrinho. */
-#workspace #page .godzilla-pdv .pdv-total-due{display:flex!important;align-items:center!important;gap:9px!important;}
+/* PDV: espaçamento consistente no carrinho e editor do total. */
+#workspace .godzilla-pdv .pdv-sale-panel{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;gap:14px!important;padding:18px!important;
+}
+#workspace .godzilla-pdv .pdv-sale-head,
+#workspace .godzilla-pdv .pdv-cart-search,
+#workspace .godzilla-pdv .pdv-sale-list,
+#workspace .godzilla-pdv .pdv-sale-total,
+#workspace .godzilla-pdv .pdv-payment-form{margin:0!important;}
+#workspace .godzilla-pdv .pdv-sale-head{padding-bottom:10px!important;}
+#workspace .godzilla-pdv .pdv-cart-search{display:grid!important;gap:8px!important;}
+#workspace .godzilla-pdv .pdv-sale-list{display:grid!important;gap:10px!important;padding:0 5px 0 0!important;}
+#workspace .godzilla-pdv .pdv-sale-empty{box-sizing:border-box!important;min-height:96px!important;padding:18px!important;line-height:1.5!important;}
+#workspace .godzilla-pdv .pdv-sale-item{margin:0!important;padding:12px!important;}
+#workspace .godzilla-pdv .pdv-sale-total{box-sizing:border-box!important;padding:14px 0!important;gap:12px!important;}
+#workspace .godzilla-pdv .pdv-payment-form{display:flex!important;flex-direction:column!important;gap:14px!important;padding:0!important;background:transparent!important;}
+#workspace .godzilla-pdv .pdv-payment-selector{display:grid!important;gap:10px!important;margin:0!important;}
+#workspace .godzilla-pdv .pdv-payment-options{gap:9px!important;}
+#workspace .godzilla-pdv .pdv-payment-form>.pdv-sale-total{margin:0!important;padding:14px 0!important;}
+#workspace #page .godzilla-pdv .pdv-total-due{display:flex!important;align-items:center!important;gap:12px!important;}
 #workspace #page .godzilla-pdv .pdv-total-due>span{flex:1 1 auto!important;}
-#workspace #page .godzilla-pdv .pdv-total-edit{display:inline-grid!important;place-items:center!important;flex:0 0 36px!important;width:36px!important;height:36px!important;min-height:36px!important;padding:0!important;border:1px solid #8062bd!important;border-radius:9px!important;background:#35264d!important;color:#fff!important;font-size:19px!important;line-height:1!important;cursor:pointer!important;}
-#workspace #page .godzilla-pdv .pdv-total-edit:hover{background:#49356a!important;border-color:#b18cff!important;}
-#workspace #page .godzilla-pdv .pdv-total-editor{margin:0 0 12px;padding:11px;border:1px solid #604880;border-radius:11px;background:#1b1428;color:#f4f4f8;}
+#workspace #page .godzilla-pdv .pdv-total-edit{display:inline-grid!important;place-items:center!important;flex:0 0 38px!important;width:38px!important;height:38px!important;min-height:38px!important;padding:0!important;border:1px solid #8062bd!important;border-radius:9px!important;background:#35264d!important;color:#fff!important;font-size:19px!important;line-height:1!important;cursor:pointer!important;}
 #workspace #page .godzilla-pdv .pdv-total-editor.hidden{display:none!important;}
-#workspace #page .godzilla-pdv .pdv-total-editor label{margin:0 0 6px;font-size:13px;}
-#workspace #page .godzilla-pdv .pdv-total-editor input{margin:0;}
-#workspace #page .godzilla-pdv .pdv-total-editor-actions{display:flex;gap:8px;margin-top:9px;}
-#workspace #page .godzilla-pdv .pdv-total-editor-actions button{flex:1;min-height:39px;padding:8px 10px;}
-body.pdv-night #workspace #page .godzilla-pdv .pdv-total-editor{background:#22252d!important;border-color:#343741!important;color:#f4f4f8!important;}
-body.pdv-night #workspace #page .godzilla-pdv .pdv-total-editor input{background:#2b2f39!important;color:#fff!important;border-color:#505463!important;}
-
-
-/* Editor do total: rótulo e campo alinhados na mesma linha. */
-#workspace #page .godzilla-pdv .pdv-total-editor{display:grid!important;grid-template-columns:max-content minmax(0,1fr)!important;align-items:center!important;column-gap:12px!important;row-gap:8px!important;}
-#workspace #page .godzilla-pdv .pdv-total-editor label{display:block!important;width:auto!important;white-space:nowrap!important;margin:0!important;}
-#workspace #page .godzilla-pdv .pdv-total-editor input{width:100%!important;min-width:0!important;margin:0!important;}
-#workspace #page .godzilla-pdv .pdv-total-editor-actions{grid-column:1/-1!important;width:100%!important;margin-top:0!important;}
-@media(max-width:380px){#workspace #page .godzilla-pdv .pdv-total-editor{grid-template-columns:1fr!important;row-gap:5px!important;}#workspace #page .godzilla-pdv .pdv-total-editor-actions{grid-column:1!important;}}
-
-
-/* Editor do total: harmoniza o card aberto com o carrinho em modo noite. */
-body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden),
-body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden){
+#workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor:not(.hidden){
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:14px!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:12px!important;overflow:visible!important;
  background:#22252d!important;background-image:none!important;border:1px solid #343741!important;border-radius:12px!important;color:#f4f4f8!important;box-shadow:none!important;
 }
-body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden)>label,
-body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) .pdv-total-editor-actions,
-body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden)>label,
-body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) .pdv-total-editor-actions{background:transparent!important;color:#f4f4f8!important;}
-body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) input,
-body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) input{background:#2b2f39!important;background-image:none!important;color:#fff!important;border-color:#505463!important;}
-body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) [data-pdv-total-cancel],
-body.pdv-night.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-payment-form .pdv-total-editor:not(.hidden) [data-pdv-total-cancel]{background:#2b2f39!important;color:#eeeaf8!important;border-color:#505463!important;}
-
-
-/* Editor do total: linha fixa para rótulo e campo lado a lado. */
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor:not(.hidden){display:flex!important;flex-direction:column!important;gap:10px!important;background:#22252d!important;background-image:none!important;border:1px solid #343741!important;border-radius:12px!important;padding:11px!important;color:#f4f4f8!important;}
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;width:100%!important;min-width:0!important;}
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row label{display:block!important;flex:0 0 auto!important;width:auto!important;white-space:nowrap!important;margin:0!important;color:#f4f4f8!important;}
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row input{display:block!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;margin:0!important;background:#2b2f39!important;color:#fff!important;border-color:#505463!important;}
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions{display:flex!important;flex:0 0 auto!important;gap:8px!important;width:100%!important;margin:0!important;}
-
-
-/* Cor fixa do card de edição do total no tema escuro. */
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor:not(.hidden){background:#22252d!important;background-image:none!important;border-color:#343741!important;color:#f4f4f8!important;box-shadow:none!important;}
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row{background:transparent!important;color:#f4f4f8!important;}
-
-
-/* PDV: compacta e alinha o editor de total dentro dos limites do carrinho. */
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor:not(.hidden){box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:7px 0 9px!important;padding:8px!important;gap:7px!important;overflow:hidden!important;}
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row{box-sizing:border-box!important;width:100%!important;min-width:0!important;gap:8px!important;overflow:hidden!important;}
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row label{box-sizing:border-box!important;flex:0 0 82px!important;width:82px!important;min-width:0!important;padding:0!important;line-height:1.2!important;}
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row input{box-sizing:border-box!important;flex:1 1 0!important;width:0!important;min-width:0!important;height:42px!important;min-height:42px!important;padding:8px 10px!important;}
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions{box-sizing:border-box!important;justify-content:flex-start!important;align-items:center!important;gap:7px!important;min-height:36px!important;}
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions button{flex:0 1 auto!important;width:auto!important;min-height:36px!important;margin:0!important;padding:7px 13px!important;}
-
-
-/* Editor do total: separa os botões Aplicar e Cancelar sem sobreposição. */
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions{display:grid!important;grid-template-columns:max-content max-content!important;grid-auto-flow:column!important;justify-content:start!important;align-items:center!important;column-gap:10px!important;row-gap:0!important;position:relative!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;min-height:40px!important;}
-body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions>button{position:static!important;display:inline-flex!important;float:none!important;transform:none!important;box-sizing:border-box!important;flex:none!important;width:auto!important;min-width:90px!important;max-width:100%!important;margin:0!important;}
-@media(max-width:340px){body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;}body #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions>button{min-width:0!important;}}
+#workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row{
+ box-sizing:border-box!important;display:grid!important;grid-template-columns:max-content minmax(0,1fr)!important;align-items:center!important;gap:12px!important;width:100%!important;min-width:0!important;margin:0!important;overflow:visible!important;
+}
+#workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row label{display:block!important;width:auto!important;min-width:0!important;margin:0!important;padding:0!important;white-space:nowrap!important;line-height:1.25!important;color:#f4f4f8!important;}
+#workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row input{box-sizing:border-box!important;display:block!important;width:100%!important;min-width:0!important;height:44px!important;min-height:44px!important;margin:0!important;padding:9px 12px!important;border:1px solid #505463!important;border-radius:10px!important;background:#2b2f39!important;color:#fff!important;}
+#workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions{box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:10px!important;width:100%!important;min-width:0!important;min-height:42px!important;margin:0!important;padding:0!important;overflow:visible!important;}
+#workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions>button{box-sizing:border-box!important;position:static!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;float:none!important;transform:none!important;width:auto!important;min-width:96px!important;max-width:100%!important;min-height:42px!important;margin:0!important;padding:8px 14px!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor:not(.hidden){background:#22252d!important;border-color:#343741!important;color:#f4f4f8!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row input{background:#2b2f39!important;color:#fff!important;border-color:#505463!important;}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor [data-pdv-total-cancel]{background:#2b2f39!important;color:#eeeaf8!important;border-color:#505463!important;}
+@media(max-width:380px){
+ #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-edit-row{grid-template-columns:minmax(0,1fr)!important;gap:7px!important;}
+ #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions{gap:8px!important;}
+ #workspace #page .godzilla-pdv .pdv-payment-form #pdvTotalEditor .pdv-total-editor-actions>button{min-width:0!important;}
+}
 
 /* Categorias das configurações da loja. */
 #settingsForm > .settings-category{display:grid;gap:16px;padding:20px;border:1px solid #e2d8ee;border-radius:16px;margin:0 0 20px;min-width:0}
