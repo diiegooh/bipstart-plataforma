@@ -1141,13 +1141,12 @@ function receiptSettingsKey(){
  return 'bipstart_receipt_settings_v1:'+(shop?.id||'sem-loja');
 }
 function receiptSettings(){
- const standard={paper:'80',preview:true,footer:'Obrigado pela preferência!'};
+ const standard={paper:'80',footer:'Obrigado pela preferência!'};
  try{
   const parsed=JSON.parse(localStorage.getItem(receiptSettingsKey())||'null');
   if(!parsed||typeof parsed!=='object')return standard;
   return {
    paper:receiptPaperOptions.includes(parsed.paper)?parsed.paper:'80',
-   preview:parsed.preview!==false,
    footer:typeof parsed.footer==='string'?parsed.footer.slice(0,120):standard.footer
   };
  }catch{return standard;}
@@ -1163,7 +1162,6 @@ function receiptSettingsPanel(){
     '<option value="'+value+'"'+(prefs.paper===value?' selected':'')+'>'+label+'</option>').join('')+
    '</select></label>'+
   '<label>Mensagem no rodapé<input type="text" name="footer" maxlength="120" value="'+esc(prefs.footer)+'" placeholder="Ex.: Obrigado pela preferência!"></label>'+
-  '<label class="receipt-settings-check"><input type="checkbox" name="preview"'+(prefs.preview?' checked':'')+'> Abrir comprovante após finalizar cada venda</label>'+
   '</div>'+
   '<p class="muted small">Documento comercial sem valor fiscal; não substitui NFC-e ou nota fiscal.</p>'+
   '</section>';
@@ -1603,11 +1601,12 @@ function applyPdvTotalInput(input,announce=true){
  const desired=parseMoneyInput(input.value||'');
  if(!Number.isFinite(desired)||desired<0||desired>subtotal||Math.abs(desired*100-Math.round(desired*100))>1e-6){
   input.dataset.invalid='true';
-  input.value=formatCurrencyDigits(String(Math.round(pdvCheckoutTotals().total*100)));
+  input.setAttribute('aria-invalid','true');
   if(announce)msg('Informe um total entre R$ 0,00 e o subtotal, com até duas casas decimais.',true);
   return false;
  }
  input.dataset.invalid='';
+ input.removeAttribute('aria-invalid');
  pdvDiscountAmount=formatCurrencyDigits(String(Math.round((subtotal-desired)*100)));
  updatePdvEstimates();
  if(announce)msg('Total da venda atualizado.');
@@ -2816,6 +2815,7 @@ async function handleSubmit(form,contractWindow=null){
       const sold=cart.map(c=>({id:c.id,name:c.name,qty:c.qty,price:c.price}));
       const data=await rpc('bipstart_complete_sale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),
         p_payment_method:v.payment_method,p_card_fee_percent:feePercent,p_discount_amount:discountAmount});
+      if(!data||typeof data!=='object'||!data.sale_id)throw Error('A venda não foi confirmada pelo sistema. O carrinho foi mantido.');
       let recorded=[];
       try{
         if(data?.sale_id)recorded=await rest('shop_sale_items',{query:{
@@ -2827,7 +2827,7 @@ async function handleSubmit(form,contractWindow=null){
       pdvDiscountAmount='';
       bestSellerLoadedShop=null;
       if(pdvShowBestSellers)void loadBestSellers();
-      if(receiptSettings().preview)showReceiptDialog(lastReceipt);
+      showReceiptDialog(lastReceipt);
       msg('Venda registrada: '+fmt(data.total)+(discountAmount?' · Desconto: '+fmt(discountAmount):'')+
         (cardMethod?' · Taxa: '+fmt(data.card_fee_amount||0)+' · Líquido: '+fmt(data.net_total):'')+
         '. Comprovante disponível para impressão.');
@@ -2903,7 +2903,7 @@ async function handleSubmit(form,contractWindow=null){
       if(shop.model==='pdv'){
         if(!receiptPaperOptions.includes(String(v.paper||''))||String(v.footer||'').length>120)
           throw Error('Escolha um tamanho de papel válido e um rodapé com até 120 caracteres.');
-        receiptPreference={paper:v.paper,preview:form.elements.namedItem('preview')?.checked===true,footer:String(v.footer||'')};
+        receiptPreference={paper:v.paper,footer:String(v.footer||'')};
         if(proAccess()){
           const show_logo_subtitle=v.show_logo_subtitle==='true';
           const logo_subtitle=String(v.logo_subtitle||'').trim();
@@ -2947,14 +2947,28 @@ async function handleSubmit(form,contractWindow=null){
       msg('Solicitação recebida para acompanhamento.');break;
     }
   }
-  if(!['loginForm','signupForm','shopForm','resetPassForm'].includes(form.id)){showForm=null;pastedProductImage=null;await reloadData();renderPage();if(form.id!=='saleForm'&&form.id!=='courierForm')msg('Dados salvos com sucesso.');}
+  if(!['loginForm','signupForm','shopForm','resetPassForm'].includes(form.id)){
+    showForm=null;pastedProductImage=null;
+    if(form.id==='saleForm'){
+      try{renderPage();await reloadData();renderPage();}
+      catch(error){console.warn('Venda registrada; atualização dos dados da loja pendente:',error.message);}
+    }else{
+      await reloadData();renderPage();
+      if(form.id!=='courierForm')msg('Dados salvos com sucesso.');
+    }
+  }
 }
 document.addEventListener('submit',async e=>{
  const form=e.target;if(!form.matches('form'))return;
  e.preventDefault();
  if(form.id==='saleForm'){
   const totalInput=document.getElementById('pdvTotalDue');
-  if(totalInput?.dataset.invalid==='true'||!applyPdvTotalInput(totalInput,false)){totalInput?.focus();return;}
+  if(!totalInput){msg('Não foi possível localizar o total da venda. Atualize a página e tente novamente.',true);return;}
+  if(!applyPdvTotalInput(totalInput,false)){
+   msg('Confira o novo total informado e tente novamente.',true);
+   totalInput.focus();
+   return;
+  }
  }
  const btn=form.querySelector('button[type=submit],button.button');
  if(btn?.disabled)return;
