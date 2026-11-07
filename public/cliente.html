@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=214">
+<link rel="stylesheet" href="/cliente.css?v=215">
 <style id="pdv-cart-inline-styles">
 /* Carrinho PDV reorganizado conforme a referência: cabeçalho, itens, resumo e checkout. */
 #workspace #page .godzilla-pdv .pdv-sale-panel{
@@ -268,6 +268,15 @@ body:not(.pdv-night) #workspace #page .settings-category-nav>button:hover:not(.i
 #workspace #page #settingsForm>.settings-category>.settings-category-fields>label>textarea{
  height:72px!important;min-height:72px!important;max-height:120px!important;
 }
+
+/* Meu plano: mantém os dados e remove o cartão verde ao redor. */
+#workspace #page .plan-management{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;
+ margin:0 0 14px!important;padding:0!important;border:0!important;border-radius:0!important;
+ background:transparent!important;background-image:none!important;box-shadow:none!important;
+}
+#workspace #page .plan-management h3,
+#workspace #page .plan-management p{margin:0!important;}
 </style>
 <link rel="stylesheet" href="/cliente-area.css?v=no-night-20261024">
 <link rel="stylesheet" href="/login.css?v=4">
