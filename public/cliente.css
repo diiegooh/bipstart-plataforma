@@ -5435,3 +5435,18 @@ body.pdv-night #workspace .godzilla-pdv .pdv-total-input-wrap>input{color:#c9b4f
  #workspace #page .godzilla-pdv .pdv-total-input-wrap{flex-basis:132px!important;width:132px!important;min-width:102px!important}
  #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{font-size:20px!important}
 }
+
+/* Carrinho PDV: reservar sempre duas linhas, inclusive vazio; itens extras rolam dentro da lista. */
+body #workspace #page .godzilla-pdv .pdv-sale-list{
+ box-sizing:border-box!important;display:grid!important;grid-auto-flow:row!important;grid-auto-rows:103px!important;
+ align-content:start!important;gap:0!important;width:100%!important;height:206px!important;
+ min-height:206px!important;max-height:206px!important;overflow-y:auto!important;overscroll-behavior:contain!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-list>.pdv-sale-item{
+ box-sizing:border-box!important;display:block!important;height:103px!important;min-height:103px!important;
+ max-height:103px!important;margin:0!important;overflow:hidden!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-list>.pdv-sale-empty{
+ box-sizing:border-box!important;grid-row:1 / span 2!important;height:206px!important;
+ min-height:206px!important;max-height:206px!important;margin:0!important;align-self:start!important;
+}
