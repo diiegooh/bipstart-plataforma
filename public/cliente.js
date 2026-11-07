@@ -3110,28 +3110,25 @@ document.addEventListener('click',async e=>{
     }
     return;
   }
-  const deleteButton=e.target.closest('[data-delete-all-stock]');
-  if(deleteButton){
+  const resetStockButton=e.target.closest('[data-reset-stock]');
+  if(resetStockButton){
     if(tab!=='configuracoes'||!shop||!hasAccess())return;
-    const count=products.length;
-    const confirmation=window.prompt('ATENÇÃO: você excluirá permanentemente TODOS os produtos da loja "'+shop.name+'" ('+count+' carregados). Digite EXCLUIR para continuar:');
-    if(confirmation!=='EXCLUIR')return;
-    if(!window.confirm('Confirma a EXCLUSÃO DEFINITIVA de todos os produtos desta loja? Esta ação não poderá ser desfeita.'))return;
-    deleteButton.disabled=true;
+    const shopId=shop.id;
+    if(!window.confirm('Zerar a quantidade em estoque de todos os produtos desta loja? Os produtos, preços e vendas serão preservados.'))return;
+    resetStockButton.disabled=true;
     try{
-      // Exclusão restrita à loja da sessão; a política RLS do Supabase também controla a permissão.
-      await rest('shop_products',{method:'DELETE',query:{shop_id:'eq.'+shop.id}});
-      // Verifica o banco: um DELETE sem erro pode excluir zero linhas se a política RLS bloquear.
-      const remaining=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shop.id,limit:'1'}});
-      if(remaining.length)throw Error('Ainda existem produtos cadastrados. Verifique as permissões ou dependências no banco.');
-      products=[];
-      cart=[];
-      pdvQuery='';
+      const updated=await rest('shop_products',{method:'PATCH',query:{shop_id:'eq.'+shopId},body:{stock:0}});
+      const remaining=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shopId,stock:'neq.0',limit:'1'}});
+      if(remaining.length)throw Error('O estoque não foi zerado para todos os produtos. Verifique as permissões da loja.');
+      if(shop?.id!==shopId)return;
+      await reloadData();
       renderPage();
-      msg('Todos os produtos desta loja foram excluídos.');
+      const count=Array.isArray(updated)?updated.length:products.length;
+      msg('Estoque zerado para '+count+' produto(s). Produtos e vendas foram preservados.');
     }catch(error){
-      deleteButton.disabled=false;
-      msg(error.message||'Não foi possível excluir os produtos.',true);
+      msg(error.message||'Não foi possível zerar o estoque.',true);
+    }finally{
+      if(resetStockButton.isConnected)resetStockButton.disabled=false;
     }
     return;
   }
