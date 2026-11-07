@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=215">
+<link rel="stylesheet" href="/cliente.css?v=216">
 <style id="pdv-cart-inline-styles">
 /* Carrinho PDV reorganizado conforme a referência: cabeçalho, itens, resumo e checkout. */
 #workspace #page .godzilla-pdv .pdv-sale-panel{
@@ -277,6 +277,37 @@ body:not(.pdv-night) #workspace #page .settings-category-nav>button:hover:not(.i
 }
 #workspace #page .plan-management h3,
 #workspace #page .plan-management p{margin:0!important;}
+
+/* Carrinho limpo: remove cartões de fundo e preserva campos e botões arredondados. */
+#workspace #page .godzilla-pdv .pdv-sale-panel{
+ background:transparent!important;background-image:none!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;padding:0!important;
+}
+#workspace #page .godzilla-pdv .pdv-sale-head{border:0!important;padding-bottom:0!important;}
+#workspace #page .godzilla-pdv .pdv-sale-list,
+#workspace #page .godzilla-pdv .pdv-cart-summary,
+#workspace #page .godzilla-pdv .pdv-payment-form,
+#workspace #page .godzilla-pdv .pdv-payment-selector,
+#workspace #page .godzilla-pdv .pdv-sale-total,
+#workspace #page .godzilla-pdv .pdv-total-due,
+#workspace #page .godzilla-pdv #pdvCashFields,
+#workspace #page .godzilla-pdv #pdvCardFields{
+ background:transparent!important;background-image:none!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;
+}
+#workspace #page .godzilla-pdv .pdv-sale-item{
+ background:transparent!important;background-image:none!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;padding:8px 0!important;
+}
+#workspace #page .godzilla-pdv .pdv-sale-empty{
+ min-height:0!important;height:auto!important;padding:10px 0!important;
+ background:transparent!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+#workspace #page .godzilla-pdv .pdv-summary-row{border:0!important;background:transparent!important;padding:5px 0!important;}
+#workspace #page .godzilla-pdv .pdv-cart-product-media{box-shadow:none!important;}
+#workspace #page .godzilla-pdv .pdv-calculation{
+ background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:5px 0!important;
+}
 </style>
 <link rel="stylesheet" href="/cliente-area.css?v=no-night-20261024">
 <link rel="stylesheet" href="/login.css?v=4">
