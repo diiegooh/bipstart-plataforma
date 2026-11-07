@@ -1180,7 +1180,7 @@ function receiptSnapshot(sale,method,received,sold,recorded){
  const street=String(fiscal.street||'').trim(),number=String(fiscal.number||'').trim();
  const complement=String(fiscal.complement||'').trim(),neighborhood=String(fiscal.neighborhood||'').trim();
  const municipality=String(fiscal.municipality||'').trim(),uf=String(fiscal.uf||'').trim();
- const postal=String(fiscal.postal_code||'').replace(/\\D/g,'');
+ const postal=String(fiscal.postal_code||'').replace(/\D/g,'');
  const fullFiscalAddress=street&&number&&municipality&&uf?
   [[street,number].filter(Boolean).join(', '),[complement,neighborhood].filter(Boolean).join(' - '),
    [municipality,uf].filter(Boolean).join(' - '),postal.length===8?'CEP '+postal.slice(0,5)+'-'+postal.slice(5):'']
@@ -1772,8 +1772,8 @@ function onlineOrderCard(order){
  const orderOpen=status!=='cancelled'&&status!=='fulfilled';
  const awaiting=status==='awaiting_confirmation';
  const items=Array.isArray(order.items)?order.items:[];
- const phone=String(order.customer_phone||'').replace(/\\D/g,'');
- const phoneValid=/^\\d{10,13}$/.test(phone);
+ const phone=String(order.customer_phone||'').replace(/\D/g,'');
+ const phoneValid=/^\d{10,13}$/.test(phone);
  const phoneUri=phoneValid?'<a href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone||'Não informado');
  const contact=phoneValid?' <a target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'">WhatsApp</a>':'';
  const delivery=order.delivery_method==='delivery';
