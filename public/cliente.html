@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=217">
+<link rel="stylesheet" href="/cliente.css?v=218">
 <style id="pdv-cart-inline-styles">
 /* Carrinho PDV reorganizado conforme a referência: cabeçalho, itens, resumo e checkout. */
 #workspace #page .godzilla-pdv .pdv-sale-panel{
@@ -526,6 +526,41 @@ body.bipstart-booting #startupOverlay{position:fixed;inset:0;z-index:10000;backg
   left:12px!important;right:12px!important;bottom:82px!important;top:auto!important;
   width:auto!important;max-height:calc(100dvh - 105px)!important;
  }
+}
+</style>
+<style id="pdv-cart-single-background">
+/* Uma única superfície contínua para o carrinho; mantém as cores próprias dos botões. */
+body #workspace #page .godzilla-pdv .pdv-sale-panel{
+ --pdv-cart-surface:color-mix(in srgb,var(--store-accent,#7c3aed) 7%,#22252d);
+ background:var(--pdv-cart-surface)!important;background-color:var(--pdv-cart-surface)!important;
+ background-image:none!important;opacity:1!important;backdrop-filter:none!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel :is(
+ .pdv-cart-search-input-wrap,.pdv-cart-search-results,.pdv-cart-search-result,
+ .pdv-sale-list,.pdv-sale-empty,.pdv-sale-item,.pdv-cart-summary,.pdv-summary-row,
+ .pdv-payment-form,.pdv-payment-selector,.pdv-payment-options,.pdv-total-due,
+ .pdv-card-kinds,.pdv-calculation,.pdv-cart-product-media
+){
+ background:transparent!important;background-color:transparent!important;
+ background-image:none!important;box-shadow:none!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel :is(
+ #pdvCashFields,#pdvCardFields
+){
+ background:transparent!important;background-color:transparent!important;
+ background-image:none!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCashFields,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCardFields{
+ background:transparent!important;background-color:transparent!important;
+ background-image:none!important;box-shadow:none!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel input:not([type=hidden]){
+ background:transparent!important;background-color:transparent!important;
+ background-image:none!important;box-shadow:none!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-search-result{
+ border-color:transparent!important;border-radius:0!important;
 }
 </style>
 </head>
