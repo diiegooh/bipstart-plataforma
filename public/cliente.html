@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=213">
+<link rel="stylesheet" href="/cliente.css?v=214">
 <style id="pdv-cart-inline-styles">
 /* Carrinho PDV reorganizado conforme a referência: cabeçalho, itens, resumo e checkout. */
 #workspace #page .godzilla-pdv .pdv-sale-panel{
@@ -248,6 +248,25 @@ body:not(.pdv-night) #workspace #page .settings-category-nav>button:hover:not(.i
 #workspace #page .settings-category-nav>button{
  min-height:36px!important;height:auto!important;padding:8px 12px!important;border-radius:8px!important;
  font-size:13px!important;line-height:1.15!important;
+}
+
+/* Campos compactos em Configurações da loja: rótulo próximo e caixa mais baixa. */
+#workspace #page #settingsForm>.settings-category>.settings-category-fields{
+ gap:11px 14px!important;
+}
+#workspace #page #settingsForm>.settings-category>.settings-category-fields>label{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:3px!important;
+ min-width:0!important;margin:0!important;padding:0!important;line-height:1.2!important;
+}
+#workspace #page #settingsForm>.settings-category>.settings-category-fields>label>input,
+#workspace #page #settingsForm>.settings-category>.settings-category-fields>label>select,
+#workspace #page #settingsForm>.settings-category>.settings-category-fields>label>textarea{
+ box-sizing:border-box!important;display:block!important;width:100%!important;min-width:0!important;
+ height:40px!important;min-height:40px!important;max-height:40px!important;margin:0!important;
+ padding:7px 12px!important;line-height:1.2!important;border-radius:9px!important;
+}
+#workspace #page #settingsForm>.settings-category>.settings-category-fields>label>textarea{
+ height:72px!important;min-height:72px!important;max-height:120px!important;
 }
 </style>
 <link rel="stylesheet" href="/cliente-area.css?v=no-night-20261024">
