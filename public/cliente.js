@@ -1141,13 +1141,12 @@ function receiptSettingsKey(){
  return 'bipstart_receipt_settings_v1:'+(shop?.id||'sem-loja');
 }
 function receiptSettings(){
- const standard={paper:'80',preview:true,footer:'Obrigado pela preferência!'};
+ const standard={paper:'80',footer:'Obrigado pela preferência!'};
  try{
   const parsed=JSON.parse(localStorage.getItem(receiptSettingsKey())||'null');
   if(!parsed||typeof parsed!=='object')return standard;
   return {
    paper:receiptPaperOptions.includes(parsed.paper)?parsed.paper:'80',
-   preview:parsed.preview!==false,
    footer:typeof parsed.footer==='string'?parsed.footer.slice(0,120):standard.footer
   };
  }catch{return standard;}
@@ -1163,7 +1162,6 @@ function receiptSettingsPanel(){
     '<option value="'+value+'"'+(prefs.paper===value?' selected':'')+'>'+label+'</option>').join('')+
    '</select></label>'+
   '<label>Mensagem no rodapé<input type="text" name="footer" maxlength="120" value="'+esc(prefs.footer)+'" placeholder="Ex.: Obrigado pela preferência!"></label>'+
-  '<label class="receipt-settings-check"><input type="checkbox" name="preview"'+(prefs.preview?' checked':'')+'> Abrir comprovante após finalizar cada venda</label>'+
   '</div>'+
   '<p class="muted small">Documento comercial sem valor fiscal; não substitui NFC-e ou nota fiscal.</p>'+
   '</section>';
@@ -1609,6 +1607,38 @@ function pdvCheckoutTotals(method=pdvPayment){
  const valid=Number.isFinite(discount)&&discount>=0&&Math.abs(discount*100-Math.round(discount*100))<1e-6&&discount<=subtotal;
  return {subtotal,discount,valid,total:valid?subtotal-discount:subtotal};
 }
+function applyPdvTotalInput(input,announce=true){
+ if(!input)return false;
+ const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
+ const desired=parseMoneyInput(input.value||'');
+ if(!Number.isFinite(desired)||desired<0||desired>subtotal||Math.abs(desired*100-Math.round(desired*100))>1e-6){
+  input.dataset.invalid='true';
+  input.setAttribute('aria-invalid','true');
+  if(announce)msg('Informe um total entre R$ 0,00 e o subtotal, com até duas casas decimais.',true);
+  return false;
+ }
+ input.dataset.invalid='';
+ input.removeAttribute('aria-invalid');
+ pdvDiscountAmount=formatCurrencyDigits(String(Math.round((subtotal-desired)*100)));
+ updatePdvEstimates();
+ if(announce)msg('Total da venda atualizado.');
+ return true;
+}
+document.addEventListener('change',event=>{
+ if(event.target?.id==='pdvTotalDue')applyPdvTotalInput(event.target);
+});
+document.addEventListener('keydown',event=>{
+ if(event.target?.id!=='pdvTotalDue')return;
+ if(event.key==='Enter'){
+  event.preventDefault();
+  if(applyPdvTotalInput(event.target))event.target.blur();
+ }else if(event.key==='Escape'){
+  event.preventDefault();
+  event.target.value=formatCurrencyDigits(String(Math.round(pdvCheckoutTotals().total*100)));
+  delete event.target.dataset.invalid;
+  event.target.blur();
+ }
+});
 function ensurePdvCartSearchVisualStyles(){
  if(document.getElementById('bipstart-pdv-cart-search-visual-v2'))return;
  const style=document.createElement('style');
@@ -1627,20 +1657,23 @@ function renderGodzillaPDV(){
    categoriesList.map(name=>'<option value="'+esc(name)+'"'+(pdvCategory===name?' selected':'')+'>'+esc(name)+'</option>').join('');
  const cash=pdvPayment==='dinheiro',isCard=['credito','debito'].includes(pdvPayment);
  const cartItems=cart.map(c=>{
-  return '<div class="pdv-sale-item"><div class="pdv-sale-product pdv-sale-name-price"><strong>'+esc(c.name)+'</strong>'+
-   '<b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div>'+
+  const product=products.find(p=>String(p.id)===String(c.id));
+  const photo=product?.image_path?'<img src="'+esc(imageUrl(product.image_path))+'" alt="" loading="lazy">':'<span aria-hidden="true">🛍️</span>';
+  return '<div class="pdv-sale-item"><div class="pdv-sale-product">'+
+   '<span class="pdv-cart-product-media">'+photo+'</span><div class="pdv-cart-product-details">'+
+   '<strong class="pdv-sale-name">'+esc(c.name)+'</strong><div class="pdv-cart-product-controls">'+
    '<div class="pdv-sale-qty">'+
    '<button type="button" data-qty-less="'+esc(c.id)+'" aria-label="Diminuir '+esc(c.name)+'">−</button>'+
    '<input class="pdv-cart-quantity" data-cart-quantity="'+esc(c.id)+'" type="number" min="1" max="10000" step="1" inputmode="numeric" value="'+esc(c.qty)+'" aria-label="Quantidade de '+esc(c.name)+'" title="Edite a quantidade de unidades" autocomplete="off">'+
    '<button type="button" data-cart="'+esc(c.id)+'" aria-label="Aumentar '+esc(c.name)+'">+</button>'+
    '<button type="button" data-remove="'+esc(c.id)+'" aria-label="Remover '+esc(c.name)+'">×</button>'+
-   '</div></div>';
+   '</div><b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div></div></div></div>';
  }).join('');
  const paymentChoices=[['dinheiro','Dinheiro'],['cartao','Cartão'],['pix','Pix']];
  const activePayment=isCard?'cartao':pdvPayment;
  const paymentButtons=paymentChoices.map(([code,label])=>
   '<button type="button" class="pdv-payment-chip'+(activePayment===code?' selected':'')+
-  '" data-payment-option="'+code+'" aria-pressed="'+(activePayment===code)+'">'+label+'</button>'
+  '" data-payment-option="'+code+'" aria-pressed="'+(activePayment===code)+'"><span class="pdv-payment-icon" aria-hidden="true">'+(code==='dinheiro'?'▣':code==='cartao'?'▰':'◆')+'</span><span>'+label+'</span></button>'
  ).join('');
  const cardTypeButtons=[['credito','Crédito'],['debito','Débito']].map(([code,label])=>
   '<button type="button" class="pdv-card-kind'+(pdvPayment===code?' selected':'')+
@@ -1655,28 +1688,25 @@ function renderGodzillaPDV(){
  
  '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
  '</section><div class="pdv-floating-backdrop'+(floatingSale&&pdvCheckoutOpen?' open':'')+'" data-floating-sale-close></div><aside class="pdv-panel pdv-sale-panel'+(floatingSale?' pdv-sale-panel-floating':'')+(floatingSale&&pdvCheckoutOpen?' is-open':'')+'" aria-label="Venda atual">'+
- '<div class="pdv-sale-head"><div><span class="kicker">CAIXA</span><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
+ '<div class="pdv-sale-head"><div><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
  '<div class="pdv-cart-search"><label for="pdvCartSearch">Pesquisar e adicionar produto</label>'+
  '<div class="pdv-cart-search-input-wrap"><span class="pdv-cart-search-loupe" aria-hidden="true"></span>'+
- '<input type="search" id="pdvCartSearch" placeholder="Nome ou código do produto" value="'+esc(pdvCartSearchQuery)+'" autocomplete="off" spellcheck="false" aria-controls="pdvCartSearchResults">'+
+ '<input type="search" id="pdvCartSearch" style="padding-left:34px!important;" placeholder="Nome ou código do produto" value="'+esc(pdvCartSearchQuery)+'" autocomplete="off" spellcheck="false" aria-controls="pdvCartSearchResults">'+
  '<button type="button" class="pdv-cart-search-clear" data-cart-search-clear aria-label="Limpar pesquisa"'+(pdvCartSearchQuery?'':' hidden')+'>×</button></div>'+
  '<div class="pdv-cart-search-results" id="pdvCartSearchResults" aria-live="polite">'+pdvCartSearchResultMarkup()+'</div></div>'+
  '<div class="pdv-sale-list">'+(cartItems||'<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>')+'</div>'+
- '<div class="pdv-sale-total"><span id="pdvCartCount">'+count+' item(ns) · Subtotal</span><strong id="pdvCartSubtotal">'+fmt(sum)+'</strong></div>'+
+ '<div class="pdv-cart-summary"><div class="pdv-summary-row"><span>Itens</span><strong id="pdvCartCount">'+count+'</strong></div><div class="pdv-summary-row"><span>Subtotal</span><strong id="pdvCartSubtotal">'+fmt(sum)+'</strong></div></div>'+
  '<form id="saleForm" class="pdv-payment-form">'+
  '<div class="pdv-payment-selector"><span class="pdv-payment-label" id="pdvPaymentLabel">Forma de pagamento</span>'+
  '<div class="pdv-payment-options" role="group" aria-labelledby="pdvPaymentLabel">'+paymentButtons+'</div>'+
  '<input type="hidden" name="payment_method" id="pdvPaymentMethod" value="'+esc(pdvPayment)+'"></div>'+
- '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><strong id="pdvTotalDue">'+fmt(checkout.total)+'</strong><button type="button" class="pdv-total-edit" data-pdv-total-edit aria-label="Editar total da venda" title="Editar total">✎</button></div>'+
- '<div class="pdv-total-editor hidden" id="pdvTotalEditor" style="background:#22252d!important;background-image:none!important;border:1px solid #343741!important;border-radius:12px!important;color:#f4f4f8!important;box-shadow:none!important"><div class="pdv-total-edit-row" style="display:flex!important;flex-direction:row!important;align-items:center!important;gap:10px!important;width:100%!important"><label for="pdvTotalEditInput" style="display:block!important;flex:0 0 auto!important;width:max-content!important;white-space:nowrap!important;margin:0!important">Novo valor</label><input id="pdvTotalEditInput" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00" style="display:block!important;flex:1 1 0!important;width:0!important;min-width:0!important;margin:0!important"></div><div class="pdv-total-editor-actions" style="display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;position:relative!important;width:100%!important;min-height:42px!important;box-sizing:border-box!important"><button type="button" class="button" data-pdv-total-save style="position:static!important;display:inline-flex!important;flex:0 0 auto!important;float:none!important;transform:none!important;width:auto!important;min-width:96px!important;max-width:none!important;margin:0!important;vertical-align:middle!important">Aplicar</button><button type="button" class="ghost" data-pdv-total-cancel style="position:static!important;display:inline-flex!important;flex:0 0 auto!important;float:none!important;transform:none!important;width:auto!important;min-width:96px!important;max-width:none!important;margin:0!important;vertical-align:middle!important">Cancelar</button></div></div>'+
+ '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><div class="pdv-total-input-wrap"><span aria-hidden="true">R$</span><input id="pdvTotalDue" type="text" inputmode="decimal" autocomplete="off" aria-label="Total a pagar em reais" value="'+formatCurrencyDigits(String(Math.round(checkout.total*100)))+'"></div></div>'+
  '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="text" inputmode="decimal" autocomplete="off" id="pdvReceived" name="received" placeholder="0,00"></label>'+
  '<div class="pdv-calculation">Troco <strong id="pdvChange">'+fmt(0)+'</strong></div></div>'+
  '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'">'+
  '<span class="pdv-card-kind-label" id="pdvCardKindLabel">Tipo de cartão</span>'+
  '<div class="pdv-card-kinds" role="group" aria-labelledby="pdvCardKindLabel">'+cardTypeButtons+'</div>'+
  '<label>Taxa da maquininha (%)<input id="pdvFeePercent" name="card_fee_percent" type="number" min="0" max="100" step="0.01" value="'+esc(pdvCardFeePercent)+'"></label>'+
- '<div class="pdv-calculation hidden">Desconto da maquininha <strong id="pdvFeeAmount">−'+fmt(Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
- '<div class="pdv-calculation hidden">Líquido estimado <strong id="pdvNet">'+fmt(checkout.total-Math.round(checkout.total*Number(pdvCardFeePercent||0))/100)+'</strong></div>'+
  '</div>'+
  '<button type="submit" class="button pdv-finish" '+(!cart.length||!checkout.valid?'disabled':'')+'>Finalizar venda ↗</button>'+
  '</form>'+
@@ -1692,7 +1722,7 @@ function selectPdvPayment(method){
 function updatePdvEstimates(){
  const count=cart.reduce((sum,item)=>sum+item.qty,0);
  const countEl=document.getElementById('pdvCartCount'),subtotalEl=document.getElementById('pdvCartSubtotal');
- if(countEl)countEl.textContent=count+' item(ns) · Subtotal';
+ if(countEl)countEl.textContent=String(count);
  if(subtotalEl)subtotalEl.textContent=fmt(cart.reduce((sum,item)=>sum+item.qty*item.price,0));
  const checkout=pdvCheckoutTotals(),total=checkout.total;
  const applied=document.getElementById('pdvDiscountApplied');
@@ -1700,7 +1730,7 @@ function updatePdvEstimates(){
  const error=document.getElementById('pdvDiscountError');
  if(error)error.textContent=checkout.valid?'':'Informe um desconto de até '+fmt(checkout.subtotal)+'.';
  const due=document.getElementById('pdvTotalDue');
- if(due)due.textContent=fmt(total);
+ if(due&&document.activeElement!==due)due.value=formatCurrencyDigits(String(Math.round(total*100)));
  const floating=document.getElementById('pdvFloatingTotal');
  if(floating)floating.textContent=fmt(total);
  const finish=document.querySelector('#saleForm .pdv-finish');
@@ -1742,8 +1772,8 @@ function onlineOrderCard(order){
  const orderOpen=status!=='cancelled'&&status!=='fulfilled';
  const awaiting=status==='awaiting_confirmation';
  const items=Array.isArray(order.items)?order.items:[];
- const phone=String(order.customer_phone||'').replace(/\\D/g,'');
- const phoneValid=/^\\d{10,13}$/.test(phone);
+ const phone=String(order.customer_phone||'').replace(/\D/g,'');
+ const phoneValid=/^\d{10,13}$/.test(phone);
  const phoneUri=phoneValid?'<a href="tel:+'+esc(phone.startsWith('55')?phone:'55'+phone)+'">'+esc(order.customer_phone)+'</a>':esc(order.customer_phone||'Não informado');
  const contact=phoneValid?' <a target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(phone.startsWith('55')?phone:'55'+phone)+'">WhatsApp</a>':'';
  const delivery=order.delivery_method==='delivery';
@@ -1755,7 +1785,7 @@ function onlineOrderCard(order){
  '<section class="online-order-section"><h4>🛒 Itens do Pedido</h4><div class="online-order-table-wrap"><table class="online-order-items-table"><thead><tr><th>Qtd</th><th>Item</th><th>Valor Unitário</th><th>Total</th></tr></thead><tbody>'+itemRows+'</tbody></table></div></section>'+
  '<section class="online-order-section online-order-payment"><h4>💳 Pagamento</h4><p><b>Forma de Pagamento:</b> '+esc(payLabel[order.payment_method]||'A combinar')+'</p><p><b>Status do Pagamento:</b> '+(paymentStatus==='paid'?'✅ ':'')+esc(paymentLabel[paymentStatus])+'</p><p class="online-order-total"><b>Total do Pedido: '+fmt(order.total)+'</b></p><div class="online-order-payment-actions">'+(paymentNext?'<button type="button" data-payment-advance="'+esc(order.id)+'">'+esc(paymentNext.label)+'</button>':'')+' <button type="button" data-payment-cancel="'+esc(order.id)+'"'+(paymentStatus==='cancelled'?' disabled':'')+'>Cancelar pagamento</button></div></section>'+
  '<section class="online-order-section online-order-quick"><h4>⚙️ Ações Rápidas</h4><div class="online-order-quick-actions">'+
- (orderOpen?(orderNext?'<button type="button"'+(orderNext.next==='fulfilled'?' class="online-order-finalize" style="background-color:var(--store-accent,#7c3aed)!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important"':'')+' data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+'</button>':'')+(!awaiting?'<button type="button" class="online-order-finalize" style="background-color:var(--store-accent,#7c3aed)!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important" data-order-finish="'+esc(order.id)+'">Finalizar Pedido</button>':'')+'<button type="button" class="online-order-danger" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar Pedido')+'</button>':(status==='cancelled'?'Pedido não aceito':'Pedido finalizado'))+
+ (orderOpen?(orderNext?'<button type="button"'+(orderNext.next==='fulfilled'?' class="online-order-finalize" style="background-color:var(--store-accent,#7c3aed)!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important"':'')+' data-order-advance="'+esc(order.id)+'">'+esc(orderNext.label)+'</button>':'')+'<button type="button" class="online-order-danger" data-order-cancel="'+esc(order.id)+'">'+(awaiting?'Não aceitar pedido':'Cancelar Pedido')+'</button>':(status==='cancelled'?'Pedido não aceito':'Pedido finalizado'))+
  '</div></section></article>';
 }
 function courierAccessUrl(c,origin=location.origin){
@@ -2042,7 +2072,6 @@ function applyInventoryNightStyles(){
 }
 window.applyInventoryNightStyles=applyInventoryNightStyles;
 
-/* Configurações da loja: padronização real dos cards ao ativar o modo noite. */
 let settingsCategoryId='settings-store-title';
 function setupSettingsCategories(){
  const form=$('settingsForm');
@@ -2082,6 +2111,7 @@ function setupSettingsCategories(){
  select(panels.some(panel=>panel.getAttribute('aria-labelledby')===settingsCategoryId)?settingsCategoryId:panels[0].getAttribute('aria-labelledby'));
 }
 
+/* Configurações da loja: padronização real dos cards ao ativar o modo noite. */
 function applySettingsNightStyles(){
  const form=$('settingsForm');
  if(!form)return;
@@ -2457,18 +2487,20 @@ function renderPage(){
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
       +(isMenu?establishmentTypeField():'')
+      +'</div></section>'
+      +((canCustomize()||logoAllowed)?'<section class="settings-category" aria-labelledby="settings-brand-title"><h2 id="settings-brand-title">Aparência</h2>'+logoSection:'')
       +(canCustomize()?field('brand_color','COR DO SISTEMA','color',shop.brand_color||'#7c3aed')+'<p class="muted small">Cor aplicada aos botões, seleções, destaques e cardápio online.</p>':'')
-      +'</div>'
-      +(isMenu?'<div class="menu-settings">'
+      +((canCustomize()||logoAllowed)?'</section>':'')
+      +(isMenu?'<section class="settings-category" aria-labelledby="settings-service-title"><h2 id="settings-service-title">Atendimento e entrega</h2><div class="settings-category-fields">'
        +field('opening_hours','Horário de atendimento','text',shop.opening_hours||'','maxlength="160" placeholder="Ex.: Segunda a sábado, 18h às 23h"')
        +field('location_text','Localização ou endereço','text',shop.location_text||'','maxlength="240" placeholder="Ex.: Rua das Flores, 100 — Centro"')
        +field('delivery_fee','Taxa de entrega (R$)','number',shop.delivery_fee??0,'min="0" max="9999.99" step="0.01"')
-       +'<fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
+       +'</div></section><section class="settings-category" aria-labelledby="settings-payment-title"><h2 id="settings-payment-title">Pagamentos</h2><fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
-       +logoSection+'</div>':'')
-      +(isMenu?'<section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+cardapioLayoutSettings()+receiptSettingsPanel()+categoryImagesSettings():'')+
-      '<section class="receipt-settings-panel"><h3>Zerar estoque</h3><p class="muted">Define como zero a quantidade em estoque de todos os produtos cadastrados nesta loja. Não exclui produtos, preços ou histórico de vendas. Esta ação não pode ser desfeita automaticamente.</p><button type="button" class="ghost" data-reset-stock style="border:1px solid #d14457;color:#d14457">Zerar todo o estoque</button></section>'+
-      '</section>'+fiscalSettingsSection()+
+       +'</section>':'')
+      +(isMenu?'<section class="settings-category" aria-labelledby="settings-pdv-title"><h2 id="settings-pdv-title">PDV e comprovantes</h2><section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+receiptSettingsPanel()+'</section><section class="settings-category" aria-labelledby="settings-menu-title"><h2 id="settings-menu-title">Cardápio e categorias</h2>'+cardapioLayoutSettings()+categoryImagesSettings()+'</section>':'')+
+      fiscalSettingsSection()+
+      '<section class="settings-category" aria-labelledby="settings-stock-title"><h2 id="settings-stock-title">Estoque</h2><section class="receipt-settings-panel"><h3>Excluir estoque</h3><p class="muted">Exclui permanentemente todos os produtos e quantidades cadastrados nesta loja. O histórico de vendas será preservado. Esta ação não pode ser desfeita.</p><button type="button" class="ghost" data-delete-all-stock style="border:1px solid #d14457;color:#d14457">Excluir todo o estoque</button></section></section>'+
        '<button type="submit" class="button settings-save-button" style="background-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;border-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;color:'+getSystemAccentInk()+' !important;">Salvar</button></form></div>';
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
@@ -2845,6 +2877,7 @@ async function handleSubmit(form,contractWindow=null){
       const sold=cart.map(c=>({id:c.id,name:c.name,qty:c.qty,price:c.price}));
       const data=await rpc('bipstart_complete_sale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),
         p_payment_method:v.payment_method,p_card_fee_percent:feePercent,p_discount_amount:discountAmount});
+      if(!data||typeof data!=='object'||!data.sale_id)throw Error('A venda não foi confirmada pelo sistema. O carrinho foi mantido.');
       let recorded=[];
       try{
         if(data?.sale_id)recorded=await rest('shop_sale_items',{query:{
@@ -2854,9 +2887,10 @@ async function handleSubmit(form,contractWindow=null){
       lastReceipt=receiptSnapshot(data,v.payment_method,v.payment_method==='dinheiro'?String(parseMoneyInput(v.received)): '',sold,recorded);
       cart=[];
       pdvDiscountAmount='';
+      pdvCheckoutOpen=false;
       bestSellerLoadedShop=null;
       if(pdvShowBestSellers)void loadBestSellers();
-      if(receiptSettings().preview)showReceiptDialog(lastReceipt);
+      showReceiptDialog(lastReceipt);
       msg('Venda registrada: '+fmt(data.total)+(discountAmount?' · Desconto: '+fmt(discountAmount):'')+
         (cardMethod?' · Taxa: '+fmt(data.card_fee_amount||0)+' · Líquido: '+fmt(data.net_total):'')+
         '. Comprovante disponível para impressão.');
@@ -2976,7 +3010,7 @@ async function handleSubmit(form,contractWindow=null){
       if(shop.model==='pdv'){
         if(!receiptPaperOptions.includes(String(v.paper||''))||String(v.footer||'').length>120)
           throw Error('Escolha um tamanho de papel válido e um rodapé com até 120 caracteres.');
-        receiptPreference={paper:v.paper,preview:form.elements.namedItem('preview')?.checked===true,footer:String(v.footer||'')};
+        receiptPreference={paper:v.paper,footer:String(v.footer||'')};
         if(proAccess()){
           const show_logo_subtitle=v.show_logo_subtitle==='true';
           const logo_subtitle=String(v.logo_subtitle||'').trim();
@@ -3020,11 +3054,29 @@ async function handleSubmit(form,contractWindow=null){
       msg('Solicitação recebida para acompanhamento.');break;
     }
   }
-  if(!['loginForm','signupForm','shopForm','resetPassForm'].includes(form.id)){showForm=null;pastedProductImage=null;await reloadData();renderPage();if(form.id!=='saleForm'&&form.id!=='courierForm')msg('Dados salvos com sucesso.');}
+  if(!['loginForm','signupForm','shopForm','resetPassForm'].includes(form.id)){
+    showForm=null;pastedProductImage=null;
+    if(form.id==='saleForm'){
+      try{renderPage();await reloadData();renderPage();}
+      catch(error){console.warn('Venda registrada; atualização dos dados da loja pendente:',error.message);}
+    }else{
+      await reloadData();renderPage();
+      if(form.id!=='courierForm')msg('Dados salvos com sucesso.');
+    }
+  }
 }
 document.addEventListener('submit',async e=>{
  const form=e.target;if(!form.matches('form'))return;
  e.preventDefault();
+ if(form.id==='saleForm'){
+  const totalInput=document.getElementById('pdvTotalDue');
+  if(!totalInput){msg('Não foi possível localizar o total da venda. Atualize a página e tente novamente.',true);return;}
+  if(!applyPdvTotalInput(totalInput,false)){
+   msg('Confira o novo total informado e tente novamente.',true);
+   totalInput.focus();
+   return;
+  }
+ }
  const btn=form.querySelector('button[type=submit],button.button');
  if(btn?.disabled)return;
  let contractWindow=null;
@@ -3117,12 +3169,13 @@ document.addEventListener('input',e=>{
  if(e.target.id==='pdvSearch'){
   pdvQuery=e.target.value;
   const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();
- }else if(['pdvReceived','pdvFeePercent','pdvTotalEditInput'].includes(e.target.id)){
-   if(e.target.id==='pdvReceived'||e.target.id==='pdvTotalEditInput'){
+ }else if(['pdvReceived','pdvFeePercent','pdvTotalDue'].includes(e.target.id)){
+   if(e.target.id==='pdvReceived'||e.target.id==='pdvTotalDue'){
      const formatted=formatCurrencyDigits(e.target.value);
-     if(formatted!==e.target.value){e.target.value=formatted; e.target.setSelectionRange(formatted.length,formatted.length);}
+     if(formatted!==e.target.value){e.target.value=formatted;try{e.target.setSelectionRange(formatted.length,formatted.length)}catch{}}
+     if(e.target.id==='pdvTotalDue')delete e.target.dataset.invalid;
    }else pdvCardFeePercent=e.target.value;
-   if(e.target.id!=='pdvTotalEditInput')updatePdvEstimates();
+   if(e.target.id==='pdvReceived')updatePdvEstimates();
  }
 });
 document.addEventListener('change',e=>{
@@ -3216,48 +3269,30 @@ document.addEventListener('click',async e=>{
     }
     return;
   }
-  const deleteButton=e.target.closest('[data-delete-all-stock]');
-  if(deleteButton){
+  const deleteStockButton=e.target.closest('[data-delete-all-stock]');
+  if(deleteStockButton){
     if(tab!=='configuracoes'||!shop||!hasAccess())return;
-    const count=products.length;
-    const confirmation=window.prompt('ATENÇÃO: você excluirá permanentemente TODOS os produtos da loja "'+shop.name+'" ('+count+' carregados). Digite EXCLUIR para continuar:');
+    const shopId=shop.id;
+    const confirmation=window.prompt('ATENÇÃO: todos os produtos e quantidades desta loja serão excluídos permanentemente. O histórico de vendas será preservado. Digite EXCLUIR para continuar:');
     if(confirmation!=='EXCLUIR')return;
-    if(!window.confirm('Confirma a EXCLUSÃO DEFINITIVA de todos os produtos desta loja? Esta ação não poderá ser desfeita.'))return;
-    deleteButton.disabled=true;
+    if(!window.confirm('Confirma a exclusão definitiva de todos os produtos do estoque desta loja? Esta ação não pode ser desfeita.'))return;
+    deleteStockButton.disabled=true;
     try{
-      // Exclusão restrita à loja da sessão; a política RLS do Supabase também controla a permissão.
-      await rest('shop_products',{method:'DELETE',query:{shop_id:'eq.'+shop.id}});
-      // Verifica o banco: um DELETE sem erro pode excluir zero linhas se a política RLS bloquear.
-      const remaining=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shop.id,limit:'1'}});
-      if(remaining.length)throw Error('Ainda existem produtos cadastrados. Verifique as permissões ou dependências no banco.');
+      await rest('shop_products',{method:'DELETE',query:{shop_id:'eq.'+shopId}});
+      const remaining=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shopId,limit:'1'}});
+      if(remaining.length)throw Error('Ainda existem produtos cadastrados. Verifique as permissões da loja.');
+      if(shop?.id!==shopId)return;
       products=[];
       cart=[];
       pdvQuery='';
+      await reloadData();
       renderPage();
-      msg('Todos os produtos desta loja foram excluídos.');
+      msg('Todos os produtos e quantidades do estoque foram excluídos. O histórico de vendas foi preservado.');
     }catch(error){
-      deleteButton.disabled=false;
-      msg(error.message||'Não foi possível excluir os produtos.',true);
+      msg(error.message||'Não foi possível excluir o estoque. Produtos vinculados ao histórico podem impedir a exclusão.',true);
+    }finally{
+      if(deleteStockButton.isConnected)deleteStockButton.disabled=false;
     }
-    return;
-  }
-  const totalEdit=e.target.closest('[data-pdv-total-edit]');
-  if(totalEdit){
-    const editor=document.getElementById('pdvTotalEditor'),input=document.getElementById('pdvTotalEditInput');
-    if(editor&&input){input.value=formatCurrencyDigits(String(Math.round(pdvCheckoutTotals().total*100)));editor.classList.remove('hidden');input.focus();}
-    return;
-  }
-  if(e.target.closest('[data-pdv-total-cancel]')){document.getElementById('pdvTotalEditor')?.classList.add('hidden');return;}
-  if(e.target.closest('[data-pdv-total-save]')){
-    const input=document.getElementById('pdvTotalEditInput'),subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
-    const desired=parseMoneyInput(input?.value||'');
-    if(!Number.isFinite(desired)||desired<0||desired>subtotal||Math.abs(desired*100-Math.round(desired*100))>1e-6){
-      msg('Informe um total entre R$ 0,00 e o subtotal, com até duas casas decimais.',true);return;
-    }
-    pdvDiscountAmount=formatCurrencyDigits(String(Math.round((subtotal-desired)*100)));
-    updatePdvEstimates();
-    document.getElementById('pdvTotalEditor')?.classList.add('hidden');
-    msg('Total da venda atualizado.');
     return;
   }
   if(e.target.closest('[data-floating-sale-toggle]')){pdvCheckoutOpen=!pdvCheckoutOpen;renderPage();return;}
