@@ -127,6 +127,11 @@
  #workspace #page .godzilla-pdv .pdv-total-input-wrap{flex-basis:132px!important;width:132px!important;min-width:102px!important}
  #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{font-size:20px!important}
 }
+
+/* Correção final do alinhamento do campo de busca e do total editável. */
+#workspace #page .godzilla-pdv .pdv-cart-search-input-wrap{position:relative!important;}
+#workspace #page .godzilla-pdv .pdv-cart-search-input-wrap .pdv-cart-search-loupe{position:absolute!important;left:14px!important;z-index:2!important;pointer-events:none!important;}
+#workspace #page .godzilla-pdv .pdv-cart-search-input-wrap #pdvCartSearch{box-sizing:border-box!important;padding-left:34px!important;}
 </style>
 <link rel="stylesheet" href="/cliente-area.css?v=no-night-20261024">
 <link rel="stylesheet" href="/login.css?v=4">
@@ -408,6 +413,6 @@ body.bipstart-booting #startupOverlay{position:fixed;inset:0;z-index:10000;backg
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=200" defer></script>
+<script src="/cliente.js?v=202" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
