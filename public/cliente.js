@@ -1597,6 +1597,37 @@ function pdvCheckoutTotals(method=pdvPayment){
  const valid=Number.isFinite(discount)&&discount>=0&&Math.abs(discount*100-Math.round(discount*100))<1e-6&&discount<=subtotal;
  return {subtotal,discount,valid,total:valid?subtotal-discount:subtotal};
 }
+function applyPdvTotalInput(input,announce=true){
+ if(!input)return false;
+ const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
+ const desired=parseMoneyInput(input.value||'');
+ if(!Number.isFinite(desired)||desired<0||desired>subtotal||Math.abs(desired*100-Math.round(desired*100))>1e-6){
+  input.dataset.invalid='true';
+  input.value=formatCurrencyDigits(String(Math.round(pdvCheckoutTotals().total*100)));
+  if(announce)msg('Informe um total entre R$ 0,00 e o subtotal, com até duas casas decimais.',true);
+  return false;
+ }
+ input.dataset.invalid='';
+ pdvDiscountAmount=formatCurrencyDigits(String(Math.round((subtotal-desired)*100)));
+ updatePdvEstimates();
+ if(announce)msg('Total da venda atualizado.');
+ return true;
+}
+document.addEventListener('change',event=>{
+ if(event.target?.id==='pdvTotalDue')applyPdvTotalInput(event.target);
+});
+document.addEventListener('keydown',event=>{
+ if(event.target?.id!=='pdvTotalDue')return;
+ if(event.key==='Enter'){
+  event.preventDefault();
+  if(applyPdvTotalInput(event.target))event.target.blur();
+ }else if(event.key==='Escape'){
+  event.preventDefault();
+  event.target.value=formatCurrencyDigits(String(Math.round(pdvCheckoutTotals().total*100)));
+  delete event.target.dataset.invalid;
+  event.target.blur();
+ }
+});
 function ensurePdvCartSearchVisualStyles(){
  if(document.getElementById('bipstart-pdv-cart-search-visual-v2'))return;
  const style=document.createElement('style');
@@ -1655,8 +1686,7 @@ function renderGodzillaPDV(){
  '<div class="pdv-payment-selector"><span class="pdv-payment-label" id="pdvPaymentLabel">Forma de pagamento</span>'+
  '<div class="pdv-payment-options" role="group" aria-labelledby="pdvPaymentLabel">'+paymentButtons+'</div>'+
  '<input type="hidden" name="payment_method" id="pdvPaymentMethod" value="'+esc(pdvPayment)+'"></div>'+
- '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><strong id="pdvTotalDue">'+fmt(checkout.total)+'</strong><button type="button" class="pdv-total-edit" data-pdv-total-edit aria-label="Editar total da venda" title="Editar total">✎</button></div>'+
- '<div class="pdv-total-editor hidden" id="pdvTotalEditor"><div class="pdv-total-edit-row"><label for="pdvTotalEditInput">Novo valor</label><input id="pdvTotalEditInput" type="text" inputmode="decimal" autocomplete="off" placeholder="0,00"></div><div class="pdv-total-editor-actions"><button type="button" class="button" data-pdv-total-save>Aplicar</button><button type="button" class="ghost" data-pdv-total-cancel>Cancelar</button></div></div>'+
+ '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><label class="pdv-total-input-wrap" for="pdvTotalDue"><span aria-hidden="true">R$</span><input id="pdvTotalDue" type="text" inputmode="decimal" autocomplete="off" aria-label="Total a pagar em reais" value="'+formatCurrencyDigits(String(Math.round(checkout.total*100)))+'"></label></div>'+
  '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="text" inputmode="decimal" autocomplete="off" id="pdvReceived" name="received" placeholder="0,00"></label>'+
  '<div class="pdv-calculation">Troco <strong id="pdvChange">'+fmt(0)+'</strong></div></div>'+
  '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'">'+
@@ -1688,7 +1718,7 @@ function updatePdvEstimates(){
  const error=document.getElementById('pdvDiscountError');
  if(error)error.textContent=checkout.valid?'':'Informe um desconto de até '+fmt(checkout.subtotal)+'.';
  const due=document.getElementById('pdvTotalDue');
- if(due)due.textContent=fmt(total);
+ if(due&&document.activeElement!==due)due.value=formatCurrencyDigits(String(Math.round(total*100)));
  const floating=document.getElementById('pdvFloatingTotal');
  if(floating)floating.textContent=fmt(total);
  const finish=document.querySelector('#saleForm .pdv-finish');
@@ -2919,6 +2949,10 @@ async function handleSubmit(form,contractWindow=null){
 document.addEventListener('submit',async e=>{
  const form=e.target;if(!form.matches('form'))return;
  e.preventDefault();
+ if(form.id==='saleForm'){
+  const totalInput=document.getElementById('pdvTotalDue');
+  if(totalInput?.dataset.invalid==='true'||!applyPdvTotalInput(totalInput,false)){totalInput?.focus();return;}
+ }
  const btn=form.querySelector('button[type=submit],button.button');
  if(btn?.disabled)return;
  let contractWindow=null;
@@ -3011,12 +3045,13 @@ document.addEventListener('input',e=>{
  if(e.target.id==='pdvSearch'){
   pdvQuery=e.target.value;
   const grid=$('pdvProducts');if(grid)grid.innerHTML=pdvProductCards();
- }else if(['pdvReceived','pdvFeePercent','pdvTotalEditInput'].includes(e.target.id)){
-   if(e.target.id==='pdvReceived'||e.target.id==='pdvTotalEditInput'){
+ }else if(['pdvReceived','pdvFeePercent','pdvTotalDue'].includes(e.target.id)){
+   if(e.target.id==='pdvReceived'||e.target.id==='pdvTotalDue'){
      const formatted=formatCurrencyDigits(e.target.value);
-     if(formatted!==e.target.value){e.target.value=formatted; e.target.setSelectionRange(formatted.length,formatted.length);}
+     if(formatted!==e.target.value){e.target.value=formatted;try{e.target.setSelectionRange(formatted.length,formatted.length)}catch{}}
+     if(e.target.id==='pdvTotalDue')delete e.target.dataset.invalid;
    }else pdvCardFeePercent=e.target.value;
-   if(e.target.id!=='pdvTotalEditInput')updatePdvEstimates();
+   if(e.target.id==='pdvReceived')updatePdvEstimates();
  }
 });
 document.addEventListener('change',e=>{
@@ -3134,25 +3169,6 @@ document.addEventListener('click',async e=>{
     }finally{
       if(deleteStockButton.isConnected)deleteStockButton.disabled=false;
     }
-    return;
-  }
-  const totalEdit=e.target.closest('[data-pdv-total-edit]');
-  if(totalEdit){
-    const editor=document.getElementById('pdvTotalEditor'),input=document.getElementById('pdvTotalEditInput');
-    if(editor&&input){input.value=formatCurrencyDigits(String(Math.round(pdvCheckoutTotals().total*100)));editor.classList.remove('hidden');input.focus();}
-    return;
-  }
-  if(e.target.closest('[data-pdv-total-cancel]')){document.getElementById('pdvTotalEditor')?.classList.add('hidden');return;}
-  if(e.target.closest('[data-pdv-total-save]')){
-    const input=document.getElementById('pdvTotalEditInput'),subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
-    const desired=parseMoneyInput(input?.value||'');
-    if(!Number.isFinite(desired)||desired<0||desired>subtotal||Math.abs(desired*100-Math.round(desired*100))>1e-6){
-      msg('Informe um total entre R$ 0,00 e o subtotal, com até duas casas decimais.',true);return;
-    }
-    pdvDiscountAmount=formatCurrencyDigits(String(Math.round((subtotal-desired)*100)));
-    updatePdvEstimates();
-    document.getElementById('pdvTotalEditor')?.classList.add('hidden');
-    msg('Total da venda atualizado.');
     return;
   }
   if(e.target.closest('[data-floating-sale-toggle]')){pdvCheckoutOpen=!pdvCheckoutOpen;renderPage();return;}
