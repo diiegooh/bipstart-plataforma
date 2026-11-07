@@ -5609,3 +5609,32 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
   pointer-events:auto!important;
  }
 }
+
+
+/* Homologação: retire a gaveta do dashboard no mobile para evitar que seus
+   contextos de empilhamento fiquem atrás do fundo escuro. */
+@media(max-width:1000px){
+ body.workspace-fullscreen #workspace .pdv-mobile-menu,
+ #workspace .pdv-mobile-menu{
+  z-index:1603!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-mobile-menu #sideToggle,
+ #workspace .pdv-mobile-menu #sideToggle{
+  z-index:1604!important;
+ }
+ body.sidebar-open #workspace .pdv-mobile-menu{
+  left:auto!important;right:8px!important;
+ }
+ body.workspace-fullscreen #workspace .side,
+ #workspace .side{
+  z-index:1601!important;
+ }
+ body.workspace-fullscreen #workspace .side.open,
+ #workspace .side.open{
+  z-index:1601!important;
+ }
+ body.workspace-fullscreen #workspace .side-backdrop:not(.hidden),
+ #workspace .side-backdrop:not(.hidden){
+  z-index:1600!important;
+ }
+}

@@ -424,20 +424,49 @@ function renderNav(){
   $('sideShopName').textContent=shop.name;
   $('sideSettings').classList.toggle('active',tab==='configuracoes');
 }
+let sideMenuPlaceholder=null;
+function portalSideMenuForMobile(){
+  const side=$('sidebar');
+  const workspace=$('workspace');
+  if(!side||!workspace||!window.matchMedia('(max-width:1000px)').matches)return;
+  if(side.parentElement===workspace)return;
+  if(side.parentNode){
+    sideMenuPlaceholder=document.createComment('sidebar mobile drawer position');
+    side.parentNode.insertBefore(sideMenuPlaceholder,side);
+  }
+  const backdrop=$('sideBackdrop');
+  if(backdrop&&backdrop.parentNode===workspace)workspace.insertBefore(side,backdrop.nextSibling);
+  else workspace.appendChild(side);
+}
+function restoreSideMenuPosition(){
+  const side=$('sidebar');
+  const workspace=$('workspace');
+  if(!side||!workspace)return;
+  if(sideMenuPlaceholder?.parentNode)sideMenuPlaceholder.parentNode.insertBefore(side,sideMenuPlaceholder);
+  else if(side.parentElement===workspace){
+    const dashboard=workspace.querySelector('.dashboard');
+    if(dashboard)dashboard.insertBefore(side,dashboard.firstChild);
+  }
+  sideMenuPlaceholder?.remove();
+  sideMenuPlaceholder=null;
+}
 function closeSideMenu(){
   $('sidebar').classList.remove('open');
   $('sideBackdrop').classList.add('hidden');
   $('sideToggle').setAttribute('aria-expanded','false');
   $('sideToggle').setAttribute('aria-label','Abrir menu da loja');
   document.body.classList.remove('sidebar-open');
+  restoreSideMenuPosition();
 }
 function toggleSideMenu(){
   const show=!$('sidebar').classList.contains('open');
+  if(show)portalSideMenuForMobile();
   $('sidebar').classList.toggle('open',show);
   $('sideBackdrop').classList.toggle('hidden',!show);
   $('sideToggle').setAttribute('aria-expanded',String(show));
   $('sideToggle').setAttribute('aria-label',show?'Fechar menu da loja':'Abrir menu da loja');
   document.body.classList.toggle('sidebar-open',show);
+  if(!show)restoreSideMenuPosition();
 }
 function bindSideMenuToggle(){
   const button=$('sideToggle');
