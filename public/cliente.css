@@ -5310,7 +5310,6 @@ body.pdv-night.workspace-fullscreen #workspace .godzilla-pdv .pdv-sale-panel .pd
 body.pdv-night #workspace .godzilla-pdv .pdv-sale-panel .pdv-payment-form{background:#22252d!important;background-image:none!important;color:#f4f4f8!important;border:1px solid #343741!important;border-radius:12px!important;padding:14px!important;}
 body.pdv-night #workspace .godzilla-pdv .pdv-sale-panel .pdv-payment-form>.pdv-payment-selector,
 body.pdv-night #workspace .godzilla-pdv .pdv-sale-panel .pdv-payment-form>.pdv-sale-total,
-body.pdv-night #workspace .godzilla-pdv .pdv-sale-panel .pdv-payment-form>.pdv-payment-selector *,
 body.pdv-night #workspace .godzilla-pdv .pdv-sale-panel .pdv-payment-form>.pdv-sale-total{background-color:transparent!important;color:#f4f4f8!important;}
 body.pdv-night #workspace .godzilla-pdv .pdv-total-input-wrap{background:#2b2f39!important;border-color:#505463!important;color:#c9b4ff!important;}
 body.pdv-night #workspace .godzilla-pdv .pdv-total-input-wrap>input{color:#c9b4ff!important;}
