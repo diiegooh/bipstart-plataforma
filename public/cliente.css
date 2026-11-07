@@ -5498,3 +5498,41 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
   min-height:0!important;max-height:calc(100dvh - 130px)!important;overflow-y:auto!important;
  }
 }
+
+
+/* Homologação mobile: categorias visíveis, legíveis e fáceis de tocar. */
+@media(max-width:700px){
+ body #workspace #page .godzilla-pdv .pdv-category-tiles,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles,
+ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles{
+  box-sizing:border-box!important;display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:minmax(64px,auto)!important;
+  align-content:start!important;gap:8px!important;width:100%!important;max-width:none!important;
+  height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile,
+ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles>.pdv-category-tile,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles>.pdv-category-tile{
+  --pdv-category-font-size:14px!important;
+  box-sizing:border-box!important;display:flex!important;flex:initial!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;width:100%!important;min-width:0!important;
+  height:auto!important;min-height:64px!important;max-height:none!important;margin:0!important;
+  padding:8px 6px!important;overflow:visible!important;touch-action:manipulation!important;cursor:pointer!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile>strong,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile>strong{
+  font-size:var(--pdv-category-font-size,14px)!important;line-height:1.15!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;text-align:center!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile:focus-visible,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile:focus-visible{
+  outline:3px solid var(--store-accent,#7c3aed)!important;outline-offset:2px!important;
+ }
+ body.workspace-fullscreen #workspace #page .godzilla-pdv,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-two-panels,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-catalog{
+  height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;
+ }
+}
