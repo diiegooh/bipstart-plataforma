@@ -175,7 +175,7 @@ async function requireVerifiedEmail(){
 }
 async function loadShops(){
   await requireVerifiedEmail();
-  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,created_at',order:'created_at.desc',limit:'20'}});
+  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,fiscal_config,created_at',order:'created_at.desc',limit:'20'}});
   if(!rows?.length){
     hideAll();hiding('createShop',true);hiding('logout',true);
     if(initialPlan)$('shopForm').elements.namedItem('requested_plan').value=initialPlan;
@@ -232,7 +232,7 @@ async function refreshActivatedPlan(){
   if(JSON.stringify(latest)===previous)return;
   ent=latest;
   const rows=await rest('shops',{query:{
-    select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,created_at',
+    select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,fiscal_config,created_at',
     id:'eq.'+id,limit:'1'
   }});
   if(rows[0])shop={...shop,...rows[0]};
@@ -2487,6 +2487,7 @@ function renderPage(){
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +'</section>':'')
       +(isMenu?'<section class="settings-category" aria-labelledby="settings-pdv-title"><h2 id="settings-pdv-title">PDV e comprovantes</h2><section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+receiptSettingsPanel()+'</section><section class="settings-category" aria-labelledby="settings-menu-title"><h2 id="settings-menu-title">Cardápio e categorias</h2>'+cardapioLayoutSettings()+categoryImagesSettings()+'</section>':'')+
+      fiscalSettingsSection()+
       '<section class="settings-category" aria-labelledby="settings-stock-title"><h2 id="settings-stock-title">Estoque</h2><section class="receipt-settings-panel"><h3>Excluir estoque</h3><p class="muted">Exclui permanentemente todos os produtos e quantidades cadastrados nesta loja. O histórico de vendas será preservado. Esta ação não pode ser desfeita.</p><button type="button" class="ghost" data-delete-all-stock style="border:1px solid #d14457;color:#d14457">Excluir todo o estoque</button></section></section>'+
        '<button type="submit" class="button settings-save-button" style="background-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;border-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;color:'+getSystemAccentInk()+' !important;">Salvar</button></form></div>';
   }else if(tab==='personalizar'){
@@ -2502,6 +2503,57 @@ function renderPage(){
    if(tab==='caixa')applyPdvFloatingFullWidth();
    if(tab==='caixa')applyPdvCategoryFontSizes();
 }
+function fiscalSettingsSection(){
+ const saved=shop?.fiscal_config&&typeof shop.fiscal_config==='object'&&!Array.isArray(shop.fiscal_config)?shop.fiscal_config:{};
+ const select=(name,label,choices,value)=>'<label>'+esc(label)+'<select name="'+esc(name)+'">'+
+  choices.map(([choice,text])=>'<option value="'+esc(choice)+'"'+(String(value??'')===choice?' selected':'')+'>'+esc(text)+'</option>').join('')+
+  '</select></label>';
+ const ufOptions=[['','Selecione a UF'],['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']];
+ const docOptions=[['nfce','NFC-e — venda ao consumidor'],['nfe','NF-e — venda de mercadorias'],['nfse','NFS-e — prestação de serviços']];
+ const regimeOptions=[['','Selecione o regime'],['mei','MEI'],['simples_nacional','Simples Nacional'],['lucro_presumido','Lucro Presumido'],['lucro_real','Lucro Real'],['outro','Outro']];
+ const defaultDocument=shop?.model==='agenda'?'nfse':'nfce';
+ return '<section class="settings-category" aria-labelledby="settings-fiscal-title">'+
+  '<h2 id="settings-fiscal-title">Fiscal</h2>'+
+  '<p class="muted">Preencha os dados cadastrais para preparar a futura emissão. A seleção inicial é homologação.</p>'+
+  '<h3>Documento e emissão</h3><div class="settings-category-fields">'+
+   select('fiscal_document_type','Documento fiscal principal',docOptions,saved.document_type||defaultDocument)+
+   select('fiscal_environment','Ambiente',[['homologacao','Homologação (testes)'],['producao','Produção']],saved.environment||'homologacao')+
+   field('fiscal_document_series','Série da nota','number',saved.document_series??1,'min="1" max="999" step="1"')+
+   select('fiscal_certificate_type','Tipo de certificado digital',[['','Selecione'],['a1','A1'],['a3','A3'],['nao_possui','Ainda não tenho']],saved.certificate_type||'')+
+  '</div>'+
+  '<h3>Cadastro da empresa</h3><div class="settings-category-fields">'+
+   field('fiscal_cnpj','CNPJ','text',formatFiscalCnpj(saved.cnpj||''),'maxlength="18" autocomplete="off" placeholder="00.000.000/0000-00"')+
+   field('fiscal_legal_name','Razão social','text',saved.legal_name||'','maxlength="160" autocomplete="organization"')+
+   select('fiscal_ie_status','Situação da Inscrição Estadual',[['contribuinte','Contribuinte'],['isento','Isento'],['nao_contribuinte','Não contribuinte']],saved.ie_status||'contribuinte')+
+   field('fiscal_state_registration','Inscrição Estadual','text',saved.state_registration||'','maxlength="40"')+
+   select('fiscal_tax_regime','Regime tributário',regimeOptions,saved.tax_regime||'')+
+   field('fiscal_cnae','CNAE principal','text',saved.cnae||'','maxlength="20" placeholder="Código da atividade"')+
+  '</div>'+
+  '<h3>Endereço do emitente</h3><div class="settings-category-fields">'+
+   field('fiscal_postal_code','CEP','text',saved.postal_code||'','maxlength="9" autocomplete="postal-code" placeholder="00000-000"')+
+   select('fiscal_uf','UF',ufOptions,saved.uf||'')+
+   field('fiscal_municipality','Município','text',saved.municipality||'','maxlength="100" autocomplete="address-level2"')+
+   field('fiscal_municipality_ibge','Código IBGE do município','text',saved.municipality_ibge||'','maxlength="7" inputmode="numeric" placeholder="7 dígitos"')+
+   field('fiscal_street','Logradouro','text',saved.street||'','maxlength="140" autocomplete="street-address"')+
+   field('fiscal_number','Número','text',saved.number||'','maxlength="20"')+
+   field('fiscal_complement','Complemento','text',saved.complement||'','maxlength="80"')+
+   field('fiscal_neighborhood','Bairro','text',saved.neighborhood||'','maxlength="80"')+
+  '</div>'+
+  '<h3>Dados estaduais e municipais</h3><div class="settings-category-fields">'+
+   field('fiscal_municipal_registration','Inscrição Municipal (NFS-e)','text',saved.municipal_registration||'','maxlength="40"')+
+   field('fiscal_service_code','Código de serviço municipal (NFS-e)','text',saved.service_code||'','maxlength="60"')+
+   field('fiscal_csc_id','Identificador do CSC (NFC-e)','text',saved.csc_id||'','maxlength="30"')+
+  '</div>'+
+  '<section class="receipt-settings-panel"><h3>Proteção de credenciais</h3><p class="muted">Não informe senha do certificado, arquivo do certificado ou token secreto do CSC aqui. A emissão ainda não está conectada; esses segredos só devem ser solicitados quando houver armazenamento protegido.</p></section>'+
+  '<p class="muted small">Salvar esses dados não emite notas. A classificação fiscal por produto e a integração com a SEFAZ ou com o provedor municipal serão configuradas em etapas próprias.</p>'+
+ '</section>';
+}
+function formatFiscalCnpj(value){
+ const raw=String(value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+ if(raw.length!==14)return String(value||'');
+ return raw.slice(0,2)+'.'+raw.slice(2,5)+'.'+raw.slice(5,8)+'/'+raw.slice(8,12)+'-'+raw.slice(12);
+}
+
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
 function formShell(kind,id,inside){const gridClass=kind==='product'&&tab==='produtos'?'columns product-form-grid':'columns';return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="'+gridClass+'">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
 function productForm(p){
@@ -2893,6 +2945,50 @@ async function handleSubmit(form,contractWindow=null){
       if(whatsapp&&!/^\d{10,13}$/.test(whatsapp))throw Error('Informe um telefone WhatsApp com DDD.');
       if(!v.name?.trim())throw Error('Informe o nome do estabelecimento.');
       const body={name:v.name.trim(),whatsapp:whatsapp||null};
+      const documentType=String(v.fiscal_document_type||'');
+      const environment=String(v.fiscal_environment||'');
+      const ieStatus=String(v.fiscal_ie_status||'');
+      const taxRegime=String(v.fiscal_tax_regime||'');
+      const certificateType=String(v.fiscal_certificate_type||'');
+      const validUf=['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+      const cnpj=String(v.fiscal_cnpj||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+      if(!['nfce','nfe','nfse'].includes(documentType))throw Error('Selecione um tipo de documento fiscal válido.');
+      if(!['homologacao','producao'].includes(environment))throw Error('Selecione um ambiente fiscal válido.');
+      if(cnpj&&!/^[A-Z0-9]{12}\d{2}$/.test(cnpj))throw Error('Informe um CNPJ válido com 14 posições; ele pode conter letras nas 12 primeiras posições.');
+      const uf=String(v.fiscal_uf||'').toUpperCase();
+      if(uf&&!validUf.includes(uf))throw Error('Selecione uma UF válida.');
+      const municipalityIbge=String(v.fiscal_municipality_ibge||'').replace(/\D/g,'');
+      if(municipalityIbge&&municipalityIbge.length!==7)throw Error('O código IBGE do município deve conter 7 números.');
+      const postalCode=String(v.fiscal_postal_code||'').replace(/\D/g,'');
+      if(postalCode&&postalCode.length!==8)throw Error('O CEP deve conter 8 números.');
+      if(!['','mei','simples_nacional','lucro_presumido','lucro_real','outro'].includes(taxRegime))throw Error('Selecione um regime tributário válido.');
+      if(!['contribuinte','isento','nao_contribuinte'].includes(ieStatus))throw Error('Selecione a situação da Inscrição Estadual.');
+      if(!['','a1','a3','nao_possui'].includes(certificateType))throw Error('Selecione um tipo de certificado válido.');
+      const seriesRaw=String(v.fiscal_document_series||'').trim();
+      const documentSeries=seriesRaw?Number(seriesRaw):null;
+      if(documentSeries!==null&&(!Number.isInteger(documentSeries)||documentSeries<1||documentSeries>999))throw Error('A série da nota deve ser um número inteiro entre 1 e 999.');
+      const fiscalText=(name,max,label)=>{
+        const value=String(v[name]||'').trim();
+        if(value.length>max)throw Error(label+' deve ter até '+max+' caracteres.');
+        return value;
+      };
+      body.fiscal_config={
+        document_type:documentType,environment,cnpj,
+        legal_name:fiscalText('fiscal_legal_name',160,'Razão social'),
+        ie_status:ieStatus,
+        state_registration:fiscalText('fiscal_state_registration',40,'Inscrição Estadual'),
+        tax_regime:taxRegime,cnae:fiscalText('fiscal_cnae',20,'CNAE'),
+        document_series:documentSeries,certificate_type:certificateType,uf,
+        municipality:fiscalText('fiscal_municipality',100,'Município'),
+        municipality_ibge:municipalityIbge,postal_code:postalCode,
+        street:fiscalText('fiscal_street',140,'Logradouro'),
+        number:fiscalText('fiscal_number',20,'Número'),
+        complement:fiscalText('fiscal_complement',80,'Complemento'),
+        neighborhood:fiscalText('fiscal_neighborhood',80,'Bairro'),
+        municipal_registration:fiscalText('fiscal_municipal_registration',40,'Inscrição Municipal'),
+        service_code:fiscalText('fiscal_service_code',60,'Código de serviço municipal'),
+        csc_id:fiscalText('fiscal_csc_id',30,'Identificador do CSC')
+      };
       if(canCustomize()){
         if(!/^#[0-9a-f]{6}$/i.test(String(v.brand_color||'')))throw Error('Selecione uma cor válida.');
         body.brand_color=v.brand_color;
