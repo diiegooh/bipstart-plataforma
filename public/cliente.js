@@ -1176,8 +1176,19 @@ function receiptSnapshot(sale,method,received,sold,recorded){
   })):sold.map(item=>({name:String(item.name),qty:Number(item.qty),price:Number(item.price)}));
  const computed=items.reduce((acc,item)=>acc+item.qty*item.price,0);
  const validTotal=Number.isFinite(total)&&total>=0?total:computed;
+ const fiscal=shop?.fiscal_config&&typeof shop.fiscal_config==='object'&&!Array.isArray(shop.fiscal_config)?shop.fiscal_config:{};
+ const street=String(fiscal.street||'').trim(),number=String(fiscal.number||'').trim();
+ const complement=String(fiscal.complement||'').trim(),neighborhood=String(fiscal.neighborhood||'').trim();
+ const municipality=String(fiscal.municipality||'').trim(),uf=String(fiscal.uf||'').trim();
+ const postal=String(fiscal.postal_code||'').replace(/\\D/g,'');
+ const fullFiscalAddress=street&&number&&municipality&&uf?
+  [[street,number].filter(Boolean).join(', '),[complement,neighborhood].filter(Boolean).join(' - '),
+   [municipality,uf].filter(Boolean).join(' - '),postal.length===8?'CEP '+postal.slice(0,5)+'-'+postal.slice(5):'']
+   .filter(Boolean).join(' • '):'';
  return {
-  shopId:shop.id,shopName:String(shop.name||''),address:String(shop.location_text||''),
+  shopId:shop.id,shopName:String(fiscal.legal_name||shop.name||''),
+  address:fullFiscalAddress||String(shop.location_text||''),
+  cnpj:formatFiscalCnpj(fiscal.cnpj||''),
   whatsapp:String(shop.whatsapp||''),id:String(sale?.sale_id||''),
   issuedAt:new Date().toISOString(),payment:method,items,total:validTotal,discount:Number(sale?.discount_amount||0),
   received:method==='dinheiro'&&received!==''?Number(received):null,
@@ -1192,6 +1203,7 @@ function receiptMarkup(receipt){
  const date=new Date(receipt.issuedAt);
  return '<article class="receipt-paper"><header class="receipt-shop">'+
   '<strong>'+esc(receipt.shopName)+'</strong>'+
+  (receipt.cnpj?'<p>CNPJ: '+esc(receipt.cnpj)+'</p>':'')+
   (receipt.address?'<p>'+esc(receipt.address)+'</p>':'')+
   (receipt.whatsapp?'<p>Contato: '+esc(receipt.whatsapp)+'</p>':'')+
   '</header><h3>COMPROVANTE DE VENDA</h3><p class="receipt-subtitle">NÃO FISCAL</p>'+
