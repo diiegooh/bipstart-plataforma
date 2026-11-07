@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=219">
+<link rel="stylesheet" href="/cliente.css?v=220">
 <style id="pdv-cart-inline-styles">
 /* Carrinho PDV reorganizado conforme a referência: cabeçalho, itens, resumo e checkout. */
 #workspace #page .godzilla-pdv .pdv-sale-panel{
@@ -746,6 +746,33 @@ body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-finish:disabled{opacity
  body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty button{flex-basis:21px!important;width:21px!important}
  body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty input{flex-basis:30px!important;width:30px!important}
  body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-line-total{font-size:12px!important}
+}
+</style><style id="pdv-cart-item-horizontal-order">
+/* Cada produto ocupa uma linha: imagem, descrição e quantidade. */
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-item .pdv-sale-product{
+ display:grid!important;grid-template-columns:52px minmax(65px,1fr) auto!important;
+ grid-template-rows:auto auto!important;align-items:center!important;column-gap:9px!important;row-gap:3px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-product-media{
+ grid-column:1!important;grid-row:1/3!important;align-self:center!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-product-details{display:contents!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-name{
+ grid-column:2!important;grid-row:1!important;align-self:end!important;min-width:0!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-product-controls{display:contents!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty{
+ grid-column:3!important;grid-row:1/3!important;align-self:center!important;justify-self:end!important;
+ flex-wrap:nowrap!important;white-space:nowrap!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-line-total{
+ grid-column:2!important;grid-row:2!important;align-self:start!important;justify-self:start!important;
+ margin:0!important;padding-top:2px!important;
+}
+@media(max-width:360px){
+ body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-item .pdv-sale-product{
+  grid-template-columns:46px minmax(52px,1fr) auto!important;column-gap:7px!important;
+ }
 }
 </style></head>
 <body class="bipstart-booting">
