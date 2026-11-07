@@ -1669,6 +1669,9 @@ function renderGodzillaPDV(){
    '<button type="button" data-remove="'+esc(c.id)+'" aria-label="Remover '+esc(c.name)+'">×</button>'+
    '</div><b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div></div></div></div>';
  }).join('');
+ const emptyCartMessage='<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>';
+ const reservedRows=Math.max(0,2-Math.max(1,cart.length));
+ const cartListContent=(cartItems||emptyCartMessage)+'<div class="pdv-sale-slot-placeholder" aria-hidden="true"></div>'.repeat(reservedRows);
  const paymentChoices=[['dinheiro','Dinheiro'],['cartao','Cartão'],['pix','Pix']];
  const activePayment=isCard?'cartao':pdvPayment;
  const paymentButtons=paymentChoices.map(([code,label])=>
@@ -1694,7 +1697,7 @@ function renderGodzillaPDV(){
  '<input type="search" id="pdvCartSearch" style="padding-left:34px!important;" placeholder="Nome ou código do produto" value="'+esc(pdvCartSearchQuery)+'" autocomplete="off" spellcheck="false" aria-controls="pdvCartSearchResults">'+
  '<button type="button" class="pdv-cart-search-clear" data-cart-search-clear aria-label="Limpar pesquisa"'+(pdvCartSearchQuery?'':' hidden')+'>×</button></div>'+
  '<div class="pdv-cart-search-results" id="pdvCartSearchResults" aria-live="polite">'+pdvCartSearchResultMarkup()+'</div></div>'+
- '<div class="pdv-sale-list">'+(cartItems||'<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>')+'</div>'+
+ '<div class="pdv-sale-list">'+cartListContent+'</div>'+
  '<div class="pdv-cart-summary"><div class="pdv-summary-row"><span>Itens</span><strong id="pdvCartCount">'+count+'</strong></div><div class="pdv-summary-row"><span>Subtotal</span><strong id="pdvCartSubtotal">'+fmt(sum)+'</strong></div></div>'+
  '<form id="saleForm" class="pdv-payment-form">'+
  '<div class="pdv-payment-selector"><span class="pdv-payment-label" id="pdvPaymentLabel">Forma de pagamento</span>'+
