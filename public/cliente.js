@@ -1686,7 +1686,7 @@ function renderGodzillaPDV(){
  '<div class="pdv-payment-selector"><span class="pdv-payment-label" id="pdvPaymentLabel">Forma de pagamento</span>'+
  '<div class="pdv-payment-options" role="group" aria-labelledby="pdvPaymentLabel">'+paymentButtons+'</div>'+
  '<input type="hidden" name="payment_method" id="pdvPaymentMethod" value="'+esc(pdvPayment)+'"></div>'+
- '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><label class="pdv-total-input-wrap" for="pdvTotalDue"><span aria-hidden="true">R$</span><input id="pdvTotalDue" type="text" inputmode="decimal" autocomplete="off" aria-label="Total a pagar em reais" value="'+formatCurrencyDigits(String(Math.round(checkout.total*100)))+'"></label></div>'+
+ '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><div class="pdv-total-input-wrap" style="display:grid!important;grid-template-columns:max-content minmax(0,1fr)!important;align-items:center!important;column-gap:8px!important;"><span aria-hidden="true" style="grid-column:1!important;grid-row:1!important;white-space:nowrap!important;">R$</span><input id="pdvTotalDue" type="text" inputmode="decimal" autocomplete="off" aria-label="Total a pagar em reais" value="'+formatCurrencyDigits(String(Math.round(checkout.total*100)))+'" style="grid-column:2!important;grid-row:1!important;min-width:0!important;width:100%!important;text-align:right!important;"></div></div>'+
  '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="text" inputmode="decimal" autocomplete="off" id="pdvReceived" name="received" placeholder="0,00"></label>'+
  '<div class="pdv-calculation">Troco <strong id="pdvChange">'+fmt(0)+'</strong></div></div>'+
  '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'">'+
