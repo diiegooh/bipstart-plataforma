@@ -2457,7 +2457,7 @@ function renderPage(){
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +'</section>':'')
       +(isMenu?'<section class="settings-category" aria-labelledby="settings-pdv-title"><h2 id="settings-pdv-title">PDV e comprovantes</h2><section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+receiptSettingsPanel()+'</section><section class="settings-category" aria-labelledby="settings-menu-title"><h2 id="settings-menu-title">Cardápio e categorias</h2>'+cardapioLayoutSettings()+categoryImagesSettings()+'</section>':'')+
-      '<section class="settings-category" aria-labelledby="settings-stock-title"><h2 id="settings-stock-title">Estoque</h2><section class="receipt-settings-panel"><h3>Zerar estoque</h3><p class="muted">Define como zero a quantidade em estoque de todos os produtos cadastrados nesta loja. Não exclui produtos, preços ou histórico de vendas. Esta ação não pode ser desfeita automaticamente.</p><button type="button" class="ghost" data-reset-stock style="border:1px solid #d14457;color:#d14457">Zerar todo o estoque</button></section></section>'+
+      '<section class="settings-category" aria-labelledby="settings-stock-title"><h2 id="settings-stock-title">Estoque</h2><section class="receipt-settings-panel"><h3>Excluir estoque</h3><p class="muted">Exclui permanentemente todos os produtos e quantidades cadastrados nesta loja. O histórico de vendas será preservado. Esta ação não pode ser desfeita.</p><button type="button" class="ghost" data-delete-all-stock style="border:1px solid #d14457;color:#d14457">Excluir todo o estoque</button></section></section>'+
        '<button type="submit" class="button settings-save-button" style="background-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;border-color:'+esc(/^#[0-9a-f]{6}$/i.test(shop.brand_color||'')?shop.brand_color:'#7c3aed')+' !important;color:'+getSystemAccentInk()+' !important;">Salvar</button></form></div>';
   }else if(tab==='personalizar'){
     content=heading('Mudanças e suporte mensal','Conte suas necessidades e solicite ajustes na logo, cores, páginas e funcionalidades.')
@@ -3110,25 +3110,29 @@ document.addEventListener('click',async e=>{
     }
     return;
   }
-  const resetStockButton=e.target.closest('[data-reset-stock]');
-  if(resetStockButton){
+  const deleteStockButton=e.target.closest('[data-delete-all-stock]');
+  if(deleteStockButton){
     if(tab!=='configuracoes'||!shop||!hasAccess())return;
     const shopId=shop.id;
-    if(!window.confirm('Zerar a quantidade em estoque de todos os produtos desta loja? Os produtos, preços e vendas serão preservados.'))return;
-    resetStockButton.disabled=true;
+    const confirmation=window.prompt('ATENÇÃO: todos os produtos e quantidades desta loja serão excluídos permanentemente. O histórico de vendas será preservado. Digite EXCLUIR para continuar:');
+    if(confirmation!=='EXCLUIR')return;
+    if(!window.confirm('Confirma a exclusão definitiva de todos os produtos do estoque desta loja? Esta ação não pode ser desfeita.'))return;
+    deleteStockButton.disabled=true;
     try{
-      const updated=await rest('shop_products',{method:'PATCH',query:{shop_id:'eq.'+shopId},body:{stock:0}});
-      const remaining=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shopId,stock:'neq.0',limit:'1'}});
-      if(remaining.length)throw Error('O estoque não foi zerado para todos os produtos. Verifique as permissões da loja.');
+      await rest('shop_products',{method:'DELETE',query:{shop_id:'eq.'+shopId}});
+      const remaining=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shopId,limit:'1'}});
+      if(remaining.length)throw Error('Ainda existem produtos cadastrados. Verifique as permissões da loja.');
       if(shop?.id!==shopId)return;
+      products=[];
+      cart=[];
+      pdvQuery='';
       await reloadData();
       renderPage();
-      const count=Array.isArray(updated)?updated.length:products.length;
-      msg('Estoque zerado para '+count+' produto(s). Produtos e vendas foram preservados.');
+      msg('Todos os produtos e quantidades do estoque foram excluídos. O histórico de vendas foi preservado.');
     }catch(error){
-      msg(error.message||'Não foi possível zerar o estoque.',true);
+      msg(error.message||'Não foi possível excluir o estoque. Produtos vinculados ao histórico podem impedir a exclusão.',true);
     }finally{
-      if(resetStockButton.isConnected)resetStockButton.disabled=false;
+      if(deleteStockButton.isConnected)deleteStockButton.disabled=false;
     }
     return;
   }
