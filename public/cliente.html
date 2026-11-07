@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=198">
+<link rel="stylesheet" href="/cliente.css?v=199">
 <link rel="stylesheet" href="/cliente-area.css?v=no-night-20261024">
 <link rel="stylesheet" href="/login.css?v=4">
 <style id="bipstart-login-theme">
@@ -292,6 +292,6 @@ body.bipstart-booting #startupOverlay{position:fixed;inset:0;z-index:10000;backg
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=193" defer></script>
+<script src="/cliente.js?v=194" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
