@@ -1662,7 +1662,7 @@ function renderGodzillaPDV(){
  const activePayment=isCard?'cartao':pdvPayment;
  const paymentButtons=paymentChoices.map(([code,label])=>
   '<button type="button" class="pdv-payment-chip'+(activePayment===code?' selected':'')+
-  '" data-payment-option="'+code+'" aria-pressed="'+(activePayment===code)+'">'+label+'</button>'
+  '" data-payment-option="'+code+'" aria-pressed="'+(activePayment===code)+'"><span class="pdv-payment-icon" aria-hidden="true">'+(code==='dinheiro'?'▣':code==='cartao'?'▰':'◆')+'</span><span>'+label+'</span></button>'
  ).join('');
  const cardTypeButtons=[['credito','Crédito'],['debito','Débito']].map(([code,label])=>
   '<button type="button" class="pdv-card-kind'+(pdvPayment===code?' selected':'')+
@@ -1689,7 +1689,7 @@ function renderGodzillaPDV(){
  '<div class="pdv-payment-selector"><span class="pdv-payment-label" id="pdvPaymentLabel">Forma de pagamento</span>'+
  '<div class="pdv-payment-options" role="group" aria-labelledby="pdvPaymentLabel">'+paymentButtons+'</div>'+
  '<input type="hidden" name="payment_method" id="pdvPaymentMethod" value="'+esc(pdvPayment)+'"></div>'+
- '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><div class="pdv-total-input-wrap" style="display:flex!important;align-items:center!important;gap:4px!important;flex:0 1 150px!important;width:150px!important;min-width:112px!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:var(--store-accent,#7c3aed)!important;"><span aria-hidden="true" style="flex:0 0 auto!important;color:var(--store-accent,#7c3aed)!important;font-size:19px!important;font-weight:900!important;white-space:nowrap!important;">R$</span><input id="pdvTotalDue" type="text" inputmode="decimal" autocomplete="off" aria-label="Total a pagar em reais" value="'+formatCurrencyDigits(String(Math.round(checkout.total*100)))+'" style="display:block!important;box-sizing:border-box!important;flex:1 1 auto!important;width:100%!important;min-width:0!important;height:38px!important;margin:0!important;padding:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:var(--store-accent,#7c3aed)!important;font-size:23px!important;font-weight:900!important;text-align:right!important;font-variant-numeric:tabular-nums!important;"></div></div>'+
+ '<div class="pdv-sale-total pdv-total-due"><span>Total a pagar</span><div class="pdv-total-input-wrap"><span aria-hidden="true">R$</span><input id="pdvTotalDue" type="text" inputmode="decimal" autocomplete="off" aria-label="Total a pagar em reais" value="'+formatCurrencyDigits(String(Math.round(checkout.total*100)))+'"></div></div>'+
  '<div id="pdvCashFields" class="'+(cash?'':'hidden')+'"><label>Valor recebido (R$)<input type="text" inputmode="decimal" autocomplete="off" id="pdvReceived" name="received" placeholder="0,00"></label>'+
  '<div class="pdv-calculation">Troco <strong id="pdvChange">'+fmt(0)+'</strong></div></div>'+
  '<div id="pdvCardFields" class="'+(isCard?'':'hidden')+'">'+

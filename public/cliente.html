@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=218">
+<link rel="stylesheet" href="/cliente.css?v=219">
 <style id="pdv-cart-inline-styles">
 /* Carrinho PDV reorganizado conforme a referência: cabeçalho, itens, resumo e checkout. */
 #workspace #page .godzilla-pdv .pdv-sale-panel{
@@ -563,7 +563,191 @@ body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-search-result{
  border-color:transparent!important;border-radius:0!important;
 }
 </style>
-</head>
+<style id="pdv-cart-reference-layout">
+/* Carrinho compacto conforme a referência visual. */
+body #workspace #page .godzilla-pdv .pdv-sale-panel{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;gap:0!important;
+ min-width:0!important;padding:14px 12px!important;border:1px solid #1b2a40!important;border-radius:15px!important;
+ background:color-mix(in srgb,var(--store-accent,#7c3aed) 6%,#101d30)!important;
+ background-image:none!important;color:#f5f7fc!important;box-shadow:0 12px 28px #07101e44!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-head{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:10px!important;margin:0 0 9px!important;padding:0 0 9px!important;border-bottom:1px solid #2c3b50!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-head .kicker{display:none!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-head h2{
+ margin:0!important;color:#f7f8fc!important;font-size:22px!important;line-height:1.2!important;font-weight:850!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-head>span{font-size:21px!important;color:#dbe5f5!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-search{display:grid!important;gap:0!important;margin:0 0 8px!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-search>label{
+ position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
+ overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-search-input-wrap{
+ display:flex!important;align-items:center!important;gap:7px!important;box-sizing:border-box!important;
+ min-height:38px!important;padding:0 10px!important;border:0!important;border-radius:9px!important;
+ background:#1b2b43!important;background-image:none!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-search-input-wrap .pdv-cart-search-loupe{border-color:#cbd6e7!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCartSearch{
+ box-sizing:border-box!important;min-width:0!important;width:100%!important;padding:7px 0!important;
+ border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;
+ color:#f5f7fc!important;font-size:12px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCartSearch::placeholder{color:#aab7ca!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-search-clear{flex:0 0 auto!important;color:#dbe5f5!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-search-results:not(:empty){
+ max-height:min(210px,30vh)!important;margin:5px 0 0!important;padding:0!important;
+ border:0!important;border-radius:9px!important;background:transparent!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-search-result{
+ min-height:42px!important;padding:8px 9px!important;border:0!important;border-radius:8px!important;
+ background:#1b2b43!important;color:#f5f7fc!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-list{
+ display:grid!important;gap:0!important;min-height:0!important;max-height:min(240px,32vh)!important;
+ overflow-y:auto!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-item{
+ display:block!important;box-sizing:border-box!important;margin:0!important;padding:10px 0!important;
+ border:0!important;border-bottom:1px solid #2c3b50!important;border-radius:0!important;
+ background:transparent!important;background-image:none!important;color:#f5f7fc!important;box-shadow:none!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-product{display:flex!important;align-items:center!important;gap:10px!important;min-width:0!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-product-media{
+ display:grid!important;place-items:center!important;flex:0 0 56px!important;width:56px!important;height:62px!important;
+ overflow:hidden!important;border-radius:9px!important;background:#1b2b43!important;color:#d4def0!important;font-size:22px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-product-media img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-product-details{display:grid!important;gap:7px!important;min-width:0!important;flex:1 1 auto!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-name{
+ display:-webkit-box!important;min-width:0!important;margin:0!important;overflow:hidden!important;
+ color:#f5f7fc!important;font-size:10px!important;line-height:1.35!important;font-weight:800!important;
+ text-transform:uppercase!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-product-controls{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;gap:7px!important;min-width:0!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty{display:flex!important;align-items:center!important;gap:4px!important;min-width:0!important;margin:0!important;flex-wrap:nowrap!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty button,
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty input{
+ box-sizing:border-box!important;display:grid!important;place-items:center!important;flex:0 0 22px!important;
+ width:22px!important;height:23px!important;min-height:23px!important;margin:0!important;padding:0!important;
+ border:1px solid #293b55!important;border-radius:6px!important;background:#1b2b43!important;color:#f7f8fc!important;
+ font-size:12px!important;font-weight:800!important;line-height:1!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty input{
+ flex-basis:33px!important;width:33px!important;border-radius:6px!important;text-align:center!important;appearance:textfield!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty input::-webkit-inner-spin-button,
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty input::-webkit-outer-spin-button{appearance:none!important;margin:0!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty button:last-child{background:#f43d52!important;border-color:#f43d52!important;color:#fff!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-line-total{
+ flex:0 0 auto!important;margin:0!important;color:#bb91ff!important;font-size:13px!important;font-weight:850!important;white-space:nowrap!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-empty{
+ min-height:64px!important;margin:0!important;padding:10px 0!important;border:0!important;border-radius:0!important;
+ background:transparent!important;color:#b8c5d9!important;text-align:center!important;font-size:12px!important;line-height:1.4!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-summary{display:grid!important;gap:0!important;margin:0!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-summary-row{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;
+ min-height:42px!important;margin:0!important;padding:8px 0!important;border-bottom:1px solid #2c3b50!important;
+ background:transparent!important;color:#f2f5fb!important;font-size:12px!important;font-weight:700!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-summary-row strong{color:#f2f5fb!important;font-size:14px!important;font-weight:850!important;font-variant-numeric:tabular-nums!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-payment-form{
+ display:flex!important;flex-direction:column!important;gap:0!important;margin:0!important;padding:0!important;
+ border:0!important;border-radius:0!important;background:transparent!important;color:#f5f7fc!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-payment-selector{
+ display:grid!important;gap:8px!important;order:2!important;margin:0!important;padding:0!important;background:transparent!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-payment-label{
+ position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
+ overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-payment-options{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;margin:0!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-payment-chip{
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;min-width:0!important;min-height:39px!important;
+ padding:7px 4px!important;border:1px solid #293b55!important;border-radius:9px!important;background:#1b2b43!important;color:#f5f7fc!important;
+ font-size:11px!important;font-weight:750!important;white-space:nowrap!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-payment-icon{font-size:12px!important;line-height:1!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-payment-chip.selected{
+ border-color:#1459de!important;background:#1459de!important;color:#fff!important;box-shadow:none!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-total.pdv-total-due{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;order:1!important;
+ box-sizing:border-box!important;min-width:0!important;margin:0 0 10px!important;padding:10px 0!important;
+ border:0!important;border-bottom:1px solid #2c3b50!important;background:transparent!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-total-due>span{
+ flex:1 1 auto!important;min-width:0!important;color:#f4f6fb!important;font-size:15px!important;font-weight:800!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-total-input-wrap{
+ display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:3px!important;
+ flex:0 1 auto!important;width:auto!important;min-width:0!important;margin:0!important;padding:0!important;
+ border:0!important;border-radius:0!important;background:transparent!important;color:#bb91ff!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-total-input-wrap>span{
+ flex:0 0 auto!important;color:#bb91ff!important;font-size:20px!important;font-weight:900!important;white-space:nowrap!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-total-input-wrap>input{
+ display:block!important;box-sizing:border-box!important;flex:0 1 91px!important;width:91px!important;min-width:65px!important;height:36px!important;
+ margin:0!important;padding:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;
+ color:#bb91ff!important;font-size:22px!important;font-weight:900!important;text-align:right!important;font-variant-numeric:tabular-nums!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-total-input-wrap:focus-within{outline:0!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCashFields,
+body #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCardFields{
+ order:3!important;margin:0 0 10px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:#f5f7fc!important;box-shadow:none!important;
+}
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCashFields,
+body.pdv-night #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCardFields{background:transparent!important;border-color:transparent!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCashFields label,
+body #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCardFields label{display:grid!important;gap:5px!important;margin:9px 0!important;color:#f5f7fc!important;font-size:12px!important}
+body #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCashFields input,
+body #workspace #page .godzilla-pdv .pdv-sale-panel #pdvCardFields input{
+ box-sizing:border-box!important;width:100%!important;min-height:39px!important;margin:0!important;padding:9px 10px!important;
+ border:1px solid #34445b!important;border-radius:8px!important;background:#1b2b43!important;color:#fff!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-calculation{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;
+ min-height:38px!important;margin:7px 0 0!important;padding:8px 10px!important;border:1px solid #2c3b50!important;
+ border-radius:8px!important;background:#1b2b43!important;color:#f5f7fc!important;font-size:12px!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-finish{
+ display:flex!important;align-items:center!important;justify-content:center!important;order:4!important;width:100%!important;
+ min-height:48px!important;margin:12px 0 0!important;padding:12px!important;border:0!important;border-radius:10px!important;
+ background:linear-gradient(105deg,#4254f5 0%,#8b35e8 100%)!important;background-image:linear-gradient(105deg,#4254f5 0%,#8b35e8 100%)!important;
+ color:#fff!important;box-shadow:none!important;font-size:12px!important;font-weight:850!important;letter-spacing:0!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-finish:disabled{opacity:.55!important;cursor:not-allowed!important}
+@media(min-width:701px){
+ #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-sale-panel.pdv-sale-panel-floating.is-open{
+  right:24px!important;bottom:90px!important;left:auto!important;top:auto!important;width:min(400px,calc(100vw - 40px))!important;
+  max-height:calc(100vh - 125px)!important;overflow-y:auto!important;
+ }
+}
+@media(max-width:700px){
+ body #workspace #page .godzilla-pdv .pdv-sale-panel{padding:12px!important}
+ #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-sale-panel.pdv-sale-panel-floating.is-open{
+  left:12px!important;right:12px!important;bottom:82px!important;top:auto!important;width:auto!important;
+  max-height:calc(100dvh - 105px)!important;overflow-y:auto!important;
+ }
+}
+@media(max-width:360px){
+ body #workspace #page .godzilla-pdv .pdv-sale-panel{padding:11px 10px!important}
+ body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-head h2{font-size:21px!important}
+ body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty{gap:3px!important}
+ body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty button{flex-basis:21px!important;width:21px!important}
+ body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-qty input{flex-basis:30px!important;width:30px!important}
+ body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-line-total{font-size:12px!important}
+}
+</style></head>
 <body class="bipstart-booting">
 <div id="startupOverlay" role="status" aria-live="polite"><span class="startup-spinner" aria-hidden="true"></span><span>Carregando sua loja…</span></div>
 <header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-marca-horizontal.svg?v=2" alt="BipStart" width="190" height="50"></a><nav><button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
@@ -650,6 +834,6 @@ body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-cart-search-result{
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=204" defer></script>
+<script src="/cliente.js?v=205" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
