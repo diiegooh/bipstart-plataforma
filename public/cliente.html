@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=212">
+<link rel="stylesheet" href="/cliente.css?v=213">
 <style id="pdv-cart-inline-styles">
 /* Carrinho PDV reorganizado conforme a referência: cabeçalho, itens, resumo e checkout. */
 #workspace #page .godzilla-pdv .pdv-sale-panel{
@@ -236,6 +236,18 @@ body:not(.pdv-night) #workspace #page .settings-category-nav>button:hover:not(.i
 #workspace #page .settings-layout>.data-form{width:100%!important;min-width:0!important;}
 @media(max-width:640px){
  #workspace #page .settings-category-nav>button{min-height:38px!important;padding:8px 12px!important;font-size:13px!important;}
+}
+
+/* Remove o cartão de fundo da fileira; mantém as abas compactas e independentes. */
+#workspace #page .settings-layout>.settings-category-nav{
+ min-height:0!important;height:auto!important;gap:7px!important;margin:0!important;padding:0!important;
+ border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+ scrollbar-width:none!important;
+}
+#workspace #page .settings-layout>.settings-category-nav::-webkit-scrollbar{display:none!important;}
+#workspace #page .settings-category-nav>button{
+ min-height:36px!important;height:auto!important;padding:8px 12px!important;border-radius:8px!important;
+ font-size:13px!important;line-height:1.15!important;
 }
 </style>
 <link rel="stylesheet" href="/cliente-area.css?v=no-night-20261024">
