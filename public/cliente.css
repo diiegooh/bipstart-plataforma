@@ -5436,17 +5436,23 @@ body.pdv-night #workspace .godzilla-pdv .pdv-total-input-wrap>input{color:#c9b4f
  #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{font-size:20px!important}
 }
 
-/* Carrinho PDV: reservar sempre duas linhas, inclusive vazio; itens extras rolam dentro da lista. */
+/* Carrinho PDV: reservar espaço para duas linhas e manter a lista rolável. */
 body #workspace #page .godzilla-pdv .pdv-sale-list{
- box-sizing:border-box!important;display:grid!important;grid-auto-flow:row!important;grid-auto-rows:103px!important;
- align-content:start!important;gap:0!important;width:100%!important;height:206px!important;
- min-height:206px!important;max-height:206px!important;overflow-y:auto!important;overscroll-behavior:contain!important;
+ box-sizing:border-box!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ grid-auto-flow:row!important;grid-auto-rows:minmax(103px,auto)!important;align-content:start!important;
+ gap:0!important;width:100%!important;height:206px!important;min-height:206px!important;max-height:206px!important;
+ flex:0 0 206px!important;overflow-x:hidden!important;overflow-y:auto!important;
+ -webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;
 }
 body #workspace #page .godzilla-pdv .pdv-sale-list>.pdv-sale-item{
+ box-sizing:border-box!important;display:block!important;height:auto!important;min-height:103px!important;
+ max-height:none!important;margin:0!important;overflow:visible!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-list>.pdv-sale-slot-placeholder{
  box-sizing:border-box!important;display:block!important;height:103px!important;min-height:103px!important;
- max-height:103px!important;margin:0!important;overflow:hidden!important;
+ margin:0!important;border-bottom:1px solid #2c3b50!important;pointer-events:none!important;
 }
 body #workspace #page .godzilla-pdv .pdv-sale-list>.pdv-sale-empty{
- box-sizing:border-box!important;grid-row:1 / span 2!important;height:206px!important;
- min-height:206px!important;max-height:206px!important;margin:0!important;align-self:start!important;
+ box-sizing:border-box!important;grid-row:auto!important;height:auto!important;min-height:103px!important;
+ max-height:none!important;margin:0!important;align-self:stretch!important;
 }
