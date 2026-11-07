@@ -5456,3 +5456,45 @@ body #workspace #page .godzilla-pdv .pdv-sale-list>.pdv-sale-empty{
  box-sizing:border-box!important;grid-row:auto!important;height:auto!important;min-height:103px!important;
  max-height:none!important;margin:0!important;align-self:stretch!important;
 }
+
+
+/* PDV: painel do carrinho ocupa a altura disponível sem perder a rolagem dos itens. */
+body #workspace #page .godzilla-pdv .pdv-sale-panel{
+ box-sizing:border-box!important;width:100%!important;max-width:480px!important;min-width:0!important;margin-inline:auto!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-list{
+ box-sizing:border-box!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ grid-template-rows:repeat(2,minmax(103px,1fr))!important;grid-auto-flow:row!important;grid-auto-rows:minmax(103px,1fr)!important;
+ align-content:stretch!important;gap:0!important;width:100%!important;height:auto!important;min-height:206px!important;max-height:none!important;
+ flex:1 1 206px!important;overflow-x:hidden!important;overflow-y:auto!important;
+ -webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;
+}
+body #workspace #page .godzilla-pdv .pdv-sale-list>.pdv-sale-empty{
+ box-sizing:border-box!important;grid-row:1 / span 2!important;height:100%!important;min-height:206px!important;max-height:none!important;
+ margin:0!important;align-self:stretch!important;
+}
+body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
+ text-align:center!important;
+}
+@media(max-width:700px){
+ body #workspace #page .godzilla-pdv .pdv-sale-panel:not(.pdv-sale-panel-floating){
+  height:calc(100dvh - 40px)!important;min-height:480px!important;max-height:calc(100dvh - 40px)!important;
+  overflow-y:auto!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-sale-panel-floating.is-open{
+  display:flex!important;flex-direction:column!important;position:fixed!important;z-index:1002!important;
+  left:50%!important;right:auto!important;top:24px!important;bottom:auto!important;transform:translateX(-50%)!important;
+  width:min(480px,calc(100vw - 32px))!important;height:calc(100dvh - 106px)!important;
+  min-height:0!important;max-height:calc(100dvh - 106px)!important;overflow-y:auto!important;
+ }
+}
+@media (hover:hover) and (min-width:701px){
+ body #workspace #page .godzilla-pdv:has(.pdv-floating-sale-button:hover) .pdv-sale-panel-floating,
+ body #workspace #page .godzilla-pdv .pdv-sale-panel-floating:hover,
+ body #workspace #page .godzilla-pdv .pdv-sale-panel-floating.is-open{
+  display:flex!important;flex-direction:column!important;position:fixed!important;z-index:1002!important;
+  right:24px!important;left:auto!important;top:40px!important;bottom:90px!important;transform:none!important;
+  width:min(480px,calc(100vw - 48px))!important;height:calc(100dvh - 130px)!important;
+  min-height:0!important;max-height:calc(100dvh - 130px)!important;overflow-y:auto!important;
+ }
+}

@@ -1671,7 +1671,9 @@ function renderGodzillaPDV(){
  }).join('');
  const emptyCartMessage='<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>';
  const reservedRows=Math.max(0,2-Math.max(1,cart.length));
- const cartListContent=(cartItems||emptyCartMessage)+'<div class="pdv-sale-slot-placeholder" aria-hidden="true"></div>'.repeat(reservedRows);
+ const cartListContent=cartItems
+  ? cartItems+'<div class="pdv-sale-slot-placeholder" aria-hidden="true"></div>'.repeat(reservedRows)
+  : emptyCartMessage;
  const paymentChoices=[['dinheiro','Dinheiro'],['cartao','Cartão'],['pix','Pix']];
  const activePayment=isCard?'cartao':pdvPayment;
  const paymentButtons=paymentChoices.map(([code,label])=>
