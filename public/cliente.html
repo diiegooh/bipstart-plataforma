@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=216">
+<link rel="stylesheet" href="/cliente.css?v=217">
 <style id="pdv-cart-inline-styles">
 /* Carrinho PDV reorganizado conforme a referência: cabeçalho, itens, resumo e checkout. */
 #workspace #page .godzilla-pdv .pdv-sale-panel{
@@ -501,6 +501,32 @@ body.bipstart-booting #startupOverlay{position:fixed;inset:0;z-index:10000;backg
 
 .top .brand .brand-logo{width:190px!important;height:auto!important;max-height:56px!important;object-fit:contain!important;object-position:left center}
 @media(max-width:600px){.top .brand .brand-logo{width:158px!important;max-height:46px!important}}
+</style>
+<style id="pdv-floating-cart-click-only">
+/* No modo flutuante, a venda fica recolhida até o acionamento do botão. */
+#workspace #page .godzilla-pdv.pdv-floating-layout .pdv-panel.pdv-sale-panel.pdv-sale-panel-floating:not(.is-open){
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+#workspace #page .godzilla-pdv.pdv-floating-layout .pdv-panel.pdv-sale-panel.pdv-sale-panel-floating.is-open{
+ display:flex!important;position:fixed!important;z-index:1002!important;top:auto!important;
+ box-sizing:border-box!important;margin:0!important;overflow-y:auto!important;
+}
+#workspace #page .godzilla-pdv.pdv-floating-layout .pdv-floating-backdrop{display:none!important}
+#workspace #page .godzilla-pdv.pdv-floating-layout .pdv-floating-backdrop.open{
+ display:block!important;position:fixed!important;inset:0!important;z-index:1001!important;
+}
+@media(min-width:701px){
+ #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-panel.pdv-sale-panel.pdv-sale-panel-floating.is-open{
+  right:24px!important;bottom:90px!important;left:auto!important;top:auto!important;
+  width:min(540px,calc(100vw - 48px))!important;max-height:calc(100vh - 130px)!important;
+ }
+}
+@media(max-width:700px){
+ #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-panel.pdv-sale-panel.pdv-sale-panel-floating.is-open{
+  left:12px!important;right:12px!important;bottom:82px!important;top:auto!important;
+  width:auto!important;max-height:calc(100dvh - 105px)!important;
+ }
+}
 </style>
 </head>
 <body class="bipstart-booting">
