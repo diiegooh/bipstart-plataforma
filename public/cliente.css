@@ -5314,3 +5314,8 @@ body.pdv-night #workspace .godzilla-pdv .pdv-sale-panel .pdv-payment-form>.pdv-s
 body.pdv-night #workspace .godzilla-pdv .pdv-total-input-wrap{background:#2b2f39!important;border-color:#505463!important;color:#c9b4ff!important;}
 body.pdv-night #workspace .godzilla-pdv .pdv-total-input-wrap>input{color:#c9b4ff!important;}
 @media(max-width:480px){#workspace .godzilla-pdv .pdv-total-input-wrap{flex-basis:150px!important;width:150px!important;min-width:110px!important;}#workspace .godzilla-pdv .pdv-total-input-wrap>input{font-size:19px!important;}}
+
+/* Mantém a moeda e o valor editável lado a lado, inclusive em telas estreitas. */
+#workspace .godzilla-pdv .pdv-total-input-wrap{box-sizing:border-box!important;display:grid!important;grid-template-columns:max-content minmax(0,1fr)!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;column-gap:8px!important;white-space:nowrap!important;}
+#workspace .godzilla-pdv .pdv-total-input-wrap>span{grid-column:1!important;grid-row:1!important;white-space:nowrap!important;}
+#workspace .godzilla-pdv .pdv-total-input-wrap>input{grid-column:2!important;grid-row:1!important;}
