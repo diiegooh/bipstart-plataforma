@@ -1646,14 +1646,17 @@ function renderGodzillaPDV(){
    categoriesList.map(name=>'<option value="'+esc(name)+'"'+(pdvCategory===name?' selected':'')+'>'+esc(name)+'</option>').join('');
  const cash=pdvPayment==='dinheiro',isCard=['credito','debito'].includes(pdvPayment);
  const cartItems=cart.map(c=>{
-  return '<div class="pdv-sale-item"><div class="pdv-sale-product pdv-sale-name-price"><strong>'+esc(c.name)+'</strong>'+
-   '<b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div>'+
+  const product=products.find(p=>String(p.id)===String(c.id));
+  const photo=product?.image_path?'<img src="'+esc(imageUrl(product.image_path))+'" alt="" loading="lazy">':'<span aria-hidden="true">🛍️</span>';
+  return '<div class="pdv-sale-item"><div class="pdv-sale-product">'+
+   '<span class="pdv-cart-product-media">'+photo+'</span><div class="pdv-cart-product-details">'+
+   '<strong class="pdv-sale-name">'+esc(c.name)+'</strong><div class="pdv-cart-product-controls">'+
    '<div class="pdv-sale-qty">'+
    '<button type="button" data-qty-less="'+esc(c.id)+'" aria-label="Diminuir '+esc(c.name)+'">−</button>'+
    '<input class="pdv-cart-quantity" data-cart-quantity="'+esc(c.id)+'" type="number" min="1" max="10000" step="1" inputmode="numeric" value="'+esc(c.qty)+'" aria-label="Quantidade de '+esc(c.name)+'" title="Edite a quantidade de unidades" autocomplete="off">'+
    '<button type="button" data-cart="'+esc(c.id)+'" aria-label="Aumentar '+esc(c.name)+'">+</button>'+
    '<button type="button" data-remove="'+esc(c.id)+'" aria-label="Remover '+esc(c.name)+'">×</button>'+
-   '</div></div>';
+   '</div><b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div></div></div></div>';
  }).join('');
  const paymentChoices=[['dinheiro','Dinheiro'],['cartao','Cartão'],['pix','Pix']];
  const activePayment=isCard?'cartao':pdvPayment;
@@ -1674,14 +1677,14 @@ function renderGodzillaPDV(){
  
  '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
  '</section><div class="pdv-floating-backdrop'+(floatingSale&&pdvCheckoutOpen?' open':'')+'" data-floating-sale-close></div><aside class="pdv-panel pdv-sale-panel'+(floatingSale?' pdv-sale-panel-floating':'')+(floatingSale&&pdvCheckoutOpen?' is-open':'')+'" aria-label="Venda atual">'+
- '<div class="pdv-sale-head"><div><span class="kicker">CAIXA</span><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
+ '<div class="pdv-sale-head"><div><h2>Venda atual</h2></div><span aria-hidden="true">🛒</span></div>'+
  '<div class="pdv-cart-search"><label for="pdvCartSearch">Pesquisar e adicionar produto</label>'+
  '<div class="pdv-cart-search-input-wrap"><span class="pdv-cart-search-loupe" aria-hidden="true"></span>'+
  '<input type="search" id="pdvCartSearch" placeholder="Nome ou código do produto" value="'+esc(pdvCartSearchQuery)+'" autocomplete="off" spellcheck="false" aria-controls="pdvCartSearchResults">'+
  '<button type="button" class="pdv-cart-search-clear" data-cart-search-clear aria-label="Limpar pesquisa"'+(pdvCartSearchQuery?'':' hidden')+'>×</button></div>'+
  '<div class="pdv-cart-search-results" id="pdvCartSearchResults" aria-live="polite">'+pdvCartSearchResultMarkup()+'</div></div>'+
  '<div class="pdv-sale-list">'+(cartItems||'<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>')+'</div>'+
- '<div class="pdv-sale-total"><span id="pdvCartCount">'+count+' item(ns) · Subtotal</span><strong id="pdvCartSubtotal">'+fmt(sum)+'</strong></div>'+
+ '<div class="pdv-cart-summary"><div class="pdv-summary-row"><span>Itens</span><strong id="pdvCartCount">'+count+'</strong></div><div class="pdv-summary-row"><span>Subtotal</span><strong id="pdvCartSubtotal">'+fmt(sum)+'</strong></div></div>'+
  '<form id="saleForm" class="pdv-payment-form">'+
  '<div class="pdv-payment-selector"><span class="pdv-payment-label" id="pdvPaymentLabel">Forma de pagamento</span>'+
  '<div class="pdv-payment-options" role="group" aria-labelledby="pdvPaymentLabel">'+paymentButtons+'</div>'+
@@ -1710,7 +1713,7 @@ function selectPdvPayment(method){
 function updatePdvEstimates(){
  const count=cart.reduce((sum,item)=>sum+item.qty,0);
  const countEl=document.getElementById('pdvCartCount'),subtotalEl=document.getElementById('pdvCartSubtotal');
- if(countEl)countEl.textContent=count+' item(ns) · Subtotal';
+ if(countEl)countEl.textContent=String(count);
  if(subtotalEl)subtotalEl.textContent=fmt(cart.reduce((sum,item)=>sum+item.qty*item.price,0));
  const checkout=pdvCheckoutTotals(),total=checkout.total;
  const applied=document.getElementById('pdvDiscountApplied');
