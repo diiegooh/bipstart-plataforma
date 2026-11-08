@@ -1468,7 +1468,7 @@ async function addBarcodeToCart(value){
   if((old?.qty||0)>=10000){barcodeLastResult='Limite de 10.000 unidades para '+p.name;msg(barcodeLastResult,true);return;}
   if(!products.some(q=>q.id===p.id))products.push(p);
   if(old)old.qty++;
-  else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
+  else cart.push(pdvCartNewItem(p));
   barcodeLastResult='✓ '+p.name+' adicionado · '+code;
   renderPage();
  }catch(error){
@@ -1550,7 +1550,7 @@ async function pdvCartSearchFetch(request,shopId,term){
   const safe=term.replace(/[,*()%_\\]/g,' ').trim().slice(0,80);
   if(safe.length<2)return;
   const found=await rest('shop_products',{query:{
-   select:'id,shop_id,name,sku,price,stock,active,category',
+   select:'id,shop_id,name,sku,price,stock,active,category,wholesale_price,wholesale_min_quantity',
    shop_id:'eq.'+shopId,
    or:'(name.ilike.*'+safe+'*,sku.ilike.*'+safe+'*)',
    limit:'40'
@@ -1595,21 +1595,48 @@ function pdvCartSearchAdd(productId){
  }
  if(!products.some(item=>item.id===p.id))products.push(p);
  if(already)already.qty++;
- else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
+ else cart.push(pdvCartNewItem(p));
  pdvCartSearchClear();
  renderPage();
  document.getElementById('pdvCartSearch')?.focus({preventScroll:true});
 }
 
+function pdvCartNewItem(product){
+ return {
+  id:product.id,name:product.name,qty:1,price:Number(product.price),
+  wholesale_price:product.wholesale_price??null,
+  wholesale_min_quantity:product.wholesale_min_quantity??null
+ };
+}
+function pdvCartPricing(item){
+ const product=products.find(p=>String(p.id)===String(item.id));
+ const retail=Number(product?product.price:item.price);
+ const wholesaleRaw=product?product.wholesale_price:item.wholesale_price;
+ const minimumRaw=product?product.wholesale_min_quantity:item.wholesale_min_quantity;
+ const wholesale=Number(wholesaleRaw),minimum=Number(minimumRaw);
+ const applies=wholesaleRaw!==null&&wholesaleRaw!==undefined&&String(wholesaleRaw).trim()!==''&&
+  minimumRaw!==null&&minimumRaw!==undefined&&String(minimumRaw).trim()!==''&&
+  Number.isFinite(wholesale)&&wholesale>=0&&Number.isInteger(minimum)&&minimum>=1&&item.qty>=minimum;
+ return {unitPrice:applies?wholesale:retail,wholesaleApplied:applies};
+}
+function pdvCartUnitPrice(item){return pdvCartPricing(item).unitPrice;}
+function pdvCartLineMarkup(item){
+ const pricing=pdvCartPricing(item);
+ return '<span class="pdv-sale-line-amount">'+fmt(item.qty*pricing.unitPrice)+'</span>'+
+  (pricing.wholesaleApplied?'<small class="pdv-wholesale-badge">Atacado</small>':'');
+}
+function pdvCartSubtotal(){
+ return cart.reduce((sum,item)=>sum+item.qty*pdvCartUnitPrice(item),0);
+}
 function pdvCheckoutTotals(method=pdvPayment){
- const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
+ const subtotal=pdvCartSubtotal();
  const discount=parseMoneyInput(pdvDiscountAmount||'0');
  const valid=Number.isFinite(discount)&&discount>=0&&Math.abs(discount*100-Math.round(discount*100))<1e-6&&discount<=subtotal;
  return {subtotal,discount,valid,total:valid?subtotal-discount:subtotal};
 }
 function applyPdvTotalInput(input,announce=true){
  if(!input)return false;
- const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
+ const subtotal=pdvCartSubtotal();
  const desired=parseMoneyInput(input.value||'');
  if(!Number.isFinite(desired)||desired<0||desired>subtotal||Math.abs(desired*100-Math.round(desired*100))>1e-6){
   input.dataset.invalid='true';
@@ -1649,7 +1676,7 @@ function ensurePdvCartSearchVisualStyles(){
 function renderGodzillaPDV(){
  ensurePdvCartSearchVisualStyles();
  const floatingSale=floatingSaleEnabled();
- const sum=cart.reduce((a,c)=>a+c.qty*c.price,0);
+ const sum=pdvCartSubtotal();
  const count=cart.reduce((a,c)=>a+c.qty,0);
  const checkout=pdvCheckoutTotals();
  const categoriesList=[...new Set(products.map(p=>String(p.category||'Geral')))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
@@ -1667,7 +1694,7 @@ function renderGodzillaPDV(){
    '<input class="pdv-cart-quantity" data-cart-quantity="'+esc(c.id)+'" type="number" min="1" max="10000" step="1" inputmode="numeric" value="'+esc(c.qty)+'" aria-label="Quantidade de '+esc(c.name)+'" title="Edite a quantidade de unidades" autocomplete="off">'+
    '<button type="button" data-cart="'+esc(c.id)+'" aria-label="Aumentar '+esc(c.name)+'">+</button>'+
    '<button type="button" data-remove="'+esc(c.id)+'" aria-label="Remover '+esc(c.name)+'">×</button>'+
-   '</div><b class="pdv-sale-line-total">'+fmt(c.qty*c.price)+'</b></div></div></div></div>';
+   '</div><b class="pdv-sale-line-total">'+pdvCartLineMarkup(c)+'</b></div></div></div></div>';
  }).join('');
  const emptyCartMessage='<div class="pdv-sale-empty">Seu carrinho está vazio. Selecione um produto à esquerda.</div>';
  const reservedRows=Math.max(0,2-Math.max(1,cart.length));
@@ -1728,7 +1755,7 @@ function updatePdvEstimates(){
  const count=cart.reduce((sum,item)=>sum+item.qty,0);
  const countEl=document.getElementById('pdvCartCount'),subtotalEl=document.getElementById('pdvCartSubtotal');
  if(countEl)countEl.textContent=String(count);
- if(subtotalEl)subtotalEl.textContent=fmt(cart.reduce((sum,item)=>sum+item.qty*item.price,0));
+ if(subtotalEl)subtotalEl.textContent=fmt(pdvCartSubtotal());
  const checkout=pdvCheckoutTotals(),total=checkout.total;
  const applied=document.getElementById('pdvDiscountApplied');
  if(applied)applied.textContent='−'+fmt(checkout.valid?checkout.discount:0);
@@ -1802,10 +1829,10 @@ function stockImportPanel(){
  const preview=stockImportRows.slice(0,8), valid=stockImportRows.filter(r=>r.valid).length;
  return '<section class="card stock-import-panel"><h3>Importar estoque</h3>'+
  '<p>Arquivo: <strong>'+esc(stockImportFileName)+'</strong> · <strong>'+valid+'</strong> de '+stockImportRows.length+' linha(s) válida(s).</p>'+
- '<p>Modelo BipStart: CÓDIGO, DESCRIÇÃO, FORNECEDOR, CATEGORIA, SUBCATEGORIA, UNIDADE, CUSTO, VAREJO, ATACADO, LOTE, ESTOQUE MÍNIMO, QUANTIDADE e VENCIMENTO. A planilha antiga também é aceita.</p>'+
+ '<p>Modelo BipStart: CÓDIGO, DESCRIÇÃO, FORNECEDOR, CATEGORIA, SUBCATEGORIA, UNIDADE, CUSTO, VAREJO, ATACADO, MÍNIMO ATACADO, LOTE, ESTOQUE MÍNIMO, QUANTIDADE e VENCIMENTO. A planilha antiga também é aceita.</p>'+
  (preview.length?'<div class="table-wrap"><table><thead><tr><th>Linha</th><th>Código</th><th>Produto</th><th>Categoria</th><th>Varejo</th><th>Quantidade</th><th>Resultado</th></tr></thead><tbody>'+
  preview.map(r=>'<tr><td>'+r.rowNumber+'</td><td>'+esc(r.sku||'—')+'</td><td>'+esc(r.name||'—')+'</td><td>'+esc(r.category||'—')+'</td><td>'+esc(Number.isFinite(r.price)?fmt(r.price):'—')+'</td><td>'+esc(Number.isFinite(r.stock)?r.stock:'—')+'</td><td>'+esc(r.valid?'Pronto':r.errors.join('; '))+'</td></tr>').join('')+'</tbody></table></div>':'')+
- '<p class="muted small">Prévia das primeiras 8 linhas. Os demais campos da planilha também serão gravados, incluindo fornecedor, unidade, atacado, lote e vencimento. Códigos e produtos já existentes nesta loja não serão duplicados. A importação nunca altera os produtos existentes. Células vazias de quantidade assumem 0; estoque mínimo vazio assume 5.</p>'+
+ '<p class="muted small">Prévia das primeiras 8 linhas. Os demais campos da planilha também serão gravados, incluindo fornecedor, unidade, atacado, quantidade mínima para atacado, lote e vencimento. Códigos e produtos já existentes nesta loja não serão duplicados. A importação nunca altera os produtos existentes. Células vazias de quantidade assumem 0; estoque mínimo vazio assume 5.</p>'+
  (valid<stockImportRows.length?'<p class="warn">Existem '+(stockImportRows.length-valid)+' linha(s) inválida(s), que serão ignoradas. Corrija o arquivo para incluí-las.</p>':'')+
  '<button type="button" class="button" data-stock-import-confirm '+(stockImportBusy||!valid?'disabled':'')+'>'+ (stockImportBusy?'Importando…':'Confirmar importação')+'</button> <button type="button" class="ghost" data-stock-import-cancel '+(stockImportBusy?'disabled':'')+'>Cancelar</button></section>';
 }
@@ -1853,6 +1880,7 @@ function parseImportRows(rows){
   price:['preco','precovenda','venda','varejo','precounitario','price','valorvenda'],
   cost:['custo','precocusto','cost','valorcusto'],
   wholesale_price:['atacado','precoatacado','valoratacado'],
+  wholesale_min_quantity:['minimoatacado','quantidademinimaatacado','quantidademinimaparaatacado','qtdminatacado','wholesale_min_quantity'],
   lot:['lote','codigolote','numerolote'],
   stock:['estoque','quantidade','saldo','qtd','stock','quantidadeestoque'],
   min_stock:['estoqueminimo','minimo','estoquemin','minstock','estoqueminimoquantidade'],
@@ -1877,6 +1905,7 @@ function parseImportRows(rows){
   const stock=importNumber(get('stock'),0);
   const min_stock=importNumber(get('min_stock'),5);
   const wholesale_price=importNumber(get('wholesale_price'),null);
+  const wholesale_min_quantity=importNumber(get('wholesale_min_quantity'),null);
   const expiration_date=importExpiration(get('expiration_date'));
   const image=String(get('image_path')||'').trim();
   let image_path=null;
@@ -1891,8 +1920,10 @@ function parseImportRows(rows){
   if(!Number.isInteger(stock)||stock<0)errors.push('quantidade inválida');
   if(!Number.isInteger(min_stock)||min_stock<0||min_stock>999999999)errors.push('estoque mínimo inválido');
   if(wholesale_price!==null&&(!Number.isFinite(wholesale_price)||wholesale_price<0))errors.push('atacado inválido');
+  if(wholesale_min_quantity!==null&&(!Number.isInteger(wholesale_min_quantity)||wholesale_min_quantity<1||wholesale_min_quantity>10000))errors.push('quantidade mínima de atacado inválida');
+  if(wholesale_min_quantity!==null&&wholesale_price===null)errors.push('informe o preço de atacado junto com a quantidade mínima');
   if(expiration_date===false)errors.push('vencimento inválido (DD/MM/AAAA)');
-  return {rowNumber:index+2,name,sku,supplier,category,subcategory,unit,lot,price,cost,stock,min_stock,wholesale_price,expiration_date,image_path,valid:!errors.length,errors};
+  return {rowNumber:index+2,name,sku,supplier,category,subcategory,unit,lot,price,cost,stock,min_stock,wholesale_price,wholesale_min_quantity,expiration_date,image_path,valid:!errors.length,errors};
  }).filter(r=>r.name||r.sku||Number.isFinite(r.price));
 }
 async function ensureStockXlsxReader(){
@@ -1982,7 +2013,7 @@ async function confirmStockImport(){
    toInsert.push({
     shop_id:shop.id,sku:r.sku||null,name:r.name,category:r.category,
     supplier:r.supplier||null,subcategory:r.subcategory||null,unit:r.unit||null,
-    price:r.price,cost:r.cost,wholesale_price:r.wholesale_price,
+    price:r.price,cost:r.cost,wholesale_price:r.wholesale_price,wholesale_min_quantity:r.wholesale_min_quantity,
     lot:r.lot||null,expiration_date:r.expiration_date||null,
     stock:r.stock,min_stock:r.min_stock,image_path,
     is_best_seller:false,online_enabled:false,menu_price_enabled:false,menu_price:null
@@ -2616,6 +2647,7 @@ function productForm(p){
   field('price','Preço de venda no PDV (R$)','number',p.price??0,'required min="0" step="0.01"')+
   field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')+
   field('wholesale_price','Preço de atacado (R$)','number',p.wholesale_price??'','min="0" step="0.01"')+
+  field('wholesale_min_quantity','Quantidade mínima para aplicar preço de atacado','number',p.wholesale_min_quantity??'','min="1" max="10000" step="1"')+
   field('stock','Quantidade em estoque','number',p.stock??0,'required min="0" step="1"')+
   field('min_stock','Estoque mínimo (unidades)','number',p.min_stock??5,'required min="0" max="999999999" step="1"')+
   field('lot','Lote','text',p.lot||'','maxlength="80"')+
@@ -2829,6 +2861,7 @@ async function handleSubmit(form,contractWindow=null){
         subcategory:String(v.subcategory||'').trim()||null,
         unit:String(v.unit||'').trim().toUpperCase()||null,
         wholesale_price:String(v.wholesale_price??'').trim()?Number(v.wholesale_price):null,
+        wholesale_min_quantity:String(v.wholesale_min_quantity??'').trim()?Number(v.wholesale_min_quantity):null,
         lot:String(v.lot||'').trim()||null,
         expiration_date:String(v.expiration_date||'').trim()||null
        })
@@ -2851,8 +2884,10 @@ async function handleSubmit(form,contractWindow=null){
        String(body.sku||'').length>120||String(body.brand||'').length>120||String(body.supplier||'').length>120||
        String(body.subcategory||'').length>65||String(body.unit||'').length>20||
        String(body.lot||'').length>80||
-       (body.wholesale_price!==null&&(!Number.isFinite(body.wholesale_price)||body.wholesale_price<0))
-      ))throw Error('Confira código, fornecedor, unidade, preço de atacado e lote.');
+       (body.wholesale_price!==null&&(!Number.isFinite(body.wholesale_price)||body.wholesale_price<0))||
+       (body.wholesale_min_quantity!==null&&(!Number.isInteger(body.wholesale_min_quantity)||body.wholesale_min_quantity<1||body.wholesale_min_quantity>10000))||
+       (body.wholesale_min_quantity!==null&&body.wholesale_price===null)
+      ))throw Error('Confira código, fornecedor, unidade, preço e quantidade mínima de atacado, e lote.');
       if(!isMenu&&body.sku){
        const found=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shop.id,sku:barcodeSkuFilter(body.sku),limit:'3'}});
        if(found.some(item=>item.id!==id))throw Error('Este código de barras já pertence a outro produto desta loja.');
@@ -2862,7 +2897,7 @@ async function handleSubmit(form,contractWindow=null){
     }
     case 'saleForm':{
       if(!cart.length)throw Error('Adicione produtos ao carrinho.');
-      const subtotal=cart.reduce((a,c)=>a+c.qty*c.price,0);
+      const subtotal=pdvCartSubtotal();
       const discountAmount=parseMoneyInput(pdvDiscountAmount||'0');
       if(!Number.isFinite(discountAmount)||discountAmount<0||
          Math.abs(discountAmount*100-Math.round(discountAmount*100))>1e-6||discountAmount>subtotal)
@@ -2879,8 +2914,8 @@ async function handleSubmit(form,contractWindow=null){
       if(cardMethod&&(v.card_fee_percent===''||!Number.isFinite(feePercent)||feePercent<0||feePercent>100))
         throw Error('Informe uma taxa da maquininha válida, entre 0% e 100%.');
       pdvPayment=v.payment_method;
-      const sold=cart.map(c=>({id:c.id,name:c.name,qty:c.qty,price:c.price}));
-      const data=await rpc('bipstart_complete_sale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),
+      const sold=cart.map(c=>({id:c.id,name:c.name,qty:c.qty,price:pdvCartUnitPrice(c)}));
+      const data=await rpc('bipstart_complete_sale_with_wholesale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),
         p_payment_method:v.payment_method,p_card_fee_percent:feePercent,p_discount_amount:discountAmount});
       if(!data||typeof data!=='object'||!data.sale_id)throw Error('A venda não foi confirmada pelo sistema. O carrinho foi mantido.');
       let recorded=[];
@@ -3149,7 +3184,7 @@ function updatePdvCartQuantity(input,commit=false){
  item.qty=quantity;
  const row=input.closest('.pdv-sale-item');
  const lineTotal=row?.querySelector('.pdv-sale-line-total');
- if(lineTotal)lineTotal.textContent=fmt(item.qty*item.price);
+ if(lineTotal)lineTotal.innerHTML=pdvCartLineMarkup(item);
  updatePdvEstimates();
 }
 document.addEventListener('input',e=>{
@@ -3594,10 +3629,10 @@ document.addEventListener('click',async e=>{
   if(importTemplate){
    try{
     const XLSX=await ensureStockXlsxReader();
-    const headers=['CODIGO','DESCRIÇÃO*','FORNECEDOR','CATEGORIA*','SUBCATEGORIA','UNIDADE*','CUSTO*','VAREJO*','ATACADO','LOTE','ESTOQUE MINIMO','QUANTIDADE','VENCIMENTO'];
-    const sample=['7891234567890','PRODUTO EXEMPLO','FORNECEDOR EXEMPLO','MERCEARIA','GERAL','UN',4.50,8.90,7.50,'L001',5,20,'30/12/2026'];
+    const headers=['CODIGO','DESCRIÇÃO*','FORNECEDOR','CATEGORIA*','SUBCATEGORIA','UNIDADE*','CUSTO*','VAREJO*','ATACADO','MÍNIMO ATACADO','LOTE','ESTOQUE MINIMO','QUANTIDADE','VENCIMENTO'];
+    const sample=['7891234567890','PRODUTO EXEMPLO','FORNECEDOR EXEMPLO','MERCEARIA','GERAL','UN',4.50,8.90,7.50,6,'L001',5,20,'30/12/2026'];
     const sheet=XLSX.utils.aoa_to_sheet([headers,sample]);
-    sheet['!cols']=[{wch:18},{wch:30},{wch:22},{wch:20},{wch:18},{wch:12},{wch:14},{wch:14},{wch:14},{wch:16},{wch:18},{wch:15},{wch:16}];
+    sheet['!cols']=[{wch:18},{wch:30},{wch:22},{wch:20},{wch:18},{wch:12},{wch:14},{wch:14},{wch:14},{wch:16},{wch:16},{wch:18},{wch:15},{wch:16}];
     sheet['A2'].t='s';
     const book=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(book,sheet,'Estoque');
@@ -3680,7 +3715,7 @@ document.addEventListener('click',async e=>{
     const p=products.find(p=>p.id===c.dataset.cart);if(!p)return;
     const old=cart.find(x=>x.id===p.id);
     if((old?.qty||0)>=10000)return msg('Limite de 10.000 unidades por produto.',true);
-    if(old)old.qty++;else cart.push({id:p.id,name:p.name,qty:1,price:Number(p.price)});
+    if(old)old.qty++;else cart.push(pdvCartNewItem(p));
     renderPage();return
   }
   const rm=e.target.closest('[data-remove]');if(rm){
