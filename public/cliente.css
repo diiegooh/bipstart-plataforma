@@ -5638,3 +5638,10 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
   z-index:1600!important;
  }
 }
+
+/* Indica quando o preço de atacado está ativo para a quantidade atual do carrinho. */
+#workspace #page .godzilla-pdv .pdv-sale-line-total .pdv-sale-line-amount{display:block!important}
+#workspace #page .godzilla-pdv .pdv-sale-line-total .pdv-wholesale-badge{
+ display:block!important;margin-top:2px!important;color:#70e0ad!important;
+ font-size:10px!important;line-height:1.1!important;text-align:right!important;font-weight:750!important;
+}
