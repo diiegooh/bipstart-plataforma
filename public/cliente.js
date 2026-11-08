@@ -303,7 +303,7 @@ async function reloadData(){
   const get=(t,fields='*')=>rest(t,{query:{select:fields,shop_id:'eq.'+shop.id,order:'created_at.desc',limit:'200'}});
   products=await get('shop_products');
   try{
-    ingredientCandidates=await rest('shop_products',{query:{select:'id,name,unit,stock',shop_id:'eq.'+shop.id,order:'name.asc',limit:'1000'}});
+    ingredientCandidates=await rest('shop_products',{query:{select:'id,name,unit,stock,cost',shop_id:'eq.'+shop.id,order:'name.asc',limit:'1000'}});
     productIngredients=await rest('shop_product_ingredients',{query:{select:'product_id,ingredient_product_id,quantity_per_unit',shop_id:'eq.'+shop.id,order:'product_id.asc,ingredient_product_id.asc',limit:'1000'}});
     ingredientSchemaReady=true;
   }catch(error){
@@ -2652,55 +2652,97 @@ function formatFiscalCnpj(value){
 
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
 function formShell(kind,id,inside){const gridClass=kind==='product'&&tab==='produtos'?'columns product-form-grid':'columns';return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="'+gridClass+'">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
-function productIngredientOptions(selectedId,currentProductId){
+function productIngredientOptions(currentProductId){
  const recipeProductIds=new Set(productIngredients.map(line=>line.product_id));
  const candidates=ingredientCandidates.filter(item=>item.id!==currentProductId&&!recipeProductIds.has(item.id));
- const optionList='<option value="">Selecione um insumo do estoque</option>'+candidates.map(item=>
-  '<option value="'+esc(item.id)+'"'+(item.id===selectedId?' selected':'')+'>'+esc(item.name)+' — '+esc(item.unit||'UN')+' · estoque '+esc(Number(item.stock||0).toLocaleString('pt-BR'))+'</option>'
+ return '<option value="">Selecione um item do estoque</option>'+candidates.map(item=>
+  '<option value="'+esc(item.id)+'">'+esc(item.name)+' — '+esc(item.unit||'UN')+' · estoque '+esc(Number(item.stock||0).toLocaleString('pt-BR'))+'</option>'
  ).join('');
- return optionList;
 }
-function productIngredientRowHtml(ingredientId='',quantity='',currentProductId=''){
+function calculateProductIngredientCost(rows){
+ const total=rows.reduce((sum,line)=>{
+  const item=ingredientCandidates.find(candidate=>candidate.id===line.ingredient_product_id);
+  return sum+(Number(item?.cost)||0)*(Number(line.quantity_per_unit)||0);
+ },0);
+ return Math.round((total+Number.EPSILON)*100)/100;
+}
+function productIngredientRowHtml(ingredientId,quantity){
  const item=ingredientCandidates.find(candidate=>candidate.id===ingredientId);
+ const qty=Number(quantity)||0;
  const unit=item?.unit||'UN';
- return '<div class="product-ingredient-row" data-product-ingredient-row>'+
-  '<label>Insumo<select data-ingredient-product>'+productIngredientOptions(ingredientId,currentProductId)+'</select></label>'+
-  '<label>Quantidade por item vendido<input data-ingredient-quantity type="number" min="1" max="10000" step="1" inputmode="numeric" value="'+esc(quantity==null?'':quantity)+'"></label>'+
-  '<span class="product-ingredient-unit" data-ingredient-unit>'+esc(unit)+'</span>'+
+ const unitCost=Number(item?.cost)||0;
+ return '<div class="product-ingredient-row" data-product-ingredient-row data-ingredient-id="'+esc(ingredientId)+'" data-ingredient-quantity="'+esc(qty)+'">'+
+  '<div class="product-ingredient-info"><strong>'+esc(item?.name||'Insumo não encontrado')+'</strong><small>'+esc(qty)+' '+esc(unit)+' usados por unidade vendida</small></div>'+
+  '<div class="product-ingredient-cost"><small>Custo por '+esc(unit)+'</small><strong>'+fmt(unitCost)+'</strong></div>'+
+  '<div class="product-ingredient-cost"><small>Custo utilizado</small><strong>'+fmt(unitCost*qty)+'</strong></div>'+
   '<button type="button" class="ghost product-ingredient-remove" data-product-ingredient-remove>Remover</button>'+
  '</div>';
 }
 function productIngredientsForm(product){
  if(!ingredientSchemaReady)return '<section class="product-ingredients-editor"><h3>Ficha de insumos</h3><p class="muted small">Aguardando a configuração do banco de dados para habilitar esta opção.</p></section>';
  const existing=productIngredients.filter(line=>line.product_id===product.id);
- const eligible=ingredientCandidates.some(item=>item.id!==product.id&&!productIngredients.some(line=>line.product_id===item.id));
- const rows=existing.map(line=>productIngredientRowHtml(line.ingredient_product_id,line.quantity_per_unit,product.id)).join('');
- const empty=rows?'':'<p class="product-ingredient-empty" data-product-ingredient-empty>Nenhum insumo adicionado. Use itens já cadastrados no estoque.</p>';
+ const candidates=ingredientCandidates.filter(item=>item.id!==product.id&&!productIngredients.some(line=>line.product_id===item.id));
+ const rows=existing.map(line=>productIngredientRowHtml(line.ingredient_product_id,line.quantity_per_unit)).join('');
+ const empty=rows?'':'<p class="product-ingredient-empty" data-product-ingredient-empty>Nenhum insumo adicionado.</p>';
+ const addForm=candidates.length?
+  '<div class="product-ingredient-entry">'+
+   '<label>Item do estoque<select data-ingredient-new-product>'+productIngredientOptions(product.id)+'</select></label>'+
+   '<label>Quantidade utilizada<input data-ingredient-new-quantity type="number" min="1" max="10000" step="1" inputmode="numeric" value="1"></label>'+
+   '<button type="button" class="ghost" data-product-ingredient-add>Adicionar insumo</button>'+
+  '</div>':
+  '<p class="muted small">Cadastre primeiro os itens que serão usados como insumos.</p>';
+ const total=calculateProductIngredientCost(existing);
  return '<section class="product-ingredients-editor" aria-labelledby="productIngredientsTitle">'+
   '<h3 id="productIngredientsTitle">Insumos utilizados</h3>'+
-  '<p class="muted small">Selecione itens já cadastrados no estoque e informe quanto é consumido por unidade vendida. A quantidade usa a unidade do insumo (ex.: g, ml ou UN).</p>'+
+  '<p class="muted small">Escolha um item já cadastrado no estoque e informe a quantidade usada por unidade vendida.</p>'+
+  addForm+
   '<div class="product-ingredient-list" data-product-ingredient-list>'+empty+rows+'</div>'+
-  (eligible?'<button type="button" class="ghost" data-product-ingredient-add>+ Adicionar insumo</button>':'<p class="muted small">Cadastre primeiro os itens que serão usados como insumos.</p>')+
+  '<div class="product-ingredient-total"><span>Custo total dos insumos por produto</span><strong data-product-ingredient-total>'+fmt(total)+'</strong></div>'+
  '</section>';
 }
 function readProductIngredientRows(form){
  const elements=[...form.querySelectorAll('[data-product-ingredient-row]')];
  if(elements.length>50)throw Error('Adicione no máximo 50 insumos por item.');
  const rows=elements.map(row=>({
-  ingredient_product_id:row.querySelector('[data-ingredient-product]')?.value||'',
-  quantity_per_unit:Number(row.querySelector('[data-ingredient-quantity]')?.value)
+  ingredient_product_id:row.dataset.ingredientId||'',
+  quantity_per_unit:Number(row.dataset.ingredientQuantity)
  }));
  if(rows.some(row=>!row.ingredient_product_id||!Number.isInteger(row.quantity_per_unit)||row.quantity_per_unit<1||row.quantity_per_unit>10000))
-  throw Error('Selecione cada insumo e informe uma quantidade inteira entre 1 e 10.000.');
+  throw Error('Informe um item e uma quantidade inteira entre 1 e 10.000 para cada insumo.');
  if(new Set(rows.map(row=>row.ingredient_product_id)).size!==rows.length)
-  throw Error('Cada insumo pode ser adicionado apenas uma vez; some as quantidades na mesma linha.');
+  throw Error('Cada insumo pode ser adicionado apenas uma vez.');
  if(rows.some(row=>!ingredientCandidates.some(item=>item.id===row.ingredient_product_id)))
   throw Error('Um dos insumos não está mais disponível no estoque. Atualize a página e confira a ficha.');
  return rows;
 }
+function syncProductIngredientCost(form){
+ const rows=readProductIngredientRows(form);
+ const total=calculateProductIngredientCost(rows);
+ const totalField=form.querySelector('[data-product-ingredient-total]');
+ if(totalField)totalField.textContent=fmt(total);
+ const costField=form.querySelector('[name="cost"]');
+ if(!costField)return;
+ if(costField.dataset.manualIngredientCost===undefined)
+  costField.dataset.manualIngredientCost=costField.value||'0';
+ if(rows.length){
+  costField.value=total.toFixed(2);
+  costField.readOnly=true;
+  costField.dataset.ingredientAuto='true';
+ }else{
+  if(costField.dataset.ingredientAuto==='true')
+   costField.value=costField.dataset.manualIngredientCost||'0';
+  costField.readOnly=false;
+  costField.dataset.ingredientAuto='false';
+ }
+}
 function productForm(p){
  p=p||{};
  const isMenu=tab==='cardapio';
+ const existingIngredientRows=p.id?productIngredients.filter(line=>line.product_id===p.id):[];
+ const hasIngredientRecipe=!isMenu&&existingIngredientRows.length>0;
+ const ingredientRecipeCost=calculateProductIngredientCost(existingIngredientRows);
+ const productCostField=field('cost','Preço de custo (R$)','number',hasIngredientRecipe?ingredientRecipeCost:(p.cost||0),
+  'min="0" step="0.01"'+(hasIngredientRecipe?' readonly':'')+' data-manual-ingredient-cost="'+esc(Number(p.cost||0).toFixed(2))+'" data-ingredient-auto="'+(hasIngredientRecipe?'true':'false')+'"');
  const categoryField='<label>Categoria<select name="category" required>'+categoryOptions(p.category||'Geral')+'</select></label>';
  const bestSeller='<label class="product-best-seller-option"><input type="checkbox" name="is_best_seller" value="true"'+(p.is_best_seller===true?' checked':'')+'>'+
   '<span><strong>★ Mais vendido</strong><small>Exibir este produto no acesso rápido do PDV.</small></span></label>';
@@ -2739,7 +2781,7 @@ function productForm(p){
   field('supplier','Fornecedor','text',p.supplier||'','maxlength="120"')+
   field('unit','Unidade (UN, KG, CX...)','text',p.unit||'','maxlength="20"')+
   field('price','Preço de venda no PDV (R$)','number',p.price??0,'required min="0" step="0.01"')+
-  field('cost','Preço de custo (R$)','number',p.cost||0,'min="0" step="0.01"')+
+  productCostField+
   field('wholesale_price','Preço de atacado (R$)','number',p.wholesale_price??'','min="0" step="0.01"')+
   field('wholesale_min_quantity','Quantidade mínima para aplicar preço de atacado','number',p.wholesale_min_quantity??'','min="1" max="10000" step="1"')+
   field('stock','Quantidade em estoque','number',p.stock??0,'required min="0" step="1"')+
@@ -2961,6 +3003,12 @@ async function handleSubmit(form,contractWindow=null){
         expiration_date:String(v.expiration_date||'').trim()||null
        })
       };
+      const ingredientRows=!isMenu&&ingredientSchemaReady?readProductIngredientRows(form):null;
+      if(ingredientRows?.length){
+        body.cost=calculateProductIngredientCost(ingredientRows);
+        const productCostInput=form.querySelector('[name="cost"]');
+        if(productCostInput)productCostInput.value=body.cost.toFixed(2);
+      }
       if(!body.name||!Number.isFinite(body.price)||body.price<0)throw Error('Confira o nome e o preço.');
       if(proAccess()&&!['true','false'].includes(v.online_enabled))
         throw Error('Selecione Sim ou Não em Venda online.');
@@ -2987,7 +3035,6 @@ async function handleSubmit(form,contractWindow=null){
        const found=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shop.id,sku:barcodeSkuFilter(body.sku),limit:'3'}});
        if(found.some(item=>item.id!==id))throw Error('Este código de barras já pertence a outro produto desta loja.');
       }
-      const ingredientRows=!isMenu&&ingredientSchemaReady?readProductIngredientRows(form):null;
       const savedProductId=id||crypto.randomUUID();
       await storeForm(form,'shop_products',id?body:{...body,id:savedProductId},id);
       if(!isMenu&&ingredientRows!==null){
@@ -3375,35 +3422,48 @@ document.addEventListener('change',async event=>{
  salesDay=event.target.value;
  await loadSalesReport();
 });
+document.addEventListener('input',event=>{
+ const cost=event.target.closest('#productForm [name="cost"]');
+ if(cost&&!cost.readOnly)cost.dataset.manualIngredientCost=cost.value;
+});
 document.addEventListener('click',event=>{
  const add=event.target.closest('[data-product-ingredient-add]');
  if(add){
   const form=add.closest('#productForm');
   const list=form?.querySelector('[data-product-ingredient-list]');
-  if(!list)return;
-  const rows=list.querySelectorAll('[data-product-ingredient-row]');
-  if(rows.length>=50){msg('Adicione no máximo 50 insumos por item.',true);return;}
+  const select=form?.querySelector('[data-ingredient-new-product]');
+  const quantityInput=form?.querySelector('[data-ingredient-new-quantity]');
+  const ingredientId=select?.value||'';
+  const quantity=Number(quantityInput?.value);
+  if(!list||!ingredientId||!Number.isInteger(quantity)||quantity<1||quantity>10000){
+   msg('Selecione o insumo e informe a quantidade utilizada.',true);
+   return;
+  }
+  if(list.querySelector('[data-ingredient-id="'+ingredientId+'"]')){
+   msg('Esse insumo já está na lista. Remova-o e adicione novamente para alterar a quantidade.',true);
+   return;
+  }
+  if(list.querySelectorAll('[data-product-ingredient-row]').length>=50){
+   msg('Adicione no máximo 50 insumos por item.',true);
+   return;
+  }
   list.querySelector('[data-product-ingredient-empty]')?.remove();
-  list.insertAdjacentHTML('beforeend',productIngredientRowHtml('','',form.dataset.id||''));
+  list.insertAdjacentHTML('beforeend',productIngredientRowHtml(ingredientId,quantity));
+  select.value='';
+  quantityInput.value='1';
+  syncProductIngredientCost(form);
   return;
  }
  const remove=event.target.closest('[data-product-ingredient-remove]');
  if(remove){
-  const list=remove.closest('[data-product-ingredient-list]');
   const form=remove.closest('#productForm');
+  const list=remove.closest('[data-product-ingredient-list]');
   remove.closest('[data-product-ingredient-row]')?.remove();
   if(list&&!list.querySelector('[data-product-ingredient-row]'))
-   list.innerHTML='<p class="product-ingredient-empty" data-product-ingredient-empty>Nenhum insumo adicionado. Use itens já cadastrados no estoque.</p>';
+   list.innerHTML='<p class="product-ingredient-empty" data-product-ingredient-empty>Nenhum insumo adicionado.</p>';
+  if(form)syncProductIngredientCost(form);
   return;
  }
-});
-document.addEventListener('change',event=>{
- const select=event.target.closest('[data-ingredient-product]');
- if(!select)return;
- const row=select.closest('[data-product-ingredient-row]');
- const item=ingredientCandidates.find(candidate=>candidate.id===select.value);
- const unit=row?.querySelector('[data-ingredient-unit]');
- if(unit)unit.textContent=item?.unit||'UN';
 });
 document.addEventListener('click',async e=>{
   const cartSearchClear=e.target.closest('[data-cart-search-clear]');
