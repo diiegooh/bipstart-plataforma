@@ -5645,3 +5645,18 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
  display:block!important;margin-top:2px!important;color:#70e0ad!important;
  font-size:10px!important;line-height:1.1!important;text-align:right!important;font-weight:750!important;
 }
+
+
+/* Ficha técnica de insumos no cadastro do PDV. */
+#workspace #page #productForm .product-ingredients-editor{grid-column:1/-1;width:100%;min-width:0;box-sizing:border-box;margin:10px 0 0;padding:14px;border:1px solid color-mix(in srgb,var(--shop-accent,#596cff) 32%,#485064);border-radius:12px;background:color-mix(in srgb,var(--surface,#202530) 88%,transparent)}
+#workspace #page #productForm .product-ingredients-editor h3{margin:0 0 6px;font-size:1.05rem}
+#workspace #page #productForm .product-ingredients-editor>p{margin:5px 0 10px}
+#workspace #page #productForm .product-ingredient-list{display:grid;gap:8px;margin:8px 0}
+#workspace #page #productForm .product-ingredient-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(150px,1fr) auto auto;align-items:end;gap:10px;min-width:0;padding:10px;border:1px solid color-mix(in srgb,var(--shop-accent,#596cff) 22%,#485064);border-radius:10px;background:color-mix(in srgb,var(--surface,#202530) 75%,transparent)}
+#workspace #page #productForm .product-ingredient-row label{display:flex;flex-direction:column;gap:5px;min-width:0;margin:0}
+#workspace #page #productForm .product-ingredient-row :is(select,input){width:100%;min-width:0;box-sizing:border-box}
+#workspace #page #productForm .product-ingredient-unit{padding:0 4px 10px;color:var(--muted,#b8c2d5);font-size:.9rem;white-space:nowrap}
+#workspace #page #productForm .product-ingredient-remove{margin:0 0 2px;white-space:nowrap}
+#workspace #page #productForm .product-ingredient-empty{margin:0;padding:10px 0;color:var(--muted,#b8c2d5)}
+#workspace #page #productForm [data-product-ingredient-add]{margin-top:8px}
+@media(max-width:680px){#workspace #page #productForm .product-ingredient-row{grid-template-columns:minmax(0,1fr) minmax(100px,.7fr);gap:8px}#workspace #page #productForm .product-ingredient-unit{padding:0;align-self:center}#workspace #page #productForm .product-ingredient-remove{justify-self:start;margin:0}}

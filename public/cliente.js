@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-let cfg=null,session=null,shop=null,ent=null,products=[],categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[],onlineOrders=[];
+let cfg=null,session=null,shop=null,ent=null,products=[],productIngredients=[],ingredientCandidates=[],ingredientSchemaReady=false,categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[],onlineOrders=[];
 let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all',selectedStockPanel='';
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
@@ -299,9 +299,18 @@ function localReportDate(date=new Date()){
  return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
 }
 async function reloadData(){
-  products=[];categories=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];onlineOrders=[];
+  products=[];productIngredients=[];ingredientCandidates=[];ingredientSchemaReady=false;categories=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];onlineOrders=[];
   const get=(t,fields='*')=>rest(t,{query:{select:fields,shop_id:'eq.'+shop.id,order:'created_at.desc',limit:'200'}});
   products=await get('shop_products');
+  try{
+    ingredientCandidates=await rest('shop_products',{query:{select:'id,name,unit,stock',shop_id:'eq.'+shop.id,order:'name.asc',limit:'1000'}});
+    productIngredients=await rest('shop_product_ingredients',{query:{select:'product_id,ingredient_product_id,quantity_per_unit',shop_id:'eq.'+shop.id,order:'product_id.asc,ingredient_product_id.asc',limit:'1000'}});
+    ingredientSchemaReady=true;
+  }catch(error){
+    ingredientCandidates=products;
+    productIngredients=[];
+    console.warn('Ficha de insumos aguardando atualização do banco:',error.message);
+  }
   if(shop.model==='pdv'){
     try{
       categories=(await get('shop_menu_categories')).sort((a,b)=>a.sort_order-b.sort_order||a.name.localeCompare(b.name));
@@ -2643,6 +2652,52 @@ function formatFiscalCnpj(value){
 
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
 function formShell(kind,id,inside){const gridClass=kind==='product'&&tab==='produtos'?'columns product-form-grid':'columns';return '<div class="data-form"><form id="'+kind+'Form" data-id="'+esc(id||'')+'"><div class="'+gridClass+'">'+inside+'</div><button class="button">Salvar</button> <button type="button" class="ghost" data-cancel>Cancelar</button></form></div>'}
+function productIngredientOptions(selectedId,currentProductId){
+ const recipeProductIds=new Set(productIngredients.map(line=>line.product_id));
+ const candidates=ingredientCandidates.filter(item=>item.id!==currentProductId&&!recipeProductIds.has(item.id));
+ const optionList='<option value="">Selecione um insumo do estoque</option>'+candidates.map(item=>
+  '<option value="'+esc(item.id)+'"'+(item.id===selectedId?' selected':'')+'>'+esc(item.name)+' — '+esc(item.unit||'UN')+' · estoque '+esc(Number(item.stock||0).toLocaleString('pt-BR'))+'</option>'
+ ).join('');
+ return optionList;
+}
+function productIngredientRowHtml(ingredientId='',quantity='',currentProductId=''){
+ const item=ingredientCandidates.find(candidate=>candidate.id===ingredientId);
+ const unit=item?.unit||'UN';
+ return '<div class="product-ingredient-row" data-product-ingredient-row>'+
+  '<label>Insumo<select data-ingredient-product>'+productIngredientOptions(ingredientId,currentProductId)+'</select></label>'+
+  '<label>Quantidade por item vendido<input data-ingredient-quantity type="number" min="1" max="10000" step="1" inputmode="numeric" value="'+esc(quantity==null?'':quantity)+'"></label>'+
+  '<span class="product-ingredient-unit" data-ingredient-unit>'+esc(unit)+'</span>'+
+  '<button type="button" class="ghost product-ingredient-remove" data-product-ingredient-remove>Remover</button>'+
+ '</div>';
+}
+function productIngredientsForm(product){
+ if(!ingredientSchemaReady)return '<section class="product-ingredients-editor"><h3>Ficha de insumos</h3><p class="muted small">Aguardando a configuração do banco de dados para habilitar esta opção.</p></section>';
+ const existing=productIngredients.filter(line=>line.product_id===product.id);
+ const eligible=ingredientCandidates.some(item=>item.id!==product.id&&!productIngredients.some(line=>line.product_id===item.id));
+ const rows=existing.map(line=>productIngredientRowHtml(line.ingredient_product_id,line.quantity_per_unit,product.id)).join('');
+ const empty=rows?'':'<p class="product-ingredient-empty" data-product-ingredient-empty>Nenhum insumo adicionado. Use itens já cadastrados no estoque.</p>';
+ return '<section class="product-ingredients-editor" aria-labelledby="productIngredientsTitle">'+
+  '<h3 id="productIngredientsTitle">Insumos utilizados</h3>'+
+  '<p class="muted small">Selecione itens já cadastrados no estoque e informe quanto é consumido por unidade vendida. A quantidade usa a unidade do insumo (ex.: g, ml ou UN).</p>'+
+  '<div class="product-ingredient-list" data-product-ingredient-list>'+empty+rows+'</div>'+
+  (eligible?'<button type="button" class="ghost" data-product-ingredient-add>+ Adicionar insumo</button>':'<p class="muted small">Cadastre primeiro os itens que serão usados como insumos.</p>')+
+ '</section>';
+}
+function readProductIngredientRows(form){
+ const elements=[...form.querySelectorAll('[data-product-ingredient-row]')];
+ if(elements.length>50)throw Error('Adicione no máximo 50 insumos por item.');
+ const rows=elements.map(row=>({
+  ingredient_product_id:row.querySelector('[data-ingredient-product]')?.value||'',
+  quantity_per_unit:Number(row.querySelector('[data-ingredient-quantity]')?.value)
+ }));
+ if(rows.some(row=>!row.ingredient_product_id||!Number.isInteger(row.quantity_per_unit)||row.quantity_per_unit<1||row.quantity_per_unit>10000))
+  throw Error('Selecione cada insumo e informe uma quantidade inteira entre 1 e 10.000.');
+ if(new Set(rows.map(row=>row.ingredient_product_id)).size!==rows.length)
+  throw Error('Cada insumo pode ser adicionado apenas uma vez; some as quantidades na mesma linha.');
+ if(rows.some(row=>!ingredientCandidates.some(item=>item.id===row.ingredient_product_id)))
+  throw Error('Um dos insumos não está mais disponível no estoque. Atualize a página e confira a ficha.');
+ return rows;
+}
 function productForm(p){
  p=p||{};
  const isMenu=tab==='cardapio';
@@ -2694,6 +2749,7 @@ function productForm(p){
   '<label class="product-description-field">Informações adicionais do produto<textarea name="description" maxlength="1000" rows="3" placeholder="Embalagem, ingredientes, origem e descrição">'+esc(p.description||'')+'</textarea></label>'+
   onlineControls+
   bestSeller+
+  productIngredientsForm(p)+
   imageControls
  );
 }
@@ -2931,7 +2987,16 @@ async function handleSubmit(form,contractWindow=null){
        const found=await rest('shop_products',{query:{select:'id',shop_id:'eq.'+shop.id,sku:barcodeSkuFilter(body.sku),limit:'3'}});
        if(found.some(item=>item.id!==id))throw Error('Este código de barras já pertence a outro produto desta loja.');
       }
-      await storeForm(form,'shop_products',body,id);
+      const ingredientRows=!isMenu&&ingredientSchemaReady?readProductIngredientRows(form):null;
+      const savedProductId=id||crypto.randomUUID();
+      await storeForm(form,'shop_products',id?body:{...body,id:savedProductId},id);
+      if(!isMenu&&ingredientRows!==null){
+        try{
+          await rpc('bipstart_save_product_ingredients',{p_shop_id:shop.id,p_product_id:savedProductId,p_ingredients:ingredientRows});
+        }catch(error){
+          throw Error('O produto foi salvo, mas não foi possível salvar a ficha de insumos: '+(error.message||'erro desconhecido'));
+        }
+      }
       break;
     }
     case 'saleForm':{
@@ -2954,7 +3019,7 @@ async function handleSubmit(form,contractWindow=null){
         throw Error('Informe uma taxa da maquininha válida, entre 0% e 100%.');
       pdvPayment=v.payment_method;
       const sold=cart.map(c=>({id:c.id,name:c.name,qty:c.qty,price:pdvCartUnitPrice(c)}));
-      const data=await rpc('bipstart_complete_sale_with_wholesale',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),
+      const data=await rpc('bipstart_complete_sale_with_ingredients',{p_shop_id:shop.id,p_items:cart.map(c=>({product_id:c.id,quantity:c.qty})),
         p_payment_method:v.payment_method,p_card_fee_percent:feePercent,p_discount_amount:discountAmount});
       if(!data||typeof data!=='object'||!data.sale_id)throw Error('A venda não foi confirmada pelo sistema. O carrinho foi mantido.');
       let recorded=[];
@@ -3309,6 +3374,36 @@ document.addEventListener('change',async event=>{
  if(event.target.id!=='salesReferenceDate'||tab!=='vendas')return;
  salesDay=event.target.value;
  await loadSalesReport();
+});
+document.addEventListener('click',event=>{
+ const add=event.target.closest('[data-product-ingredient-add]');
+ if(add){
+  const form=add.closest('#productForm');
+  const list=form?.querySelector('[data-product-ingredient-list]');
+  if(!list)return;
+  const rows=list.querySelectorAll('[data-product-ingredient-row]');
+  if(rows.length>=50){msg('Adicione no máximo 50 insumos por item.',true);return;}
+  list.querySelector('[data-product-ingredient-empty]')?.remove();
+  list.insertAdjacentHTML('beforeend',productIngredientRowHtml('','',form.dataset.id||''));
+  return;
+ }
+ const remove=event.target.closest('[data-product-ingredient-remove]');
+ if(remove){
+  const list=remove.closest('[data-product-ingredient-list]');
+  const form=remove.closest('#productForm');
+  remove.closest('[data-product-ingredient-row]')?.remove();
+  if(list&&!list.querySelector('[data-product-ingredient-row]'))
+   list.innerHTML='<p class="product-ingredient-empty" data-product-ingredient-empty>Nenhum insumo adicionado. Use itens já cadastrados no estoque.</p>';
+  return;
+ }
+});
+document.addEventListener('change',event=>{
+ const select=event.target.closest('[data-ingredient-product]');
+ if(!select)return;
+ const row=select.closest('[data-product-ingredient-row]');
+ const item=ingredientCandidates.find(candidate=>candidate.id===select.value);
+ const unit=row?.querySelector('[data-ingredient-unit]');
+ if(unit)unit.textContent=item?.unit||'UN';
 });
 document.addEventListener('click',async e=>{
   const cartSearchClear=e.target.closest('[data-cart-search-clear]');
