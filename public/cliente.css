@@ -5507,16 +5507,24 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
 }
 
 
-/* Ficha técnica de insumos no cadastro do PDV. */
+
+
+/* Ficha técnica de insumos: entrada compacta e lista com custos. */
 #workspace #page #productForm .product-ingredients-editor{grid-column:1/-1;width:100%;min-width:0;box-sizing:border-box;margin:10px 0 0;padding:14px;border:1px solid color-mix(in srgb,var(--shop-accent,#596cff) 32%,#485064);border-radius:12px;background:color-mix(in srgb,var(--surface,#202530) 88%,transparent)}
 #workspace #page #productForm .product-ingredients-editor h3{margin:0 0 6px;font-size:1.05rem}
 #workspace #page #productForm .product-ingredients-editor>p{margin:5px 0 10px}
-#workspace #page #productForm .product-ingredient-list{display:grid;gap:8px;margin:8px 0}
-#workspace #page #productForm .product-ingredient-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(150px,1fr) auto auto;align-items:end;gap:10px;min-width:0;padding:10px;border:1px solid color-mix(in srgb,var(--shop-accent,#596cff) 22%,#485064);border-radius:10px;background:color-mix(in srgb,var(--surface,#202530) 75%,transparent)}
-#workspace #page #productForm .product-ingredient-row label{display:flex;flex-direction:column;gap:5px;min-width:0;margin:0}
-#workspace #page #productForm .product-ingredient-row :is(select,input){width:100%;min-width:0;box-sizing:border-box}
-#workspace #page #productForm .product-ingredient-unit{padding:0 4px 10px;color:var(--muted,#b8c2d5);font-size:.9rem;white-space:nowrap}
-#workspace #page #productForm .product-ingredient-remove{margin:0 0 2px;white-space:nowrap}
+#workspace #page #productForm .product-ingredient-entry{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(150px,.65fr) auto;align-items:end;gap:10px;margin:10px 0 14px;padding:10px;border:1px solid color-mix(in srgb,var(--shop-accent,#596cff) 24%,#485064);border-radius:10px;background:color-mix(in srgb,var(--surface,#202530) 75%,transparent)}
+#workspace #page #productForm .product-ingredient-entry label{display:flex;flex-direction:column;gap:5px;min-width:0;margin:0}
+#workspace #page #productForm .product-ingredient-entry :is(select,input){width:100%;min-width:0;box-sizing:border-box}
+#workspace #page #productForm .product-ingredient-list{display:grid;gap:0;margin:8px 0}
+#workspace #page #productForm .product-ingredient-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,.5fr) minmax(120px,.5fr) auto;align-items:center;gap:12px;min-width:0;padding:10px 4px;border-bottom:1px solid color-mix(in srgb,var(--shop-accent,#596cff) 20%,#485064)}
+#workspace #page #productForm .product-ingredient-info{display:grid;gap:3px;min-width:0}
+#workspace #page #productForm .product-ingredient-info strong{overflow-wrap:anywhere}
+#workspace #page #productForm .product-ingredient-info small,#workspace #page #productForm .product-ingredient-cost small{color:var(--muted,#b8c2d5);font-size:.82rem}
+#workspace #page #productForm .product-ingredient-cost{display:grid;gap:3px;justify-items:start;white-space:nowrap}
+#workspace #page #productForm .product-ingredient-remove{margin:0;white-space:nowrap}
 #workspace #page #productForm .product-ingredient-empty{margin:0;padding:10px 0;color:var(--muted,#b8c2d5)}
-#workspace #page #productForm [data-product-ingredient-add]{margin-top:8px}
-@media(max-width:680px){#workspace #page #productForm .product-ingredient-row{grid-template-columns:minmax(0,1fr) minmax(100px,.7fr);gap:8px}#workspace #page #productForm .product-ingredient-unit{padding:0;align-self:center}#workspace #page #productForm .product-ingredient-remove{justify-self:start;margin:0}}
+#workspace #page #productForm .product-ingredient-total{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px;padding:10px 2px;border-top:1px solid color-mix(in srgb,var(--shop-accent,#596cff) 28%,#485064);font-weight:800}
+#workspace #page #productForm .product-ingredient-total strong{color:var(--shop-accent,#b99aff);font-size:1.05rem}
+#workspace #page #productForm [name="cost"][readonly]{cursor:not-allowed;opacity:.9}
+@media(max-width:680px){#workspace #page #productForm .product-ingredient-entry{grid-template-columns:minmax(0,1fr) minmax(105px,.55fr);gap:8px}#workspace #page #productForm .product-ingredient-entry [data-product-ingredient-add]{grid-column:1/-1}#workspace #page #productForm .product-ingredient-row{grid-template-columns:minmax(0,1fr) minmax(95px,.65fr);gap:7px}#workspace #page #productForm .product-ingredient-info{grid-column:1/-1}#workspace #page #productForm .product-ingredient-remove{grid-column:1/-1;justify-self:start}}
