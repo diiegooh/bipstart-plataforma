@@ -434,32 +434,54 @@ function renderNav(){
   $('sideSettings').classList.toggle('active',tab==='configuracoes');
 }
 let sideMenuPlaceholder=null;
+let sideBackdropPlaceholder=null;
+let mobileMenuPlaceholder=null;
+function moveIntoMobileDialog(element,placeholderName){
+  const dialog=$('sideMenuDialog');
+  if(!element||!dialog||element.parentElement===dialog)return;
+  if(!element.parentNode)return;
+  const placeholder=document.createComment(placeholderName);
+  element.parentNode.insertBefore(placeholder,element);
+  if(placeholderName==='sidebar mobile drawer position')sideMenuPlaceholder=placeholder;
+  else if(placeholderName==='sidebar mobile backdrop position')sideBackdropPlaceholder=placeholder;
+  else mobileMenuPlaceholder=placeholder;
+  dialog.appendChild(element);
+}
 function portalSideMenuForMobile(){
   const side=$('sidebar');
   const workspace=$('workspace');
-  if(!side||!workspace||!window.matchMedia('(max-width:1000px)').matches)return;
-  if(side.parentElement===workspace)return;
-  if(side.parentNode){
-    sideMenuPlaceholder=document.createComment('sidebar mobile drawer position');
-    side.parentNode.insertBefore(sideMenuPlaceholder,side);
-  }
-  const backdrop=$('sideBackdrop');
-  if(backdrop&&backdrop.parentNode===workspace)workspace.insertBefore(side,backdrop.nextSibling);
-  else workspace.appendChild(side);
+  const dialog=$('sideMenuDialog');
+  if(!side||!workspace||!dialog||typeof dialog.showModal!=='function'||!window.matchMedia('(max-width:1000px)').matches)return null;
+  moveIntoMobileDialog($('sideBackdrop'),'sidebar mobile backdrop position');
+  moveIntoMobileDialog(side,'sidebar mobile drawer position');
+  moveIntoMobileDialog(workspace.querySelector('.pdv-mobile-menu'),'sidebar mobile toggle position');
+  return dialog;
 }
 function restoreSideMenuPosition(){
   const side=$('sidebar');
+  const backdrop=$('sideBackdrop');
   const workspace=$('workspace');
-  if(!side||!workspace)return;
-  if(sideMenuPlaceholder?.parentNode)sideMenuPlaceholder.parentNode.insertBefore(side,sideMenuPlaceholder);
-  else if(side.parentElement===workspace){
-    const dashboard=workspace.querySelector('.dashboard');
+  const dialog=$('sideMenuDialog');
+  const menu=workspace?.querySelector('.pdv-mobile-menu')||dialog?.querySelector('.pdv-mobile-menu');
+  if(side&&sideMenuPlaceholder?.parentNode)sideMenuPlaceholder.parentNode.insertBefore(side,sideMenuPlaceholder);
+  else if(side&&side.parentElement===dialog){
+    const dashboard=workspace?.querySelector('.dashboard');
     if(dashboard)dashboard.insertBefore(side,dashboard.firstChild);
   }
+  if(backdrop&&sideBackdropPlaceholder?.parentNode)sideBackdropPlaceholder.parentNode.insertBefore(backdrop,sideBackdropPlaceholder);
+  else if(backdrop&&backdrop.parentElement===dialog)workspace?.insertBefore(backdrop,dialog);
+  if(menu&&mobileMenuPlaceholder?.parentNode)mobileMenuPlaceholder.parentNode.insertBefore(menu,mobileMenuPlaceholder);
+  else if(menu&&menu.parentElement===dialog)workspace?.insertBefore(menu,dialog);
   sideMenuPlaceholder?.remove();
+  sideBackdropPlaceholder?.remove();
+  mobileMenuPlaceholder?.remove();
   sideMenuPlaceholder=null;
+  sideBackdropPlaceholder=null;
+  mobileMenuPlaceholder=null;
 }
 function closeSideMenu(){
+  const dialog=$('sideMenuDialog');
+  if(dialog?.open)dialog.close();
   $('sidebar').classList.remove('open');
   $('sideBackdrop').classList.add('hidden');
   $('sideToggle').setAttribute('aria-expanded','false');
@@ -468,17 +490,28 @@ function closeSideMenu(){
   restoreSideMenuPosition();
 }
 function toggleSideMenu(){
-  const show=!$('sidebar').classList.contains('open');
-  if(show)portalSideMenuForMobile();
-  $('sidebar').classList.toggle('open',show);
-  $('sideBackdrop').classList.toggle('hidden',!show);
-  $('sideToggle').setAttribute('aria-expanded',String(show));
-  $('sideToggle').setAttribute('aria-label',show?'Fechar menu da loja':'Abrir menu da loja');
-  document.body.classList.toggle('sidebar-open',show);
-  if(!show)restoreSideMenuPosition();
+  const side=$('sidebar');
+  const backdrop=$('sideBackdrop');
+  const show=!side.classList.contains('open');
+  if(!show){closeSideMenu();return;}
+  const dialog=portalSideMenuForMobile();
+  side.classList.add('open');
+  backdrop.classList.remove('hidden');
+  $('sideToggle').setAttribute('aria-expanded','true');
+  $('sideToggle').setAttribute('aria-label','Fechar menu da loja');
+  document.body.classList.add('sidebar-open');
+  if(dialog&&!dialog.open)dialog.showModal();
 }
 function bindSideMenuToggle(){
   const button=$('sideToggle');
+  const dialog=$('sideMenuDialog');
+  if(dialog&&dialog.dataset.cancelBinding!=='true'){
+    dialog.dataset.cancelBinding='true';
+    dialog.addEventListener('cancel',event=>{
+      event.preventDefault();
+      closeSideMenu();
+    });
+  }
   if(!button||button.dataset.directMenuBinding==='true')return;
   button.dataset.directMenuBinding='true';
   button.addEventListener('click',event=>{

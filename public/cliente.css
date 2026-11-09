@@ -5668,3 +5668,37 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
 #workspace #page #productForm .product-ingredient-total strong{color:var(--shop-accent,#b99aff);font-size:1.05rem}
 #workspace #page #productForm [name="cost"][readonly]{cursor:not-allowed;opacity:.9}
 @media(max-width:680px){#workspace #page #productForm .product-ingredient-entry{grid-template-columns:minmax(0,1fr) minmax(105px,.55fr);gap:8px}#workspace #page #productForm .product-ingredient-entry [data-product-ingredient-add]{grid-column:1/-1}#workspace #page #productForm .product-ingredient-row{grid-template-columns:minmax(0,1fr) minmax(95px,.65fr);gap:7px}#workspace #page #productForm .product-ingredient-info{grid-column:1/-1}#workspace #page #productForm .product-ingredient-remove{grid-column:1/-1;justify-self:start}}
+
+
+/* Gaveta mobile da homologação: dialog no top layer para não ficar atrás do backdrop. */
+@media(max-width:1000px){
+ #workspace .side-menu-dialog[open]{
+  display:block!important;position:fixed!important;inset:0!important;
+  box-sizing:border-box!important;width:100vw!important;height:100vh!important;height:100dvh!important;
+  max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;
+  overflow:visible!important;border:0!important;border-radius:0!important;
+  background:transparent!important;color:inherit!important;pointer-events:none!important;
+ }
+ #workspace .side-menu-dialog[open]::backdrop{background:transparent!important;pointer-events:none!important}
+ #workspace .side-menu-dialog[open]>.pdv-mobile-menu{
+  display:flex!important;position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 8px)!important;
+  left:8px!important;right:auto!important;z-index:3!important;
+  margin:0!important;padding:0!important;pointer-events:auto!important;
+ }
+ #workspace .side-menu-dialog[open]>.side-backdrop:not(.hidden){
+  display:block!important;position:fixed!important;inset:0!important;z-index:1!important;
+  background:#000a!important;pointer-events:auto!important;
+ }
+ #workspace .side-menu-dialog[open]>.side{
+  display:flex!important;flex-direction:column!important;position:fixed!important;
+  inset:0 auto 0 0!important;width:min(300px,88vw)!important;
+  height:100vh!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;
+  overflow-x:hidden!important;overflow-y:auto!important;z-index:2!important;
+  transform:translateX(-105%)!important;visibility:hidden!important;pointer-events:none!important;
+  overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;
+ }
+ #workspace .side-menu-dialog[open]>.side.open{
+  transform:translateX(0)!important;visibility:visible!important;pointer-events:auto!important;
+ }
+}
+@media(min-width:1001px){#workspace .side-menu-dialog{display:none!important}}
