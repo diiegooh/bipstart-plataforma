@@ -433,21 +433,151 @@ function renderNav(){
   $('sideShopName').textContent=shop.name;
   $('sideSettings').classList.toggle('active',tab==='configuracoes');
 }
+let sideMenuPlaceholder=null;
+let sideBackdropPlaceholder=null;
+let mobileMenuPlaceholder=null;
+function moveIntoMobileDialog(element,placeholderName){
+  const dialog=$('sideMenuDialog');
+  if(!element||!dialog||element.parentElement===dialog)return;
+  if(!element.parentNode)return;
+  const placeholder=document.createComment(placeholderName);
+  element.parentNode.insertBefore(placeholder,element);
+  if(placeholderName==='sidebar mobile drawer position')sideMenuPlaceholder=placeholder;
+  else if(placeholderName==='sidebar mobile backdrop position')sideBackdropPlaceholder=placeholder;
+  else mobileMenuPlaceholder=placeholder;
+  dialog.appendChild(element);
+}
+function portalSideMenuForMobile(){
+  const side=$('sidebar');
+  const workspace=$('workspace');
+  const dialog=$('sideMenuDialog');
+  if(!side||!workspace||!dialog||typeof dialog.showModal!=='function'||!window.matchMedia('(max-width:1000px)').matches)return null;
+  moveIntoMobileDialog($('sideBackdrop'),'sidebar mobile backdrop position');
+  moveIntoMobileDialog(side,'sidebar mobile drawer position');
+  moveIntoMobileDialog(workspace.querySelector('.pdv-mobile-menu'),'sidebar mobile toggle position');
+  return dialog;
+}
+function setMobileMenuStyles(element,styles){
+  if(!element)return;
+  for(const [property,value] of Object.entries(styles))element.style.setProperty(property,value,'important');
+}
+function applyMobileMenuStyles(dialog){
+  const side=$('sidebar');
+  const backdrop=$('sideBackdrop');
+  const menu=dialog?.querySelector('.pdv-mobile-menu')||$('workspace')?.querySelector('.pdv-mobile-menu');
+  const modalOpen=Boolean(dialog?.open);
+  if(modalOpen){
+    setMobileMenuStyles(dialog,{
+      display:'block',position:'fixed',inset:'0',width:'100vw',height:'100dvh',
+      'max-width':'none','max-height':'none',margin:'0',padding:'0','box-sizing':'border-box',
+      overflow:'hidden',border:'0','border-radius':'0',background:'transparent',
+      color:'inherit','pointer-events':'auto','z-index':'2147483647'
+    });
+  }
+  setMobileMenuStyles(backdrop,{
+    display:'block',position:modalOpen?'absolute':'fixed',inset:'0',
+    'z-index':modalOpen?'1':'2147483646',background:'#000a','pointer-events':'auto'
+  });
+  setMobileMenuStyles(side,{
+    display:'flex','flex-direction':'column',position:modalOpen?'absolute':'fixed',
+    top:'0',right:'auto',bottom:'0',left:'0',width:'min(300px, 88vw)',height:modalOpen?'100%':'100dvh',
+    'min-height':'0','max-height':'none','overflow-x':'hidden','overflow-y':'auto',
+    'z-index':modalOpen?'2':'2147483647',transform:'translate3d(0,0,0)',
+    visibility:'visible',opacity:'1','pointer-events':'auto','overscroll-behavior':'contain',
+    '-webkit-overflow-scrolling':'touch'
+  });
+  setMobileMenuStyles(menu,{
+    display:'flex',position:modalOpen?'absolute':'fixed',
+    top:'calc(env(safe-area-inset-top, 0px) + 8px)',left:'auto',right:'8px',
+    'z-index':modalOpen?'3':'2147483647',margin:'0',padding:'0','pointer-events':'auto'
+  });
+}
+const mobileMenuStyleTargets=()=>[$('sideMenuDialog'),$('sideBackdrop'),$('sidebar'),
+  $('workspace')?.querySelector('.pdv-mobile-menu')||$('sideMenuDialog')?.querySelector('.pdv-mobile-menu')];
+const mobileMenuStyleProperties=[
+  'display','position','inset','width','height','max-width','max-height','min-height','margin','padding',
+  'box-sizing','overflow','overflow-x','overflow-y','border','border-radius','background','color',
+  'pointer-events','z-index','flex-direction','top','right','bottom','left','transform','visibility',
+  'opacity','overscroll-behavior','-webkit-overflow-scrolling'
+];
+function resetMobileMenuStyles(){
+  for(const element of mobileMenuStyleTargets()){
+    if(!element)continue;
+    for(const property of mobileMenuStyleProperties)element.style.removeProperty(property);
+  }
+}
+function restoreSideMenuPosition(){
+  const side=$('sidebar');
+  const backdrop=$('sideBackdrop');
+  const workspace=$('workspace');
+  const dialog=$('sideMenuDialog');
+  const menu=workspace?.querySelector('.pdv-mobile-menu')||dialog?.querySelector('.pdv-mobile-menu');
+  if(side&&sideMenuPlaceholder?.parentNode)sideMenuPlaceholder.parentNode.insertBefore(side,sideMenuPlaceholder);
+  else if(side&&side.parentElement===dialog){
+    const dashboard=workspace?.querySelector('.dashboard');
+    if(dashboard)dashboard.insertBefore(side,dashboard.firstChild);
+  }
+  if(backdrop&&sideBackdropPlaceholder?.parentNode)sideBackdropPlaceholder.parentNode.insertBefore(backdrop,sideBackdropPlaceholder);
+  else if(backdrop&&backdrop.parentElement===dialog)workspace?.insertBefore(backdrop,dialog);
+  if(menu&&mobileMenuPlaceholder?.parentNode)mobileMenuPlaceholder.parentNode.insertBefore(menu,mobileMenuPlaceholder);
+  else if(menu&&menu.parentElement===dialog)workspace?.insertBefore(menu,dialog);
+  sideMenuPlaceholder?.remove();
+  sideBackdropPlaceholder?.remove();
+  mobileMenuPlaceholder?.remove();
+  sideMenuPlaceholder=null;
+  sideBackdropPlaceholder=null;
+  mobileMenuPlaceholder=null;
+}
 function closeSideMenu(){
+  const dialog=$('sideMenuDialog');
+  if(dialog?.open)dialog.close();
   $('sidebar').classList.remove('open');
   $('sideBackdrop').classList.add('hidden');
   $('sideToggle').setAttribute('aria-expanded','false');
   $('sideToggle').setAttribute('aria-label','Abrir menu da loja');
   document.body.classList.remove('sidebar-open');
+  restoreSideMenuPosition();
+  resetMobileMenuStyles();
 }
 function toggleSideMenu(){
-  const show=!$('sidebar').classList.contains('open');
-  $('sidebar').classList.toggle('open',show);
-  $('sideBackdrop').classList.toggle('hidden',!show);
-  $('sideToggle').setAttribute('aria-expanded',String(show));
-  $('sideToggle').setAttribute('aria-label',show?'Fechar menu da loja':'Abrir menu da loja');
-  document.body.classList.toggle('sidebar-open',show);
+  const side=$('sidebar');
+  const backdrop=$('sideBackdrop');
+  const show=!side.classList.contains('open');
+  if(!show){closeSideMenu();return;}
+  let dialog=portalSideMenuForMobile();
+  side.classList.add('open');
+  backdrop.classList.remove('hidden');
+  $('sideToggle').setAttribute('aria-expanded','true');
+  $('sideToggle').setAttribute('aria-label','Fechar menu da loja');
+  document.body.classList.add('sidebar-open');
+  if(dialog&&!dialog.open){
+    try{dialog.showModal();}
+    catch{
+      if(dialog.open)dialog.close();
+      restoreSideMenuPosition();
+      dialog=null;
+    }
+  }
+  applyMobileMenuStyles(dialog);
 }
+function bindSideMenuToggle(){
+  const button=$('sideToggle');
+  const dialog=$('sideMenuDialog');
+  if(dialog&&dialog.dataset.cancelBinding!=='true'){
+    dialog.dataset.cancelBinding='true';
+    dialog.addEventListener('cancel',event=>{
+      event.preventDefault();
+      closeSideMenu();
+    });
+  }
+  if(!button||button.dataset.directMenuBinding==='true')return;
+  button.dataset.directMenuBinding='true';
+  button.addEventListener('click',event=>{
+    event.preventDefault();
+    toggleSideMenu();
+  });
+}
+bindSideMenuToggle();
 function heading(title,subtitle,action=''){return '<div class="toolbar"><div><h2>'+esc(title)+'</h2>'+(subtitle?'<p class="muted">'+esc(subtitle)+'</p>':'')+'</div>'+action+'</div>'}
 function empty(t='Nenhum registro até agora.'){return '<div class="empty">'+esc(t)+'</div>'}
 function tile(t,v,sub){return '<div class="tile"><small>'+esc(t)+'</small><strong>'+esc(v)+'</strong><small>'+esc(sub||'')+'</small></div>'}
@@ -3689,7 +3819,7 @@ document.addEventListener('click',async e=>{
     try{await reloadData();renderPage();msg('Pedidos atualizados.');}catch(error){msg(error.message,true);}
     return;
   }
-  if(e.target.closest('#sideToggle')){toggleSideMenu();return}
+  if(e.target.closest('#sideToggle'))return
   if(e.target.closest('#sideBackdrop')){closeSideMenu();return}
   if(e.target.closest('#sideLogout')){closeSideMenu();$('logout').click();return}
   if(e.target.closest('[data-pdv-best-sellers]')){pdvShowBestSellers=!pdvShowBestSellers;pdvCategory='';renderPage();if(pdvShowBestSellers)void loadBestSellers();return;}
