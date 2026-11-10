@@ -457,6 +457,55 @@ function portalSideMenuForMobile(){
   moveIntoMobileDialog(workspace.querySelector('.pdv-mobile-menu'),'sidebar mobile toggle position');
   return dialog;
 }
+function setMobileMenuStyles(element,styles){
+  if(!element)return;
+  for(const [property,value] of Object.entries(styles))element.style.setProperty(property,value,'important');
+}
+function applyMobileMenuStyles(dialog){
+  const side=$('sidebar');
+  const backdrop=$('sideBackdrop');
+  const menu=dialog?.querySelector('.pdv-mobile-menu')||$('workspace')?.querySelector('.pdv-mobile-menu');
+  const modalOpen=Boolean(dialog?.open);
+  if(modalOpen){
+    setMobileMenuStyles(dialog,{
+      display:'block',position:'fixed',inset:'0',width:'100vw',height:'100dvh',
+      'max-width':'none','max-height':'none',margin:'0',padding:'0','box-sizing':'border-box',
+      overflow:'hidden',border:'0','border-radius':'0',background:'transparent',
+      color:'inherit','pointer-events':'auto','z-index':'2147483647'
+    });
+  }
+  setMobileMenuStyles(backdrop,{
+    display:'block',position:modalOpen?'absolute':'fixed',inset:'0',
+    'z-index':modalOpen?'1':'2147483646',background:'#000a','pointer-events':'auto'
+  });
+  setMobileMenuStyles(side,{
+    display:'flex','flex-direction':'column',position:modalOpen?'absolute':'fixed',
+    top:'0',right:'auto',bottom:'0',left:'0',width:'min(300px, 88vw)',height:modalOpen?'100%':'100dvh',
+    'min-height':'0','max-height':'none','overflow-x':'hidden','overflow-y':'auto',
+    'z-index':modalOpen?'2':'2147483647',transform:'translate3d(0,0,0)',
+    visibility:'visible',opacity:'1','pointer-events':'auto','overscroll-behavior':'contain',
+    '-webkit-overflow-scrolling':'touch'
+  });
+  setMobileMenuStyles(menu,{
+    display:'flex',position:modalOpen?'absolute':'fixed',
+    top:'calc(env(safe-area-inset-top, 0px) + 8px)',left:'auto',right:'8px',
+    'z-index':modalOpen?'3':'2147483647',margin:'0',padding:'0','pointer-events':'auto'
+  });
+}
+const mobileMenuStyleTargets=()=>[$('sideMenuDialog'),$('sideBackdrop'),$('sidebar'),
+  $('workspace')?.querySelector('.pdv-mobile-menu')||$('sideMenuDialog')?.querySelector('.pdv-mobile-menu')];
+const mobileMenuStyleProperties=[
+  'display','position','inset','width','height','max-width','max-height','min-height','margin','padding',
+  'box-sizing','overflow','overflow-x','overflow-y','border','border-radius','background','color',
+  'pointer-events','z-index','flex-direction','top','right','bottom','left','transform','visibility',
+  'opacity','overscroll-behavior','-webkit-overflow-scrolling'
+];
+function resetMobileMenuStyles(){
+  for(const element of mobileMenuStyleTargets()){
+    if(!element)continue;
+    for(const property of mobileMenuStyleProperties)element.style.removeProperty(property);
+  }
+}
 function restoreSideMenuPosition(){
   const side=$('sidebar');
   const backdrop=$('sideBackdrop');
@@ -488,19 +537,28 @@ function closeSideMenu(){
   $('sideToggle').setAttribute('aria-label','Abrir menu da loja');
   document.body.classList.remove('sidebar-open');
   restoreSideMenuPosition();
+  resetMobileMenuStyles();
 }
 function toggleSideMenu(){
   const side=$('sidebar');
   const backdrop=$('sideBackdrop');
   const show=!side.classList.contains('open');
   if(!show){closeSideMenu();return;}
-  const dialog=portalSideMenuForMobile();
+  let dialog=portalSideMenuForMobile();
   side.classList.add('open');
   backdrop.classList.remove('hidden');
   $('sideToggle').setAttribute('aria-expanded','true');
   $('sideToggle').setAttribute('aria-label','Fechar menu da loja');
   document.body.classList.add('sidebar-open');
-  if(dialog&&!dialog.open)dialog.showModal();
+  if(dialog&&!dialog.open){
+    try{dialog.showModal();}
+    catch{
+      if(dialog.open)dialog.close();
+      restoreSideMenuPosition();
+      dialog=null;
+    }
+  }
+  applyMobileMenuStyles(dialog);
 }
 function bindSideMenuToggle(){
   const button=$('sideToggle');
