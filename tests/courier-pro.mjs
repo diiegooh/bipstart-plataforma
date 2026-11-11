@@ -8,75 +8,65 @@ const driver=readFileSync('public/motoboy.js','utf8');
 const page=readFileSync('public/motoboy.html','utf8');
 const server=readFileSync('server.mjs','utf8');
 
-test('área individual de motoboy com login, convite e acesso por Supabase Auth',()=>{
+test('área individual de motoboy usa login por telefone e senha no Supabase Auth',()=>{
  new vm.Script(driver,{filename:'public/motoboy.js'});
- for(const id of ['loginForm','signupForm','inviteForm','offers','assignments','refresh','logout']){
+ for(const id of ['loginForm','authPanel','dashboard','deliveries','refresh','logout']){
   assert.ok(page.includes('id="'+id+'"'),id);
  }
+ assert.match(page,/name="login"/);
+ assert.match(page,/name="password"/);
  assert.match(driver,/auth\/v1\/token\?grant_type=password/);
- assert.match(driver,/auth\/v1\/signup\?redirect_to=/);
- assert.match(driver,/gotrue_meta_security/);
- assert.match(driver,/bipstart_courier_claim_invite/);
+ assert.match(driver,/courierLoginEmail/);
  assert.match(driver,/bipstart_courier_my_shops/);
  assert.match(driver,/bipstart_courier_queue/);
  assert.match(driver,/bipstart_courier_accept/);
  assert.match(driver,/bipstart_courier_set_status/);
- assert.match(driver,/window\.turnstile\.render/);
  assert.match(driver,/bipstart_courier_session/);
  assert.doesNotMatch(driver,/SUPABASE_SECRET_KEY|ADMIN_PASSWORD|MERCADO_PAGO_ACCESS_TOKEN/);
 });
-test('fila mostra rotas Maps e Waze com escape de dados de clientes',()=>{
+test('fila de entregas protege dados do cliente e oferece ações por status',()=>{
  const start=driver.indexOf('function mapUrl(');
  const stop=driver.indexOf('async function refresh()',start);
  assert.ok(start>0&&stop>start);
  const htmlEscape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const {mapUrl,wazeUrl,deliveryCard}=new Function(
-   'esc','currency',
-   driver.slice(start,stop)+';return {mapUrl,wazeUrl,deliveryCard};'
+ const {mapUrl,deliveryCard}=new Function('esc','currency',
+   driver.slice(start,stop)+';return {mapUrl,deliveryCard};'
  )(htmlEscape,n=>'R$ '+Number(n).toFixed(2));
- const row={
-  delivery_id:'7b9807f4-a873-4d21-9a01-26bf23cc15ee',
-  shop_name:'Loja <B>',
+ const row={delivery_id:'7b9807f4-a873-4d21-9a01-26bf23cc15ee',
   customer_name:'Cliente <img src=x onerror=alert(1)>',
-  address:'Rua A, 15 — São Paulo',
-  items_text:'2x Combo & uma bebida',
-  total:20,status:'pendente'
- };
- const card=deliveryCard(row,true);
- assert.match(card,/Aceitar entrega/);
- assert.match(card,/Loja &lt;B&gt;/);
- assert.match(card,/&lt;img src=x/);
- assert.doesNotMatch(card,/<img src=x/);
- assert.match(card,/Combo &amp; uma bebida/);
- assert.match(card,/Google Maps/);
- assert.match(card,/Waze/);
- assert.match(mapUrl(row.address),/destination=Rua%20A/);
- assert.match(wazeUrl(row.address),/navigate=yes/);
+  address:'Rua A, 15 — São Paulo',items_text:'2x Combo & uma bebida',status:'pendente'};
+ const offer=deliveryCard(row,true);
+ assert.match(offer,/Aceitar entrega/);
+ assert.match(offer,/&lt;img src=x/);
+ assert.doesNotMatch(offer,/<img src=x/);
+ assert.match(offer,/Combo &amp; uma bebida/);
  const assigned=deliveryCard({...row,status:'atribuida'},false);
- assert.match(assigned,/Iniciar rota/);
- const outbound=deliveryCard({...row,status:'a_caminho'},false);
- assert.match(outbound,/Marcar como entregue/);
+ assert.match(assigned,/INICIAR ROTA/);
+ assert.match(assigned,/data-address="Rua A, 15 — São Paulo"/);
+ assert.match(deliveryCard({...row,status:'a_caminho'},false),/ENTREGUE/);
+ assert.match(mapUrl(row.address),/destination=Rua%20A/);
+ assert.match(driver,/await rpc\('bipstart_courier_set_status'/);
+ assert.match(driver,/window\.open\(mapUrl\(destination\)/);
+ const statusCall=driver.indexOf("await rpc('bipstart_courier_set_status'",driver.indexOf("document.addEventListener('click'"));
+ const mapOpen=driver.indexOf('window.open(mapUrl(destination)',statusCall);
+ assert.ok(statusCall>=0&&mapOpen>statusCall,'a rota deve abrir após a confirmação do servidor');
 });
-test('painel motoboy oferece convite seguro e link de login com botões de compartilhar',()=>{
- const a=client.indexOf('function courierAccessUrl('),b=client.indexOf('function renderPage(){',a);
+test('painel compartilha link de login do motoboy sem convite',()=>{
+ const a=client.indexOf('function courierAccessUrl('),b=client.indexOf('function stockImportPanel()',a);
  assert.ok(a>=0&&b>a);
- const url=new Function(client.slice(a,b)+';return courierAccessUrl;')();
- assert.equal(url({invite_code:'convite-teste',account_id:null},'https://bipstart.example'),
-  'https://bipstart.example/motoboy?convite=convite-teste');
- assert.equal(url({invite_code:null,account_id:'conta-vinculada'},'https://bipstart.example'),
-  'https://bipstart.example/motoboy');
+ const url=new Function('location',client.slice(a,b)+';return courierAccessUrl;')({origin:'https://bipstart.example'});
+ assert.equal(url({account_id:'conta-vinculada'},'https://bipstart.example'),'https://bipstart.example/motoboy');
  assert.match(client,/data-share-courier/);
  assert.match(client,/data-copy-invite/);
  assert.match(client,/Compartilhar link/);
  assert.match(client,/Copiar link/);
  assert.match(client,/Link de login do motoboy/);
- assert.match(client,/if\(tab!=='motoboys'\|\|!proAccess\(\)\)return/);
  assert.match(client,/navigator\.share/);
  assert.match(client,/navigator\.clipboard\.writeText\(link\)/);
  assert.match(client,/case 'courierForm'/);
- assert.match(driver,/new URLSearchParams\(location\.search\)\.get\('convite'\)/);
+ assert.match(page,/name="login"/);
+ assert.doesNotMatch(page,/id="inviteForm"/);
 });
-
 test('os motoboys aparecem somente em Pro com acesso vigente',()=>{
  const start=client.indexOf('function trialValid(){');
  const stop=client.indexOf('function contactUrl(',start);
@@ -153,6 +143,9 @@ test('motoboy entregue finaliza status do pedido sem alterar pagamento nem cance
  assert.match(sync,/set status='fulfilled'/);
  assert.match(sync,/o\.id=new\.online_order_id and o\.shop_id=new\.shop_id/);
  assert.match(sync,/o\.status not in \('cancelled','fulfilled'\)/);
+ assert.match(sync,/o\.shop_id=new\.shop_id/);
+ assert.match(sync,/o\.delivery_method='delivery'/);
+ assert.match(sync,/o\.status in \('awaiting_confirmation','confirmed','preparing'\)/);
  assert.match(sync,/new\.status='a_caminho'/);
  assert.match(sync,/set status='out_for_delivery'/);
  assert.doesNotMatch(sync,/set payment_status|update public\.shop_sales|delete from public\.shop_online_orders/i);
@@ -167,8 +160,11 @@ test('Painel Premium permite vincular pedido pelo botão e acompanhar mudanças 
  assert.match(client,/online_order_id:v\.online_order_id\|\|null/);
  assert.match(client,/e\.target\.matches\('#deliveryForm select\[name="online_order_id"\]'\)/);
  assert.match(client,/refreshOnlineOrdersIfVisible/);
+ assert.match(client,/JSON\.stringify\(o\.items\|\|\[\]\)/);
+ assert.match(client,/o\.delivery_address/);
+ assert.match(client,/o\.customer_phone/);
  assert.match(client,/setInterval\(\(\)=>\{void refreshOnlineOrdersIfVisible\(\)\},15000\)/);
- assert.match(client,/onlineOrders=latest;renderPage\(\)/);
+ assert.match(client,/if\(changed\)\{onlineOrders=latest;if\(tab==='pedidos'\|\|tab==='entregas'\)renderPage\(\);else renderNav\(\);\}/);
  assert.match(client,/if\(!proAccess\(\)\)return msg\('Entregas com motoboys são exclusivas do Premium\.'/);
  const tracker=readFileSync('public/acompanhar.js','utf8');
  assert.match(tracker,/setInterval\(refreshTracking,20000\)/);

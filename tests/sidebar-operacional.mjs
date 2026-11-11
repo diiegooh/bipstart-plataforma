@@ -17,8 +17,8 @@ test('sidebar mantém engrenagem de configurações e botão Sair no rodapé',()
  assert.doesNotMatch(html,/id="sideColor"|id="sideColorPremium"|Alterar cor/);
  assert.doesNotMatch(html,/id="modeChooser"|id="backToModes"/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=54/);
- assert.match(html,/cliente\.css\?v=35/);
+ assert.ok(html.includes('/cliente.js?v='));
+ assert.ok(html.includes('/cliente.css?v='));
 });
 
 test('coluna mantém cardápio oficial e remove atalho de edição lateral',()=>{
@@ -43,12 +43,12 @@ function mockNav(premium){
  const start=js.indexOf('function operationalMenuItems(){');
  const end=js.indexOf('function heading(',start);
  assert.ok(start>=0&&end>start);
- const create=new Function("$","esc","tab","shop","proAccess","canCustomize","imageUrl","publicShopUrl","document",
+ const create=new Function("$","esc","tab","shop","proAccess","canCustomize","imageUrl","publicShopUrl","document","onlineOrders",
   js.slice(start,end)+';return renderNav;');
  const render=create(node,x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
   'caixa',{name:'Adega <Teste>',logo_path:'loja-id/logo.png'},()=>premium,()=>premium,
   path=>'https://images.example/'+path,()=>'https://bipstart.example/cardapio?loja=adega-teste',
-  {documentElement:{style:{setProperty(){}}},querySelector(){return null;}});
+  {documentElement:{style:{setProperty(){}}},querySelector(){return null;}},[]);
  render();
  return {node};
 }

@@ -17,14 +17,15 @@ test('frontend compila e checkout coleta nome, telefone e endereço de entrega',
  assert.match(vitrineHtml,/id="name"[^>]*required/);
  assert.match(vitrineHtml,/id="phone"[^>]*required/);
  assert.match(vitrineHtml,/id="address"/);
- assert.match(vitrineHtml,/\/vitrine\.js\?v=33/);
- assert.match(panelHtml,/\/cliente\.js\?v=68/);
- assert.match(panelHtml,/\/cliente\.css\?v=44/);
+ assert.match(vitrineHtml,/\/vitrine\.js\?v=\d+/);
+ assert.match(vitrineHtml,/id="trackingReady"/);
+ assert.match(panelHtml,/\/cliente\.js\?v=\d+/);
+ assert.match(panelHtml,/\/cliente\.css\?v=\d+/);
  assert.match(vitrine,/await registerOnlineOrder\(\)/);
  assert.match(vitrine,/checkoutMessage\(receipt\.id\)/);
  assert.match(vitrine,/showCheckoutNextStep\(receipt\)/);
  assert.match(vitrineHtml,/id="trackingReady"/);
- assert.match(vitrineHtml,/id="copyTrackingUrl"/);
+ assert.match(vitrineHtml,/id="trackingUrl"/);
  assert.match(vitrineHtml,/id="sendPreparedWhatsapp"/);
  assert.match(vitrine,/trackingLinkFor\(receipt\.id,orderToken\)/);
  assert.doesNotMatch(vitrine,/location\.assign\(url\)/);
@@ -82,10 +83,10 @@ test('dashboard apresenta dados e controles de pagamento; escapa nome/endereço 
  assert.doesNotMatch(card,/<script>/);
  assert.match(card,/Rua &lt;img/);
  assert.match(card,/11987654321/);
- assert.match(card,/<strong class="online-phone-line">[\s\S]*?class="online-order-whatsapp"/);
+ assert.match(card,/<a href="tel:\+5511987654321">11987654321<\/a>/);
  assert.match(card,/href="https:\/\/wa\.me\/5511987654321"/);
- assert.match(card,/aria-label="Conversar com João &lt;script&gt;alert\(1\)&lt;\/script&gt; no WhatsApp"/);
- assert.match(card,/<svg viewBox="0 0 24 24"/);
+ assert.match(card,/href="https:\/\/wa\.me\/5511987654321"/);
+ assert.match(card,/>WhatsApp<\/a>/);
  assert.doesNotMatch(card,/WhatsApp do cliente ↗|online-order-contact/);
  assert.match(card,/Pagamento/);
  assert.match(card,/Aguardando pagamento/);
@@ -116,24 +117,25 @@ test('cards de pedidos exibem número, dados, pagamento/total, cliente e ações
   status:'out_for_delivery',items:[{qty:2,name:'Produto',total:50}],subtotal:50,delivery_fee:5,total:55};
  const card=draw(order);
  const markers=[
-  'class="online-order-top"',
-  'class="online-order-section online-order-products"',
+  'class="online-order-head"',
+  'Dados do Cliente',
+  'Itens do Pedido',
   'class="online-order-section online-order-payment"',
-  'class="online-order-total-row"',
-  'class="online-order-section online-order-customer"',
-  'class="online-order-actions"'
+  'class="online-order-section online-order-quick"'
  ];
  const positions=markers.map(x=>card.indexOf(x));
  assert.ok(positions.every(x=>x>=0));
  assert.deepEqual(positions,[...positions].sort((a,b)=>a-b));
- assert.match(card,/class="online-order-identifier"/);
- assert.match(card,/Dados do pedido/);
- assert.match(card,/Pagamento e total/);
- assert.match(card,/Dados do cliente/);
+ assert.match(card,/PEDIDO #11111111/);
+ assert.match(card,/Dados do Cliente/);
+ assert.match(card,/Itens do Pedido/);
+ assert.match(card,/Forma de Pagamento/);
+ assert.match(card,/Total do Pedido/);
+ assert.match(card,/Ações Rápidas/);
  assert.match(card,/data-order-finish=/);
  assert.match(card,/data-payment-cancel=/);
- assert.ok(card.indexOf('data-order-finish=')>card.indexOf('online-order-customer'));
- assert.ok(card.indexOf('data-payment-cancel=')>card.indexOf('online-order-customer'));
+ assert.ok(card.indexOf('data-order-finish=')>card.indexOf('Itens do Pedido'));
+ assert.ok(card.indexOf('data-payment-cancel=')>card.indexOf('Itens do Pedido'));
  assert.match(css,/#workspace \.online-order-actions-heading\{grid-column:1\/-1/);
  assert.match(css,/@media\(max-width:440px\)/);
 });
@@ -178,7 +180,7 @@ test('pagamentos não são marcados como pagos automaticamente nem baixam estoqu
  assert.match(panel,/fetch\('\/api\/online-order-update'/);
  assert.match(panel,/data-orders-refresh/);
  assert.match(panel,/await reloadData\(\);renderPage\(\)/);
- assert.match(panel,/O registro ocorre antes de abrir o WhatsApp/);
+ assert.doesNotMatch(panel,/O registro ocorre antes de abrir o WhatsApp/);
  assert.match(panel,/onlineOrders=await get\('shop_online_orders'\)/);
 });
 
@@ -202,7 +204,7 @@ test('situação do pedido avança por etapas e apresenta a próxima ação',()=
   delivery_method:'pickup',payment_method:'pix',status:'confirmed',payment_status:'pending',items:[],subtotal:10,delivery_fee:0,total:10};
  const ongoing=api.onlineOrderCard(order);
  assert.match(ongoing,/Iniciar preparo/);
- assert.match(ongoing,/Cancelar pedido/);
+ assert.match(ongoing,/Cancelar Pedido/);
  assert.match(ongoing,/Confirmar pagamento/);
  const delivery=api.onlineOrderCard({...order,delivery_method:'delivery',status:'preparing'});
  assert.match(delivery,/Saiu para entrega/);

@@ -119,8 +119,12 @@ test('template está livre de chaves privadas no navegador e mantém consentimen
  const server=readFileSync('server.mjs','utf8');
  assert.match(server,/updateOnlineOrderAndNotify\(req, res\)/);
  assert.doesNotMatch(html,/id="whatsappOptIn" type="checkbox"/);
- assert.match(html,/id="whatsappConsentNotice"/);
- assert.match(html,/aria-describedby="whatsappConsentNotice"/);
+ // A interface atual exibe o consentimento no fluxo de envio, sem checkbox antigo.
+ assert.match(html,/id="sendPreparedWhatsapp"/);
+ assert.match(html,/id="trackingCopyFeedback"/);
+ assert.doesNotMatch(html,/id="whatsappConsentNotice"/);
+ assert.match(js,/O pedido só será comunicado à loja após confirmar a mensagem no WhatsApp/);
+ assert.match(js,/if\(registeredOrderId&&orderToken\)void saveWhatsappUpdatesConsent\(registeredOrderId,orderToken\)/);
  assert.match(js,/bipstart_set_online_order_whatsapp_optin/);
  assert.match(js,/\$\('sendPreparedWhatsapp'\)\.addEventListener\('click'/);
  assert.match(sql,/whatsapp_updates_opt_in boolean not null default false/);

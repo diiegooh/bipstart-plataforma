@@ -118,7 +118,7 @@ test('exportação usa tamanhos de página térmica ou A4 e abre o diálogo de i
  assert.match(js,/new Blob\(\[html\],\{type:'text\/html;charset=utf-8'\}\)/);
  assert.match(js,/if\(receiptSettings\(\)\.preview\)showReceiptDialog\(lastReceipt\)/);
  assert.match(js,/if\(data\?\.sale_id\)recorded=await rest\('shop_sale_items'/);
- assert.match(js,/lastReceipt=receiptSnapshot\(data,v\.payment_method,v\.received\|\|'',sold,recorded\)/);
+ assert.match(js,/lastReceipt=receiptSnapshot\(data,v\.payment_method,v\.payment_method==='dinheiro'\?String\(parseMoneyInput\(v\.received\)\):\s*'',sold,recorded\)/);
  assert.match(js,/data-receipt-last/);
  assert.match(js,/lastReceipt=null/);
 });

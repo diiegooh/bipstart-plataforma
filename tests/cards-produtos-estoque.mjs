@@ -180,10 +180,11 @@ test('Produtos cadastrados exibe categorias; baixo e esgotado exibem somente os 
  assert.ok(start>0&&end>start);
  const snippet=client.slice(start+prefix.length,end);
  const fn=new Function('selectedStockPanel','products','selectedCategoryFilter','heading',
-  'stockSummaryCards','renderRestockList','productCategoryCards','productForm',
+  'stockImportPanel','stockSummaryCards','renderRestockList','productCategoryCards','productForm',
   'productGrid','normalizedProductCategory','showForm',
   "let content='';"+snippet+"return content;");
  const render=(panel,showForm=null)=>fn(panel,[],'all',()=>'<h1>Cadastro de produtos</h1>',
+  ()=>'',
   ()=>'<stats></stats>',()=>'<section>Lista de reposição</section>',
   ()=>'<div>categorias</div>',()=>'<form>novo produto</form>',
   (_category,status='all')=>'<div>produtos-'+status+'</div>',product=>product.category,showForm);

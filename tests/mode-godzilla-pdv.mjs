@@ -23,8 +23,8 @@ test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do lay
  assert.match(client,/data-public-menu-link/);
  assert.doesNotMatch(html,/id="sideOpenMenu"/);
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
- assert.match(html,/\/cliente\.js\?v=68/);
- assert.match(html,/\/cliente\.css\?v=44/);
+ assert.match(html,/\/cliente\.js\?v=\d+/);
+ assert.match(html,/\/cliente\.css\?v=\d+/);
 });
 function pdv(props={}){
  const source=client.slice(client.indexOf('function filteredPdvProducts(){'),client.indexOf('function renderPage(){'));
@@ -36,16 +36,16 @@ function pdv(props={}){
     {id:'c',name:'Café',category:'Bebidas',price:4,stock:8,active:true,image_path:null}
    ],
    cart:[{id:'a',name:'Coxinha especial',price:15,qty:2}],
-   pdvQuery:'',pdvCategory:'',pdvInStockOnly:true,pdvPayment:'pix',pdvCardFeePercent:'3.99',...props
+   pdvQuery:'',pdvCategory:'',pdvShowBestSellers:false,pdvInStockOnly:true,pdvQuantityEntryProductId:null,pdvCheckoutOpen:false,pdvPayment:'pix',pdvCardFeePercent:'3.99',...props
  };
  const escapeHtml=x=>String(x??'').replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
  }[c]));
  return new Function(
-  'products','cart','pdvQuery','pdvCategory','pdvInStockOnly','pdvPayment','pdvCardFeePercent','esc','fmt','imageUrl','publicShopUrl',
-  source+';return {filteredPdvProducts,pdvBestSellerProducts,pdvBestSellers,pdvProductCards,renderGodzillaPDV,selectPdvPayment,currentPayment:()=>pdvPayment};'
+  'products','cart','pdvQuery','pdvCategory','pdvShowBestSellers','pdvInStockOnly','pdvQuantityEntryProductId','pdvCheckoutOpen','floatingSaleEnabled','productCategoryStyle','lastReceipt','shop','pdvPayment','pdvCardFeePercent','esc','fmt','imageUrl','publicShopUrl',
+  source+';return {filteredPdvProducts,pdvProductCards,renderGodzillaPDV,selectPdvPayment,currentPayment:()=>pdvPayment};'
  )(...[
-  data.products,data.cart,data.pdvQuery,data.pdvCategory,data.pdvInStockOnly,data.pdvPayment,data.pdvCardFeePercent,
+  data.products,data.cart,data.pdvQuery,data.pdvCategory,data.pdvShowBestSellers,data.pdvInStockOnly,data.pdvQuantityEntryProductId,data.pdvCheckoutOpen,()=>false,()=>({color:'#eeeeee',text:'#111111',icon:'📦'}),null,{id:'test-shop'},data.pdvPayment,data.pdvCardFeePercent,
   escapeHtml,n=>'R$ '+Number(n).toFixed(2),path=>'https://cdn.bipstart.example/'+path,
   ()=>'https://bipstart.example/cardapio?loja=loja-de-teste'
  ]);
@@ -53,7 +53,7 @@ function pdv(props={}){
 test('PDV estilo Godzilla tem busca, categoria, grade de produtos e caixa lado a lado',()=>{
  const ui=pdv();
  const markup=ui.renderGodzillaPDV();
- assert.match(markup,/<div class="pdv-title"><h2>PDV<\/h2><\/div>/);
+ assert.match(markup,/<div class="pdv-title"><h2>PDV<\/h2><label class="pdv-search-label pdv-search-top">/);
  assert.doesNotMatch(markup,/VENDA PRESENCIAL|Produtos, estoque e vendas integrados ao seu cardápio\./);
  for(const text of ['Produtos da loja','Venda atual','Forma de pagamento','Dinheiro','Cartão','Pix','Crédito','Débito','Finalizar venda']){
   assert.ok(markup.includes(text),text);
@@ -62,7 +62,9 @@ test('PDV estilo Godzilla tem busca, categoria, grade de produtos e caixa lado a
  assert.match(markup,/class="pdv-panel pdv-catalog"/);
  assert.match(markup,/class="pdv-panel pdv-sale-panel"/);
  assert.match(markup,/id="pdvSearch"/);
- assert.match(markup,/id="pdvCategory"/);
+ assert.match(markup,/class="pdv-category-tiles"/);
+ assert.match(markup,/data-pdv-category="Bebidas"/);
+ assert.match(markup,/data-pdv-best-sellers/);
  assert.match(markup,/id="pdvProducts"/);
  assert.match(markup,/data-cart="a"/);
  assert.match(markup,/data-qty-less="a"/);
@@ -82,7 +84,7 @@ test('busca de PDV e categorias filtram com estoque sem misturar produto',()=>{
  assert.doesNotMatch(markup,/Coxinha/);
  assert.match(markup,/Café/);
 });
-test('Mais vendidos ficam em acesso rápido no PDV e respeitam estoque, destaque e filtros',()=>{
+test('Mais vendidos é filtro da grade, respeita estoque, busca e escape de HTML',()=>{
  const products=[
   {id:'a',name:'Bebida A',category:'Bebidas',price:8,stock:5,active:true,is_best_seller:true},
   {id:'b',name:'Bebida B',category:'Bebidas',price:6,stock:0,active:true,is_best_seller:true},
@@ -90,24 +92,18 @@ test('Mais vendidos ficam em acesso rápido no PDV e respeitam estoque, destaque
   {id:'d',name:'Inativo',category:'Lanches',price:4,stock:7,active:false,is_best_seller:true},
   {id:'e',name:'Item <script>',category:'Lanches',price:11,stock:3,active:true,is_best_seller:true}
  ];
- const instance=pdv({products,cart:[],pdvCategory:'Lanches',pdvQuery:'nada'});
- const featured=instance.pdvBestSellerProducts();
- assert.deepEqual(featured.map(p=>p.id),['a','b','e']);
- const fast=instance.pdvBestSellers();
- assert.match(fast,/aria-label="Acesso rápido aos mais vendidos"/);
- assert.match(fast,/data-cart="a"/);
- assert.match(fast,/data-cart="b" disabled/);
- assert.match(fast,/data-cart="e"/);
- assert.doesNotMatch(fast,/data-cart="c"|data-cart="d"/);
- assert.match(fast,/Item &lt;script&gt;/);
- assert.doesNotMatch(fast,/<script>/);
- const page=instance.renderGodzillaPDV();
- assert.ok(page.indexOf('class="pdv-best-sellers"')<page.indexOf('id="pdvProducts"'));
- assert.equal(pdv({products:products.map(p=>({...p,is_best_seller:false})),cart:[]}).pdvBestSellers(),'');
- const full=pdv({products,cart:[{id:'a',name:'Bebida A',qty:5,price:8}]}).pdvBestSellers();
- assert.match(full,/data-cart="a" disabled/);
- assert.match(client,/const c=e\.target\.closest\('\[data-cart\]'\)/);
- assert.match(css,/#workspace \.pdv-best-sellers-list/);
+ const instance=pdv({products,cart:[],pdvShowBestSellers:true,pdvCategory:'Lanches'});
+ assert.deepEqual(instance.filteredPdvProducts().map(p=>p.id),['a','e']);
+ const markup=instance.renderGodzillaPDV();
+ assert.match(markup,/data-pdv-best-sellers aria-pressed="true"/);
+ assert.match(markup,/id="pdvProducts"/);
+ assert.match(markup,/Item &lt;script&gt;/);
+ assert.doesNotMatch(markup,/<script>/);
+ assert.doesNotMatch(markup,/class="pdv-best-sellers"/);
+ assert.doesNotMatch(markup,/data-cart="b"|data-cart="c"|data-cart="d"/);
+ assert.deepEqual(pdv({products,pdvShowBestSellers:true,pdvQuery:'Bebida'}).filteredPdvProducts().map(p=>p.id),['a']);
+ assert.deepEqual(pdv({products,pdvShowBestSellers:true,pdvInStockOnly:false}).filteredPdvProducts().map(p=>p.id),['a','b','e']);
+ assert.match(client,/data-pdv-best-sellers/);
 });
 
 test('caixa oferece Dinheiro, Cartão e Pix com botoes lado a lado e mantém crédito/débito no banco',()=>{

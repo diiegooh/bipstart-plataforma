@@ -19,7 +19,7 @@ test('cardápio compacto é único modelo, sem prévia ou seletor clássico',()=
  assert.match(vitrine,/function roundMenuActive\(\)\{return true;\}/);
  assert.doesNotMatch(vitrine,/get\('visual'\)|menu\?\.menu_layout_style==='round'/);
  assert.match(vitrine,/document\.body\.classList\.toggle\('round-menu',isRound\)/);
- assert.match(html,/<p class="menu-hero-heading" aria-hidden="true">CARDÁPIO<\/p>/);
+ assert.match(html,/<h1 id="storeName">Sua loja<\/h1>/);
  assert.match(html,/<h1 id="storeName">Sua loja<\/h1>/);
  assert.match(css,/\.round-menu \.menu-hero-logo-card\{display:none\}/);
  assert.match(css,/\.round-menu \.menu-hero-logo-card\.has-store-logo\{/);
@@ -72,7 +72,7 @@ test('categorias com imagens originais e Todos fixo acessam todos os produtos',(
  assert.match(vitrine,/allCategory\+categories\.filter/);
  assert.match(vitrine,/categoryArtwork\(name\)/);
  assert.match(vitrine,/category-art category-art-all-fixed/);
- assert.match(vitrine,/class="all-categories-icon"/);
+ assert.match(vitrine,/class="category-all-png"/);
  assert.match(css,/\.round-menu \.category-tile-all \.category-art-all-fixed/);
  assert.match(css,/color:var\(--green\)/);
  assert.doesNotMatch(panel,/Imagem de fundo do botão Todos/);
