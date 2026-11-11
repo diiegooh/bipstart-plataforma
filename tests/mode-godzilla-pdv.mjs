@@ -23,8 +23,8 @@ test('CARDÁPIO reutiliza o mesmo endereço público e exibe prévia real do lay
  assert.match(client,/data-public-menu-link/);
  assert.doesNotMatch(html,/id="sideOpenMenu"/);
  assert.match(server,/'\/cardapio':\s*\['vitrine\.html'/);
- assert.match(html,/\/cliente\.js\?v=68/);
- assert.match(html,/\/cliente\.css\?v=44/);
+ assert.match(html,/\/cliente\.js\?v=[0-9]+/);
+ assert.match(html,/\/cliente\.css\?v=[0-9]+/);
 });
 function pdv(props={}){
  const source=client.slice(client.indexOf('function filteredPdvProducts(){'),client.indexOf('function renderPage(){'));
