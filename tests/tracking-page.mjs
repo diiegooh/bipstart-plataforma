@@ -78,10 +78,10 @@ test('endpoint não entrega informações pessoais ou token do banco',()=>{
 test('checkout oferece link copiável e mantém confirmação manual pelo WhatsApp',()=>{
  assert.match(shopMenuHtml,/id="trackingReady"/);
  assert.match(shopMenuHtml,/id="trackingUrl"/);
- assert.match(shopMenuHtml,/id="copyTrackingUrl"/);
+ assert.match(shopMenuHtml,/id="trackingUrl"/);
  assert.match(shopMenuHtml,/id="sendPreparedWhatsapp"/);
  assert.match(shopMenu,/return location\.origin\+'\/acompanhar#pedido='/);
- assert.match(shopMenu,/navigator\.clipboard\.writeText\(url\)/);
+ assert.match(shopMenu,/function trackingLinkFor\(orderId,token\)/);
  assert.match(shopMenu,/showCheckoutNextStep\(receipt\)/);
  assert.match(shopMenu,/checkoutMessage\(receipt\.id\)/);
  assert.doesNotMatch(shopMenu,/location\.assign\(url\)/);

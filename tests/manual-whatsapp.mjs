@@ -99,17 +99,17 @@ test('painel diferencia sessão inválida de falta de permissão',()=>{
 });
 
 
-test('admin mostra e-mail cadastrado por loja, com escape de HTML e RPC autorizada',()=>{
- const sql=readFileSync('sql/bipstart_admin_owner_email.sql','utf8');
- assert.match(sql,/create or replace function public\.bipstart_admin_list_shops_with_emails/);
- assert.match(sql,/join auth\.users u on u\.id=s\.owner_id/);
+test('admin mostra e-mail e WhatsApp apenas em RPC autorizada com escape',()=>{
+ const sql=readFileSync('sql/bipstart_admin_shop_contacts_20261017.sql','utf8');
+ assert.match(sql,/create or replace function public\.bipstart_admin_list_shops_with_contacts/);
+ assert.match(sql,/owner_email text/);
+ assert.match(sql,/shop_whatsapp text/);
  assert.match(sql,/a\.user_id=auth\.uid\(\)/);
- assert.match(sql,/revoke all on function public\.bipstart_admin_list_shops_with_emails\(\) from public,anon/);
- assert.match(admin,/request\('bipstart_admin_list_shops_with_emails'\)/);
+ assert.match(sql,/revoke all on function public\.bipstart_admin_list_shops_with_contacts\(\) from public, anon, authenticated/);
+ assert.match(admin,/request\('bipstart_admin_list_shops_with_contacts'\)/);
  assert.match(admin,/escapeHtml\(item\.owner_email/);
- assert.match(readFileSync('public/admin.html','utf8'),/admin\.js\?v=8/);
+ assert.match(readFileSync('public/admin.html','utf8'),/admin\.js\?v=\d+/);
 });
-
 
 test('personalização só funciona no Premium com acesso vigente',()=>{
  const plans=['basic','pro'];
@@ -154,7 +154,7 @@ test('admin controla solicitações com status existentes e histórico protegido
  const page=readFileSync('public/admin.html','utf8');
  assert.match(page,/id="customizationSection"/);
  assert.match(page,/id="customRequests"/);
- assert.match(page,/admin\.js\?v=8/);
+ assert.match(page,/admin\.js\?v=\d+/);
 });
 test('cartão administrativo escapa descrição e e-mail, mostra plano, data, status e WhatsApp',()=>{
  const start=admin.indexOf('const REQUEST_STATUS=');
@@ -250,7 +250,7 @@ test('compartilhamento usa dispositivo nativo, cópia e alternativa em desktop',
  assert.match(client,/navigator\.clipboard\.writeText\(url\)/);
  assert.match(client,/window\.prompt\('Copie o link do cardápio:',url\)/);
  assert.match(client,/if\(!shop\|\|shop\.model!=='pdv'\|\|!hasAccess\(\)\|\|!proAccess\(\)\)return/);
- assert.match(readFileSync('public/cliente.html','utf8'),/cliente\.js\?v=49/);
+ assert.match(readFileSync('public/cliente.html','utf8'),/cliente\.js\?v=\d+/);
 });
 
 

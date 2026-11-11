@@ -121,5 +121,5 @@ test('login cliente continua entrando diretamente no PDV',()=>{
  assert.match(client,/hiding\('workspace',true\);renderPage\(\)/);
  assert.doesNotMatch(client,/modeChooser|modeCardapio|backToModes/);
  assert.doesNotMatch(clientHtml,/id="modeChooser"|id="backToModes"|data-open-mode/);
- assert.match(clientHtml,/\/cliente\.js\?v=68/);
+ assert.match(clientHtml,/\/cliente\.js\?v=\d+/);
 });

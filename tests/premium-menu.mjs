@@ -81,11 +81,12 @@ test('acesso Básico preserva bloqueios e upgrade sem tela de escolha inicial',(
  assert.doesNotMatch(html,/modeChooser|modeCardapio|backToModes/);
  assert.doesNotMatch(panel,/modeChooser|modeCardapio|backToModes/);
  assert.match(panel,/tab='caixa';showForm=null;pastedProductImage=null/);
- assert.match(panel,/if\(\(id==='cardapio_publico'\|\|id==='cardapio'\|\|id==='pedidos'\|\|id==='motoboys'\)&&!proAccess\(\)\)/);
+ assert.match(panel,/if\(\(id==='cardapio_publico'\|\|id==='pedidos'\|\|id==='motoboys'\)&&!proAccess\(\)\)/);
+ assert.match(panel,/if\(\['cardapio','pedidos','motoboys'\]\.includes\(nav\.dataset\.nav\)&&!proAccess\(\)\)return/);
  assert.match(panel,/class="side-public-menu locked" disabled aria-disabled="true"/);
  assert.match(panel,/data-nav="configuracoes"/);
  assert.match(panel,/rpc\('bipstart_request_plan_change'/);
  assert.match(css,/online-sale-locked/);
- assert.match(html,/\/cliente\.js\?v=49/);
- assert.match(html,/\/cliente\.css\?v=32/);
+ assert.match(html,/\/cliente\.js\?v=\d+/);
+ assert.match(html,/\/cliente\.css\?v=\d+/);
 });

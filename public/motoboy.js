@@ -151,9 +151,14 @@ async function refresh(){
 }
 function courierLoginEmail(input){
  const value=String(input||'').trim().toLowerCase();
+ // Compatibilidade com contas de motoboys cadastradas anteriormente por e-mail.
+ if(value.includes('@')){
+  if(value.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))throw Error('Informe um e-mail válido.');
+  return value;
+ }
  let digits=value.replace(/\D/g,'');
  if(/^55\d{10,11}$/.test(digits))digits=digits.slice(2);
- if(!/^[1-9]\d{9,10}$/.test(digits))throw Error('Informe seu usuário (telefone com DDD).');
+ if(!/^[1-9]\d{9,10}$/.test(digits))throw Error('Informe seu telefone com DDD ou e-mail antigo.');
  return 'courier-55'+digits+'@login.bipstart.example';
 }
 $('loginForm').onsubmit=async event=>{

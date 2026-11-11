@@ -2245,7 +2245,7 @@ function applyInventoryNightStyles(){
   'border-bottom-color':'#393d49'
  });
 }
-window.applyInventoryNightStyles=applyInventoryNightStyles;
+if(typeof window!=='undefined')window.applyInventoryNightStyles=applyInventoryNightStyles;
 
 let settingsCategoryId='settings-store-title';
 function setupSettingsCategories(){
@@ -2331,7 +2331,7 @@ function applySettingsNightStyles(){
   {'background':'#2b2f39','background-image':'none','border-color':'#454957','color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8'}
  );
 }
-window.applySettingsNightStyles=applySettingsNightStyles;
+if(typeof window!=='undefined')window.applySettingsNightStyles=applySettingsNightStyles;
 
 
 /* Histórico de vendas: aplicar o tema noite também aos cards reconstruídos por renderPage. */
@@ -2425,7 +2425,7 @@ function applySalesNightStyles(){
   '-webkit-text-fill-color':'#fff','color-scheme':'dark'
  });
 }
-window.applySalesNightStyles=applySalesNightStyles;
+if(typeof window!=='undefined')window.applySalesNightStyles=applySalesNightStyles;
 
 
 /* Cards de categorias do PDV: aplicar tamanho diretamente ao DOM,
@@ -2518,17 +2518,19 @@ function applyPdvCategoryFontSizes(){
  });
 }
 let pdvCategoriesResizePending=false;
-window.addEventListener('resize',()=>{
- if(pdvCategoriesResizePending)return;
- pdvCategoriesResizePending=true;
- window.requestAnimationFrame(()=>{
-  pdvCategoriesResizePending=false;
-  if(tab==='caixa'){
-   applyPdvFloatingFullWidth();
-   applyPdvCategoryFontSizes();
-  }
+if(typeof window!=='undefined' && typeof window.addEventListener==='function'){
+ window.addEventListener('resize',()=>{
+  if(pdvCategoriesResizePending)return;
+  pdvCategoriesResizePending=true;
+  window.requestAnimationFrame(()=>{
+   pdvCategoriesResizePending=false;
+   if(tab==='caixa'){
+    applyPdvFloatingFullWidth();
+    applyPdvCategoryFontSizes();
+   }
+  });
  });
-});
+}
 
 /* Quando o carrinho flutuante substitui a coluna de caixa, ocupar toda a linha.
    Flex wrap preenche inclusive a última linha com menos cards. */

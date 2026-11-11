@@ -17,8 +17,8 @@ test('sidebar mantém engrenagem de configurações e botão Sair no rodapé',()
  assert.doesNotMatch(html,/id="sideColor"|id="sideColorPremium"|Alterar cor/);
  assert.doesNotMatch(html,/id="modeChooser"|id="backToModes"/);
  assert.match(html,/Sair/);
- assert.match(html,/cliente\.js\?v=54/);
- assert.match(html,/cliente\.css\?v=35/);
+ assert.match(html,/cliente\.js\?v=\d+/);
+ assert.match(html,/cliente\.css\?v=\d+/);
 });
 
 test('coluna mantém cardápio oficial e remove atalho de edição lateral',()=>{
@@ -43,12 +43,12 @@ function mockNav(premium){
  const start=js.indexOf('function operationalMenuItems(){');
  const end=js.indexOf('function heading(',start);
  assert.ok(start>=0&&end>start);
- const create=new Function("$","esc","tab","shop","proAccess","canCustomize","imageUrl","publicShopUrl","document",
+ const create=new Function("$","esc","tab","shop","proAccess","canCustomize","imageUrl","publicShopUrl","document","onlineOrders",
   js.slice(start,end)+';return renderNav;');
  const render=create(node,x=>String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;'),
   'caixa',{name:'Adega <Teste>',logo_path:'loja-id/logo.png'},()=>premium,()=>premium,
   path=>'https://images.example/'+path,()=>'https://bipstart.example/cardapio?loja=adega-teste',
-  {documentElement:{style:{setProperty(){}}},querySelector(){return null;}});
+  {documentElement:{style:{setProperty(){}}},querySelector(){return null;}},[]);
  render();
  return {node};
 }
@@ -110,7 +110,7 @@ test('Produtos incorpora estoque e Pedidos online não promete pedidos automáti
  assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='low'\)/);
  assert.match(js,/products\.filter\(p=>productStockState\(p\)\.state==='out'\)/);
  assert.match(js,/tab==='pedidos'/);
- assert.match(js,/O registro ocorre antes de abrir o WhatsApp/);
+ assert.doesNotMatch(js,/O registro ocorre antes de abrir o WhatsApp/);
  assert.doesNotMatch(js,/data-nav="cardapio">Gerenciar cardápio/);
  assert.doesNotMatch(html,/id="sideOpenMenu"/);
  assert.doesNotMatch(js,/\$\('sideOpenMenu'\)/);
@@ -165,7 +165,7 @@ test('configurações não mostram quadro redundante nem botões de abrir cardá
  assert.ok(start>0&&end>start);
  const snippet=js.slice(start,end);
  assert.doesNotMatch(snippet,/menu-preview-settings-link|Cardápio online oficial|Abrir cardápio ↗/);
- assert.match(snippet,/field\('brand_color','COR DO SITE'/);
+ assert.match(snippet,/field\('brand_color','COR DO SISTEMA'/);
  assert.match(js,/id="menuLayoutSettings"/);
  assert.match(js,/cardapioLayoutSettings\(\)/);
  assert.doesNotMatch(js,/Abrir cardápio oficial|Abrir cardápio ↗/);

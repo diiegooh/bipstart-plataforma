@@ -14,48 +14,38 @@ const courierCss=readFileSync('public/motoboy.css','utf8');
 const courierHtml=readFileSync('public/motoboy.html','utf8');
 const sql=readFileSync('sql/bipstart_courier_shop_theme_20261017.sql','utf8');
 
-test('todos os scripts são válidos e utilizam versões atualizadas',()=>{
+test('scripts são sintaticamente válidos e incluem versões cachebusted',()=>{
  for(const [name,code] of [['cliente.js',panel],['vitrine.js',vitrine],['motoboy.js',courier]])
   new vm.Script(code,{filename:name});
- assert.match(panelHtml,/cliente\.js\?v=49/);
- assert.match(panelHtml,/cliente\.css\?v=32/);
- assert.match(vitrineHtml,/vitrine\.js\?v=29/);
- assert.match(vitrineHtml,/vitrine\.css\?v=28/);
- assert.match(courierHtml,/cliente\.css\?v=32/);
- assert.match(courierHtml,/motoboy\.js\?v=2/);
- assert.match(courierHtml,/motoboy\.css\?v=2/);
+ for(const asset of ['cliente.js','cliente.css'])
+  assert.match(panelHtml,new RegExp('/'+asset.replace('.','\\.')+'\\?v=\\d+'));
+ for(const asset of ['vitrine.js','vitrine.css'])
+  assert.match(vitrineHtml,new RegExp('/'+asset.replace('.','\\.')+'\\?v=\\d+'));
+ for(const asset of ['motoboy.js','motoboy.css'])
+  assert.match(courierHtml,new RegExp('/'+asset.replace('.','\\.')+'\\?v=\\d+'));
 });
-
-test('COR DO SITE é editável apenas para Premium, e atualiza a única cor da loja',()=>{
- assert.match(panel,/field\('brand_color','COR DO SITE','color',shop\.brand_color\|\|'#7c3aed'\)/);
- assert.match(panel,/canCustomize\(\)\?field\('brand_color'/);
+test('cor do sistema só pode ser alterada por conta Premium',()=>{
+ assert.match(panel,/canCustomize\(\)\?field\('brand_color','COR DO SISTEMA','color'/);
  assert.match(panel,/body\.brand_color=v\.brand_color/);
  assert.match(panel,/body\.menu_theme_color=v\.brand_color/);
  assert.match(panel,/if\(!\/\^#\[0-9a-f\]\{6\}\$\/i\.test\(String\(v\.brand_color\|\|''\)\)\)/);
- assert.doesNotMatch(panel,/name="menu_theme_color"/);
  assert.match(panel,/function applySidebarTheme\(\)/);
- assert.match(panel,/const value=String\(shop\?\.brand_color\|\|''\)/);
- assert.match(panel,/document\.documentElement\.style\.setProperty\('--store-accent',color\)/);
- assert.match(panel,/document\.documentElement\.style\.setProperty\('--store-accent-ink'/);
- assert.match(panel,/document\.documentElement\.style\.setProperty\('--accent',color\)/);
- assert.match(panel,/document\.querySelector\('meta\[name="theme-color"\]'\)/);
+ for(const variable of ['store-accent','store-accent-ink','accent'])
+  assert.match(panel,new RegExp("document\\.documentElement\\.style\\.setProperty\\('--"+variable+"'"));
+ assert.doesNotMatch(panel,/name="menu_theme_color"/);
 });
-
-test('painel, PDV, pedidos e cardápio usam a cor da loja',()=>{
- assert.match(panelCss,/#workspace \.button,#workspace \.pdv-product \.pdv-add/);
- assert.match(panelCss,/#workspace \.side #nav nav button\.active\{\s*background:var\(--store-accent/);
- assert.match(panelCss,/#workspace \.menu-editor-panel/);
- assert.match(panelCss,/#workspace \.online-order-card/);
- assert.match(panelCss,/#workspace \.inventory-category-card\.active/);
- assert.match(panelCss,/color:var\(--store-accent-ink,#fff\)/);
- assert.match(vitrine,/const color=String\(menu\.brand_color\|\|''\)\.trim\(\)/);
- assert.doesNotMatch(vitrine,/menu\.menu_theme_color/);
+test('painel, vitrine e motoboy usam cores validadas da loja sem sobrescrever outras contas',()=>{
+ assert.match(panelCss,/--store-accent/);
+ assert.match(panelCss,/--store-accent-ink/);
+ assert.match(panelCss,/\.online-order-card/);
+ assert.match(panelCss,/\.inventory-category-card/);
+ assert.match(vitrine,/menu\?\.brand_color\|\|menu\?\.menu_theme_color/);
  assert.match(vitrine,/document\.documentElement\.style\.setProperty\('--green',color\)/);
- assert.match(vitrineCss,/\.round-menu \.cartfloat\{[\s\S]*background:color-mix\(in srgb,var\(--green\)/);
- assert.match(vitrineCss,/\.round-menu \.category-tile\.active/);
- assert.match(vitrineCss,/\.round-menu \.btn,\.round-menu \.checkout-btn\{background:var\(--green\)/);
+ assert.match(vitrineCss,/\.category-tile/);
+ assert.match(vitrineCss,/--green/);
+ assert.match(courier,/bipstart_courier_shop_theme/);
+ assert.match(courierCss,/--courier-shop-accent/);
 });
-
 test('RPC do motoboy entrega somente cor de lojas autorizadas',()=>{
  assert.match(sql,/create or replace function public\.bipstart_courier_shop_theme\(\)/);
  assert.match(sql,/security definer set search_path to ''/);

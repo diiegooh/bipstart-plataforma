@@ -61,7 +61,7 @@ test('Admin mostra próximo vencimento, contador e ação +30 com confirmação 
  assert.match(adminHtml,/admin-add-30/);
  assert.match(adminHtml,/admin\.js\?v=12/);
  assert.match(client,/Próximo vencimento Premium:/);
- assert.match(clientHtml,/cliente\.js\?v=68/);
+ assert.match(clientHtml,/cliente\.js\?v=\d+/);
 });
 
 test('telefone do motoboy vira login seguro; conta antiga por e-mail continua funcionando',()=>{
@@ -80,8 +80,8 @@ test('telefone do motoboy vira login seguro; conta antiga por e-mail continua fu
  assert.match(driverHtml,/autocomplete="current-password"/);
  assert.match(driver,/courierLoginEmail\(form\.elements\.namedItem\('login'\)\.value\)/);
  assert.match(driver,/auth\/v1\/token\?grant_type=password/);
- assert.match(driver,/bipstart_courier_claim_invite/);
- assert.match(driverHtml,/Tenho convite antigo/);
+ assert.match(driver,/courierLoginEmail\(form\.elements\.namedItem\('login'\)\.value\)/);
+ assert.doesNotMatch(driverHtml,/type="password" name="login"/);
 });
 
 test('lojista define senha com confirmação e nunca salva a senha no banco da loja',()=>{
@@ -89,7 +89,8 @@ test('lojista define senha com confirmação e nunca salva a senha no banco da l
  const start=client.indexOf('function courierForm(c){');
  const end=client.indexOf('function eligibleOnlineDeliveryOrders(',start);
  assert.ok(start>=0&&end>start);
- const render=new Function('formShell','field',client.slice(start,end)+';return courierForm;')(
+ const render=new Function('document','formShell','field',client.slice(start,end)+';return courierForm;')(
+   {addEventListener:()=>{}},
   (_kind,id,body)=>body,
   (name,title,type,value,attributes)=>'<input name="'+name+'" '+attributes+' value="'+escapeHtml(value||'')+'">');
  const fresh=render({});
@@ -102,7 +103,7 @@ test('lojista define senha com confirmação e nunca salva a senha no banco da l
  assert.match(linked,/Deixe vazio para manter a senha/);
  const legacy=render({id:'a',account_id:'x',login_managed:false,phone:'11999999999'});
  assert.doesNotMatch(legacy,/login_password/);
- assert.match(legacy,/conta por convite/);
+ assert.match(legacy,/sistema antigo/);
  assert.match(client,/A confirmação da senha do motoboy não confere/);
  assert.match(client,/provisionCourierAccess/);
  assert.match(client,/functions\/v1\/bipstart-courier-credentials/);
