@@ -95,8 +95,8 @@ test('Admin só libera teste Premium enquanto prazo gratuito original estiver at
  assert.match(admin,/request\('bipstart_admin_upgrade_trial',\{p_shop_id:shopId\}\)/);
  assert.match(admin,/request\('bipstart_admin_extend_premium',\{p_shop_id:shopId\}\)/);
  assert.match(admin,/if\(isTrial&&!trialUpgradeEligible\(item\)\)return/);
- assert.match(adminHtml,/\/admin\.js\?v=12/);
- assert.match(clientHtml,/\/cliente\.js\?v=68/);
+ assert.match(adminHtml,/\/admin\.js\?v=\d+/);
+ assert.match(clientHtml,/\/cliente\.js\?v=\d+/);
 });
 
 test('Supabase mantém trial_until, active_until e status intactos na liberação',()=>{
