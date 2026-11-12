@@ -127,3 +127,6 @@ body.menu-closed{overflow:hidden!important}
 .closed-schedule-list li strong{overflow-wrap:anywhere}
 .closed-schedule-list li span{font-size:13px;color:#625c83}
 @media(max-width:480px){.closed-overlay{padding:12px}.closed-card{max-height:calc(100dvh - 24px);padding:21px 16px;border-radius:17px}}
+
+#deliveryFeeNote{display:block;margin:4px 0;color:#625c83;font-size:12px;line-height:1.4}
+#deliveryFeeNote.hidden{display:none!important}

@@ -175,7 +175,7 @@ async function requireVerifiedEmail(){
 }
 async function loadShops(){
   await requireVerifiedEmail();
-  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,fiscal_config,created_at',order:'created_at.desc',limit:'20'}});
+  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,delivery_fee_homologation,delivery_fee_mode_homologation,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,fiscal_config,created_at',order:'created_at.desc',limit:'20'}});
   if(!rows?.length){
     hideAll();hiding('createShop',true);hiding('logout',true);
     if(initialPlan)$('shopForm').elements.namedItem('requested_plan').value=initialPlan;
@@ -232,7 +232,7 @@ async function refreshActivatedPlan(){
   if(JSON.stringify(latest)===previous)return;
   ent=latest;
   const rows=await rest('shops',{query:{
-    select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,fiscal_config,created_at',
+    select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,delivery_fee_homologation,delivery_fee_mode_homologation,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,fiscal_config,created_at',
     id:'eq.'+id,limit:'1'
   }});
   if(rows[0])shop={...shop,...rows[0]};
@@ -2695,7 +2695,11 @@ function renderPage(){
       +((canCustomize()||logoAllowed)?'</section>':'')
       +(isMenu?'<section class="settings-category" aria-labelledby="settings-service-title"><h2 id="settings-service-title">Atendimento e entrega</h2>'
        +serviceScheduleEditor()
-       +'<div class="settings-category-fields">'+field('delivery_fee','Taxa de entrega (R$)','number',shop.delivery_fee??0,'min="0" max="9999.99" step="0.01"')+'</div>'
+       +'<div class="delivery-fee-settings"><label>Taxa de entrega<select name="delivery_fee_mode_homologation">'+
+        '<option value="fixed"'+(shop.delivery_fee_mode_homologation==='to_agree'?'':' selected')+'>Valor definido</option>'+
+        '<option value="to_agree"'+(shop.delivery_fee_mode_homologation==='to_agree'?' selected':'')+'>A combinar com o cliente</option></select></label>'+
+        field('delivery_fee','Valor da taxa (R$)','number',shop.delivery_fee_homologation??shop.delivery_fee??0,'min="0" max="9999.99" step="0.01"')+
+        '<p id="deliveryFeeModeHelp" class="muted small"></p></div>'
        +'</section><section class="settings-category" aria-labelledby="settings-payment-title"><h2 id="settings-payment-title">Pagamentos</h2><fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +'</section>':'')
@@ -2856,6 +2860,19 @@ function setupServiceScheduleEditor(){
   }else row?.remove();
   refresh();
  });
+ const feeModeSelect=form.querySelector('[name="delivery_fee_mode_homologation"]');
+ const feeInput=form.querySelector('[name="delivery_fee"]');
+ const feeHelp=form.querySelector('#deliveryFeeModeHelp');
+ const syncDeliveryFeeMode=()=>{
+  if(!feeModeSelect||!feeInput)return;
+  const toAgree=feeModeSelect.value==='to_agree';
+  feeInput.disabled=toAgree;
+  if(feeHelp)feeHelp.textContent=toAgree?
+   'A taxa não será somada ao total e será combinada diretamente com o cliente.':
+   'O valor definido será somado aos pedidos por entrega.';
+ };
+ feeModeSelect?.addEventListener('change',syncDeliveryFeeMode);
+ syncDeliveryFeeMode();
  refresh();
 }
 function readServiceScheduleForm(form){
@@ -3445,7 +3462,11 @@ async function handleSubmit(form,contractWindow=null){
         const savedOption=menuEstablishmentTypes.find(([key,label])=>key===enteredEstablishment||label.toLocaleLowerCase('pt-BR')===enteredEstablishment.toLocaleLowerCase('pt-BR'));
         body.establishment_type=savedOption?.[0]||enteredEstablishment;
         const methods=[...form.querySelectorAll('input[name=payment_methods]:checked')].map(input=>input.value);
-        const fee=Number(v.delivery_fee||0);
+        const feeMode=String(v.delivery_fee_mode_homologation||'fixed');
+        if(!['fixed','to_agree'].includes(feeMode))throw Error('Escolha um modo válido para a taxa de entrega.');
+        const fee=feeMode==='to_agree'?
+         Number(shop.delivery_fee_homologation??shop.delivery_fee??0):
+         Number(v.delivery_fee||0);
         if(!Number.isFinite(fee)||fee<0||fee>9999.99)throw Error('Informe uma taxa de entrega válida.');
         const serviceRows=readServiceScheduleForm(form);
         const scheduledRows=serviceRows.filter(row=>row.days.length>0);
@@ -3456,7 +3477,7 @@ async function handleSubmit(form,contractWindow=null){
         if(openingHours.length>6000)throw Error('Os horários cadastrados ficaram muito longos. Reduza o número de endereços ou o tamanho dos textos.');
         const primaryLocation=serviceRows.find(row=>row.address)?.address||'';
         Object.assign(body,{opening_hours:openingHours,location_text:primaryLocation,
-         payment_methods:methods,delivery_fee:fee});
+         payment_methods:methods,delivery_fee_homologation:fee,delivery_fee_mode_homologation:feeMode});
         const file=form.querySelector('input[name=logo]')?.files?.[0];
         const removeLogo=form.querySelector('input[name=remove_logo]')?.checked===true;
         if(file&&removeLogo)throw Error('Escolha entre enviar uma logo ou remover a atual.');

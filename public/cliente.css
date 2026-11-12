@@ -5769,3 +5769,12 @@ body.pdv-night .service-location-card{background:#22252d;border-color:#393d49;co
 body.pdv-night .service-days{border-color:#393d49}
 body.pdv-night .service-day-option{background:#292c35;border-color:#393d49;color:#f4f4f8}
 @media(max-width:640px){.service-location-card{padding:12px;gap:12px}.service-day-options{gap:6px}.service-day-option{padding:7px}.service-hours-fields{grid-template-columns:1fr}.service-location-head{align-items:flex-start}}
+
+
+/* Opção de taxa definida ou combinada, exclusiva da homologação. */
+.delivery-fee-settings{display:grid;gap:10px;max-width:620px}
+.delivery-fee-settings>label{display:grid;gap:6px;font-weight:650}
+.delivery-fee-settings select{width:100%;min-height:42px}
+.delivery-fee-settings input:disabled{opacity:.65;cursor:not-allowed}
+.delivery-fee-settings .small{margin:0;line-height:1.45}
+body.pdv-night .delivery-fee-settings select{background:#22252d;color:#f4f4f8;border-color:#393d49}

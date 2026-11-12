@@ -121,7 +121,9 @@ function subtotal(){return [...cart].reduce((total,[id,qty])=>{
  const item=menu?.items?.find(p=>p.id===id);
  return total+(item?Number(item.price)*qty:0);
 },0)}
-function deliveryCost(){return $('shippingMode').value==='delivery'?Number(menu?.delivery_fee||0):0}
+function deliveryFeeToAgree(){return menu?.delivery_fee_mode_homologation==='to_agree'}
+function configuredDeliveryFee(){return Number(menu?.delivery_fee_homologation??menu?.delivery_fee??0)}
+function deliveryCost(){return $('shippingMode').value==='delivery'&&!deliveryFeeToAgree()?configuredDeliveryFee():0}
 function render(){
  if(/^#[0-9a-fA-F]{6}$/.test(String(menu.brand_color||''))){
   document.documentElement.style.setProperty('--purple',menu.brand_color);
@@ -147,7 +149,8 @@ function render(){
   availablePayments.map(p=>'<option value="'+esc(p)+'">'+esc(paymentLabels[p])+'</option>').join('');
  const payments=availablePayments.map(p=>paymentLabels[p]);
  $('paymentMethods').textContent=payments.length?payments.join(', '):'A combinar com a loja';
- $('deliveryFee').textContent=Number(menu.delivery_fee)>0?money(menu.delivery_fee):'Grátis / a combinar';
+ const showDeliveryFee=Number(menu.delivery_fee_homologation??menu.delivery_fee??0);
+ $('deliveryFee').textContent=deliveryFeeToAgree()?'A combinar com a loja':showDeliveryFee>0?money(showDeliveryFee):'Grátis';
  const logo=menu.logo_path?imageUrl(menu.logo_path):'';
  $('brandMark').innerHTML=logo?'<img src="'+esc(logo)+'" alt="Logo da loja '+esc(menu.name)+'">':
    '<img src="/bipstart-logo.svg" alt="Logo BipStart">';
@@ -162,7 +165,9 @@ function renderCart(){
  $('barCount').textContent=String(qty);
  $('barTotal').textContent=money(sub);
  $('subtotal').textContent=money(sub);
- $('deliveryTotal').textContent=money(fee);
+ const deliveryToAgree=$('shippingMode').value==='delivery'&&deliveryFeeToAgree();
+ $('deliveryTotal').textContent=deliveryToAgree?'A combinar':money(fee);
+ $('deliveryFeeNote').classList.toggle('hidden',!deliveryToAgree);
  $('grandTotal').textContent=money(sub+fee);
  $('finishOrder').disabled=qty===0||!menuScheduleIsOpen();
  $('deliveryLine').classList.toggle('hidden',$('shippingMode').value!=='delivery');
@@ -205,9 +210,9 @@ function checkoutMessage(orderId,trackingUrl){
  }
  lines.push('','Subtotal: '+money(subtotal()));
  lines.push('Recebimento: '+(delivery?'Entrega':'Retirada'));
- if(delivery){lines.push('Taxa de entrega: '+money(deliveryCost()));lines.push('Endereço: '+address)}
+ if(delivery){lines.push('Taxa de entrega: '+(deliveryFeeToAgree()?'A combinar com a loja':money(deliveryCost())));lines.push('Endereço: '+address)}
  lines.push('Pagamento: '+(paymentLabels[$('paymentMethod').value]||'A combinar'));
- lines.push('Total: '+money(subtotal()+deliveryCost()));
+ lines.push('Total: '+money(subtotal()+deliveryCost())+(delivery&&deliveryFeeToAgree()?' — taxa de entrega a combinar com a loja':''));
  if(notes)lines.push('Observações: '+notes);
  lines.push('Acompanhe o status do pedido: '+trackingUrl);
  return lines.join('\\n');
@@ -224,7 +229,7 @@ async function placeOnlineOrder(){
  if(mode==='delivery'&&address.length<8)throw Error('Informe seu endereço completo de entrega.');
  const token=crypto.randomUUID();
  const items=[...cart].map(([id,qty])=>({id,qty}));
- const response=await fetch(config.supabaseUrl+'/rest/v1/rpc/bipstart_place_online_order',{
+ const response=await fetch(config.supabaseUrl+'/rest/v1/rpc/bipstart_place_online_order_homologation',{
   method:'POST',headers:{apikey:config.publishableKey,'Content-Type':'application/json'},
   body:JSON.stringify({p_slug:slug,p_client_token:token,p_name:name,p_phone:phone,p_delivery_method:mode,p_address:address,p_payment_method:payment,p_notes:notes,p_items:items})
  });
