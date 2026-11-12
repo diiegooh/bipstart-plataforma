@@ -23,7 +23,9 @@ function renderTracking(order){
  $('trackingData').hidden=false;
  $('shopName').textContent=String(order.shop_name||'Loja');
  $('brandShopName').textContent=String(order.shop_name||'Loja');
- $('orderReference').textContent='Pedido #'+String(order.id).slice(0,8);
+ const sequence=Number(order.order_number);
+ const orderReference=order.order_number!==null&&order.order_number!==undefined&&Number.isSafeInteger(sequence)&&sequence>=0?String(sequence).padStart(3,'0'):String(order.id).slice(0,8);
+ $('orderReference').textContent='Pedido #'+orderReference;
  const label=statuses[order.status]||'Status indisponível';
  $('statusPill').textContent=label;
  $('statusPill').classList.toggle('cancelled',order.status==='cancelled');
