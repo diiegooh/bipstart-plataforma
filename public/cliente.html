@@ -345,6 +345,13 @@ body:not(.pdv-night) #workspace #page .settings-category-nav>button:hover:not(.i
  }
 }
 
+/* Aba Fiscal: separa visualmente cada grupo de cadastro. */
+#workspace #page #settingsForm>.settings-category[aria-labelledby="settings-fiscal-title"]>h3:not(:first-of-type){
+ margin:14px 0 0!important;
+ padding:18px 0 4px!important;
+ border-top:1px solid color-mix(in srgb,var(--store-accent,#7c3aed) 38%,#41464e)!important;
+}
+
 /* Campos compactos em Configurações da loja: rótulo próximo e caixa mais baixa. */
 #workspace #page #settingsForm>.settings-category>.settings-category-fields{
  gap:11px 14px!important;
