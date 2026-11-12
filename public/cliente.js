@@ -2728,7 +2728,7 @@ function fiscalSettingsSection(){
  const defaultDocument=shop?.model==='agenda'?'nfse':'nfce';
  return '<section class="settings-category" aria-labelledby="settings-fiscal-title">'+
   '<h2 id="settings-fiscal-title">Fiscal</h2>'+
-  '<p class="muted">Preencha os dados cadastrais para preparar a futura emissão. A seleção inicial é homologação.</p>'+
+  ''+
   '<h3>Documento e emissão</h3><div class="settings-category-fields">'+
    select('fiscal_document_type','Documento fiscal principal',docOptions,saved.document_type||defaultDocument)+
    select('fiscal_environment','Ambiente',[['homologacao','Homologação (testes)'],['producao','Produção']],saved.environment||'homologacao')+
