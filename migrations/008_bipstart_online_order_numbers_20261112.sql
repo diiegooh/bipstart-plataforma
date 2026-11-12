@@ -1,25 +1,25 @@
--- Start per-store online order numbers at #000 and keep each number stable.
--- Existing orders are left unchanged; numbering begins with the next new order.
+-- Start the per-store online order sequence at #000 for the next new order.
+-- Historical orders keep their current references.
 
 ALTER TABLE public.shop_online_orders
   ADD COLUMN IF NOT EXISTS order_number bigint;
 
-CREATE SCHEMA IF NOT EXISTS private;
-REVOKE ALL ON SCHEMA private FROM PUBLIC, anon, authenticated;
+CREATE SCHEMA IF NOT EXISTS bipstart_private;
+REVOKE ALL ON SCHEMA bipstart_private FROM PUBLIC, anon, authenticated;
 
-CREATE TABLE IF NOT EXISTS private.shop_online_order_counters (
+CREATE TABLE IF NOT EXISTS bipstart_private.shop_online_order_counters (
   shop_id uuid PRIMARY KEY REFERENCES public.shops(id) ON DELETE CASCADE,
   last_number bigint NOT NULL DEFAULT -1 CHECK (last_number >= -1)
 );
 
-ALTER TABLE private.shop_online_order_counters ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON TABLE private.shop_online_order_counters FROM PUBLIC, anon, authenticated;
+ALTER TABLE bipstart_private.shop_online_order_counters ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE bipstart_private.shop_online_order_counters FROM PUBLIC, anon, authenticated;
 
 CREATE UNIQUE INDEX IF NOT EXISTS shop_online_orders_shop_order_number_uidx
   ON public.shop_online_orders (shop_id, order_number)
   WHERE order_number IS NOT NULL;
 
-CREATE OR REPLACE FUNCTION private.assign_shop_online_order_number()
+CREATE FUNCTION bipstart_private.assign_shop_online_order_number()
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -28,7 +28,7 @@ AS $function$
 DECLARE
   v_number bigint;
 BEGIN
-  -- Serialize numbering for this store and avoid gaps on retried client tokens.
+  -- Serialize numbering per shop and avoid gaps for retried client tokens.
   PERFORM pg_catalog.pg_advisory_xact_lock(
     pg_catalog.hashtextextended(NEW.shop_id::text, 0)
   );
@@ -43,11 +43,11 @@ BEGIN
     RETURN NEW;
   END IF;
 
-  INSERT INTO private.shop_online_order_counters (shop_id, last_number)
+  INSERT INTO bipstart_private.shop_online_order_counters (shop_id, last_number)
   VALUES (NEW.shop_id, -1)
   ON CONFLICT (shop_id) DO NOTHING;
 
-  UPDATE private.shop_online_order_counters
+  UPDATE bipstart_private.shop_online_order_counters
   SET last_number = last_number + 1
   WHERE shop_id = NEW.shop_id
   RETURNING last_number INTO v_number;
@@ -57,18 +57,15 @@ BEGIN
 END;
 $function$;
 
-REVOKE ALL ON FUNCTION private.assign_shop_online_order_number()
+REVOKE ALL ON FUNCTION bipstart_private.assign_shop_online_order_number()
   FROM PUBLIC, anon, authenticated;
-
-DROP TRIGGER IF EXISTS shop_online_orders_assign_number
-  ON public.shop_online_orders;
 
 CREATE TRIGGER shop_online_orders_assign_number
   BEFORE INSERT ON public.shop_online_orders
   FOR EACH ROW
-  EXECUTE FUNCTION private.assign_shop_online_order_number();
+  EXECUTE FUNCTION bipstart_private.assign_shop_online_order_number();
 
-CREATE OR REPLACE FUNCTION public.bipstart_track_online_order(
+CREATE FUNCTION public.bipstart_track_online_order_numbered(
   p_order_id uuid, p_client_token uuid
 ) RETURNS jsonb
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path=''
@@ -90,9 +87,9 @@ AS $$
   LIMIT 1
 $$;
 
-REVOKE ALL ON FUNCTION public.bipstart_track_online_order(uuid, uuid)
+REVOKE ALL ON FUNCTION public.bipstart_track_online_order_numbered(uuid, uuid)
   FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.bipstart_track_online_order(uuid, uuid)
+GRANT EXECUTE ON FUNCTION public.bipstart_track_online_order_numbered(uuid, uuid)
   TO anon, authenticated;
 
 NOTIFY pgrst, 'reload schema';
