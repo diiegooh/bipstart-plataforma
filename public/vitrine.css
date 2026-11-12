@@ -1325,3 +1325,18 @@ body.round-menu.menu-night{color-scheme:dark!important;background:#08080d!import
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
  }
 }
+
+/* Cardápio indisponível fora dos dias e horários cadastrados. */
+body.menu-closed{overflow:hidden!important}
+body.menu-closed .delivery-app,
+body.menu-closed #openCart{pointer-events:none!important;user-select:none!important}
+.closed-schedule-overlay{position:fixed;z-index:2147483647;inset:0;display:grid;place-items:center;overflow:auto;padding:18px;background:#100d1dcc;backdrop-filter:blur(8px)}
+.closed-schedule-card{box-sizing:border-box;width:min(100%,520px);max-height:calc(100dvh - 36px);overflow:auto;padding:clamp(20px,5vw,34px);border:1px solid #d9ccff;border-radius:22px;background:#fff;color:#21166d;box-shadow:0 18px 65px #120a2b55;text-align:center}
+.closed-schedule-icon{display:grid;place-items:center;width:54px;height:54px;margin:0 auto 12px;border-radius:50%;background:#f0eaff;color:#7138f4;font-size:28px}
+.closed-schedule-card h2{margin:0 0 10px;font-size:clamp(21px,5vw,28px);line-height:1.15;color:#21166d}
+.closed-schedule-card>p{margin:0 0 18px;color:#625c83;line-height:1.5}
+.closed-schedule-list{display:grid;gap:10px;margin:0;padding:0;list-style:none;text-align:left}
+.closed-schedule-list li{display:grid;gap:4px;padding:12px 14px;border:1px solid #e9e3fb;border-radius:12px;background:#faf9ff;color:#21166d}
+.closed-schedule-list li strong{overflow-wrap:anywhere}
+.closed-schedule-list li span{font-size:13px;color:#625c83}
+@media(max-width:480px){.closed-schedule-overlay{padding:12px}.closed-schedule-card{max-height:calc(100dvh - 24px);padding:21px 16px;border-radius:17px}}
