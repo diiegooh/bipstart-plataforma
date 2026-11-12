@@ -5778,3 +5778,45 @@ body.pdv-night .service-day-option{background:#292c35;border-color:#393d49;color
 .delivery-fee-settings input:disabled{opacity:.65;cursor:not-allowed}
 .delivery-fee-settings .small{margin:0;line-height:1.45}
 body.pdv-night .delivery-fee-settings select{background:#22252d;color:#f4f4f8;border-color:#393d49}
+
+
+/* Mantém cada dia e sua caixa de seleção na mesma linha no celular. */
+#settingsForm .service-days .service-day-options{
+ display:flex!important;
+ flex-flow:row wrap!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ gap:8px!important;
+}
+#settingsForm .service-days .service-day-option{
+ display:grid!important;
+ grid-template-columns:18px max-content!important;
+ grid-template-rows:auto!important;
+ align-items:center!important;
+ justify-content:start!important;
+ gap:7px!important;
+ width:max-content!important;
+ max-width:100%!important;
+ flex:0 0 auto!important;
+ text-align:left!important;
+}
+#settingsForm .service-days .service-day-option input{
+ display:block!important;
+ grid-column:1!important;
+ grid-row:1!important;
+ width:18px!important;
+ height:18px!important;
+ min-height:18px!important;
+ margin:0!important;
+ justify-self:start!important;
+ align-self:center!important;
+}
+#settingsForm .service-days .service-day-option span{
+ display:block!important;
+ grid-column:2!important;
+ grid-row:1!important;
+}
+@media(max-width:640px){
+ #settingsForm .service-days .service-day-options{gap:7px!important}
+ #settingsForm .service-days .service-day-option{padding:7px 8px!important}
+}
