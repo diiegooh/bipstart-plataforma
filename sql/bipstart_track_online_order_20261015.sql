@@ -1,7 +1,7 @@
 -- Consulta pública do andamento de um pedido mediante dois identificadores imprevisíveis.
 -- O identificador secreto do carrinho é criado no navegador com crypto.randomUUID().
 -- Nunca aceita apenas telefone, nome ou número curto como autenticação.
--- Só devolve status, data, total e nome da loja; não expõe itens, endereço,
+-- Só devolve o número do pedido, status, data, total e nome da loja; não expõe itens, endereço,
 -- telefone, dados pessoais nem token do carrinho.
 create or replace function public.bipstart_track_online_order(
  p_order_id uuid, p_client_token uuid
@@ -10,6 +10,7 @@ language sql stable security definer set search_path=''
 as $$
  select jsonb_build_object(
   'id',o.id,
+  'order_number',o.order_number,
   'shop_name',s.name,
   'status',o.status,
   'payment_status',o.payment_status,
