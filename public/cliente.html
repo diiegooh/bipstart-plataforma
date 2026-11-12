@@ -298,22 +298,49 @@ body:not(.pdv-night) #workspace #page .settings-category-nav>button:hover:not(.i
  font-size:13px!important;line-height:1.15!important;
 }
 
-/* Aba Fiscal: campos em sequência, com quatro colunas em telas grandes. */
-#workspace #page #settingsForm>.settings-category[aria-labelledby="settings-fiscal-title"] .settings-category-fields{
+/* Todas as abas de Configurações: três colunas para os campos. */
+#workspace #page #settingsForm .settings-category-fields,
+#workspace #page #settingsForm .receipt-settings-fields,
+#workspace #page #settingsForm .menu-layout-fields,
+#workspace #page #settingsForm .service-hours-fields,
+#workspace #page #settingsForm .delivery-fee-settings,
+#workspace #page #settingsForm .menu-editor-panel .data-form .columns,
+#workspace #page #settingsForm .menu-payments{
  display:grid!important;
- grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
  gap:11px 14px!important;
 }
-#workspace #page #settingsForm>.settings-category[aria-labelledby="settings-fiscal-title"] .settings-category-fields>label{
+#workspace #page #settingsForm .settings-category-fields>label,
+#workspace #page #settingsForm .receipt-settings-fields>label,
+#workspace #page #settingsForm .menu-layout-fields>label,
+#workspace #page #settingsForm .service-hours-fields>label,
+#workspace #page #settingsForm .delivery-fee-settings>label,
+#workspace #page #settingsForm .menu-editor-panel .data-form .columns>label{
  min-width:0!important;
 }
+#workspace #page #settingsForm .menu-payments>legend,
+#workspace #page #settingsForm #deliveryFeeModeHelp{
+ grid-column:1/-1!important;
+}
 @media(max-width:960px){
- #workspace #page #settingsForm>.settings-category[aria-labelledby="settings-fiscal-title"] .settings-category-fields{
+ #workspace #page #settingsForm .settings-category-fields,
+#workspace #page #settingsForm .receipt-settings-fields,
+#workspace #page #settingsForm .menu-layout-fields,
+#workspace #page #settingsForm .service-hours-fields,
+#workspace #page #settingsForm .delivery-fee-settings,
+#workspace #page #settingsForm .menu-editor-panel .data-form .columns,
+#workspace #page #settingsForm .menu-payments{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
  }
 }
 @media(max-width:600px){
- #workspace #page #settingsForm>.settings-category[aria-labelledby="settings-fiscal-title"] .settings-category-fields{
+ #workspace #page #settingsForm .settings-category-fields,
+#workspace #page #settingsForm .receipt-settings-fields,
+#workspace #page #settingsForm .menu-layout-fields,
+#workspace #page #settingsForm .service-hours-fields,
+#workspace #page #settingsForm .delivery-fee-settings,
+#workspace #page #settingsForm .menu-editor-panel .data-form .columns,
+#workspace #page #settingsForm .menu-payments{
   grid-template-columns:1fr!important;
  }
 }
