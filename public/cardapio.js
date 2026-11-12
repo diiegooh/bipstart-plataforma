@@ -241,7 +241,7 @@ async function placeOnlineOrder(){
  let orderNumber=result.order_number??null;
  if(orderNumber===null){
   try{
-   const trackedResponse=await fetch(config.supabaseUrl+'/rest/v1/rpc/bipstart_track_online_order',{
+   const trackedResponse=await fetch(config.supabaseUrl+'/rest/v1/rpc/bipstart_track_online_order_numbered',{
     method:'POST',headers:{apikey:config.publishableKey,'Content-Type':'application/json'},
     body:JSON.stringify({p_order_id:result.id,p_client_token:token}),cache:'no-store'
    });
