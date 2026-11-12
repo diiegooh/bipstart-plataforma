@@ -5735,6 +5735,7 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
 
 
 /* Acesso às configurações no celular: alvo maior e rótulo visível. */
+#workspace .side .side-settings-text{display:none!important}
 @media(max-width:1000px){
  #workspace .side .side-settings{
   display:flex!important;align-items:center!important;justify-content:center!important;
