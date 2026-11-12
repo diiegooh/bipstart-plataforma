@@ -175,7 +175,7 @@ async function requireVerifiedEmail(){
 }
 async function loadShops(){
   await requireVerifiedEmail();
-  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,fiscal_config,created_at',order:'created_at.desc',limit:'20'}});
+  const rows=await rest('shops',{query:{select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,delivery_fee_mode,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,fiscal_config,created_at',order:'created_at.desc',limit:'20'}});
   if(!rows?.length){
     hideAll();hiding('createShop',true);hiding('logout',true);
     if(initialPlan)$('shopForm').elements.namedItem('requested_plan').value=initialPlan;
@@ -232,7 +232,7 @@ async function refreshActivatedPlan(){
   if(JSON.stringify(latest)===previous)return;
   ent=latest;
   const rows=await rest('shops',{query:{
-    select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,fiscal_config,created_at',
+    select:'id,name,slug,model,requested_plan,signup_choice,upgrade_request_type,brand_color,whatsapp,opening_hours,location_text,payment_methods,delivery_fee,delivery_fee_mode,logo_path,menu_layout_style,establishment_type,show_logo_subtitle,logo_subtitle,menu_theme_color,fiscal_config,created_at',
     id:'eq.'+id,limit:'1'
   }});
   if(rows[0])shop={...shop,...rows[0]};
@@ -578,6 +578,42 @@ function bindSideMenuToggle(){
   });
 }
 bindSideMenuToggle();
+function bindSidebarNavigation(){
+  const side=$('sidebar');
+  const navigate=target=>{
+    if(['cardapio','pedidos','motoboys'].includes(target)&&!proAccess())return false;
+    if(!pages().some(([key])=>key===target))return false;
+    tab=target;
+    if(tab==='produtos')selectedStockPanel='';
+    showForm=null;
+    pastedProductImage=null;
+    closeSideMenu();
+    renderPage();
+    if(tab==='vendas')void loadSalesReport();
+    if(window.matchMedia('(max-width:1000px)').matches)window.scrollTo(0,0);
+    return true;
+  };
+  if(side&&side.dataset.directNavigation!=='true'){
+    side.dataset.directNavigation='true';
+    side.addEventListener('click',event=>{
+      const item=event.target.closest('[data-nav]');
+      if(!item||!side.contains(item))return;
+      event.preventDefault();
+      event.stopPropagation();
+      navigate(item.dataset.nav);
+    });
+  }
+  const settings=$('sideSettings');
+  if(settings&&settings.dataset.directSettingsNavigation!=='true'){
+    settings.dataset.directSettingsNavigation='true';
+    settings.addEventListener('click',event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      navigate('configuracoes');
+    });
+  }
+}
+bindSidebarNavigation();
 function heading(title,subtitle,action=''){return '<div class="toolbar"><div><h2>'+esc(title)+'</h2>'+(subtitle?'<p class="muted">'+esc(subtitle)+'</p>':'')+'</div>'+action+'</div>'}
 function empty(t='Nenhum registro até agora.'){return '<div class="empty">'+esc(t)+'</div>'}
 function tile(t,v,sub){return '<div class="tile"><small>'+esc(t)+'</small><strong>'+esc(v)+'</strong><small>'+esc(sub||'')+'</small></div>'}
@@ -1853,8 +1889,8 @@ function renderGodzillaPDV(){
  return '<div class="godzilla-pdv'+(floatingSale?' pdv-floating-layout':'')+'">'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
- '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
- categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:30px!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">'+esc(name)+'</strong></button>';}).join('')+
+ '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:var(--pdv-category-font-size,30px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
+ categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:var(--pdv-category-font-size,30px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">'+esc(name)+'</strong></button>';}).join('')+
  '</div>'+
  
  '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
@@ -2666,11 +2702,14 @@ function renderPage(){
       +((canCustomize()||logoAllowed)?'<section class="settings-category" aria-labelledby="settings-brand-title"><h2 id="settings-brand-title">Aparência</h2>'+logoSection:'')
       +(canCustomize()?field('brand_color','COR DO SISTEMA','color',shop.brand_color||'#7c3aed')+'<p class="muted small">Cor aplicada aos botões, seleções, destaques e cardápio online.</p>':'')
       +((canCustomize()||logoAllowed)?'</section>':'')
-      +(isMenu?'<section class="settings-category" aria-labelledby="settings-service-title"><h2 id="settings-service-title">Atendimento e entrega</h2><div class="settings-category-fields">'
-       +field('opening_hours','Horário de atendimento','text',shop.opening_hours||'','maxlength="160" placeholder="Ex.: Segunda a sábado, 18h às 23h"')
-       +field('location_text','Localização ou endereço','text',shop.location_text||'','maxlength="240" placeholder="Ex.: Rua das Flores, 100 — Centro"')
-       +field('delivery_fee','Taxa de entrega (R$)','number',shop.delivery_fee??0,'min="0" max="9999.99" step="0.01"')
-       +'</div></section><section class="settings-category" aria-labelledby="settings-payment-title"><h2 id="settings-payment-title">Pagamentos</h2><fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
+      +(isMenu?'<section class="settings-category" aria-labelledby="settings-service-title"><h2 id="settings-service-title">Atendimento e entrega</h2>'
+       +serviceScheduleEditor()
+       +'<div class="delivery-fee-settings"><label>Taxa de entrega<select name="delivery_fee_mode">'+
+        '<option value="fixed"'+(shop.delivery_fee_mode==='to_agree'?'':' selected')+'>Valor definido</option>'+
+        '<option value="to_agree"'+(shop.delivery_fee_mode==='to_agree'?' selected':'')+'>A combinar com o cliente</option></select></label>'+
+        field('delivery_fee','Valor da taxa (R$)','number',shop.delivery_fee??0,'min="0" max="9999.99" step="0.01"')+
+        '<p id="deliveryFeeModeHelp" class="muted small"></p></div>'
+       +'</section><section class="settings-category" aria-labelledby="settings-payment-title"><h2 id="settings-payment-title">Pagamentos</h2><fieldset class="menu-payments"><legend>Formas de pagamento aceitas</legend>'+
         paymentChoices.map(([value,label])=>'<label><input type="checkbox" name="payment_methods" value="'+value+'"'+(currentMethods.includes(value)?' checked':'')+'> '+label+'</label>').join('')+'</fieldset>'
        +'</section>':'')
       +(isMenu?'<section class="settings-category" aria-labelledby="settings-pdv-title"><h2 id="settings-pdv-title">PDV e comprovantes</h2><section class="receipt-settings-panel"><h3>Botão flutuante de venda</h3><p class="muted">Mostra somente o total no rodapé. Ao tocar, abre o carrinho e as formas de pagamento.</p><label class="receipt-settings-check"><input type="checkbox" id="floatingSaleToggle"'+(floatingSaleEnabled()?' checked':'')+'> Ativar botão flutuante do PDV</label></section>'+receiptSettingsPanel()+'</section><section class="settings-category" aria-labelledby="settings-menu-title"><h2 id="settings-menu-title">Cardápio e categorias</h2>'+cardapioLayoutSettings()+categoryImagesSettings()+'</section>':'')+
@@ -2685,7 +2724,7 @@ function renderPage(){
   }
   $('page').innerHTML=content;
   if(tab==='produtos')applyInventoryNightStyles();
-   if(tab==='configuracoes'){setupSettingsCategories();applySettingsNightStyles();}
+   if(tab==='configuracoes'){setupSettingsCategories();setupServiceScheduleEditor();applySettingsNightStyles();}
    if(tab==='vendas')applySalesNightStyles();
    if(tab==='caixa')applyPdvFloatingFullWidth();
    if(tab==='caixa')applyPdvCategoryFontSizes();
@@ -2739,6 +2778,133 @@ function formatFiscalCnpj(value){
  const raw=String(value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
  if(raw.length!==14)return String(value||'');
  return raw.slice(0,2)+'.'+raw.slice(2,5)+'.'+raw.slice(5,8)+'/'+raw.slice(8,12)+'-'+raw.slice(12);
+}
+
+
+const serviceWeekdays=[
+ {value:'0',label:'Domingo'},{value:'1',label:'Segunda-feira'},
+ {value:'2',label:'Terça-feira'},{value:'3',label:'Quarta-feira'},
+ {value:'4',label:'Quinta-feira'},{value:'5',label:'Sexta-feira'},
+ {value:'6',label:'Sábado'}
+];
+const serviceWeekdayByLabel=new Map(serviceWeekdays.map(day=>[day.label,day.value]));
+function parseConfiguredSchedules(value){
+ const lines=String(value||'').split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+ if(!lines.length)return [];
+ const schedules=[];
+ for(const line of lines){
+  const timeMarker=' • Horário: ',addressMarker=' • Endereço: ';
+  const timeAt=line.indexOf(timeMarker),addressAt=line.indexOf(addressMarker,timeAt+timeMarker.length);
+  if(!line.startsWith('Dias: ')||timeAt<0||addressAt<0)return [];
+  const labels=line.slice(6,timeAt).split(', ').map(label=>label.trim());
+  const days=labels.map(label=>serviceWeekdayByLabel.get(label));
+  const timeText=line.slice(timeAt+timeMarker.length,addressAt);
+  const times=/^([0-2]\d:[0-5]\d) às ([0-2]\d:[0-5]\d)$/.exec(timeText);
+  const address=line.slice(addressAt+addressMarker.length).trim();
+  if(!labels.length||days.some(day=>day===undefined)||!times||!address)return [];
+  const openHour=Number(times[1].slice(0,2)),closeHour=Number(times[2].slice(0,2));
+  if(openHour>23||closeHour>23||times[1]===times[2])return [];
+  schedules.push({address,days:[...new Set(days)],open:times[1],close:times[2]});
+ }
+ return schedules;
+}
+function serviceScheduleLine(schedule){
+ const labels=serviceWeekdays.filter(day=>schedule.days.includes(day.value)).map(day=>day.label);
+ return 'Dias: '+labels.join(', ')+' • Horário: '+schedule.open+' às '+schedule.close+' • Endereço: '+schedule.address;
+}
+function serviceLocationRowHtml(location,index){
+ const selected=new Set(location.days||[]);
+ return '<article class="service-location-card" data-service-location>'+
+  '<header class="service-location-head"><strong data-service-location-title>Endereço de atendimento '+(index+1)+'</strong>'+
+  '<button type="button" class="ghost service-location-remove" data-service-location-remove aria-label="Remover endereço de atendimento '+(index+1)+'">Remover</button></header>'+
+  '<label>Endereço de atendimento<input type="text" data-service-address maxlength="240" value="'+esc(location.address||'')+'" placeholder="Rua, número, bairro e complemento"></label>'+
+  '<fieldset class="service-days"><legend>Dias de atendimento</legend><div class="service-day-options">'+
+  serviceWeekdays.map(day=>'<label class="service-day-option"><input type="checkbox" data-service-day value="'+day.value+'"'+(selected.has(day.value)?' checked':'')+'><span>'+day.label+'</span></label>').join('')+
+  '</div></fieldset>'+
+  '<div class="service-hours-fields"><label>Abre às<input type="time" data-service-open value="'+esc(location.open||'')+'"></label>'+
+  '<label>Fecha às<input type="time" data-service-close value="'+esc(location.close||'')+'"></label></div></article>';
+}
+function serviceScheduleEditor(){
+ const savedSchedules=parseConfiguredSchedules(shop?.opening_hours);
+ const initial=savedSchedules.length?savedSchedules:[{address:shop?.location_text||'',days:[],open:'',close:''}];
+ const legacyHours=!savedSchedules.length&&String(shop?.opening_hours||'').trim();
+ return '<div class="service-schedule-editor">'+
+  '<p class="muted">Cadastre cada endereço de atendimento e marque os dias e horários. O cardápio ficará indisponível fora dos horários definidos.</p>'+
+  (legacyHours?'<p class="service-schedule-legacy"><strong>Horário atual:</strong> '+esc(legacyHours)+'<br>Marque os dias e horários abaixo para ativar o bloqueio automático.</p>':'')+
+  '<div class="service-location-list" data-service-location-list>'+initial.map(serviceLocationRowHtml).join('')+'</div>'+
+  '<button type="button" class="ghost service-location-add" data-service-location-add>＋ Adicionar endereço de atendimento</button></div>';
+}
+function setupServiceScheduleEditor(){
+ const form=$('settingsForm');
+ const list=form?.querySelector('[data-service-location-list]');
+ if(!form||!list)return;
+ const refresh=()=>{
+  const rows=[...list.querySelectorAll('[data-service-location]')];
+  rows.forEach((row,index)=>{
+   const title=row.querySelector('[data-service-location-title]');
+   const remove=row.querySelector('[data-service-location-remove]');
+   if(title)title.textContent='Endereço de atendimento '+(index+1);
+   if(remove){remove.disabled=rows.length<=1;remove.setAttribute('aria-label','Remover endereço de atendimento '+(index+1));}
+  });
+ };
+ form.addEventListener('click',event=>{
+  const add=event.target.closest('[data-service-location-add]');
+  if(add){
+   const rows=list.querySelectorAll('[data-service-location]');
+   if(rows.length>=10){msg('Adicione no máximo 10 endereços de atendimento.',true);return;}
+   list.insertAdjacentHTML('beforeend',serviceLocationRowHtml({address:'',days:[],open:'',close:''},rows.length));
+   refresh();
+   list.lastElementChild?.querySelector('[data-service-address]')?.focus();
+   return;
+  }
+  const remove=event.target.closest('[data-service-location-remove]');
+  if(!remove)return;
+  const row=remove.closest('[data-service-location]');
+  const rows=list.querySelectorAll('[data-service-location]');
+  if(rows.length<=1){
+   const addressInput=row?.querySelector('[data-service-address]');if(addressInput)addressInput.value='';
+   (row?.querySelectorAll('[data-service-day]')||[]).forEach(input=>input.checked=false);
+   const openInput=row?.querySelector('[data-service-open]');if(openInput)openInput.value='';
+   const closeInput=row?.querySelector('[data-service-close]');if(closeInput)closeInput.value='';
+  }else row?.remove();
+  refresh();
+ });
+ const feeModeSelect=form.querySelector('[name="delivery_fee_mode"]');
+ const feeInput=form.querySelector('[name="delivery_fee"]');
+ const feeHelp=form.querySelector('#deliveryFeeModeHelp');
+ const syncDeliveryFeeMode=()=>{
+  if(!feeModeSelect||!feeInput)return;
+  const toAgree=feeModeSelect.value==='to_agree';
+  feeInput.disabled=toAgree;
+  if(feeHelp)feeHelp.textContent=toAgree?
+   'A taxa não será somada ao total e será combinada diretamente com o cliente.':
+   'O valor definido será somado aos pedidos por entrega.';
+ };
+ feeModeSelect?.addEventListener('change',syncDeliveryFeeMode);
+ syncDeliveryFeeMode();
+ refresh();
+}
+function readServiceScheduleForm(form){
+ const rows=[...form.querySelectorAll('[data-service-location]')].map(row=>({
+  address:String(row.querySelector('[data-service-address]')?.value||'').trim(),
+  days:[...row.querySelectorAll('[data-service-day]:checked')].map(input=>input.value),
+  open:String(row.querySelector('[data-service-open]')?.value||''),
+  close:String(row.querySelector('[data-service-close]')?.value||'')
+ }));
+ if(rows.length>10)throw Error('Adicione no máximo 10 endereços de atendimento.');
+ for(const row of rows){
+  const hasSchedule=row.days.length>0||row.open||row.close;
+  if(row.address.length>240)throw Error('Cada endereço deve ter até 240 caracteres.');
+  if(hasSchedule&&(!row.address||!row.days.length||!row.open||!row.close))
+   throw Error('Preencha o endereço, os dias e os dois horários em cada atendimento configurado.');
+  if(hasSchedule&&row.open===row.close)throw Error('O horário de abertura e fechamento não pode ser igual.');
+  if(hasSchedule&&(!/^([01]\d|2[0-3]):[0-5]\d$/.test(row.open)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(row.close)))
+   throw Error('Confira os horários de abertura e fechamento.');
+ }
+ const scheduled=rows.filter(row=>row.days.length>0);
+ if(scheduled.length&&rows.some(row=>row.address&&!row.days.length))
+  throw Error('Configure os dias e horários de todos os endereços preenchidos.');
+ return rows.filter(row=>row.address);
 }
 
 function field(name,label,type='text',value='',extra=''){return '<label>'+esc(label)+'<input name="'+esc(name)+'" type="'+esc(type)+'" value="'+esc(value)+'" '+extra+'></label>'}
@@ -3305,11 +3471,22 @@ async function handleSubmit(form,contractWindow=null){
         const savedOption=menuEstablishmentTypes.find(([key,label])=>key===enteredEstablishment||label.toLocaleLowerCase('pt-BR')===enteredEstablishment.toLocaleLowerCase('pt-BR'));
         body.establishment_type=savedOption?.[0]||enteredEstablishment;
         const methods=[...form.querySelectorAll('input[name=payment_methods]:checked')].map(input=>input.value);
-        const fee=Number(v.delivery_fee||0);
+        const feeMode=String(v.delivery_fee_mode||'fixed');
+        if(!['fixed','to_agree'].includes(feeMode))throw Error('Escolha um modo válido para a taxa de entrega.');
+        const fee=feeMode==='to_agree'?
+         Number(shop.delivery_fee??0):
+         Number(v.delivery_fee||0);
         if(!Number.isFinite(fee)||fee<0||fee>9999.99)throw Error('Informe uma taxa de entrega válida.');
-        if(String(v.opening_hours||'').length>160||String(v.location_text||'').length>240)throw Error('Confira o horário e o endereço.');
-        Object.assign(body,{opening_hours:String(v.opening_hours||'').trim(),location_text:String(v.location_text||'').trim(),
-         payment_methods:methods,delivery_fee:fee});
+        const serviceRows=readServiceScheduleForm(form);
+        const scheduledRows=serviceRows.filter(row=>row.days.length>0);
+        const hadConfiguredSchedules=parseConfiguredSchedules(shop.opening_hours).length>0;
+        const openingHours=scheduledRows.length?
+         scheduledRows.map(serviceScheduleLine).join('\n'):
+         (hadConfiguredSchedules?'':String(shop.opening_hours||'').trim());
+        if(openingHours.length>6000)throw Error('Os horários cadastrados ficaram muito longos. Reduza o número de endereços ou o tamanho dos textos.');
+        const primaryLocation=serviceRows.find(row=>row.address)?.address||'';
+        Object.assign(body,{opening_hours:openingHours,location_text:primaryLocation,
+         payment_methods:methods,delivery_fee:fee,delivery_fee_mode:feeMode});
         const file=form.querySelector('input[name=logo]')?.files?.[0];
         const removeLogo=form.querySelector('input[name=remove_logo]')?.checked===true;
         if(file&&removeLogo)throw Error('Escolha entre enviar uma logo ou remover a atual.');

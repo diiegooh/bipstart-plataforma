@@ -5568,3 +5568,373 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
   min-height:44px!important;height:44px!important;padding:0!important;
  }
 }
+
+
+/* Homologação mobile: categorias visíveis, legíveis e fáceis de tocar. */
+@media(max-width:700px){
+ body #workspace #page .godzilla-pdv .pdv-category-tiles,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles,
+ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles{
+  box-sizing:border-box!important;display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:minmax(64px,auto)!important;
+  align-content:start!important;gap:8px!important;width:100%!important;max-width:none!important;
+  height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile,
+ body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles>.pdv-category-tile,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-category-tiles>.pdv-category-tile{
+  --pdv-category-font-size:14px!important;
+  box-sizing:border-box!important;display:flex!important;flex:initial!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;width:100%!important;min-width:0!important;
+  height:auto!important;min-height:64px!important;max-height:none!important;margin:0!important;
+  padding:8px 6px!important;overflow:visible!important;touch-action:manipulation!important;cursor:pointer!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile>strong,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile>strong{
+  font-size:var(--pdv-category-font-size,14px)!important;line-height:1.15!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;text-align:center!important;
+ }
+ body #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile:focus-visible,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-category-tiles>.pdv-category-tile:focus-visible{
+  outline:3px solid var(--store-accent,#7c3aed)!important;outline-offset:2px!important;
+ }
+ body.workspace-fullscreen #workspace #page .godzilla-pdv,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-two-panels,
+ body.workspace-fullscreen #workspace #page .godzilla-pdv .pdv-catalog{
+  height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;
+ }
+}
+
+
+/* Homologação mobile: o drawer lateral não pode permanecer oculto por display:none. */
+@media(max-width:1000px){
+ body.workspace-fullscreen #workspace .side,
+ #workspace .side{
+  display:flex!important;flex-direction:column!important;position:fixed!important;
+  inset:0 auto 0 0!important;width:min(300px,88vw)!important;height:100dvh!important;
+  min-height:0!important;max-height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;
+  z-index:1400!important;border-radius:0 16px 16px 0!important;
+  transform:translateX(-105%)!important;visibility:hidden!important;pointer-events:none!important;
+  overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;
+ }
+ body.workspace-fullscreen #workspace .side.open,
+ #workspace .side.open{
+  display:flex!important;transform:translateX(0)!important;visibility:visible!important;
+  pointer-events:auto!important;
+ }
+ body.workspace-fullscreen #workspace .side-backdrop:not(.hidden),
+ #workspace .side-backdrop:not(.hidden){
+  display:block!important;position:fixed!important;inset:0!important;z-index:1390!important;
+  pointer-events:auto!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-mobile-menu,
+ #workspace .pdv-mobile-menu{
+  display:flex!important;position:sticky!important;top:0!important;z-index:1350!important;
+  visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-mobile-menu #sideToggle,
+ #workspace .pdv-mobile-menu #sideToggle{
+  display:inline-flex!important;position:relative!important;z-index:1351!important;
+  min-height:48px!important;visibility:visible!important;opacity:1!important;
+  pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;
+ }
+}
+
+
+/* Homologação: botão de menu fixo e gaveta acima de todo o conteúdo no mobile. */
+@media(max-width:1000px){
+ body.workspace-fullscreen #workspace .pdv-mobile-menu,
+ #workspace .pdv-mobile-menu{
+  display:flex!important;position:fixed!important;
+  top:calc(env(safe-area-inset-top,0px) + 8px)!important;left:8px!important;
+  z-index:1502!important;width:auto!important;min-height:0!important;margin:0!important;padding:0!important;
+  visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-mobile-menu #sideToggle,
+ #workspace .pdv-mobile-menu #sideToggle{
+  display:inline-flex!important;position:relative!important;z-index:1503!important;
+  min-height:48px!important;max-width:calc(100vw - 16px)!important;
+  visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+  touch-action:manipulation!important;cursor:pointer!important;
+ }
+ body.workspace-fullscreen #workspace .side,
+ #workspace .side{
+  display:flex!important;flex-direction:column!important;position:fixed!important;
+  inset:0 auto 0 0!important;width:min(300px,88vw)!important;height:100dvh!important;
+  min-height:0!important;max-height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;
+  z-index:1501!important;border-radius:0 16px 16px 0!important;
+  transform:translateX(-105%)!important;visibility:hidden!important;pointer-events:none!important;
+  overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;
+ }
+ body.workspace-fullscreen #workspace .side.open,
+ #workspace .side.open{
+  display:flex!important;transform:translateX(0)!important;visibility:visible!important;
+  pointer-events:auto!important;
+ }
+ body.workspace-fullscreen #workspace .side-backdrop:not(.hidden),
+ #workspace .side-backdrop:not(.hidden){
+  display:block!important;position:fixed!important;inset:0!important;z-index:1500!important;
+  pointer-events:auto!important;
+ }
+}
+
+
+/* Homologação: retire a gaveta do dashboard no mobile para evitar que seus
+   contextos de empilhamento fiquem atrás do fundo escuro. */
+@media(max-width:1000px){
+ body.workspace-fullscreen #workspace .pdv-mobile-menu,
+ #workspace .pdv-mobile-menu{
+  z-index:1603!important;
+ }
+ body.workspace-fullscreen #workspace .pdv-mobile-menu #sideToggle,
+ #workspace .pdv-mobile-menu #sideToggle{
+  z-index:1604!important;
+ }
+ body.sidebar-open #workspace .pdv-mobile-menu{
+  left:auto!important;right:8px!important;
+ }
+ body.workspace-fullscreen #workspace .side,
+ #workspace .side{
+  z-index:1601!important;
+ }
+ body.workspace-fullscreen #workspace .side.open,
+ #workspace .side.open{
+  z-index:1601!important;
+ }
+ body.workspace-fullscreen #workspace .side-backdrop:not(.hidden),
+ #workspace .side-backdrop:not(.hidden){
+  z-index:1600!important;
+ }
+}
+
+/* Indica quando o preço de atacado está ativo para a quantidade atual do carrinho. */
+#workspace #page .godzilla-pdv .pdv-sale-line-total .pdv-sale-line-amount{display:block!important}
+#workspace #page .godzilla-pdv .pdv-sale-line-total .pdv-wholesale-badge{
+ display:block!important;margin-top:2px!important;color:#70e0ad!important;
+ font-size:10px!important;line-height:1.1!important;text-align:right!important;font-weight:750!important;
+}
+
+
+
+
+/* Ficha técnica de insumos: entrada compacta e lista com custos. */
+#workspace #page #productForm .product-ingredients-editor{grid-column:1/-1;width:100%;min-width:0;box-sizing:border-box;margin:10px 0 0;padding:14px;border:1px solid color-mix(in srgb,var(--shop-accent,#596cff) 32%,#485064);border-radius:12px;background:color-mix(in srgb,var(--surface,#202530) 88%,transparent)}
+#workspace #page #productForm .product-ingredients-editor h3{margin:0 0 6px;font-size:1.05rem}
+#workspace #page #productForm .product-ingredients-editor>p{margin:5px 0 10px}
+#workspace #page #productForm .product-ingredient-entry{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(150px,.65fr) auto;align-items:end;gap:10px;margin:10px 0 14px;padding:10px;border:1px solid color-mix(in srgb,var(--shop-accent,#596cff) 24%,#485064);border-radius:10px;background:color-mix(in srgb,var(--surface,#202530) 75%,transparent)}
+#workspace #page #productForm .product-ingredient-entry label{display:flex;flex-direction:column;gap:5px;min-width:0;margin:0}
+#workspace #page #productForm .product-ingredient-entry :is(select,input){width:100%;min-width:0;box-sizing:border-box}
+#workspace #page #productForm .product-ingredient-list{display:grid;gap:0;margin:8px 0}
+#workspace #page #productForm .product-ingredient-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,.5fr) minmax(120px,.5fr) auto;align-items:center;gap:12px;min-width:0;padding:10px 4px;border-bottom:1px solid color-mix(in srgb,var(--shop-accent,#596cff) 20%,#485064)}
+#workspace #page #productForm .product-ingredient-info{display:grid;gap:3px;min-width:0}
+#workspace #page #productForm .product-ingredient-info strong{overflow-wrap:anywhere}
+#workspace #page #productForm .product-ingredient-info small,#workspace #page #productForm .product-ingredient-cost small{color:var(--muted,#b8c2d5);font-size:.82rem}
+#workspace #page #productForm .product-ingredient-cost{display:grid;gap:3px;justify-items:start;white-space:nowrap}
+#workspace #page #productForm .product-ingredient-remove{margin:0;white-space:nowrap}
+#workspace #page #productForm .product-ingredient-empty{margin:0;padding:10px 0;color:var(--muted,#b8c2d5)}
+#workspace #page #productForm .product-ingredient-total{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px;padding:10px 2px;border-top:1px solid color-mix(in srgb,var(--shop-accent,#596cff) 28%,#485064);font-weight:800}
+#workspace #page #productForm .product-ingredient-total strong{color:var(--shop-accent,#b99aff);font-size:1.05rem}
+#workspace #page #productForm [name="cost"][readonly]{cursor:not-allowed;opacity:.9}
+@media(max-width:680px){#workspace #page #productForm .product-ingredient-entry{grid-template-columns:minmax(0,1fr) minmax(105px,.55fr);gap:8px}#workspace #page #productForm .product-ingredient-entry [data-product-ingredient-add]{grid-column:1/-1}#workspace #page #productForm .product-ingredient-row{grid-template-columns:minmax(0,1fr) minmax(95px,.65fr);gap:7px}#workspace #page #productForm .product-ingredient-info{grid-column:1/-1}#workspace #page #productForm .product-ingredient-remove{grid-column:1/-1;justify-self:start}}
+
+
+/* Gaveta mobile da homologação: dialog no top layer para não ficar atrás do backdrop. */
+@media(max-width:1000px){
+ #workspace .side-menu-dialog[open]{
+  display:block!important;position:fixed!important;inset:0!important;
+  box-sizing:border-box!important;width:100vw!important;height:100vh!important;height:100dvh!important;
+  max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;
+  overflow:visible!important;border:0!important;border-radius:0!important;
+  background:transparent!important;color:inherit!important;pointer-events:none!important;
+ }
+ #workspace .side-menu-dialog[open]::backdrop{background:transparent!important;pointer-events:none!important}
+ #workspace .side-menu-dialog[open]>.pdv-mobile-menu{
+  display:flex!important;position:fixed!important;top:calc(env(safe-area-inset-top,0px) + 8px)!important;
+  left:8px!important;right:auto!important;z-index:3!important;
+  margin:0!important;padding:0!important;pointer-events:auto!important;
+ }
+ #workspace .side-menu-dialog[open]>.side-backdrop:not(.hidden){
+  display:block!important;position:fixed!important;inset:0!important;z-index:1!important;
+  background:#000a!important;pointer-events:auto!important;
+ }
+ #workspace .side-menu-dialog[open]>.side{
+  display:flex!important;flex-direction:column!important;position:fixed!important;
+  inset:0 auto 0 0!important;width:min(300px,88vw)!important;
+  height:100vh!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;
+  overflow-x:hidden!important;overflow-y:auto!important;z-index:2!important;
+  transform:translateX(-105%)!important;visibility:hidden!important;pointer-events:none!important;
+  overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;
+ }
+ #workspace .side-menu-dialog[open]>.side.open{
+  transform:translateX(0)!important;visibility:visible!important;pointer-events:auto!important;
+ }
+}
+@media(min-width:1001px){#workspace .side-menu-dialog{display:none!important}}
+
+
+/* Menu mobile: ao abrir o diálogo, exiba a gaveta sem depender de regras .open concorrentes. */
+@media(max-width:1000px){
+ #workspace dialog#sideMenuDialog[open]{
+  display:block!important;position:fixed!important;inset:0!important;
+  box-sizing:border-box!important;width:100vw!important;height:100vh!important;height:100dvh!important;
+  max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;
+  overflow:hidden!important;border:0!important;border-radius:0!important;
+  background:transparent!important;color:inherit!important;pointer-events:auto!important;
+ }
+ #workspace dialog#sideMenuDialog[open]::backdrop{background:transparent!important;pointer-events:none!important}
+ #workspace dialog#sideMenuDialog[open]>#sideBackdrop:not(.hidden){
+  display:block!important;position:absolute!important;inset:0!important;z-index:1!important;
+  background:#000a!important;pointer-events:auto!important;
+ }
+ #workspace dialog#sideMenuDialog[open]>#sidebar{
+  display:flex!important;flex-direction:column!important;position:absolute!important;
+  top:0!important;right:auto!important;bottom:0!important;left:0!important;
+  width:min(300px,88vw)!important;height:100%!important;min-height:0!important;max-height:none!important;
+  overflow-x:hidden!important;overflow-y:auto!important;z-index:2!important;
+  transform:translate3d(0,0,0)!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+  overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;
+ }
+ #workspace dialog#sideMenuDialog[open]>.pdv-mobile-menu{
+  display:flex!important;position:absolute!important;top:calc(env(safe-area-inset-top,0px) + 8px)!important;
+  left:auto!important;right:8px!important;z-index:3!important;margin:0!important;padding:0!important;pointer-events:auto!important;
+ }
+}
+@media(min-width:1001px){#workspace dialog#sideMenuDialog{display:none!important}}
+
+
+/* Acesso às configurações no celular: engrenagem com alvo de toque confortável. */
+#workspace .side .side-settings-text{display:none!important}
+@media(max-width:1000px){
+ #workspace .side .side-settings{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 44px!important;width:44px!important;min-width:44px!important;max-width:44px!important;
+  min-height:44px!important;height:44px!important;gap:0!important;padding:0!important;
+ }
+}
+
+
+/* Endereços e horários de atendimento por local. */
+.service-schedule-editor{display:grid;gap:14px;min-width:0}
+.service-schedule-editor>p{margin:0;line-height:1.5}
+.service-schedule-legacy{padding:12px 14px;border:1px solid #ded4ef;border-radius:10px;background:#f8f5ff;color:#43315e}
+.service-location-list{display:grid;gap:12px;min-width:0}
+.service-location-card{display:grid;gap:14px;min-width:0;padding:16px;border:1px solid #ded4ef;border-radius:14px;background:#fff}
+.service-location-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.service-location-head strong{font-size:15px}
+.service-location-remove{padding:7px 11px}
+.service-location-remove:disabled{opacity:.45;cursor:not-allowed}
+.service-location-card>label,.service-hours-fields label{display:grid;gap:6px;min-width:0;font-weight:650}
+.service-location-card input[type=text],.service-hours-fields input{width:100%;min-height:42px;box-sizing:border-box}
+.service-days{min-width:0;margin:0;padding:12px;border:1px solid #ded4ef;border-radius:11px}
+.service-days legend{padding:0 6px;font-weight:750}
+.service-day-options{display:flex;flex-wrap:wrap;gap:8px}
+.service-day-option{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid #e6def2;border-radius:9px;background:#faf8ff;font-size:13px;cursor:pointer}
+.service-day-option input{width:auto!important;margin:0;accent-color:var(--store-accent,#7c3aed)}
+.service-hours-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.service-location-add{justify-self:start;min-height:42px;border-color:var(--store-accent,#7c3aed);color:var(--store-accent,#7c3aed)}
+body.pdv-night .service-schedule-legacy{background:#22252d;border-color:#393d49;color:#f4f4f8}
+body.pdv-night .service-location-card{background:#22252d;border-color:#393d49;color:#f4f4f8}
+body.pdv-night .service-days{border-color:#393d49}
+body.pdv-night .service-day-option{background:#292c35;border-color:#393d49;color:#f4f4f8}
+@media(max-width:640px){.service-location-card{padding:12px;gap:12px}.service-day-options{gap:6px}.service-day-option{padding:7px}.service-hours-fields{grid-template-columns:1fr}.service-location-head{align-items:flex-start}}
+
+
+/* Opção de taxa definida ou combinada, exclusiva da homologação. */
+.delivery-fee-settings{display:grid;gap:10px;max-width:620px}
+.delivery-fee-settings>label{display:grid;gap:6px;font-weight:650}
+.delivery-fee-settings select{width:100%;min-height:42px}
+.delivery-fee-settings input:disabled{opacity:.65;cursor:not-allowed}
+.delivery-fee-settings .small{margin:0;line-height:1.45}
+body.pdv-night .delivery-fee-settings select{background:#22252d;color:#f4f4f8;border-color:#393d49}
+
+
+/* Mantém cada dia e sua caixa de seleção na mesma linha no celular. */
+#settingsForm .service-days .service-day-options{
+ display:flex!important;
+ flex-flow:row wrap!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ gap:8px!important;
+}
+#settingsForm .service-days .service-day-option{
+ display:grid!important;
+ grid-template-columns:18px max-content!important;
+ grid-template-rows:auto!important;
+ align-items:center!important;
+ justify-content:start!important;
+ gap:7px!important;
+ width:max-content!important;
+ max-width:100%!important;
+ flex:0 0 auto!important;
+ text-align:left!important;
+}
+#settingsForm .service-days .service-day-option input{
+ display:block!important;
+ grid-column:1!important;
+ grid-row:1!important;
+ width:18px!important;
+ height:18px!important;
+ min-height:18px!important;
+ margin:0!important;
+ justify-self:start!important;
+ align-self:center!important;
+}
+#settingsForm .service-days .service-day-option span{
+ display:block!important;
+ grid-column:2!important;
+ grid-row:1!important;
+}
+@media(max-width:640px){
+ #settingsForm .service-days .service-day-options{gap:7px!important}
+ #settingsForm .service-days .service-day-option{padding:7px 8px!important}
+}
+
+
+/* Homologação: fixa checkbox e nome do dia na mesma linha em Atendimento e entrega. */
+#settingsForm .service-days .service-day-options{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ align-items:stretch!important;
+ justify-items:stretch!important;
+ gap:4px!important;
+}
+#settingsForm .service-days .service-day-options>label.service-day-option{
+ box-sizing:border-box!important;
+ display:flex!important;
+ flex-direction:row!important;
+ flex-wrap:nowrap!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ width:100%!important;
+ max-width:none!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:5px 8px!important;
+ gap:10px!important;
+ text-align:left!important;
+}
+#settingsForm .service-days .service-day-options>label.service-day-option>input[type=checkbox]{
+ display:inline-block!important;
+ position:static!important;
+ float:none!important;
+ flex:0 0 18px!important;
+ width:18px!important;
+ min-width:18px!important;
+ max-width:18px!important;
+ height:18px!important;
+ min-height:18px!important;
+ margin:0!important;
+ padding:0!important;
+ align-self:center!important;
+}
+#settingsForm .service-days .service-day-options>label.service-day-option>span{
+ display:block!important;
+ position:static!important;
+ flex:0 1 auto!important;
+ width:auto!important;
+ max-width:100%!important;
+ margin:0!important;
+ text-align:left!important;
+}
