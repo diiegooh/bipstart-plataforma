@@ -5743,3 +5743,29 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
   min-height:44px!important;height:44px!important;gap:0!important;padding:0!important;
  }
 }
+
+
+/* Endereços e horários de atendimento por local. */
+.service-schedule-editor{display:grid;gap:14px;min-width:0}
+.service-schedule-editor>p{margin:0;line-height:1.5}
+.service-schedule-legacy{padding:12px 14px;border:1px solid #ded4ef;border-radius:10px;background:#f8f5ff;color:#43315e}
+.service-location-list{display:grid;gap:12px;min-width:0}
+.service-location-card{display:grid;gap:14px;min-width:0;padding:16px;border:1px solid #ded4ef;border-radius:14px;background:#fff}
+.service-location-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.service-location-head strong{font-size:15px}
+.service-location-remove{padding:7px 11px}
+.service-location-remove:disabled{opacity:.45;cursor:not-allowed}
+.service-location-card>label,.service-hours-fields label{display:grid;gap:6px;min-width:0;font-weight:650}
+.service-location-card input[type=text],.service-hours-fields input{width:100%;min-height:42px;box-sizing:border-box}
+.service-days{min-width:0;margin:0;padding:12px;border:1px solid #ded4ef;border-radius:11px}
+.service-days legend{padding:0 6px;font-weight:750}
+.service-day-options{display:flex;flex-wrap:wrap;gap:8px}
+.service-day-option{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid #e6def2;border-radius:9px;background:#faf8ff;font-size:13px;cursor:pointer}
+.service-day-option input{width:auto!important;margin:0;accent-color:var(--store-accent,#7c3aed)}
+.service-hours-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.service-location-add{justify-self:start;min-height:42px;border-color:var(--store-accent,#7c3aed);color:var(--store-accent,#7c3aed)}
+body.pdv-night .service-schedule-legacy{background:#22252d;border-color:#393d49;color:#f4f4f8}
+body.pdv-night .service-location-card{background:#22252d;border-color:#393d49;color:#f4f4f8}
+body.pdv-night .service-days{border-color:#393d49}
+body.pdv-night .service-day-option{background:#292c35;border-color:#393d49;color:#f4f4f8}
+@media(max-width:640px){.service-location-card{padding:12px;gap:12px}.service-day-options{gap:6px}.service-day-option{padding:7px}.service-hours-fields{grid-template-columns:1fr}.service-location-head{align-items:flex-start}}

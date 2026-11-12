@@ -7,7 +7,7 @@
  <meta name="viewport" content="width=device-width,initial-scale=1">
  <meta name="theme-color" content="#090612">
  <title>Cardápio digital • BipStart</title>
- <link rel="stylesheet" href="/cardapio.css?v=4">
+ <link rel="stylesheet" href="/cardapio.css?v=5">
 </head>
 <body>
  <header class="menu-top">
@@ -39,6 +39,14 @@
    <div id="categories" class="category-list" aria-live="polite"></div>
   </section>
  </main>
+ <div id="closedOverlay" class="closed-overlay hidden" role="alertdialog" aria-modal="true" aria-labelledby="closedTitle" aria-describedby="closedDescription">
+  <section class="closed-card">
+   <span class="closed-icon" aria-hidden="true">◷</span>
+   <h2 id="closedTitle" tabindex="-1">ATENDIMENTO NÃO DISPONÍVEL</h2>
+   <p id="closedDescription">A loja está fora do horário de atendimento. Confira os dias e horários cadastrados:</p>
+   <ul id="closedScheduleList" class="closed-schedule-list"></ul>
+  </section>
+ </div>
  <div class="bottom-cart" id="bottomCart">
   <span><strong><span id="barCount">0</span> item(ns)</strong><small id="barTotal">R$ 0,00</small></span>
   <button type="button" class="button-primary" id="showCart">Ver meu pedido <span aria-hidden="true">→</span></button>
@@ -69,6 +77,6 @@
   <button type="button" id="finishOrder" class="button-primary finish" disabled>ENVIAR PEDIDO ↗</button>
   <p class="disclaimer">O pagamento é combinado diretamente com a loja. A BipStart não recebe pagamentos por este cardápio.</p>
  </aside>
- <script src="/cardapio.js?v=6" defer></script>
+ <script src="/cardapio.js?v=7" defer></script>
 </body>
 </html>

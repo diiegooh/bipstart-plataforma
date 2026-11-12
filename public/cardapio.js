@@ -3,12 +3,84 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const paymentLabels={pix:'Pix',credito:'Cartão de crédito',debito:'Cartão de débito',dinheiro:'Dinheiro'};
-let menu=null,cart=new Map(),config=null,activeCategory='Todos';
+let menu=null,cart=new Map(),config=null,activeCategory='Todos',availabilityTimer=null;
+const serviceDayLabels=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
 function showErr(text){$('error').classList.remove('hidden');$('error').textContent=String(text)}
 function imageUrl(path){
  if(!path||!menu?.src)return '';
  return menu.src+'/'+String(path).split('/').map(encodeURIComponent).join('/');
 }
+
+function parseConfiguredSchedules(value){
+ const lines=String(value||'').split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+ if(!lines.length)return [];
+ const dayMap=new Map(serviceDayLabels.map((label,index)=>[label,String(index)]));
+ const schedules=[];
+ for(const line of lines){
+  const timeMarker=' • Horário: ',addressMarker=' • Endereço: ';
+  const timeAt=line.indexOf(timeMarker),addressAt=line.indexOf(addressMarker,timeAt+timeMarker.length);
+  if(!line.startsWith('Dias: ')||timeAt<0||addressAt<0)return [];
+  const labels=line.slice(6,timeAt).split(', ').map(label=>label.trim());
+  const days=labels.map(label=>dayMap.get(label));
+  const times=/^([0-2]\d:[0-5]\d) às ([0-2]\d:[0-5]\d)$/.exec(line.slice(timeAt+timeMarker.length,addressAt));
+  const address=line.slice(addressAt+addressMarker.length).trim();
+  if(!labels.length||days.some(day=>day===undefined)||!times||!address)return [];
+  const openHour=Number(times[1].slice(0,2)),closeHour=Number(times[2].slice(0,2));
+  if(openHour>23||closeHour>23||times[1]===times[2])return [];
+  schedules.push({address,days:[...new Set(days)],open:times[1],close:times[2]});
+ }
+ return schedules;
+}
+function scheduleDayText(schedule){
+ return schedule.days.map(day=>serviceDayLabels[Number(day)]).filter(Boolean).join(', ');
+}
+function timeToMinutes(value){
+ const parts=String(value||'').split(':').map(Number);
+ return parts.length===2&&parts.every(Number.isFinite)?parts[0]*60+parts[1]:NaN;
+}
+function brazilClock(){
+ const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{
+  timeZone:'America/Sao_Paulo',weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+ }).formatToParts(new Date()).map(part=>[part.type,part.value]));
+ const weekday={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[parts.weekday];
+ if(weekday===undefined)return null;
+ return {weekday,minutes:Number(parts.hour)*60+Number(parts.minute)};
+}
+function scheduleIsOpen(schedule,clock){
+ if(!clock)return false;
+ const open=timeToMinutes(schedule.open),close=timeToMinutes(schedule.close);
+ const days=new Set(schedule.days.map(Number));
+ if(!Number.isFinite(open)||!Number.isFinite(close)||open===close)return false;
+ if(close>open)return days.has(clock.weekday)&&clock.minutes>=open&&clock.minutes<close;
+ const previousDay=(clock.weekday+6)%7;
+ return (days.has(clock.weekday)&&clock.minutes>=open)||(days.has(previousDay)&&clock.minutes<close);
+}
+function menuScheduleIsOpen(){
+ const schedules=parseConfiguredSchedules(menu?.opening_hours);
+ return !schedules.length||schedules.some(schedule=>scheduleIsOpen(schedule,brazilClock()));
+}
+function refreshMenuAvailability(){
+ const overlay=$('closedOverlay');
+ if(!overlay||!menu)return;
+ const schedules=parseConfiguredSchedules(menu.opening_hours);
+ const closed=schedules.length>0&&!schedules.some(schedule=>scheduleIsOpen(schedule,brazilClock()));
+ const wasClosed=!overlay.classList.contains('hidden');
+ if(closed){
+  $('closedScheduleList').innerHTML=schedules.map(schedule=>
+   '<li><strong>'+esc(schedule.address)+'</strong><span>Dias: '+esc(scheduleDayText(schedule))+'</span><span>Horário: '+esc(schedule.open)+' às '+esc(schedule.close)+'</span></li>'
+  ).join('');
+  if(!wasClosed&&!$('cartPanel').classList.contains('hidden'))closeCart();
+ }
+ overlay.classList.toggle('hidden',!closed);
+ document.body.classList.toggle('menu-closed',closed);
+ for(const id of ['menuTop','menuShell','bottomCart','cartPanel','cartBackdrop']){
+  const element=$(id);
+  if(element)element.inert=closed;
+ }
+ if(closed&&!wasClosed)$('closedTitle').focus({preventScroll:true});
+ renderCart();
+}
+
 function categoryGroups(data){
  const groups=new Map();
  for(const c of data.categories||[]){
@@ -57,11 +129,16 @@ function render(){
  }
  $('store').textContent=menu.name;
  document.title='CARDÁPIO ('+menu.name+')';
- $('hours').textContent=menu.opening_hours||'Consulte a loja';
- $('locationText').textContent=menu.location||'Não informada';
+ const schedules=parseConfiguredSchedules(menu.opening_hours);
+ $('hours').textContent=schedules.length?
+  schedules.map(schedule=>scheduleDayText(schedule)+' • '+schedule.open+' às '+schedule.close).join('\n'):
+  (menu.opening_hours||'Consulte a loja');
+ const serviceAddresses=[...new Set(schedules.map(schedule=>schedule.address))];
+ const primaryLocation=serviceAddresses[0]||menu.location||'';
+ $('locationText').textContent=serviceAddresses.length?serviceAddresses.join('\n'):(menu.location||'Não informada');
  const locationLink=$('locationLink');
- if(menu.location){
-  locationLink.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(menu.location);
+ if(primaryLocation){
+  locationLink.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(primaryLocation);
   locationLink.classList.remove('hidden');
  }else locationLink.classList.add('hidden');
  const paymentSelect=$('paymentMethod');
@@ -77,7 +154,7 @@ function render(){
  const first=(menu.items||[]).find(p=>p.image_path)?.image_path;
  if(first)$('coverPicture').style.backgroundImage='url("'+imageUrl(first).replace(/["\\()]/g,'')+'")';
  renderCatalog();
- renderCart();
+ refreshMenuAvailability();
 }
 function renderCart(){
  const qty=totalItems(),sub=subtotal(),fee=deliveryCost();
@@ -87,7 +164,7 @@ function renderCart(){
  $('subtotal').textContent=money(sub);
  $('deliveryTotal').textContent=money(fee);
  $('grandTotal').textContent=money(sub+fee);
- $('finishOrder').disabled=qty===0;
+ $('finishOrder').disabled=qty===0||!menuScheduleIsOpen();
  $('deliveryLine').classList.toggle('hidden',$('shippingMode').value!=='delivery');
  $('addressField').classList.toggle('hidden',$('shippingMode').value!=='delivery');
  $('cartLines').innerHTML=qty?[...cart].map(([id,count])=>{
@@ -103,6 +180,7 @@ function renderCart(){
  }).join(''):'<p class="empty">Seu carrinho está vazio. Adicione produtos de uma categoria.</p>';
 }
 function openCart(){
+ if(!menuScheduleIsOpen()){refreshMenuAvailability();return;}
  $('cartBackdrop').classList.remove('hidden');
  $('cartPanel').classList.remove('hidden');
  $('cartClose').focus();
@@ -135,6 +213,7 @@ function checkoutMessage(orderId,trackingUrl){
  return lines.join('\\n');
 }
 async function placeOnlineOrder(){
+ if(!menuScheduleIsOpen()){refreshMenuAvailability();throw Error('ATENDIMENTO NÃO DISPONÍVEL. Confira os dias e horários informados pela loja.');}
  const slug=new URLSearchParams(location.search).get('loja')||'';
  const name=$('customerName').value.trim(),phone=$('customerPhone').value.trim();
  const mode=$('shippingMode').value,address=$('deliveryAddress').value.trim();
@@ -166,6 +245,7 @@ document.addEventListener('click',event=>{
  const inc=event.target.closest('[data-inc]');
  const dec=event.target.closest('[data-dec]');
  if(add||inc||dec){
+  if(!menuScheduleIsOpen()){refreshMenuAvailability();return;}
   const id=(add||inc||dec).dataset.add||(add||inc||dec).dataset.inc||(add||inc||dec).dataset.dec;
   const item=(menu?.items||[]).find(p=>p.id===id);
   if(!item)return;
@@ -218,6 +298,10 @@ async function boot(){
   if(!menu)throw Error('Cardápio não encontrado ou indisponível.');
   menu.src=cfg.supabaseUrl+'/storage/v1/object/public/bipstart-images';
   render();
+  if(availabilityTimer)clearInterval(availabilityTimer);
+  availabilityTimer=setInterval(refreshMenuAvailability,30000);
  }catch(e){$('store').textContent='Cardápio indisponível';showErr(e.message)}
 }
 boot();
+
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshMenuAvailability()});
