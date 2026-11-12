@@ -436,26 +436,25 @@ function renderNav(){
 let sideMenuPlaceholder=null;
 let sideBackdropPlaceholder=null;
 let mobileMenuPlaceholder=null;
-function moveIntoMobileDialog(element,placeholderName){
-  const dialog=$('sideMenuDialog');
-  if(!element||!dialog||element.parentElement===dialog)return;
+function moveIntoMobileWorkspace(element,placeholderName){
+  const workspace=$('workspace');
+  if(!element||!workspace||element.parentElement===workspace)return;
   if(!element.parentNode)return;
   const placeholder=document.createComment(placeholderName);
   element.parentNode.insertBefore(placeholder,element);
   if(placeholderName==='sidebar mobile drawer position')sideMenuPlaceholder=placeholder;
   else if(placeholderName==='sidebar mobile backdrop position')sideBackdropPlaceholder=placeholder;
   else mobileMenuPlaceholder=placeholder;
-  dialog.appendChild(element);
+  workspace.appendChild(element);
 }
 function portalSideMenuForMobile(){
   const side=$('sidebar');
   const workspace=$('workspace');
-  const dialog=$('sideMenuDialog');
-  if(!side||!workspace||!dialog||typeof dialog.showModal!=='function'||!window.matchMedia('(max-width:1000px)').matches)return null;
-  moveIntoMobileDialog($('sideBackdrop'),'sidebar mobile backdrop position');
-  moveIntoMobileDialog(side,'sidebar mobile drawer position');
-  moveIntoMobileDialog(workspace.querySelector('.pdv-mobile-menu'),'sidebar mobile toggle position');
-  return dialog;
+  if(!side||!workspace||!window.matchMedia('(max-width:1000px)').matches)return null;
+  moveIntoMobileWorkspace($('sideBackdrop'),'sidebar mobile backdrop position');
+  moveIntoMobileWorkspace(side,'sidebar mobile drawer position');
+  moveIntoMobileWorkspace(workspace.querySelector('.pdv-mobile-menu'),'sidebar mobile toggle position');
+  return null;
 }
 function setMobileMenuStyles(element,styles){
   if(!element)return;
@@ -513,7 +512,7 @@ function restoreSideMenuPosition(){
   const dialog=$('sideMenuDialog');
   const menu=workspace?.querySelector('.pdv-mobile-menu')||dialog?.querySelector('.pdv-mobile-menu');
   if(side&&sideMenuPlaceholder?.parentNode)sideMenuPlaceholder.parentNode.insertBefore(side,sideMenuPlaceholder);
-  else if(side&&side.parentElement===dialog){
+  else if(side&&(side.parentElement===dialog||side.parentElement===workspace)){
     const dashboard=workspace?.querySelector('.dashboard');
     if(dashboard)dashboard.insertBefore(side,dashboard.firstChild);
   }
@@ -544,21 +543,13 @@ function toggleSideMenu(){
   const backdrop=$('sideBackdrop');
   const show=!side.classList.contains('open');
   if(!show){closeSideMenu();return;}
-  let dialog=portalSideMenuForMobile();
+  portalSideMenuForMobile();
   side.classList.add('open');
   backdrop.classList.remove('hidden');
   $('sideToggle').setAttribute('aria-expanded','true');
   $('sideToggle').setAttribute('aria-label','Fechar menu da loja');
   document.body.classList.add('sidebar-open');
-  if(dialog&&!dialog.open){
-    try{dialog.showModal();}
-    catch{
-      if(dialog.open)dialog.close();
-      restoreSideMenuPosition();
-      dialog=null;
-    }
-  }
-  applyMobileMenuStyles(dialog);
+  applyMobileMenuStyles(null);
 }
 function bindSideMenuToggle(){
   const button=$('sideToggle');
