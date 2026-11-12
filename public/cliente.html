@@ -298,19 +298,58 @@ body:not(.pdv-night) #workspace #page .settings-category-nav>button:hover:not(.i
  font-size:13px!important;line-height:1.15!important;
 }
 
-/* Dados da loja: campos com 1/4 da largura em telas grandes. */
-#workspace #page #settingsForm>.settings-category[aria-labelledby="settings-store-title"]>.settings-category-fields{
- grid-template-columns:repeat(4,minmax(0,1fr))!important;
+/* Todas as abas de Configurações: três colunas para os campos. */
+#workspace #page #settingsForm .settings-category-fields,
+#workspace #page #settingsForm .receipt-settings-fields,
+#workspace #page #settingsForm .menu-layout-fields,
+#workspace #page #settingsForm .service-hours-fields,
+#workspace #page #settingsForm .delivery-fee-settings,
+#workspace #page #settingsForm .menu-editor-panel .data-form .columns,
+#workspace #page #settingsForm .menu-payments{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:11px 14px!important;
 }
-@media(max-width:1100px){
- #workspace #page #settingsForm>.settings-category[aria-labelledby="settings-store-title"]>.settings-category-fields{
+#workspace #page #settingsForm .settings-category-fields>label,
+#workspace #page #settingsForm .receipt-settings-fields>label,
+#workspace #page #settingsForm .menu-layout-fields>label,
+#workspace #page #settingsForm .service-hours-fields>label,
+#workspace #page #settingsForm .delivery-fee-settings>label,
+#workspace #page #settingsForm .menu-editor-panel .data-form .columns>label{
+ min-width:0!important;
+}
+#workspace #page #settingsForm .menu-payments>legend,
+#workspace #page #settingsForm #deliveryFeeModeHelp{
+ grid-column:1/-1!important;
+}
+@media(max-width:960px){
+ #workspace #page #settingsForm .settings-category-fields,
+#workspace #page #settingsForm .receipt-settings-fields,
+#workspace #page #settingsForm .menu-layout-fields,
+#workspace #page #settingsForm .service-hours-fields,
+#workspace #page #settingsForm .delivery-fee-settings,
+#workspace #page #settingsForm .menu-editor-panel .data-form .columns,
+#workspace #page #settingsForm .menu-payments{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
  }
 }
-@media(max-width:640px){
- #workspace #page #settingsForm>.settings-category[aria-labelledby="settings-store-title"]>.settings-category-fields{
+@media(max-width:600px){
+ #workspace #page #settingsForm .settings-category-fields,
+#workspace #page #settingsForm .receipt-settings-fields,
+#workspace #page #settingsForm .menu-layout-fields,
+#workspace #page #settingsForm .service-hours-fields,
+#workspace #page #settingsForm .delivery-fee-settings,
+#workspace #page #settingsForm .menu-editor-panel .data-form .columns,
+#workspace #page #settingsForm .menu-payments{
   grid-template-columns:1fr!important;
  }
+}
+
+/* Aba Fiscal: separa visualmente cada grupo de cadastro. */
+#workspace #page #settingsForm>.settings-category[aria-labelledby="settings-fiscal-title"]>h3:not(:first-of-type){
+ margin:14px 0 0!important;
+ padding:18px 0 4px!important;
+ border-top:1px solid color-mix(in srgb,var(--store-accent,#7c3aed) 38%,#41464e)!important;
 }
 
 /* Campos compactos em Configurações da loja: rótulo próximo e caixa mais baixa. */
@@ -925,6 +964,6 @@ body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-line-total{
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=236" defer></script>
+<script src="/cliente.js?v=237" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
