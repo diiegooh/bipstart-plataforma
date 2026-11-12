@@ -2007,12 +2007,12 @@ function courierAccessUrl(c,origin=location.origin){
 function stockImportPanel(){
  if(!stockImportRows.length&&!stockImportFileName)return '';
  const preview=stockImportRows.slice(0,8), valid=stockImportRows.filter(r=>r.valid).length;
- return '<section class="card stock-import-panel"><h3>Importar estoque</h3>'+
+ return '<section class="card stock-import-panel"><h3>Importar produtos</h3>'+
  '<p>Arquivo: <strong>'+esc(stockImportFileName)+'</strong> · <strong>'+valid+'</strong> de '+stockImportRows.length+' linha(s) válida(s).</p>'+
- '<p>Modelo BipStart: CÓDIGO, DESCRIÇÃO, FORNECEDOR, CATEGORIA, SUBCATEGORIA, UNIDADE, CUSTO, VAREJO, ATACADO, MÍNIMO ATACADO, LOTE, ESTOQUE MÍNIMO, QUANTIDADE e VENCIMENTO. A planilha antiga também é aceita.</p>'+
- (preview.length?'<div class="table-wrap"><table><thead><tr><th>Linha</th><th>Código</th><th>Produto</th><th>Categoria</th><th>Varejo</th><th>Quantidade</th><th>Resultado</th></tr></thead><tbody>'+
- preview.map(r=>'<tr><td>'+r.rowNumber+'</td><td>'+esc(r.sku||'—')+'</td><td>'+esc(r.name||'—')+'</td><td>'+esc(r.category||'—')+'</td><td>'+esc(Number.isFinite(r.price)?fmt(r.price):'—')+'</td><td>'+esc(Number.isFinite(r.stock)?r.stock:'—')+'</td><td>'+esc(r.valid?'Pronto':r.errors.join('; '))+'</td></tr>').join('')+'</tbody></table></div>':'')+
- '<p class="muted small">Prévia das primeiras 8 linhas. Os demais campos da planilha também serão gravados, incluindo fornecedor, unidade, atacado, quantidade mínima para atacado, lote e vencimento. Códigos e produtos já existentes nesta loja não serão duplicados. A importação nunca altera os produtos existentes. Células vazias de quantidade assumem 0; estoque mínimo vazio assume 5.</p>'+
+ '<p>A planilha precisa apenas das colunas <strong>Nome, Categoria e Preço</strong>. Os outros campos são opcionais.</p>'+
+ (preview.length?'<div class="table-wrap"><table><thead><tr><th>Linha</th><th>Produto</th><th>Categoria</th><th>Preço</th><th>Resultado</th></tr></thead><tbody>'+
+ preview.map(r=>'<tr><td>'+r.rowNumber+'</td><td>'+esc(r.name||'—')+'</td><td>'+esc(r.category||'—')+'</td><td>'+esc(Number.isFinite(r.price)?fmt(r.price):'—')+'</td><td>'+esc(r.valid?'Pronto':r.errors.join('; '))+'</td></tr>').join('')+'</tbody></table></div>':'')+
+ '<p class="muted small">Cada linha válida será cadastrada como um produto novo. Produtos já existentes não serão alterados; itens repetidos nesta loja serão ignorados. Estoque começa em 0 e o estoque mínimo em 5 quando esses campos não forem informados.</p>'+
  (valid<stockImportRows.length?'<p class="warn">Existem '+(stockImportRows.length-valid)+' linha(s) inválida(s), que serão ignoradas. Corrija o arquivo para incluí-las.</p>':'')+
  '<button type="button" class="button" data-stock-import-confirm '+(stockImportBusy||!valid?'disabled':'')+'>'+ (stockImportBusy?'Importando…':'Confirmar importação')+'</button> <button type="button" class="ghost" data-stock-import-cancel '+(stockImportBusy?'disabled':'')+'>Cancelar</button></section>';
 }
@@ -2057,7 +2057,7 @@ function parseImportRows(rows){
   category:['categoria','category','grupo','departamento','secao'],
   subcategory:['subcategoria','subgrupo'],
   unit:['unidade','un','und'],
-  price:['preco','precovenda','venda','varejo','precounitario','price','valorvenda'],
+  price:['preco','precovenda','venda','varejo','precounitario','price','valorvenda','valor'],
   cost:['custo','precocusto','cost','valorcusto'],
   wholesale_price:['atacado','precoatacado','valoratacado'],
   wholesale_min_quantity:['minimoatacado','quantidademinimaatacado','quantidademinimaparaatacado','qtdminatacado','wholesale_min_quantity'],
@@ -2069,42 +2069,40 @@ function parseImportRows(rows){
  };
  const headers=(rows[0]||[]).map(importHeaderKey);
  const idx=Object.fromEntries(Object.entries(aliases).map(([key,options])=>[key,headers.findIndex(h=>options.includes(h))]));
- if(idx.name<0||idx.price<0)throw Error('A planilha precisa ter DESCRIÇÃO/NOME e VAREJO/PREÇO DE VENDA no cabeçalho.');
- const newModel=headers.includes('varejo')&&headers.includes('descricao');
+ if(idx.name<0||idx.category<0||idx.price<0)throw Error('A planilha precisa ter as colunas Nome, Categoria e Preço.');
  return rows.slice(1).map((cells,index)=>{
   const get=key=>idx[key]>=0?cells[idx[key]]:'';
   const name=String(get('name')??'').trim();
-  const sku=importCode(get('sku'));
+  const rawSku=importCode(get('sku'));
+  const sku=rawSku.length<=120?rawSku:'';
   const supplier=String(get('supplier')??'').trim().slice(0,120);
-  const category=String(get('category')||'Geral').trim().slice(0,65)||'Geral';
+  const category=String(get('category')??'').trim().slice(0,65);
   const subcategory=String(get('subcategory')??'').trim().slice(0,65);
   const unit=String(get('unit')??'').trim().slice(0,20).toUpperCase();
   const lot=String(get('lot')??'').trim().slice(0,80);
   const price=importNumber(get('price'),NaN);
-  const cost=importNumber(get('cost'),newModel?NaN:0);
-  const stock=importNumber(get('stock'),0);
-  const min_stock=importNumber(get('min_stock'),5);
-  const wholesale_price=importNumber(get('wholesale_price'),null);
-  const wholesale_min_quantity=importNumber(get('wholesale_min_quantity'),null);
-  const expiration_date=importExpiration(get('expiration_date'));
+  const parsedCost=importNumber(get('cost'),0);
+  const cost=Number.isFinite(parsedCost)&&parsedCost>=0?parsedCost:0;
+  const parsedStock=importNumber(get('stock'),0);
+  const stock=Number.isInteger(parsedStock)&&parsedStock>=0?parsedStock:0;
+  const parsedMinStock=importNumber(get('min_stock'),5);
+  const min_stock=Number.isInteger(parsedMinStock)&&parsedMinStock>=0&&parsedMinStock<=999999999?parsedMinStock:5;
+  let wholesale_price=importNumber(get('wholesale_price'),null);
+  let wholesale_min_quantity=importNumber(get('wholesale_min_quantity'),null);
+  if(!Number.isFinite(wholesale_price)||wholesale_price<0)wholesale_price=null;
+  if(!Number.isInteger(wholesale_min_quantity)||wholesale_min_quantity<1||wholesale_min_quantity>10000)wholesale_min_quantity=null;
+  if(wholesale_price===null||wholesale_min_quantity===null){wholesale_price=null;wholesale_min_quantity=null;}
+  const parsedExpiration=importExpiration(get('expiration_date'));
+  const expiration_date=parsedExpiration===false?null:parsedExpiration;
   const image=String(get('image_path')||'').trim();
   let image_path=null;
   try{if(image){const u=new URL(image);if(['https:','http:'].includes(u.protocol))image_path=u.href;}}catch{}
   const errors=[];
-  if(!name||name.length>160)errors.push('descrição obrigatória (máx. 160)');
-  if(sku.length>120)errors.push('código muito longo');
-  if(newModel&&idx.category>=0&&!String(get('category')||'').trim())errors.push('categoria obrigatória');
-  if(newModel&&!unit)errors.push('unidade obrigatória');
-  if(!Number.isFinite(price)||price<0)errors.push('varejo inválido');
-  if(!Number.isFinite(cost)||cost<0)errors.push('custo inválido');
-  if(!Number.isInteger(stock)||stock<0)errors.push('quantidade inválida');
-  if(!Number.isInteger(min_stock)||min_stock<0||min_stock>999999999)errors.push('estoque mínimo inválido');
-  if(wholesale_price!==null&&(!Number.isFinite(wholesale_price)||wholesale_price<0))errors.push('atacado inválido');
-  if(wholesale_min_quantity!==null&&(!Number.isInteger(wholesale_min_quantity)||wholesale_min_quantity<1||wholesale_min_quantity>10000))errors.push('quantidade mínima de atacado inválida');
-  if(wholesale_min_quantity!==null&&wholesale_price===null)errors.push('informe o preço de atacado junto com a quantidade mínima');
-  if(expiration_date===false)errors.push('vencimento inválido (DD/MM/AAAA)');
+  if(!name||name.length>160)errors.push('nome obrigatório (máx. 160 caracteres)');
+  if(!category)errors.push('categoria obrigatória');
+  if(!Number.isFinite(price)||price<0)errors.push('preço inválido');
   return {rowNumber:index+2,name,sku,supplier,category,subcategory,unit,lot,price,cost,stock,min_stock,wholesale_price,wholesale_min_quantity,expiration_date,image_path,valid:!errors.length,errors};
- }).filter(r=>r.name||r.sku||Number.isFinite(r.price));
+ }).filter(r=>r.name||r.category||r.sku||Number.isFinite(r.price));
 }
 async function ensureStockXlsxReader(){
  if(window.XLSX)return window.XLSX;
@@ -4095,14 +4093,13 @@ document.addEventListener('click',async e=>{
   if(importTemplate){
    try{
     const XLSX=await ensureStockXlsxReader();
-    const headers=['CODIGO','DESCRIÇÃO*','FORNECEDOR','CATEGORIA*','SUBCATEGORIA','UNIDADE*','CUSTO*','VAREJO*','ATACADO','MÍNIMO ATACADO','LOTE','ESTOQUE MINIMO','QUANTIDADE','VENCIMENTO'];
-    const sample=['7891234567890','PRODUTO EXEMPLO','FORNECEDOR EXEMPLO','MERCEARIA','GERAL','UN',4.50,8.90,7.50,6,'L001',5,20,'30/12/2026'];
+    const headers=['NOME*','CATEGORIA*','PREÇO*'];
+    const sample=['PRODUTO EXEMPLO','MERCEARIA',8.90];
     const sheet=XLSX.utils.aoa_to_sheet([headers,sample]);
-    sheet['!cols']=[{wch:18},{wch:30},{wch:22},{wch:20},{wch:18},{wch:12},{wch:14},{wch:14},{wch:14},{wch:16},{wch:16},{wch:18},{wch:15},{wch:16}];
-    sheet['A2'].t='s';
+    sheet['!cols']=[{wch:30},{wch:22},{wch:16}];
     const book=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(book,sheet,'Estoque');
-    XLSX.writeFile(book,'BIPSTART_MODELO_ESTOQUE.xlsx',{compression:true});
+    XLSX.utils.book_append_sheet(book,sheet,'Produtos');
+    XLSX.writeFile(book,'BIPSTART_MODELO_PRODUTOS.xlsx',{compression:true});
    }catch(error){msg(error.message||'Não foi possível gerar a planilha modelo.',true)}
    return;
   }
