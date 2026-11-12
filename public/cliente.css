@@ -5558,3 +5558,13 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
  }
 }
 @media(min-width:1001px){#workspace dialog#sideMenuDialog{display:none!important}}
+
+
+/* Botão de configurações do menu mobile: área de toque de 44 px. */
+@media(max-width:1000px){
+ #workspace .side .side-settings{
+  display:grid!important;place-items:center!important;
+  flex:0 0 44px!important;width:44px!important;min-width:44px!important;max-width:44px!important;
+  min-height:44px!important;height:44px!important;padding:0!important;
+ }
+}
