@@ -2758,8 +2758,8 @@ function fiscalSettingsSection(){
    field('fiscal_service_code','Código de serviço municipal (NFS-e)','text',saved.service_code||'','maxlength="60"')+
    field('fiscal_csc_id','Identificador do CSC (NFC-e)','text',saved.csc_id||'','maxlength="30"')+
   '</div>'+
-  '<section class="receipt-settings-panel"><h3>Proteção de credenciais</h3><p class="muted">Não informe senha do certificado, arquivo do certificado ou token secreto do CSC aqui. A emissão ainda não está conectada; esses segredos só devem ser solicitados quando houver armazenamento protegido.</p></section>'+
-  '<p class="muted small">Salvar esses dados não emite notas. A classificação fiscal por produto e a integração com a SEFAZ ou com o provedor municipal serão configuradas em etapas próprias.</p>'+
+  ''+
+  ''+
  '</section>';
 }
 function formatFiscalCnpj(value){
