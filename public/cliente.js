@@ -578,6 +578,29 @@ function bindSideMenuToggle(){
   });
 }
 bindSideMenuToggle();
+function bindSidebarNavigation(){
+  const side=$('sidebar');
+  if(!side||side.dataset.directNavigation==='true')return;
+  side.dataset.directNavigation='true';
+  side.addEventListener('click',event=>{
+    const item=event.target.closest('[data-nav]');
+    if(!item||!side.contains(item))return;
+    event.preventDefault();
+    event.stopPropagation();
+    const target=item.dataset.nav;
+    if(['cardapio','pedidos','motoboys'].includes(target)&&!proAccess())return;
+    if(!pages().some(([key])=>key===target))return;
+    tab=target;
+    if(tab==='produtos')selectedStockPanel='';
+    showForm=null;
+    pastedProductImage=null;
+    closeSideMenu();
+    renderPage();
+    if(tab==='vendas')void loadSalesReport();
+    if(window.matchMedia('(max-width:1000px)').matches)window.scrollTo(0,0);
+  });
+}
+bindSidebarNavigation();
 function heading(title,subtitle,action=''){return '<div class="toolbar"><div><h2>'+esc(title)+'</h2>'+(subtitle?'<p class="muted">'+esc(subtitle)+'</p>':'')+'</div>'+action+'</div>'}
 function empty(t='Nenhum registro até agora.'){return '<div class="empty">'+esc(t)+'</div>'}
 function tile(t,v,sub){return '<div class="tile"><small>'+esc(t)+'</small><strong>'+esc(v)+'</strong><small>'+esc(sub||'')+'</small></div>'}
