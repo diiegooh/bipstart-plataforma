@@ -195,7 +195,7 @@ function closeCart(){
  $('cartPanel').classList.add('hidden');
  $('cartOpen').focus();
 }
-function checkoutMessage(orderId,trackingUrl){
+function checkoutMessage(orderId,trackingUrl,orderNumber){
  const mode=$('shippingMode').value,delivery=mode==='delivery';
  const address=$('deliveryAddress').value.trim(),name=$('customerName').value.trim();
  const phone=$('customerPhone').value.trim(),notes=$('orderNotes').value.trim();
@@ -203,7 +203,9 @@ function checkoutMessage(orderId,trackingUrl){
  if(name.length<2)throw Error('Informe seu nome.');
  if(phone.replace(/\\D/g,'').length<10)throw Error('Informe um telefone válido com DDD.');
  if(delivery&&address.length<8)throw Error('Informe seu endereço completo de entrega.');
- const lines=['Olá! Enviei um pedido pelo CARDÁPIO ('+menu.name+').','Pedido #'+String(orderId).slice(0,8),'Cliente: '+name,'Telefone: '+phone,''];
+ const sequence=Number(orderNumber);
+ const orderReference=orderNumber!==null&&orderNumber!==undefined&&Number.isSafeInteger(sequence)&&sequence>=0?String(sequence).padStart(3,'0'):String(orderId).slice(0,8);
+ const lines=['Olá! Enviei um pedido pelo CARDÁPIO ('+menu.name+').','Pedido #'+orderReference,'Cliente: '+name,'Telefone: '+phone,''];
  for(const [id,qty] of cart){
   const p=(menu.items||[]).find(x=>x.id===id);
   if(p)lines.push(qty+'x '+p.name+' — '+money(Number(p.price)*qty));
@@ -236,7 +238,17 @@ async function placeOnlineOrder(){
  const result=await response.json().catch(()=>null);
  if(!response.ok||!result?.id)throw Error(result?.message||result?.details||result?.hint||'Não foi possível registrar o pedido. Confira os dados e tente novamente.');
  const trackingUrl=location.origin+'/acompanhar#pedido='+encodeURIComponent(result.id)+'&chave='+encodeURIComponent(token);
- return {id:result.id,trackingUrl};
+ let orderNumber=result.order_number??null;
+ if(orderNumber===null){
+  try{
+   const trackedResponse=await fetch(config.supabaseUrl+'/rest/v1/rpc/bipstart_track_online_order',{
+    method:'POST',headers:{apikey:config.publishableKey,'Content-Type':'application/json'},
+    body:JSON.stringify({p_order_id:result.id,p_client_token:token}),cache:'no-store'
+   });
+   if(trackedResponse.ok){const trackedOrder=await trackedResponse.json();orderNumber=trackedOrder?.order_number??null;}
+  }catch{}
+ }
+ return {id:result.id,orderNumber,trackingUrl};
 }
 $('menuSearch').addEventListener('input',renderCatalog);
 $('categoryChips').addEventListener('click',event=>{
@@ -279,7 +291,7 @@ $('finishOrder').addEventListener('click',async()=>{
   button.disabled=true;button.textContent='REGISTRANDO PEDIDO…';
   whatsappWindow=window.open('about:blank','_blank');
   const order=await placeOnlineOrder();
-  const whatsappUrl='https://wa.me/'+number+'?text='+encodeURIComponent(checkoutMessage(order.id,order.trackingUrl));
+  const whatsappUrl='https://wa.me/'+number+'?text='+encodeURIComponent(checkoutMessage(order.id,order.trackingUrl,order.orderNumber));
   if(whatsappWindow)whatsappWindow.location.href=whatsappUrl;else window.location.href=whatsappUrl;
  }catch(e){
   if(whatsappWindow)whatsappWindow.close();
