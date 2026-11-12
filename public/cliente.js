@@ -2697,13 +2697,12 @@ function renderPage(){
       '</div>':
       '';
     content=heading('Configurações da loja','')
-      +planManagementCard()
       +'<div class="data-form"><form id="settingsForm">'
       +'<section class="settings-category" aria-labelledby="settings-store-title"><h2 id="settings-store-title">Dados da loja</h2><div class="settings-category-fields">'
       +field('name','Nome da empresa','text',shop.name,'required maxlength="120"')
       +field('whatsapp','WhatsApp comercial com DDD','tel',shop.whatsapp||'','placeholder="11999999999"')
       +(isMenu?establishmentTypeField():'')
-      +'</div></section>'
+      +'</div>'+planManagementCard()+'</section>'
       +((canCustomize()||logoAllowed)?'<section class="settings-category" aria-labelledby="settings-brand-title"><h2 id="settings-brand-title">Aparência</h2>'+logoSection:'')
       +(canCustomize()?field('brand_color','COR DO SISTEMA','color',shop.brand_color||'#7c3aed')+'<p class="muted small">Cor aplicada aos botões, seleções, destaques e cardápio online.</p>':'')
       +((canCustomize()||logoAllowed)?'</section>':'')
