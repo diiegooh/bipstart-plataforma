@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/vitrine.css?v=52">
+  <link rel="stylesheet" href="/vitrine.css?v=53">
 </head>
 <body class="delivery-page">
 <div class="delivery-app">
@@ -50,6 +50,14 @@
     <main id="catalog" class="delivery-grid" aria-live="polite"><p>Carregando produtos...</p></main>
   </section>
 </div>
+<div id="closedScheduleOverlay" class="closed-schedule-overlay hidden" role="alertdialog" aria-modal="true" aria-labelledby="closedScheduleTitle" aria-describedby="closedScheduleDescription">
+ <section class="closed-schedule-card">
+  <span class="closed-schedule-icon" aria-hidden="true">◷</span>
+  <h2 id="closedScheduleTitle" tabindex="-1">ATENDIMENTO NÃO DISPONÍVEL</h2>
+  <p id="closedScheduleDescription">A loja está fora do horário de atendimento. Confira os dias e horários cadastrados:</p>
+  <ul id="closedScheduleList" class="closed-schedule-list"></ul>
+ </section>
+</div>
 <button id="openCart" class="cartfloat" type="button" aria-label="Abrir carrinho"><span>🛒</span><b id="cartCount">0</b></button>
 <div id="cartBackdrop" class="cart-backdrop hidden"></div>
 <aside id="cartDrawer" class="onlinecart" role="dialog" aria-modal="true" aria-labelledby="cartTitle" aria-hidden="true">
@@ -73,6 +81,6 @@
    <small id="trackingCopyFeedback" class="hidden" role="status" aria-live="polite"></small>
   </section>
 </aside>
-<script src="/vitrine.js?v=43" defer></script>
+<script src="/vitrine.js?v=44" defer></script>
 </body>
 </html>
