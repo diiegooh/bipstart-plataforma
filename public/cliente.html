@@ -320,7 +320,7 @@ body:not(.pdv-night) #workspace #page .settings-category-nav>button:hover:not(.i
 /* Meu plano: mantém os dados e remove o cartão verde ao redor. */
 #workspace #page .plan-management{
  box-sizing:border-box!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:8px!important;
- margin:0 0 14px!important;padding:0!important;border:0!important;border-radius:0!important;
+ margin:12px 0 14px!important;padding:0!important;border:0!important;border-radius:0!important;
  background:transparent!important;background-image:none!important;box-shadow:none!important;
 }
 #workspace #page .plan-management h3,
@@ -910,6 +910,6 @@ body #workspace #page .godzilla-pdv .pdv-sale-panel .pdv-sale-line-total{
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=230" defer></script>
+<script src="/cliente.js?v=231" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
