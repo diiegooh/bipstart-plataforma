@@ -2832,7 +2832,12 @@ function setupServiceScheduleEditor(){
    const title=row.querySelector('[data-service-location-title]');
    const remove=row.querySelector('[data-service-location-remove]');
    if(title)title.textContent='Endereço de atendimento '+(index+1);
-   if(remove){remove.disabled=rows.length<=1;remove.setAttribute('aria-label','Remover endereço de atendimento '+(index+1));}
+   if(remove){
+    const hideRemove=rows.length<=1;
+    remove.hidden=hideRemove;
+    remove.disabled=hideRemove;
+    remove.setAttribute('aria-label','Remover endereço de atendimento '+(index+1));
+   }
   });
  };
  form.addEventListener('click',event=>{
