@@ -298,6 +298,26 @@ body:not(.pdv-night) #workspace #page .settings-category-nav>button:hover:not(.i
  font-size:13px!important;line-height:1.15!important;
 }
 
+/* Aba Fiscal: campos em sequência, com quatro colunas em telas grandes. */
+#workspace #page #settingsForm>.settings-category[aria-labelledby="settings-fiscal-title"] .settings-category-fields{
+ display:grid!important;
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:11px 14px!important;
+}
+#workspace #page #settingsForm>.settings-category[aria-labelledby="settings-fiscal-title"] .settings-category-fields>label{
+ min-width:0!important;
+}
+@media(max-width:960px){
+ #workspace #page #settingsForm>.settings-category[aria-labelledby="settings-fiscal-title"] .settings-category-fields{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+}
+@media(max-width:600px){
+ #workspace #page #settingsForm>.settings-category[aria-labelledby="settings-fiscal-title"] .settings-category-fields{
+  grid-template-columns:1fr!important;
+ }
+}
+
 /* Campos compactos em Configurações da loja: rótulo próximo e caixa mais baixa. */
 #workspace #page #settingsForm>.settings-category>.settings-category-fields{
  gap:11px 14px!important;
