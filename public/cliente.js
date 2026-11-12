@@ -606,10 +606,24 @@ function bindSidebarNavigation(){
   const settings=$('sideSettings');
   if(settings&&settings.dataset.directSettingsNavigation!=='true'){
     settings.dataset.directSettingsNavigation='true';
-    settings.addEventListener('click',event=>{
+    let lastTouchActivation=0;
+    const activateSettings=event=>{
       event.preventDefault();
       event.stopPropagation();
+      if(event.type==='pointerup')lastTouchActivation=Date.now();
       navigate('configuracoes');
+    };
+    settings.addEventListener('pointerup',event=>{
+      if(event.pointerType!=='touch')return;
+      activateSettings(event);
+    });
+    settings.addEventListener('click',event=>{
+      if(Date.now()-lastTouchActivation<800){
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      activateSettings(event);
     });
   }
 }
