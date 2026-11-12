@@ -2704,7 +2704,7 @@ function renderPage(){
       +(isMenu?establishmentTypeField():'')
       +'</div>'+planManagementCard()+'</section>'
       +((canCustomize()||logoAllowed)?'<section class="settings-category" aria-labelledby="settings-brand-title"><h2 id="settings-brand-title">Aparência</h2>'+logoSection:'')
-      +(canCustomize()?field('brand_color','COR DO SISTEMA','color',shop.brand_color||'#7c3aed')':'')
+      +(canCustomize()?field('brand_color','COR DO SISTEMA','color',shop.brand_color||'#7c3aed'):'')
       +((canCustomize()||logoAllowed)?'</section>':'')
       +(isMenu?'<section class="settings-category" aria-labelledby="settings-service-title"><h2 id="settings-service-title">Atendimento e entrega</h2>'
        +serviceScheduleEditor()
