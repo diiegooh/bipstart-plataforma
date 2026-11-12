@@ -580,16 +580,9 @@ function bindSideMenuToggle(){
 bindSideMenuToggle();
 function bindSidebarNavigation(){
   const side=$('sidebar');
-  if(!side||side.dataset.directNavigation==='true')return;
-  side.dataset.directNavigation='true';
-  side.addEventListener('click',event=>{
-    const item=event.target.closest('[data-nav]');
-    if(!item||!side.contains(item))return;
-    event.preventDefault();
-    event.stopPropagation();
-    const target=item.dataset.nav;
-    if(['cardapio','pedidos','motoboys'].includes(target)&&!proAccess())return;
-    if(!pages().some(([key])=>key===target))return;
+  const navigate=target=>{
+    if(['cardapio','pedidos','motoboys'].includes(target)&&!proAccess())return false;
+    if(!pages().some(([key])=>key===target))return false;
     tab=target;
     if(tab==='produtos')selectedStockPanel='';
     showForm=null;
@@ -598,7 +591,27 @@ function bindSidebarNavigation(){
     renderPage();
     if(tab==='vendas')void loadSalesReport();
     if(window.matchMedia('(max-width:1000px)').matches)window.scrollTo(0,0);
-  });
+    return true;
+  };
+  if(side&&side.dataset.directNavigation!=='true'){
+    side.dataset.directNavigation='true';
+    side.addEventListener('click',event=>{
+      const item=event.target.closest('[data-nav]');
+      if(!item||!side.contains(item))return;
+      event.preventDefault();
+      event.stopPropagation();
+      navigate(item.dataset.nav);
+    });
+  }
+  const settings=$('sideSettings');
+  if(settings&&settings.dataset.directSettingsNavigation!=='true'){
+    settings.dataset.directSettingsNavigation='true';
+    settings.addEventListener('click',event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      navigate('configuracoes');
+    });
+  }
 }
 bindSidebarNavigation();
 function heading(title,subtitle,action=''){return '<div class="toolbar"><div><h2>'+esc(title)+'</h2>'+(subtitle?'<p class="muted">'+esc(subtitle)+'</p>':'')+'</div>'+action+'</div>'}

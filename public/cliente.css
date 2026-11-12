@@ -5732,3 +5732,16 @@ body #workspace #page .godzilla-pdv .pdv-total-input-wrap>input{
  }
 }
 @media(min-width:1001px){#workspace dialog#sideMenuDialog{display:none!important}}
+
+
+/* Acesso às configurações no celular: alvo maior e rótulo visível. */
+@media(max-width:1000px){
+ #workspace .side .side-settings{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 auto!important;width:auto!important;min-width:44px!important;
+  min-height:44px!important;height:44px!important;gap:7px!important;padding:0 12px!important;
+ }
+ #workspace .side .side-settings-text{
+  display:inline!important;font-size:12px!important;font-weight:700!important;white-space:nowrap!important;
+ }
+}
