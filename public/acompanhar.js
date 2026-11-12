@@ -62,7 +62,7 @@ async function refreshTracking(){
   if(!credentials)throw Error('Este link de acompanhamento está incompleto. Abra o link recebido no momento do pedido.');
   const config=await fetch('/api/public-config',{cache:'no-store'}).then(r=>r.json());
   if(!config.enabled)throw Error('O acompanhamento está temporariamente indisponível.');
-  const response=await fetch(config.supabaseUrl+'/rest/v1/rpc/bipstart_track_online_order',{
+  const response=await fetch(config.supabaseUrl+'/rest/v1/rpc/bipstart_track_online_order_numbered',{
    method:'POST',headers:{apikey:config.publishableKey,'Content-Type':'application/json'},
    body:JSON.stringify({p_order_id:credentials.id,p_client_token:credentials.token}),cache:'no-store'
   });
