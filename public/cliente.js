@@ -2704,7 +2704,7 @@ function renderPage(){
       +(isMenu?establishmentTypeField():'')
       +'</div>'+planManagementCard()+'</section>'
       +((canCustomize()||logoAllowed)?'<section class="settings-category" aria-labelledby="settings-brand-title"><h2 id="settings-brand-title">Aparência</h2>'+logoSection:'')
-      +(canCustomize()?field('brand_color','COR DO SISTEMA','color',shop.brand_color||'#7c3aed')+'<p class="muted small">Cor aplicada aos botões, seleções, destaques e cardápio online.</p>':'')
+      +(canCustomize()?field('brand_color','COR DO SISTEMA','color',shop.brand_color||'#7c3aed')':'')
       +((canCustomize()||logoAllowed)?'</section>':'')
       +(isMenu?'<section class="settings-category" aria-labelledby="settings-service-title"><h2 id="settings-service-title">Atendimento e entrega</h2>'
        +serviceScheduleEditor()
@@ -2833,7 +2833,7 @@ function serviceScheduleEditor(){
  const initial=savedSchedules.length?savedSchedules:[{address:shop?.location_text||'',days:[],open:'',close:''}];
  const legacyHours=!savedSchedules.length&&String(shop?.opening_hours||'').trim();
  return '<div class="service-schedule-editor">'+
-  '<p class="muted">Cadastre cada endereço de atendimento e marque os dias e horários. O cardápio ficará indisponível fora dos horários definidos.</p>'+
+  
   (legacyHours?'<p class="service-schedule-legacy"><strong>Horário atual:</strong> '+esc(legacyHours)+'<br>Marque os dias e horários abaixo para ativar o bloqueio automático.</p>':'')+
   '<div class="service-location-list" data-service-location-list>'+initial.map(serviceLocationRowHtml).join('')+'</div>'+
   '<button type="button" class="ghost service-location-add" data-service-location-add>＋ Adicionar endereço de atendimento</button></div>';
