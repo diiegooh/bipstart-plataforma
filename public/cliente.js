@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=x=>Number(x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 let cfg=null,session=null,shop=null,ent=null,products=[],productIngredients=[],ingredientCandidates=[],ingredientSchemaReady=false,categories=[],services=[],appointments=[],sales=[],requests=[],couriers=[],deliveries=[],onlineOrders=[];
-let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all',selectedStockPanel='';
+let tab='resumo',cart=[],showForm=null,toastTimer,pastedProductImage=null,menuSchemaReady=false,selectedCategoryFilter='all',selectedStockPanel='',selectedProductView='grid';
 const pendingOrderUpdates=new Set();
 const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
@@ -1198,6 +1198,84 @@ function productGrid(selected='all',stockMode='all'){
  return visible.length?'<div class="inventory-grid compact">'+visible.map(productCard).join('')+'</div>':
   empty(emptyMessage);
 }
+function productListView(selected='all',stockMode='all'){
+ const visible=filteredProductList(selected).filter(product=>
+  !['low','out'].includes(stockMode)||productStockState(product).state===stockMode);
+ const emptyMessage=stockMode==='low'?'Nenhum produto com estoque baixo nesta categoria.':
+  stockMode==='out'?'Nenhum produto sem estoque nesta categoria.':
+  products.length?'Nenhum produto encontrado nesta categoria.':'Nenhum produto cadastrado. Clique em Novo produto para começar.';
+ if(!visible.length)return empty(emptyMessage);
+ const canEditOnline=proAccess();
+ const rows=visible.slice().sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'pt-BR')).map(product=>{
+  const id=esc(product.id),name=esc(product.name),category=esc(normalizedProductCategory(product));
+  const onlineEnabled=product.online_enabled!==false;
+  const physicalPrice=Number(product.price);
+  const physicalValue=Number.isFinite(physicalPrice)?physicalPrice.toFixed(2):'0.00';
+  const savedOnlinePrice=product.menu_price==null?physicalPrice:Number(product.menu_price);
+  const onlineValue=Number.isFinite(savedOnlinePrice)?savedOnlinePrice.toFixed(2):physicalValue;
+  const state=productStockState(product).state;
+  return '<tr data-product-row="'+id+'">'+
+   '<td class="inventory-list-product"><strong>'+name+'</strong>'+(product.sku?'<small>Código: '+esc(product.sku)+'</small>':'')+(product.brand?'<small>'+esc(product.brand)+'</small>':'')+'</td>'+
+   '<td>'+category+'</td>'+
+   '<td><label class="inventory-online-flag"><input type="checkbox" data-product-online-flag="'+id+'" aria-label="Exibir '+name+' no cardápio online"'+(onlineEnabled?' checked':'')+(canEditOnline?'':' disabled')+'><span>'+ (onlineEnabled?'Ativo':'Inativo') +'</span></label></td>'+
+   '<td><input class="inventory-quick-price-input" type="number" min="0" max="9999999999.99" step="0.01" value="'+esc(physicalValue)+'" data-quick-price="physical" aria-label="Preço físico no PDV de '+name+'"></td>'+
+   '<td><input class="inventory-quick-price-input" type="number" min="0" max="9999999999.99" step="0.01" value="'+esc(onlineValue)+'" data-quick-price="online" aria-label="Preço online de '+name+'"'+(canEditOnline?'':' disabled title="Disponível no Plano Premium"')+'></td>'+
+   '<td><span class="inventory-list-stock '+state+'">'+esc(product.stock??0)+' un.</span><small>Mínimo: '+esc(product.min_stock??5)+'</small></td>'+
+   '<td><div class="inventory-list-actions"><button type="button" class="button inventory-quick-save" data-product-quick-save="'+id+'">Salvar rápido</button>'+editBtn('product',product.id)+' <button type="button" class="ghost danger" data-product-delete="'+id+'" aria-label="Remover '+name+'">Remover</button></div></td>'+
+  '</tr>';
+ }).join('');
+ return '<div class="inventory-list-wrap" tabindex="0" aria-label="Lista de produtos, deslize horizontalmente para ver todos os campos"><table class="inventory-list-table">'+
+  '<thead><tr><th>Produto</th><th>Categoria</th><th>Cardápio online</th><th>Preço físico (PDV)</th><th>Preço online</th><th>Estoque</th><th>Ações</th></tr></thead>'+
+  '<tbody>'+rows+'</tbody></table></div>';
+}
+async function saveProductQuickly(button){
+ const product=products.find(item=>item.id===button.dataset.productQuickSave);
+ const row=button.closest('[data-product-row]');
+ if(!product||!row)return;
+ const physicalInput=row.querySelector('[data-quick-price="physical"]');
+ const onlineInput=row.querySelector('[data-quick-price="online"]');
+ const parsePrice=input=>Number(String(input?.value??'').trim().replace(',','.'));
+ const physical=parsePrice(physicalInput);
+ if(!Number.isFinite(physical)||physical<0||physical>9999999999.99)return msg('Informe um preço físico válido.',true);
+ const body={price:physical};
+ if(proAccess()){
+  const online=parsePrice(onlineInput);
+  if(!Number.isFinite(online)||online<0||online>9999999999.99)return msg('Informe um preço online válido.',true);
+  const enabled=product.online_enabled!==false;
+  body.menu_price=online;
+  body.online_enabled=enabled;
+  body.menu_price_enabled=enabled;
+ }
+ button.disabled=true;button.textContent='Salvando…';
+ try{
+  const saved=await rest('shop_products',{method:'PATCH',query:{id:'eq.'+product.id,shop_id:'eq.'+shop.id},body});
+  Object.assign(product,Array.isArray(saved)?(saved[0]||body):body);
+  renderPage();
+  msg('Preços de '+product.name+' atualizados.');
+ }catch(error){
+  button.disabled=false;button.textContent='Salvar rápido';
+  msg(error.message||'Não foi possível salvar os preços.',true);
+ }
+}
+async function setProductOnlineFlag(input){
+ const product=products.find(item=>item.id===input.dataset.productOnlineFlag);
+ if(!product)return;
+ if(!proAccess()){renderPage();return msg('Cardápio online exclusivo Premium.',true);}
+ const enabled=input.checked;
+ const body={online_enabled:enabled,menu_price_enabled:enabled};
+ if(enabled&&product.menu_price==null)body.menu_price=Number(product.price)||0;
+ input.disabled=true;
+ try{
+  const saved=await rest('shop_products',{method:'PATCH',query:{id:'eq.'+product.id,shop_id:'eq.'+shop.id},body});
+  Object.assign(product,Array.isArray(saved)?(saved[0]||body):body);
+  renderPage();
+  msg(enabled?'Produto exibido no cardápio online.':'Produto removido do cardápio online.');
+ }catch(error){
+  input.checked=!enabled;input.disabled=false;
+  msg(error.message||'Não foi possível atualizar o cardápio online.',true);
+ }
+}
+
 const defaultProductCategories=[
  {name:'Cervejas',icon:'🍺',color:'#f6d365',text:'#593b00',group:'adega'},
  {name:'Destilados',icon:'🥃',color:'#d9c2ff',text:'#43216b',group:'adega'},
@@ -2614,6 +2692,9 @@ function renderPage(){
     content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','',
       '<button type="button" class="ghost" data-stock-import-template>Baixar planilha modelo</button> <button type="button" class="ghost" data-stock-import-open>Importar Excel/CSV</button> <button type="button" class="button" data-new="product" style="background:var(--store-accent,#7c3aed)!important;background-image:none!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;-webkit-text-fill-color:var(--store-accent-ink,#fff)!important">+ Novo produto</button>');
     content+=stockImportPanel();
+    content+='<div class="inventory-view-bar"><span>Visualização dos produtos</span><div class="inventory-view-toggle" role="group" aria-label="Visualização dos produtos">'+
+      '<button type="button" class="inventory-view-button'+(selectedProductView==='grid'?' active':'')+'" data-product-view="grid" aria-pressed="'+(selectedProductView==='grid')+'">Cartões</button>'+
+      '<button type="button" class="inventory-view-button'+(selectedProductView==='list'?' active':'')+'" data-product-view="list" aria-pressed="'+(selectedProductView==='list')+'">Lista</button></div></div>';
     content+=stockSummaryCards();
     if(selectedStockPanel==='restock')content+=renderRestockList();
     if(selectedStockPanel==='all'){
@@ -2622,8 +2703,13 @@ function renderPage(){
     }
     if(['all','low','out'].includes(selectedStockPanel)){
       content+=showForm?.kind==='product'?productForm(showForm.value):'';
-      if(selectedStockPanel==='all')content+=productGrid(selectedCategoryFilter);
-      else content+=productGrid('all',selectedStockPanel);
+      if(selectedProductView==='list'){
+        if(selectedStockPanel==='all')content+=productListView(selectedCategoryFilter);
+        else content+=productListView('all',selectedStockPanel);
+      }else{
+        if(selectedStockPanel==='all')content+=productGrid(selectedCategoryFilter);
+        else content+=productGrid('all',selectedStockPanel);
+      }
     }
   }else if(tab==='pedidos'){
     const awaiting=onlineOrders.filter(o=>o.status==='awaiting_confirmation').length;
@@ -4107,6 +4193,16 @@ document.addEventListener('click',async e=>{
   if(e.target.closest('[data-stock-import-confirm]')){
     try{await confirmStockImport();}catch(error){msg(error.message||'Falha na importação.',true);}return;
   }
+  const productView=e.target.closest('[data-product-view]');
+  if(productView&&tab==='produtos'){
+    const nextView=productView.dataset.productView;
+    if(!['grid','list'].includes(nextView))return;
+    selectedProductView=nextView;renderPage();return;
+  }
+  const onlineFlag=e.target.closest('[data-product-online-flag]');
+  if(onlineFlag&&tab==='produtos'){await setProductOnlineFlag(onlineFlag);return;}
+  const quickSave=e.target.closest('[data-product-quick-save]');
+  if(quickSave&&tab==='produtos'){await saveProductQuickly(quickSave);return;}
   const stockSummary=e.target.closest('[data-stock-summary]');
   if(stockSummary&&tab==='produtos'){
     const choice=stockSummary.dataset.stockSummary;
