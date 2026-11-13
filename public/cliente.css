@@ -5965,3 +5965,37 @@ body #workspace #page .online-order-formatted .online-order-total{
 body #workspace #page .online-order-formatted :is(.online-order-payment-actions,.online-order-quick-actions){
  flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;
 }
+
+/* Pedidos formatados: sem cartões contornados dentro do pedido; contato junto ao cliente. */
+body #workspace #page article.online-order-card.online-order-formatted > .online-order-section{
+ border:0!important;border-radius:0!important;outline:0!important;box-shadow:none!important;
+ background:transparent!important;margin:0!important;padding:13px 8px!important;
+}
+body #workspace #page .online-order-formatted .online-order-customer-line{
+ display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;
+ align-items:center!important;justify-content:flex-start!important;gap:4px 10px!important;
+ width:100%!important;margin:0!important;padding:0!important;text-align:left!important;
+}
+body #workspace #page .online-order-formatted .online-order-customer-line > p{
+ display:inline-flex!important;align-items:center!important;flex:0 1 auto!important;
+ width:auto!important;margin:0!important;padding:0!important;text-align:left!important;
+}
+body #workspace #page .online-order-formatted .online-order-customer-line .online-order-customer-name{
+ color:inherit!important;font-weight:800!important;overflow-wrap:anywhere!important;
+}
+body #workspace #page .online-order-formatted .online-order-customer-line .online-order-customer-phone{
+ gap:6px!important;white-space:nowrap!important;
+}
+body #workspace #page .online-order-formatted .online-order-customer-line .online-order-phone{
+ color:inherit!important;text-decoration:none!important;font-weight:650!important;
+}
+body #workspace #page .online-order-formatted .online-order-customer-line .online-order-whatsapp{
+ margin:0!important;vertical-align:middle!important;
+}
+@media(max-width:480px){
+ body #workspace #page .online-order-formatted .online-order-customer-line{gap:4px 8px!important}
+ body #workspace #page .online-order-formatted .online-order-customer-line .online-order-customer-name,
+ body #workspace #page .online-order-formatted .online-order-customer-line .online-order-customer-phone{
+  font-size:13px!important;
+ }
+}
