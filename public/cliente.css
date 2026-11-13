@@ -6002,3 +6002,31 @@ body #workspace #page .online-order-formatted .online-order-payment-method.is-pi
   font-size:13px!important;
  }
 }
+
+
+/* Pedidos online: Item ocupa o espaço disponível; preço e total acompanham o conteúdo. */
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table{
+ table-layout:auto!important;
+}
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table th:nth-child(1),
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table td:nth-child(1),
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table th:nth-child(3),
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table td:nth-child(3),
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table th:nth-child(4),
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table td:nth-child(4){
+ width:1%!important;
+}
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table th:nth-child(2),
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table td:nth-child(2){
+ width:auto!important;
+}
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table th:nth-child(1),
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table td:nth-child(1),
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table td:nth-child(3),
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table td:nth-child(4),
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table th:nth-child(4){
+ white-space:nowrap!important;
+}
+body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table th:nth-child(3){
+ white-space:normal!important;overflow-wrap:anywhere!important;
+}
