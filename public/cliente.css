@@ -5984,13 +5984,16 @@ body #workspace #page .online-order-formatted .online-order-customer-line .onlin
  color:inherit!important;font-weight:800!important;overflow-wrap:anywhere!important;
 }
 body #workspace #page .online-order-formatted .online-order-customer-line .online-order-customer-phone{
- gap:6px!important;white-space:nowrap!important;
+ gap:6px!important;white-space:nowrap!important;margin-left:auto!important;
 }
 body #workspace #page .online-order-formatted .online-order-customer-line .online-order-phone{
  color:inherit!important;text-decoration:none!important;font-weight:650!important;
 }
 body #workspace #page .online-order-formatted .online-order-customer-line .online-order-whatsapp{
  margin:0!important;vertical-align:middle!important;
+}
+body #workspace #page .online-order-formatted .online-order-payment-method.is-pix{
+ font-size:20px!important;font-weight:900!important;line-height:1.1!important;
 }
 @media(max-width:480px){
  body #workspace #page .online-order-formatted .online-order-customer-line{gap:4px 8px!important}
