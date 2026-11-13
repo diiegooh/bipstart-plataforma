@@ -492,6 +492,76 @@ body.workspace-fullscreen #workspace .dashboard{margin:0}
 }
 
 
+/* Alternância entre cartões e lista, com preços editáveis no próprio cadastro. */
+#workspace .inventory-view-bar{
+ display:flex;align-items:center;justify-content:flex-end;gap:10px;
+ margin:10px 0 12px;color:#aab8ae;font-size:12px;font-weight:800;
+}
+#workspace .inventory-view-toggle{
+ display:inline-flex;gap:4px;padding:4px;border:1px solid #34483a;
+ border-radius:12px;background:#101914;
+}
+#workspace .inventory-view-button{
+ min-height:38px;padding:8px 13px;border:1px solid transparent;border-radius:9px;
+ background:transparent;color:#c8d3ca;font-size:12px;font-weight:850;cursor:pointer;
+}
+#workspace .inventory-view-button:hover{border-color:#526b59;color:#fff}
+#workspace .inventory-view-button.active{
+ background:var(--store-accent,#7c3aed);color:var(--store-accent-ink,#fff);
+}
+#workspace .inventory-list-wrap{
+ width:100%;max-width:100%;margin-top:18px;overflow:auto;
+ border:1px solid #304438;border-radius:15px;background:#0d1510;
+ box-shadow:0 12px 28px #00000028;
+}
+#workspace .inventory-list-wrap:focus-visible{outline:3px solid var(--store-accent,#7c3aed);outline-offset:2px}
+#workspace .inventory-list-table{
+ width:100%;min-width:1040px;border-collapse:separate;border-spacing:0;
+ color:#f5faf6;text-align:left;
+}
+#workspace .inventory-list-table th{
+ position:sticky;top:0;z-index:1;padding:13px 12px;
+ background:#17231a;color:#bfcec2;border-bottom:1px solid #33473a;
+ font-size:11px;font-weight:900;letter-spacing:.035em;text-transform:uppercase;white-space:nowrap;
+}
+#workspace .inventory-list-table td{
+ padding:11px 12px;border-bottom:1px solid #26382c;vertical-align:middle;
+ font-size:13px;
+}
+#workspace .inventory-list-table tbody tr:last-child td{border-bottom:0}
+#workspace .inventory-list-table tbody tr:hover{background:#132018}
+#workspace .inventory-list-product{min-width:180px}
+#workspace .inventory-list-product strong{display:block;max-width:240px;overflow-wrap:anywhere;color:#fff;font-size:14px}
+#workspace .inventory-list-product small,
+#workspace .inventory-list-stock+small{display:block;margin-top:4px;color:#9daf9f;font-size:11px}
+#workspace .inventory-online-flag{display:flex;align-items:center;gap:8px;min-width:100px;color:#d8e2da;font-weight:800}
+#workspace .inventory-online-flag input{width:19px;height:19px;margin:0;accent-color:var(--store-accent,#7c3aed)}
+#workspace .inventory-online-flag input:disabled{opacity:.65}
+#workspace .inventory-quick-price-input{
+ box-sizing:border-box;width:126px;min-height:40px;padding:8px 10px;
+ border:1px solid #3a4f40;border-radius:9px;background:#101914;color:#fff;
+ font:inherit;font-size:13px;font-weight:800;color-scheme:dark;
+}
+#workspace .inventory-quick-price-input:focus{outline:2px solid var(--store-accent,#7c3aed);outline-offset:1px}
+#workspace .inventory-quick-price-input:disabled{opacity:.65}
+#workspace .inventory-list-stock{display:inline-block;color:#d8e4db;font-weight:850;white-space:nowrap}
+#workspace .inventory-list-stock.low{color:#ffd18a}
+#workspace .inventory-list-stock.out{color:#ff9eaa}
+#workspace .inventory-list-actions{display:flex;align-items:center;gap:7px;min-width:250px}
+#workspace .inventory-list-actions button{
+ width:auto;min-height:38px;padding:8px 10px;white-space:nowrap;
+}
+#workspace .inventory-list-actions .inventory-quick-save{
+ border-color:var(--store-accent,#7c3aed);background:var(--store-accent,#7c3aed);
+ color:var(--store-accent-ink,#fff);font-weight:900;
+}
+#workspace .content:has(.inventory-list-wrap){background:linear-gradient(145deg,#19100f 0%,#0d110f 35%,#0d120f 100%);border-color:#384238}
+@media(max-width:720px){
+ #workspace .inventory-view-bar{justify-content:space-between;flex-wrap:wrap}
+ #workspace .inventory-list-wrap{margin:14px -4px 0;width:calc(100% + 8px)}
+ #workspace .inventory-view-button{min-width:78px}
+}
+
 /* Categorias do cadastro: cartões clicáveis acima dos produtos. */
 #workspace .inventory-category-section{margin:20px 0 17px}
 #workspace .inventory-category-heading{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 10px}
