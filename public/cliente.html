@@ -948,10 +948,14 @@ body #workspace #page .online-order-formatted .online-order-whatsapp{
 body #workspace #page .online-order-formatted .online-order-whatsapp svg{display:block!important;width:21px!important;height:21px!important}
 body #workspace #page .online-order-formatted .online-order-table-wrap{width:100%!important;overflow-x:auto!important;border-radius:8px!important}
 body #workspace #page .online-order-formatted .online-order-items-table{
- width:100%!important;min-width:330px!important;margin:0 auto!important;border-collapse:collapse!important;
+ width:100%!important;min-width:0!important;table-layout:fixed!important;margin:0 auto!important;border-collapse:collapse!important;
  border:1px solid color-mix(in srgb,var(--online-order-accent) 30%,#243650)!important;border-radius:9px!important;
  overflow:hidden!important;background:#0d192c!important;color:#f6f8fc!important;font-size:11px!important;
 }
+body #workspace #page .online-order-formatted .online-order-items-table :is(th,td):nth-child(1){width:12%!important}
+body #workspace #page .online-order-formatted .online-order-items-table :is(th,td):nth-child(2){width:43%!important}
+body #workspace #page .online-order-formatted .online-order-items-table :is(th,td):nth-child(3){width:25%!important}
+body #workspace #page .online-order-formatted .online-order-items-table :is(th,td):nth-child(4){width:20%!important}
 body #workspace #page .online-order-formatted .online-order-items-table :is(th,td){
  padding:8px 6px!important;text-align:center!important;vertical-align:middle!important;
  border-bottom:1px solid #26364e!important;background:transparent!important;color:#f6f8fc!important;
