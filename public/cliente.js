@@ -2012,8 +2012,8 @@ function stockImportPanel(){
  const preview=stockImportRows.slice(0,8), valid=stockImportRows.filter(r=>r.valid).length;
  return '<section class="card stock-import-panel"><h3>Importar produtos</h3>'+
  '<p>Arquivo: <strong>'+esc(stockImportFileName)+'</strong> · <strong>'+valid+'</strong> de '+stockImportRows.length+' linha(s) válida(s).</p>'+
- '<p>Somente <strong>Nome e Preço</strong> são obrigatórios. Categoria e os outros campos são opcionais.</p>'+
- (preview.length?'<div class="table-wrap"><table><thead><tr><th>Linha</th><th>Produto</th><th>Categoria</th><th>Preço</th><th>Resultado</th></tr></thead><tbody>'+
+ '<p>Somente <strong>Descrição e Varejo</strong> são obrigatórios. Categoria e os outros campos são opcionais.</p>'+
+ (preview.length?'<div class="table-wrap"><table><thead><tr><th>Linha</th><th>Descrição</th><th>Categoria</th><th>Varejo</th><th>Resultado</th></tr></thead><tbody>'+
  preview.map(r=>'<tr><td>'+r.rowNumber+'</td><td>'+esc(r.name||'—')+'</td><td>'+esc(r.category||'—')+'</td><td>'+esc(Number.isFinite(r.price)?fmt(r.price):'—')+'</td><td>'+esc(r.valid?'Pronto':r.errors.join('; '))+'</td></tr>').join('')+'</tbody></table></div>':'')+
  '<p class="muted small">Cada linha válida será cadastrada como um produto novo. Produtos já existentes não serão alterados; itens repetidos nesta loja serão ignorados. Estoque começa em 0 e o estoque mínimo em 5 quando esses campos não forem informados.</p>'+
  (valid<stockImportRows.length?'<p class="warn">Existem '+(stockImportRows.length-valid)+' linha(s) inválida(s), que serão ignoradas. Corrija o arquivo para incluí-las.</p>':'')+
@@ -2072,7 +2072,14 @@ function parseImportRows(rows){
  };
  const headers=(rows[0]||[]).map(importHeaderKey);
  const idx=Object.fromEntries(Object.entries(aliases).map(([key,options])=>[key,headers.findIndex(h=>options.includes(h))]));
- if(idx.name<0||idx.price<0)throw Error('A planilha precisa ter as colunas Nome e Preço.');
+ const descriptionColumnAliases=['descricao','descricaoproduto','descricaodoproduto'];
+ const retailColumnAliases=['varejo','valorvarejo','precovarejo'];
+ const descriptionColumnIndex=headers.findIndex(h=>descriptionColumnAliases.includes(h));
+ const retailColumnIndex=headers.findIndex(h=>retailColumnAliases.includes(h));
+ if(descriptionColumnIndex<0||retailColumnIndex<0)
+  throw Error('A planilha precisa ter as colunas Descrição e Varejo.');
+ idx.name=descriptionColumnIndex;
+ idx.price=retailColumnIndex;
  return rows.slice(1).map((cells,index)=>{
   const get=key=>idx[key]>=0?cells[idx[key]]:'';
   const name=String(get('name')??'').trim();
@@ -4109,7 +4116,7 @@ document.addEventListener('click',async e=>{
   if(importTemplate){
    try{
     const XLSX=await ensureStockXlsxReader();
-    const headers=['NOME*','PREÇO*','CATEGORIA (OPCIONAL)'];
+    const headers=['DESCRIÇÃO*','VAREJO*','CATEGORIA (OPCIONAL)'];
     const sample=['PRODUTO EXEMPLO',8.90,'MERCEARIA'];
     const sheet=XLSX.utils.aoa_to_sheet([headers,sample]);
     sheet['!cols']=[{wch:30},{wch:16},{wch:24}];
