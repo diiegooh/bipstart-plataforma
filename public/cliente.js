@@ -9,7 +9,7 @@ const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
 let pdvCartSearchQuery='',pdvCartSearchResults=[],pdvCartSearchLoading=false,pdvCartSearchError='',pdvCartSearchTimer=null,pdvCartSearchRequest=0;
 let pdvQuery='',pdvCategory='',pdvInStockOnly=false,pdvPayment='pix',pdvCardFeePercent='3.99',pdvDiscountAmount='',pdvCheckoutOpen=false,pdvShowBestSellers=true;
-let pdvCartView='sale',comandaCreateOpen=false,comandaAddingTo=null,comandaPayingId=null,comandaProductCategory='all',comandaPayment='pix',comandaCardFeePercent='3.99';
+let pdvCartView='sale',comandaCreateOpen=false,comandaAddingTo=null,comandaPayingId=null,comandaPayment='pix',comandaCardFeePercent='3.99';
 let bestSellerRank=new Map(),bestSellerLoading=false,bestSellerLoadedShop=null,bestSellerRequestId=0,bestSellerError='';
 let barcodeLookupBusy=false,barcodeLastResult='',barcodeKeyboardBuffer='',barcodeKeyboardAt=0,barcodeQueue=[];
 let pdvExternalProduct=null,barcodeRegistrationTimer=null,barcodeRegistrationRequest=0;
@@ -1736,7 +1736,8 @@ function pdvProductCards(){
  const available=filteredPdvProducts();
  return available.length?available.map(p=>{
   const photo=p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="pdv-no-photo" aria-hidden="true">▣</div>';
-  return '<div class="pdv-product-wrap"><button type="button" class="pdv-product pdv-product-clickable" data-cart="'+esc(p.id)+'" aria-label="'+esc('Adicionar ao carrinho: '+p.name+' — '+fmt(p.price))+'">'+
+  const destination=pdvCartView==='comandas'&&comandaAddingTo?'comanda':'carrinho';
+  return '<div class="pdv-product-wrap"><button type="button" class="pdv-product pdv-product-clickable" data-cart="'+esc(p.id)+'" aria-label="'+esc('Adicionar '+p.name+' à '+destination+' — '+fmt(p.price))+'">'+
    '<span class="pdv-product-media">'+photo+'</span>'+
    '<span class="pdv-product-info"><strong class="pdv-product-name">'+esc(p.name)+'</strong>'+
    '<strong class="pdv-product-price">'+fmt(p.price)+'</strong></span></button></div>';
@@ -1968,32 +1969,6 @@ function renderComandaCreateForm(){
   '<button type="submit" class="comanda-hidden-submit" tabindex="-1" aria-hidden="true"></button>'+
  '</form>';
 }
-function renderComandaProductPicker(comanda){
- const categories=[...new Set(products.map(product=>String(product.category||'Geral')))]
-  .sort((a,b)=>a.localeCompare(b,'pt-BR'));
- const categoryButtons=[['all','Todas'],...categories.map(category=>[category,category])].map(([value,label])=>
-  '<button type="button" class="comanda-category'+(comandaProductCategory===value?' selected':'')+
-  '" data-comanda-category="'+esc(value)+'" aria-pressed="'+(comandaProductCategory===value)+'">'+esc(label)+'</button>'
- ).join('');
- const rows=products.filter(product=>{
-  if(product.active===false)return false;
-  if(comandaProductCategory!=='all'&&String(product.category||'Geral')!==comandaProductCategory)return false;
-  const current=comanda.items.find(item=>String(item.product_id)===String(product.id));
-  const currentQty=Number(current?.quantity)||0;
-  const otherReserved=comandaReservedQuantity(product.id,comanda.id);
-  return Number(product.stock||0)-otherReserved-currentQty>0;
- }).map(product=>{
-  const current=comanda.items.find(item=>String(item.product_id)===String(product.id));
-  const nextQty=(Number(current?.quantity)||0)+1;
-  const price=pdvCartUnitPrice({id:product.id,qty:nextQty,price:Number(product.price)||0,
-   wholesale_price:product.wholesale_price,wholesale_min_quantity:product.wholesale_min_quantity});
-  return '<div class="comanda-stock-row"><span class="comanda-stock-name">'+esc(product.name)+'</span>'+
-   '<strong class="comanda-stock-price">'+fmt(price)+'</strong>'+
-   '<button type="button" class="comanda-stock-add" data-comanda-add-product="'+esc(product.id)+'" aria-label="Adicionar '+esc(product.name)+'">+</button></div>';
- }).join('');
- return '<div class="comanda-item-picker"><div class="comanda-categories">'+categoryButtons+'</div>'+
-  '<div class="comanda-stock-list">'+(rows||'<p class="comanda-no-stock">Nenhum produto em estoque nesta categoria.</p>')+'</div></div>';
-}
 function renderComandaPayment(comanda){
  const cardMethod=['credito','debito'].includes(comandaPayment);
  const activePayment=cardMethod?'cartao':comandaPayment;
@@ -2021,17 +1996,18 @@ function renderComandaPayment(comanda){
 }
 function renderComandaCard(comanda){
  const paying=String(comandaPayingId)===String(comanda.id);
- const adding=String(comandaAddingTo)===String(comanda.id);
+ const active=String(comandaAddingTo)===String(comanda.id);
  const items=comanda.items.map(item=>
   '<div class="comanda-line"><span class="comanda-line-name">'+esc(item.product_name)+'</span>'+
   '<strong class="comanda-line-price">'+fmt(comandaLineTotal(item))+'</strong></div>'
  ).join('');
  const canClose=comanda.items.length>0;
- return '<article class="comanda-note-card" data-comanda-card-id="'+esc(comanda.id)+'">'+
-  '<div class="comanda-note-head"><div class="comanda-name-tools"><strong class="comanda-client-name">'+esc(comanda.customer_name)+'</strong>'+
-   '<button type="button" class="comanda-add-item" data-comanda-product-toggle="'+esc(comanda.id)+'" aria-label="Adicionar produtos à comanda" aria-expanded="'+adding+'"'+(paying?' disabled':'')+'>+</button></div>'+
+ return '<article class="comanda-note-card'+(active?' is-active':'')+(paying?' is-paying':'')+'" data-comanda-card-id="'+esc(comanda.id)+'">'+
+  '<div class="comanda-note-head">'+
+   '<input class="comanda-client-name" data-comanda-name-id="'+esc(comanda.id)+'" type="text" maxlength="100" autocomplete="off" aria-label="Nome do cliente" value="'+esc(comanda.customer_name)+'">'+
    '<button type="button" class="comanda-close-button" data-comanda-close="'+esc(comanda.id)+'"'+(!canClose||paying?' disabled':'')+'>FECHAR COMANDA</button></div>'+
-  (adding&&!paying?renderComandaProductPicker(comanda):'')+
+  '<div class="comanda-center-add-wrap"><button type="button" class="comanda-center-add" data-comanda-product-toggle="'+esc(comanda.id)+'" aria-label="Selecionar comanda para adicionar produtos" aria-pressed="'+active+'"'+(paying?' disabled':'')+'>+</button></div>'+
+  (active&&!paying?'<small class="comanda-active-hint">Comanda selecionada. Toque nos produtos do PDV para adicioná-los.</small>':'')+
   '<div class="comanda-line-list">'+items+'</div>'+
   '<strong class="comanda-total">'+fmt(comandaTotal(comanda))+'</strong>'+
   (paying?'<div class="comanda-payment-area">'+renderComandaPayment(comanda)+'</div>':'')+
@@ -2067,7 +2043,14 @@ function addProductToComanda(comandaId,productId){
    wholesale_min_quantity:product.wholesale_min_quantity??null});
  }
  saveOpenComandas(rows);
- renderPage();
+ const screen=document.querySelector('.pdv-sale-panel .comanda-cart-screen');
+ if(screen)screen.outerHTML=renderComandasCartView();else renderPage();
+}
+function renderComandaActiveCatalogNotice(){
+ const active=loadOpenComandas().find(row=>String(row.id)===String(comandaAddingTo));
+ if(!active)return '';
+ return '<div class="comanda-catalog-active"><span>Adicionando à comanda: <strong>'+esc(active.customer_name)+'</strong></span>'+
+  '<button type="button" data-comanda-stop>Alterar comanda</button></div>';
 }
 function renderGodzillaPDV(){
  ensurePdvCartSearchVisualStyles();
@@ -2109,6 +2092,7 @@ function renderGodzillaPDV(){
  ).join('');
  return '<div class="godzilla-pdv'+(floatingSale?' pdv-floating-layout':'')+'">'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
+ (pdvCartView==='comandas'?renderComandaActiveCatalogNotice():'')+
  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
  '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:var(--pdv-category-font-size,30px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
  categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:var(--pdv-category-font-size,30px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">'+esc(name)+'</strong></button>';}).join('')+
@@ -4028,9 +4012,24 @@ document.addEventListener('click',event=>{
  }
 });
 document.addEventListener('click',event=>{
+ const catalogProduct=event.target.closest('#pdvProducts .pdv-product[data-cart]');
+ if(catalogProduct&&tab==='caixa'&&pdvCartView==='comandas'&&comandaAddingTo){
+  const active=loadOpenComandas().find(row=>String(row.id)===String(comandaAddingTo));
+  if(active){
+   event.stopImmediatePropagation();
+   addProductToComanda(active.id,catalogProduct.dataset.cart);
+   return;
+  }
+  comandaAddingTo=null;
+ }
+ const stop=event.target.closest('[data-comanda-stop]');
+ if(stop&&tab==='caixa'&&pdvCartView==='comandas'){
+  comandaAddingTo=null;renderPage();return;
+ }
  const toggle=event.target.closest('[data-cart-comandas-toggle]');
  if(toggle&&tab==='caixa'){
   pdvCartView=pdvCartView==='comandas'?'sale':'comandas';
+  if(pdvCartView==='sale')comandaAddingTo=null;
   renderPage();return;
  }
  const create=event.target.closest('[data-comanda-new]');
@@ -4043,15 +4042,7 @@ document.addEventListener('click',event=>{
  if(productToggle&&tab==='caixa'&&pdvCartView==='comandas'){
   const id=productToggle.dataset.comandaProductToggle;
   comandaAddingTo=String(comandaAddingTo)===String(id)?null:id;
-  comandaProductCategory='all';renderPage();return;
- }
- const category=event.target.closest('[data-comanda-category]');
- if(category&&tab==='caixa'&&pdvCartView==='comandas'){
-  comandaProductCategory=category.dataset.comandaCategory||'all';renderPage();return;
- }
- const addProduct=event.target.closest('[data-comanda-add-product]');
- if(addProduct&&tab==='caixa'&&pdvCartView==='comandas'){
-  addProductToComanda(comandaAddingTo,addProduct.dataset.comandaAddProduct);return;
+  renderPage();return;
  }
  const close=event.target.closest('[data-comanda-close]');
  if(close&&tab==='caixa'&&pdvCartView==='comandas'){
@@ -4077,11 +4068,28 @@ document.addEventListener('click',event=>{
   }
  }
 });
+document.addEventListener('change',event=>{
+ const nameInput=event.target.closest('[data-comanda-name-id]');
+ if(!nameInput||tab!=='caixa'||pdvCartView!=='comandas')return;
+ const rows=loadOpenComandas();
+ const comanda=rows.find(row=>String(row.id)===String(nameInput.dataset.comandaNameId));
+ if(!comanda)return;
+ const name=String(nameInput.value||'').trim();
+ if(!name){nameInput.value=comanda.customer_name;return msg('Informe um nome para a comanda.',true);}
+ if(name===comanda.customer_name)return;
+ comanda.customer_name=name;saveOpenComandas(rows);
+ msg('Nome da comanda atualizado.');
+});
 document.addEventListener('keydown',event=>{
+ const nameInput=event.target.closest('[data-comanda-name-id]');
+ if(nameInput&&event.key==='Enter'){
+  event.preventDefault();event.stopImmediatePropagation();nameInput.blur();return;
+ }
  if(event.key==='Escape'&&comandaCreateOpen&&tab==='caixa'&&pdvCartView==='comandas'){
   comandaCreateOpen=false;renderPage();
  }
 });
+
 document.addEventListener('click',async e=>{
   const cartSearchClear=e.target.closest('[data-cart-search-clear]');
   if(cartSearchClear&&tab==='caixa'){
