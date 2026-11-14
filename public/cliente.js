@@ -2906,13 +2906,15 @@ function renderPage(){
       '<button type="button" class="ghost" data-stock-import-template>baixar planilha modelo</button>'+
       '<button type="button" class="ghost" data-stock-import-open>importar excel</button>'+
       '<button type="button" class="button" data-new="product" style="background:var(--store-accent,#7c3aed)!important;background-image:none!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;-webkit-text-fill-color:var(--store-accent-ink,#fff)!important">+ novo produto</button>'+
-    '</div><div class="inventory-view-toggle" role="group" aria-label="Visualização dos produtos">'+
-      '<button type="button" class="inventory-view-button'+(selectedProductView==='grid'?' active':'')+'" data-product-view="grid" aria-pressed="'+(selectedProductView==='grid')+'">cartões</button>'+
-      '<button type="button" class="inventory-view-button'+(selectedProductView==='list'?' active':'')+'" data-product-view="list" aria-pressed="'+(selectedProductView==='list')+'">lista</button></div></div>';
+    '</div></div>';
     content+=stockSummaryCards();
     if(selectedStockPanel==='restock')content+=renderRestockList();
     if(selectedStockPanel==='all'){
       if(selectedCategoryFilter!=='all'&&!products.some(p=>normalizedProductCategory(p)===selectedCategoryFilter))selectedCategoryFilter='all';
+      content+='<div class="inventory-view-bar"><div class="inventory-view-toggle" role="group" aria-label="Visualização dos produtos">'+
+        '<button type="button" class="inventory-view-button'+(selectedProductView==='grid'?' active':'')+'" data-product-view="grid" aria-pressed="'+(selectedProductView==='grid')+'">cartões</button>'+
+        '<button type="button" class="inventory-view-button'+(selectedProductView==='list'?' active':'')+'" data-product-view="list" aria-pressed="'+(selectedProductView==='list')+'">lista</button></div></div>';
+
       content+=productCategoryCards(selectedCategoryFilter);
     }
     if(['all','low','out'].includes(selectedStockPanel)){
