@@ -231,7 +231,7 @@ async function placeOnlineOrder(){
  if(mode==='delivery'&&address.length<8)throw Error('Informe seu endereço completo de entrega.');
  const token=crypto.randomUUID();
  const items=[...cart].map(([id,qty])=>({id,qty}));
- const response=await fetch(config.supabaseUrl+'/rest/v1/rpc/bipstart_place_online_order',{
+ const response=await fetch(config.supabaseUrl+'/rest/v1/rpc/bipstart_place_online_order_homologation',{
   method:'POST',headers:{apikey:config.publishableKey,'Content-Type':'application/json'},
   body:JSON.stringify({p_slug:slug,p_client_token:token,p_name:name,p_phone:phone,p_delivery_method:mode,p_address:address,p_payment_method:payment,p_notes:notes,p_items:items})
  });
