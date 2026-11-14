@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=260">
+<link rel="stylesheet" href="/cliente.css?v=261">
 <style id="comanda-note-card-homolog-inline">
 /* Cards de comanda no modelo visual enviado. */
 body #workspace #page .comanda-cart-screen{
@@ -25,7 +25,7 @@ body #workspace #page .comanda-cart-screen.comanda-cart-empty{
  justify-content:center!important;min-height:180px!important;max-height:220px!important;
 }
 body #workspace #page .comanda-note-card{
- box-sizing:border-box!important;display:flex!important;flex:0 0 215px!important;
+ position:relative!important;box-sizing:border-box!important;display:flex!important;flex:0 0 215px!important;
  flex-direction:column!important;gap:0!important;width:215px!important;min-width:215px!important;
  height:260px!important;min-height:260px!important;padding:12px 10px!important;
  overflow:hidden!important;border:0!important;border-radius:24px!important;
@@ -42,7 +42,7 @@ body #workspace #page .comanda-note-head{
  gap:4px!important;width:100%!important;min-width:0!important;margin:0 0 16px!important;
 }
 body #workspace #page button.comanda-delete-button{
- display:inline-flex!important;flex:0 0 24px!important;align-items:center!important;justify-content:center!important;
+ display:inline-flex!important;position:absolute!important;left:10px!important;bottom:10px!important;z-index:2!important;flex:0 0 24px!important;align-items:center!important;justify-content:center!important;
  width:24px!important;min-width:24px!important;height:24px!important;min-height:24px!important;
  margin:0!important;padding:3px!important;border:0!important;border-radius:50%!important;
  background:transparent!important;color:#111!important;-webkit-text-fill-color:#111!important;
@@ -1289,6 +1289,6 @@ body #workspace #page .comanda-product-picker .pdv-products{max-height:58vh!impo
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=260" defer></script>
+<script src="/cliente.js?v=261" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
