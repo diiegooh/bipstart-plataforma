@@ -6427,5 +6427,5 @@ body.pdv-night #workspace #page .comanda-product-picker{background:#1e2029!impor
 
 #workspace .inventory-category-controls{display:flex;align-items:center;gap:14px;width:100%;min-width:0}
 #workspace .inventory-category-controls .inventory-category-grid{flex:1 1 auto;min-width:0}
-#workspace .inventory-category-controls .inventory-view-toggle{flex:0 0 auto}
+#workspace .inventory-category-controls .inventory-view-toggle{flex:0 0 auto;margin-left:auto;align-self:center}
 @media(max-width:720px){#workspace .inventory-category-controls{flex-wrap:wrap;gap:10px}#workspace .inventory-category-controls .inventory-category-grid{flex:1 1 100%}#workspace .inventory-category-controls .inventory-view-toggle{margin-left:auto}}
