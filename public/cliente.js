@@ -2006,18 +2006,28 @@ function renderComandasCartView(){
    '<button type="button" class="comanda-add-new" data-comanda-new aria-label="Adicionar comanda">+</button>')+
  '</div>';
 }
-function renderComandasWorkspace(){
+function renderComandaProductPicker(){
+ if(!comandaAddingTo)return '';
+ const active=loadOpenComandas().find(row=>String(row.id)===String(comandaAddingTo));
+ if(!active){comandaAddingTo=null;return '';}
  const categoriesList=[...new Set(products.map(p=>String(p.category||'Geral')))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
- return '<div class="godzilla-pdv pdv-comandas-page"><div class="pdv-two-panels">'+
-  '<section class="pdv-panel pdv-catalog" aria-label="Produtos para comandas">'+
-   renderComandaActiveCatalogNotice()+
+ return '<div class="comanda-picker-backdrop" data-comanda-picker-backdrop>'+
+  '<section class="comanda-product-picker" role="dialog" aria-modal="true" aria-labelledby="comanda-picker-title">'+
+   '<header class="comanda-picker-head"><div><h2 id="comanda-picker-title">Adicionar produtos</h2>'+renderComandaActiveCatalogNotice()+'</div>'+
+    '<button type="button" class="comanda-picker-close" data-comanda-picker-close aria-label="Fechar seleção de produtos">×</button></header>'+
    '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
-    '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:var(--pdv-category-font-size,30px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
-    categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:var(--pdv-category-font-size,30px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">'+esc(name)+'</strong></button>';}).join('')+
+    '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong>Mais vendidos</strong></button>'+
+    categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong>'+esc(name)+'</strong></button>';}).join('')+
    '</div><div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
-  '</section><aside class="pdv-panel pdv-sale-panel pdv-comandas-panel" aria-label="Comandas">'+
-   '<div class="pdv-sale-head"><div><h2>Comandas</h2></div></div>'+renderComandasCartView()+
-  '</aside></div></div>';
+  '</section></div>';
+}
+function renderComandasWorkspace(){
+ return '<div class="godzilla-pdv pdv-comandas-page">'+
+  '<section class="pdv-panel pdv-comandas-board" aria-label="Comandas">'+
+   '<div class="pdv-sale-head"><div><h2>Comandas</h2></div></div>'+
+   renderComandasCartView()+
+  '</section>'+renderComandaProductPicker()+
+ '</div>';
 }
 function addProductToComanda(comandaId,productId){
  const rows=loadOpenComandas(),comanda=rows.find(row=>String(row.id)===String(comandaId));
@@ -3990,6 +4000,11 @@ document.addEventListener('click',event=>{
   addProductToComanda(active.id,catalogProduct.dataset.cart);
   return;
 }
+ const pickerBackdrop=event.target.closest('[data-comanda-picker-backdrop]');
+ const pickerClose=event.target.closest('[data-comanda-picker-close]');
+ if((pickerClose||pickerBackdrop&&event.target===pickerBackdrop)&&tab==='comandas'){
+  comandaAddingTo=null;renderPage();return;
+ }
  const create=event.target.closest('[data-comanda-new]');
  if(create&&tab==='comandas'){
   comandaCreateOpen=true;renderPage();
@@ -4060,8 +4075,9 @@ document.addEventListener('keydown',event=>{
  if(nameInput&&event.key==='Enter'){
   event.preventDefault();event.stopImmediatePropagation();nameInput.blur();return;
  }
- if(event.key==='Escape'&&comandaCreateOpen&&tab==='comandas'){
-  comandaCreateOpen=false;renderPage();
+ if(event.key==='Escape'&&tab==='comandas'){
+  if(comandaAddingTo){comandaAddingTo=null;renderPage();return;}
+  if(comandaCreateOpen){comandaCreateOpen=false;renderPage();}
  }
 });
 
