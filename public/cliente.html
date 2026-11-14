@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=262">
+<link rel="stylesheet" href="/cliente.css?v=263">
 <style id="comanda-note-card-homolog-inline">
 /* Cards de comanda no modelo visual enviado. */
 body #workspace #page .comanda-cart-screen{
@@ -88,10 +88,10 @@ body #workspace #page .comanda-center-add-wrap{
  width:100%!important;min-height:36px!important;margin:0!important;
 }
 body #workspace #page .comanda-center-add{
- display:inline-flex!important;align-items:center!important;justify-content:center!important;
- width:42px!important;height:36px!important;margin:0!important;padding:0!important;border:0!important;
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;
+ width:auto!important;min-width:96px!important;height:36px!important;margin:0!important;padding:0 12px!important;border:0!important;
  border-radius:0!important;background:transparent!important;color:#000!important;-webkit-text-fill-color:#000!important;
- box-shadow:none!important;font-size:29px!important;font-weight:900!important;line-height:1!important;
+ box-shadow:none!important;font-size:15px!important;font-weight:850!important;line-height:1!important;white-space:nowrap!important;
 }
 body #workspace #page .comanda-center-add[aria-pressed="true"]{background:transparent!important;color:#000!important}
 body #workspace #page .comanda-center-add:disabled{opacity:.4!important}
@@ -1288,6 +1288,6 @@ body #workspace #page .comanda-product-picker .pdv-products{max-height:58vh!impo
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=262" defer></script>
+<script src="/cliente.js?v=263" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
