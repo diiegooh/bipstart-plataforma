@@ -2012,7 +2012,7 @@ function stockImportPanel(){
  const preview=stockImportRows.slice(0,8), valid=stockImportRows.filter(r=>r.valid).length;
  return '<section class="card stock-import-panel"><h3>Importar produtos</h3>'+
  '<p>Arquivo: <strong>'+esc(stockImportFileName)+'</strong> · <strong>'+valid+'</strong> de '+stockImportRows.length+' linha(s) válida(s).</p>'+
- '<p>A planilha precisa apenas das colunas <strong>Nome, Categoria e Preço</strong>. Os outros campos são opcionais.</p>'+
+ '<p>Somente <strong>Nome e Preço</strong> são obrigatórios. Categoria e os outros campos são opcionais.</p>'+
  (preview.length?'<div class="table-wrap"><table><thead><tr><th>Linha</th><th>Produto</th><th>Categoria</th><th>Preço</th><th>Resultado</th></tr></thead><tbody>'+
  preview.map(r=>'<tr><td>'+r.rowNumber+'</td><td>'+esc(r.name||'—')+'</td><td>'+esc(r.category||'—')+'</td><td>'+esc(Number.isFinite(r.price)?fmt(r.price):'—')+'</td><td>'+esc(r.valid?'Pronto':r.errors.join('; '))+'</td></tr>').join('')+'</tbody></table></div>':'')+
  '<p class="muted small">Cada linha válida será cadastrada como um produto novo. Produtos já existentes não serão alterados; itens repetidos nesta loja serão ignorados. Estoque começa em 0 e o estoque mínimo em 5 quando esses campos não forem informados.</p>'+
@@ -2057,7 +2057,7 @@ function parseImportRows(rows){
   name:['nome','produto','name','item','descricao','descricaoproduto'],
   sku:['codigo','codigodebarras','codigobarras','ean','gtin','sku','referencia'],
   supplier:['fornecedor','fabricante','marca'],
-  category:['categoria','category','grupo','departamento','secao'],
+  category:['categoria','categoriaopcional','category','grupo','departamento','secao'],
   subcategory:['subcategoria','subgrupo'],
   unit:['unidade','un','und'],
   price:['preco','precovenda','venda','varejo','precounitario','price','valorvenda','valor'],
@@ -2072,14 +2072,14 @@ function parseImportRows(rows){
  };
  const headers=(rows[0]||[]).map(importHeaderKey);
  const idx=Object.fromEntries(Object.entries(aliases).map(([key,options])=>[key,headers.findIndex(h=>options.includes(h))]));
- if(idx.name<0||idx.category<0||idx.price<0)throw Error('A planilha precisa ter as colunas Nome, Categoria e Preço.');
+ if(idx.name<0||idx.price<0)throw Error('A planilha precisa ter as colunas Nome e Preço.');
  return rows.slice(1).map((cells,index)=>{
   const get=key=>idx[key]>=0?cells[idx[key]]:'';
   const name=String(get('name')??'').trim();
   const rawSku=importCode(get('sku'));
   const sku=rawSku.length<=120?rawSku:'';
   const supplier=String(get('supplier')??'').trim().slice(0,120);
-  const category=String(get('category')??'').trim().slice(0,65);
+  const category=String(get('category')??'').trim().slice(0,65)||'Geral';
   const subcategory=String(get('subcategory')??'').trim().slice(0,65);
   const unit=String(get('unit')??'').trim().slice(0,20).toUpperCase();
   const lot=String(get('lot')??'').trim().slice(0,80);
@@ -2102,10 +2102,9 @@ function parseImportRows(rows){
   try{if(image){const u=new URL(image);if(['https:','http:'].includes(u.protocol))image_path=u.href;}}catch{}
   const errors=[];
   if(!name||name.length>160)errors.push('nome obrigatório (máx. 160 caracteres)');
-  if(!category)errors.push('categoria obrigatória');
   if(!Number.isFinite(price)||price<0)errors.push('preço inválido');
   return {rowNumber:index+2,name,sku,supplier,category,subcategory,unit,lot,price,cost,stock,min_stock,wholesale_price,wholesale_min_quantity,expiration_date,image_path,valid:!errors.length,errors};
- }).filter(r=>r.name||r.category||r.sku||Number.isFinite(r.price));
+ }).filter((r,index)=>Array.isArray(rows[index+1])&&rows[index+1].some(value=>String(value??'').trim()!==''));
 }
 async function ensureStockXlsxReader(){
  if(window.XLSX)return window.XLSX;
@@ -4101,10 +4100,10 @@ document.addEventListener('click',async e=>{
   if(importTemplate){
    try{
     const XLSX=await ensureStockXlsxReader();
-    const headers=['NOME*','CATEGORIA*','PREÇO*'];
-    const sample=['PRODUTO EXEMPLO','MERCEARIA',8.90];
+    const headers=['NOME*','PREÇO*','CATEGORIA (OPCIONAL)'];
+    const sample=['PRODUTO EXEMPLO',8.90,'MERCEARIA'];
     const sheet=XLSX.utils.aoa_to_sheet([headers,sample]);
-    sheet['!cols']=[{wch:30},{wch:22},{wch:16}];
+    sheet['!cols']=[{wch:30},{wch:16},{wch:24}];
     const book=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(book,sheet,'Produtos');
     XLSX.writeFile(book,'BIPSTART_MODELO_PRODUTOS.xlsx',{compression:true});
