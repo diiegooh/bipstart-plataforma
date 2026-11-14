@@ -1992,7 +1992,7 @@ function renderComandaCard(comanda){
    '<input class="comanda-client-name" data-comanda-name-id="'+esc(comanda.id)+'" type="text" maxlength="100" autocomplete="off" aria-label="Nome do cliente" placeholder="Nome" value="'+esc(comanda.customer_name)+'">'+
    '<button type="button" class="comanda-close-button" data-comanda-close="'+esc(comanda.id)+'"'+(!canClose?' disabled':'')+'>Fechar</button></div>'+
   '<div class="comanda-line-list">'+items+'</div>'+
-  '<div class="comanda-center-add-wrap"><button type="button" class="comanda-center-add" data-comanda-product-toggle="'+esc(comanda.id)+'" aria-label="Selecionar comanda para adicionar produtos" aria-pressed="'+active+'">+</button></div>'+
+  '<div class="comanda-center-add-wrap"><button type="button" class="comanda-center-add" data-comanda-product-toggle="'+esc(comanda.id)+'" aria-label="Selecionar comanda para adicionar produtos" aria-pressed="'+active+'">+ ITEM</button></div>'+
   '<strong class="comanda-total">'+fmt(comandaTotal(comanda)).replace(/^R\$\s*/,'')+'</strong>'+
   '<button type="button" class="comanda-delete-button" data-comanda-remove="'+esc(comanda.id)+'" aria-label="Remover comanda de '+esc(comanda.customer_name||'cliente')+'" title="Remover comanda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/></svg></button>'+
  '</article>';
