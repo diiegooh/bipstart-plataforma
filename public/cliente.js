@@ -1183,7 +1183,7 @@ function categoryImagesSettings(){
 function productCategoryCards(selected='all'){
  if(!products.length)return '';
  const names=[...new Set(products.map(normalizedProductCategory))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
- return '<div class="inventory-category-section"><div class="inventory-category-heading"><strong>Categorias</strong><small>Selecione para filtrar os produtos</small></div>'+
+ return '<div class="inventory-category-section"><div class="inventory-category-heading"><strong>Categorias</strong></div>'+
   '<div class="inventory-category-grid" aria-label="Filtrar produtos por categoria">'+
   ['all',...names].map(name=>{
    const count=filteredProductList(name).length;
@@ -2900,7 +2900,7 @@ function renderPage(){
   }else if(tab==='cardapio'){
     content=cardapioEditor();
   }else if(tab==='produtos'){
-    content='<div class="inventory-kicker">CONTROLE</div>'+heading('Cadastro de produtos','',
+    content=heading('Cadastro de produtos','',
       '<button type="button" class="ghost" data-stock-import-template>Baixar planilha modelo</button> <button type="button" class="ghost" data-stock-import-open>Importar Excel/CSV</button> <button type="button" class="button" data-new="product" style="background:var(--store-accent,#7c3aed)!important;background-image:none!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;-webkit-text-fill-color:var(--store-accent-ink,#fff)!important">+ Novo produto</button>');
     content+=stockImportPanel();
     content+='<div class="inventory-view-bar"><span>Visualização dos produtos</span><div class="inventory-view-toggle" role="group" aria-label="Visualização dos produtos">'+
