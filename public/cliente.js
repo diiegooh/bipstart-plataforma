@@ -2053,8 +2053,8 @@ function addProductToComanda(comandaId,productId){
 function renderComandaActiveCatalogNotice(){
  const active=loadOpenComandas().find(row=>String(row.id)===String(comandaAddingTo));
  if(!active)return '';
- return '<div class="comanda-catalog-active"><span>Adicionando à comanda: <strong>'+esc(active.customer_name)+'</strong></span>'+
-  '<button type="button" data-comanda-stop>Alterar comanda</button></div>';
+ return '<div class="comanda-catalog-active"><span>Adicionando à comanda:</span><strong>'+
+  esc(active.customer_name)+'</strong></div>';
 }
 function renderGodzillaPDV(){
  ensurePdvCartSearchVisualStyles();
@@ -4026,10 +4026,7 @@ document.addEventListener('click',event=>{
   }
   comandaAddingTo=null;
  }
- const stop=event.target.closest('[data-comanda-stop]');
- if(stop&&tab==='caixa'&&pdvCartView==='comandas'){
-  comandaAddingTo=null;renderPage();return;
- }
+
  const toggle=event.target.closest('[data-cart-comandas-toggle]');
  if(toggle&&tab==='caixa'){
   pdvCartView=pdvCartView==='comandas'?'sale':'comandas';
