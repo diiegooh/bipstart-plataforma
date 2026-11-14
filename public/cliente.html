@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=265">
+<link rel="stylesheet" href="/cliente.css?v=266">
 <style id="comanda-note-card-homolog-inline">
 /* Cards de comanda no modelo visual enviado. */
 body #workspace #page .comanda-cart-screen{
@@ -1214,6 +1214,34 @@ body #workspace .comanda-added-bubble.is-fading{opacity:0!important;transform:tr
  body #workspace .comanda-added-bubble.is-visible{transform:translate(-50%,-42px) scale(1)!important}
  body #workspace .comanda-added-bubble.is-fading{opacity:0!important;transform:translate(-50%,-62px) scale(.96)!important}
 }
+
+body #workspace .comanda-delete-confirm-backdrop{
+ position:fixed!important;inset:0!important;z-index:15000!important;display:flex!important;align-items:center!important;justify-content:center!important;
+ padding:16px!important;background:rgba(5,6,10,.78)!important;backdrop-filter:blur(2px)!important;
+}
+body #workspace .comanda-delete-confirm-dialog{
+ box-sizing:border-box!important;width:min(360px,100%)!important;padding:22px!important;border:1px solid #826936!important;
+ border-radius:18px!important;background:#232630!important;color:#f6f3fb!important;box-shadow:0 18px 48px #000a!important;text-align:center!important;
+}
+body #workspace .comanda-delete-confirm-dialog h2{
+ margin:0 0 10px!important;color:#ffca47!important;font-size:21px!important;font-weight:900!important;
+}
+body #workspace .comanda-delete-confirm-dialog p{
+ margin:0 0 18px!important;color:#e5e1ed!important;font-size:14px!important;line-height:1.45!important;
+}
+body #workspace .comanda-delete-confirm-dialog p strong{color:#fff!important}
+body #workspace .comanda-delete-confirm-actions{display:flex!important;gap:10px!important}
+body #workspace .comanda-delete-confirm-actions button{
+ display:inline-flex!important;flex:1 1 0!important;align-items:center!important;justify-content:center!important;min-height:44px!important;
+ margin:0!important;padding:10px 14px!important;border-radius:10px!important;font-size:14px!important;font-weight:850!important;
+}
+body #workspace .comanda-delete-confirm-yes{
+ border:0!important;background:#ffb52e!important;color:#151515!important;-webkit-text-fill-color:#151515!important;
+}
+body #workspace .comanda-delete-confirm-no{
+ border:1px solid #716886!important;background:#30313b!important;color:#eadfff!important;-webkit-text-fill-color:#eadfff!important;
+}
+body #workspace .comanda-delete-confirm-actions button:hover{filter:brightness(1.07)!important}
 </style>
 </head>
 <body class="bipstart-booting">
@@ -1303,6 +1331,6 @@ body #workspace .comanda-added-bubble.is-fading{opacity:0!important;transform:tr
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=265" defer></script>
+<script src="/cliente.js?v=266" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
