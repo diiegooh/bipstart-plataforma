@@ -1180,17 +1180,22 @@ function categoryImagesSettings(){
   '<div class="category-image-settings-list">'+(rows||'<p class="muted">Cadastre uma categoria ou um produto para escolher a imagem.</p>')+'</div>'+
   '</section>';
 }
+function productViewToggle(){
+ return '<div class="inventory-view-toggle" role="group" aria-label="Visualização dos produtos">'+
+  '<button type="button" class="inventory-view-button'+(selectedProductView==='grid'?' active':'')+'" data-product-view="grid" aria-pressed="'+(selectedProductView==='grid')+'">cartões</button>'+
+  '<button type="button" class="inventory-view-button'+(selectedProductView==='list'?' active':'')+'" data-product-view="list" aria-pressed="'+(selectedProductView==='list')+'">lista</button></div>';
+}
 function productCategoryCards(selected='all'){
  if(!products.length)return '';
  const names=[...new Set(products.map(normalizedProductCategory))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
  return '<div class="inventory-category-section"><div class="inventory-category-heading"><strong>Categorias</strong></div>'+
-  '<div class="inventory-category-grid" aria-label="Filtrar produtos por categoria">'+
+  '<div class="inventory-category-controls"><div class="inventory-category-grid" aria-label="Filtrar produtos por categoria">'+
   ['all',...names].map(name=>{
    const count=filteredProductList(name).length;
    const chosen=name===selected;
    return '<button type="button" class="inventory-category-card'+(chosen?' active':'')+'" data-category-filter="'+esc(name)+'" aria-pressed="'+chosen+'">'+
     '<strong>'+esc(name==='all'?'Todos':name)+'</strong><small>'+count+' produto(s)</small></button>';
-  }).join('')+'</div></div>';
+  }).join('')+'</div>'+productViewToggle()+'</div></div>';
 }
 function productGrid(selected='all',stockMode='all'){
  const visible=filteredProductList(selected).filter(product=>
@@ -2911,9 +2916,6 @@ function renderPage(){
     if(selectedStockPanel==='restock')content+=renderRestockList();
     if(selectedStockPanel==='all'){
       if(selectedCategoryFilter!=='all'&&!products.some(p=>normalizedProductCategory(p)===selectedCategoryFilter))selectedCategoryFilter='all';
-      content+='<div class="inventory-view-bar"><div class="inventory-view-toggle" role="group" aria-label="Visualização dos produtos">'+
-        '<button type="button" class="inventory-view-button'+(selectedProductView==='grid'?' active':'')+'" data-product-view="grid" aria-pressed="'+(selectedProductView==='grid')+'">cartões</button>'+
-        '<button type="button" class="inventory-view-button'+(selectedProductView==='list'?' active':'')+'" data-product-view="list" aria-pressed="'+(selectedProductView==='list')+'">lista</button></div></div>';
 
       content+=productCategoryCards(selectedCategoryFilter);
     }
