@@ -6379,16 +6379,16 @@ body #workspace #page .comanda-create-form.comanda-note-draft{
  box-sizing:border-box!important;display:flex!important;flex:0 0 215px!important;flex-direction:column!important;
  gap:0!important;width:215px!important;min-width:215px!important;height:260px!important;min-height:260px!important;
  margin:0!important;padding:12px 10px!important;border:0!important;border-radius:24px!important;
- background:#ffeca0!important;color:#111!important;
+ background:var(--store-accent,#ffeca0)!important;color:var(--store-accent-ink,#111)!important;
 }
 body #workspace #page .comanda-create-form.comanda-note-draft input#comandaNameInput{
  box-sizing:border-box!important;flex:0 0 32px!important;width:100%!important;min-height:32px!important;
- margin:0 0 16px!important;padding:0!important;border:0!important;border-bottom:1px solid #e2cc6e!important;
- border-radius:0!important;background:transparent!important;color:#101010!important;
+ margin:0 0 16px!important;padding:0!important;border:0!important;border-bottom:1px solid color-mix(in srgb,var(--store-accent-ink,#111) 28%,transparent)!important;
+ border-radius:0!important;background:transparent!important;color:var(--store-accent-ink,#101010)!important;-webkit-text-fill-color:var(--store-accent-ink,#101010)!important;
  font-size:22px!important;font-weight:850!important;
 }
 body #workspace #page .comanda-create-form .comanda-draft-plus{
- color:#000!important;font-size:29px!important;font-weight:900!important;line-height:1!important;
+ color:var(--store-accent-ink,#000)!important;font-size:29px!important;font-weight:900!important;line-height:1!important;
 }
 body #workspace #page .comanda-cart-screen .comanda-hidden-submit{
  position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
@@ -6606,3 +6606,20 @@ body.pdv-night #workspace #page .stock-import-panel table td{
 #workspace #page #productForm .menu-price-controls .online-sale-price label{
  margin:0 0 6px!important;
 }
+
+
+/* O bloco de entregas mantém o conteúdo sem o cartão branco ao redor. */
+body #workspace #page .orders-premium{
+ padding:0!important;
+ border:0!important;
+ border-radius:0!important;
+ margin:16px 0!important;
+ background:transparent!important;
+ background-image:none!important;
+ box-shadow:none!important;
+ color:var(--text,#f4f4f8)!important;
+}
+body.pdv-night #workspace #page .orders-premium strong{color:#f4f4f8!important}
+body.pdv-night #workspace #page .orders-premium p{color:#b6bdcf!important}
+body:not(.pdv-night) #workspace #page .orders-premium{color:#293653!important}
+body:not(.pdv-night) #workspace #page .orders-premium p{color:#68758f!important}
