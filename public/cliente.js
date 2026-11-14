@@ -9,7 +9,7 @@ const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
 let pdvCartSearchQuery='',pdvCartSearchResults=[],pdvCartSearchLoading=false,pdvCartSearchError='',pdvCartSearchTimer=null,pdvCartSearchRequest=0;
 let pdvQuery='',pdvCategory='',pdvInStockOnly=false,pdvPayment='pix',pdvCardFeePercent='3.99',pdvDiscountAmount='',pdvCheckoutOpen=false,pdvShowBestSellers=true;
-let pdvCartView='sale',comandaCreateOpen=false,comandaAddingTo=null;
+let pdvCartView='sale',comandaCreateOpen=false,comandaAddingTo=null,comandaDeletePendingId=null;
 let bestSellerRank=new Map(),bestSellerLoading=false,bestSellerLoadedShop=null,bestSellerRequestId=0,bestSellerError='';
 let barcodeLookupBusy=false,barcodeLastResult='',barcodeKeyboardBuffer='',barcodeKeyboardAt=0,barcodeQueue=[];
 let pdvExternalProduct=null,barcodeRegistrationTimer=null,barcodeRegistrationRequest=0;
@@ -2022,12 +2022,28 @@ function renderComandaProductPicker(){
    '</div><div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
   '</section></div>';
 }
+function renderComandaDeleteConfirm(){
+ if(comandaDeletePendingId===null)return '';
+ const comanda=loadOpenComandas().find(row=>String(row.id)===String(comandaDeletePendingId));
+ if(!comanda){comandaDeletePendingId=null;return '';}
+ const name=String(comanda.customer_name||'cliente').trim()||'cliente';
+ return '<div class="comanda-delete-confirm-backdrop" data-comanda-delete-backdrop>'+
+  '<section class="comanda-delete-confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="comanda-delete-confirm-title">'+
+   '<h2 id="comanda-delete-confirm-title">TEM CERTEZA?</h2>'+
+   '<p>Remover a comanda de <strong>'+esc(name)+'</strong>? Os itens ainda não finalizados serão descartados.</p>'+
+   '<div class="comanda-delete-confirm-actions">'+
+    '<button type="button" class="comanda-delete-confirm-yes" data-comanda-delete-confirm>SIM</button>'+
+    '<button type="button" class="comanda-delete-confirm-no" data-comanda-delete-cancel>NÃO</button>'+
+   '</div>'+
+  '</section>'+
+ '</div>';
+}
 function renderComandasWorkspace(){
  return '<div class="godzilla-pdv pdv-comandas-page">'+
   '<section class="pdv-panel pdv-comandas-board" aria-label="Comandas">'+
    '<div class="pdv-sale-head"><div><h2>Comandas</h2></div></div>'+
    renderComandasCartView()+
-  '</section>'+renderComandaProductPicker()+
+  '</section>'+renderComandaProductPicker()+renderComandaDeleteConfirm()+
  '</div>';
 }
 function showComandaAddedBubble(anchor,clickEvent){
@@ -4023,6 +4039,11 @@ document.addEventListener('click',event=>{
   return;
  }
 });
+document.addEventListener('keydown',event=>{
+ if(event.key==='Escape'&&tab==='comandas'&&comandaDeletePendingId!==null){
+  comandaDeletePendingId=null;renderPage();
+ }
+});
 document.addEventListener('click',event=>{
  const catalogProduct=event.target.closest('#pdvProducts .pdv-product[data-cart]');
  if(catalogProduct&&tab==='comandas'){
@@ -4057,14 +4078,27 @@ document.addEventListener('click',event=>{
  if(more&&tab==='comandas'){
   changeComandaItemQuantity(more.dataset.comandaItemMore,more.dataset.comandaProductId,1);return;
  }
+ const deleteConfirm=event.target.closest('[data-comanda-delete-confirm]');
+ if(deleteConfirm&&tab==='comandas'){
+  const id=comandaDeletePendingId;
+  comandaDeletePendingId=null;
+  if(id!==null)deleteOpenComanda(id);
+  return;
+ }
+ const deleteCancel=event.target.closest('[data-comanda-delete-cancel]');
+ const deleteBackdrop=event.target.closest('[data-comanda-delete-backdrop]');
+ if((deleteCancel||deleteBackdrop&&event.target===deleteBackdrop)&&tab==='comandas'){
+  comandaDeletePendingId=null;renderPage();return;
+ }
  const remove=event.target.closest('[data-comanda-remove]');
  if(remove&&tab==='comandas'){
   const rows=loadOpenComandas();
   const comanda=rows.find(row=>String(row.id)===String(remove.dataset.comandaRemove));
   if(!comanda)return;
-  const customerName=String(comanda.customer_name||'cliente').trim()||'cliente';
-  if(!window.confirm('Remover a comanda de '+customerName+'? Os itens ainda não finalizados serão descartados.'))return;
-  deleteOpenComanda(comanda.id);return;
+  comandaDeletePendingId=String(comanda.id);
+  renderPage();
+  document.querySelector('[data-comanda-delete-cancel]')?.focus({preventScroll:true});
+  return;
  }
  const close=event.target.closest('[data-comanda-close]');
  if(close&&tab==='comandas'){
