@@ -2096,8 +2096,7 @@ function deleteOpenComanda(comandaId){
  if(remaining.length===rows.length)return msg('Comanda não encontrada.',true);
  try{saveOpenComandas(remaining)}catch(error){return msg(error.message||'Não foi possível remover a comanda.',true)}
  if(String(comandaAddingTo)===String(comandaId))comandaAddingTo=null;
- const screen=document.querySelector('#page .comanda-cart-screen');
- if(screen)screen.outerHTML=renderComandasCartView();else renderPage();
+ renderPage();
  msg('Comanda removida.');
 }
 function changeComandaItemQuantity(comandaId,productId,delta){
