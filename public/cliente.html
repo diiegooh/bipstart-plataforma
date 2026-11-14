@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=257">
+<link rel="stylesheet" href="/cliente.css?v=258">
 <style id="comanda-note-card-homolog-inline">
 /* Cards de comanda no modelo visual enviado. */
 body #workspace #page .comanda-cart-screen{
@@ -1174,7 +1174,25 @@ body #workspace #page .online-order-formatted :is(.online-order-payment-actions 
  body #workspace #page .online-order-formatted .online-order-total{padding-left:7px!important}
  body #workspace #page .online-order-formatted .online-order-total b span:last-child{font-size:16px!important}
 }
-</style></head>
+</style><style id="comanda-only-view-inline">
+body #workspace #page .godzilla-pdv.pdv-comandas-page{display:block!important;width:100%!important;max-width:none!important}
+body #workspace #page .godzilla-pdv.pdv-comandas-page .pdv-comandas-board{box-sizing:border-box!important;width:100%!important;min-height:calc(100vh - 120px)!important;background:linear-gradient(165deg,#232630,#171923)!important;color:#f6f3fb!important;border:1px solid #444754!important}
+body #workspace #page .godzilla-pdv.pdv-comandas-page .comanda-cart-screen{width:100%!important;max-height:calc(100vh - 215px)!important}
+body #workspace #page .comanda-picker-backdrop{box-sizing:border-box!important;position:fixed!important;inset:0!important;z-index:12000!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:18px!important;background:#000b!important}
+body #workspace #page .comanda-product-picker{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;gap:14px!important;width:min(1080px,96vw)!important;max-height:92vh!important;overflow:auto!important;padding:18px!important;border:1px solid #444654!important;border-radius:20px!important;background:#232630!important;color:#f6f3fb!important;box-shadow:0 24px 80px #0009!important}
+body #workspace #page .comanda-picker-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important}
+body #workspace #page .comanda-picker-head h2{margin:0 0 8px!important;font-size:22px!important;color:#f6f3fb!important}
+body #workspace #page .comanda-picker-close{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 42px!important;width:42px!important;height:42px!important;padding:0!important;border:1px solid #525460!important;border-radius:12px!important;background:#2d303a!important;color:#fff!important;font-size:28px!important;line-height:1!important}
+body #workspace #page .comanda-product-picker .pdv-products{max-height:58vh!important;overflow:auto!important;align-content:start!important}
+@media(max-width:700px){
+ body #workspace #page .comanda-picker-backdrop{align-items:flex-end!important;padding:0!important}
+ body #workspace #page .comanda-product-picker{width:100vw!important;max-width:none!important;max-height:92dvh!important;padding:14px 12px calc(14px + env(safe-area-inset-bottom))!important;border-radius:20px 20px 0 0!important}
+ body #workspace #page .comanda-product-picker .pdv-products{grid-template-columns:repeat(2,minmax(0,1fr))!important;max-height:55dvh!important;gap:7px!important}
+ body #workspace #page .comanda-product-picker .pdv-category-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+ body #workspace #page .comanda-picker-head h2{font-size:18px!important}
+}
+</style>
+</head>
 <body class="bipstart-booting">
 <div id="startupOverlay" role="status" aria-live="polite"><span class="startup-spinner" aria-hidden="true"></span><span>Carregando sua loja…</span></div>
 <header class="top"><a class="brand" href="/" aria-label="BipStart - página inicial"><img class="brand-logo" src="/bipstart-marca-horizontal.svg?v=2" alt="BipStart" width="190" height="50"></a><nav><button id="logout" class="ghost hidden" type="button">Sair</button></nav></header>
@@ -1262,6 +1280,6 @@ body #workspace #page .online-order-formatted :is(.online-order-payment-actions 
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=257" defer></script>
+<script src="/cliente.js?v=258" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
