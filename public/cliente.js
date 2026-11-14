@@ -1964,11 +1964,13 @@ function comandaTotal(comanda){
  return comanda.items.reduce((sum,item)=>sum+comandaLineTotal(item),0);
 }
 function renderComandaCreateForm(){
- return '<form id="comandaCreateForm" class="comanda-create-form">'+
-  '<input id="comandaNameInput" name="name" type="text" required maxlength="100" autocomplete="off" autofocus aria-label="Nome do cliente" placeholder="NOME">'+
+ return '<form id="comandaCreateForm" class="comanda-create-form comanda-note-card comanda-note-draft">'+
+  '<input id="comandaNameInput" name="name" type="text" required maxlength="100" autocomplete="off" autofocus aria-label="Nome do cliente" placeholder="Nome">'+
+  '<div class="comanda-center-add-wrap" aria-hidden="true"><span class="comanda-draft-plus">+</span></div>'+
   '<button type="submit" class="comanda-hidden-submit" tabindex="-1" aria-hidden="true"></button>'+
  '</form>';
 }
+
 function renderComandaPayment(comanda){
  const cardMethod=['credito','debito'].includes(comandaPayment);
  const activePayment=cardMethod?'cartao':comandaPayment;
@@ -2004,25 +2006,27 @@ function renderComandaCard(comanda){
  const canClose=comanda.items.length>0;
  return '<article class="comanda-note-card'+(active?' is-active':'')+(paying?' is-paying':'')+'" data-comanda-card-id="'+esc(comanda.id)+'">'+
   '<div class="comanda-note-head">'+
-   '<input class="comanda-client-name" data-comanda-name-id="'+esc(comanda.id)+'" type="text" maxlength="100" autocomplete="off" aria-label="Nome do cliente" value="'+esc(comanda.customer_name)+'">'+
-   '<button type="button" class="comanda-close-button" data-comanda-close="'+esc(comanda.id)+'"'+(!canClose||paying?' disabled':'')+'>FECHAR COMANDA</button></div>'+
-  '<div class="comanda-center-add-wrap"><button type="button" class="comanda-center-add" data-comanda-product-toggle="'+esc(comanda.id)+'" aria-label="Selecionar comanda para adicionar produtos" aria-pressed="'+active+'"'+(paying?' disabled':'')+'>+</button></div>'+
-  (active&&!paying?'<small class="comanda-active-hint">Comanda selecionada. Toque nos produtos do PDV para adicioná-los.</small>':'')+
+   '<input class="comanda-client-name" data-comanda-name-id="'+esc(comanda.id)+'" type="text" maxlength="100" autocomplete="off" aria-label="Nome do cliente" placeholder="Nome" value="'+esc(comanda.customer_name)+'">'+
+   '<button type="button" class="comanda-close-button" data-comanda-close="'+esc(comanda.id)+'"'+(!canClose||paying?' disabled':'')+'>Fechar</button></div>'+
   '<div class="comanda-line-list">'+items+'</div>'+
-  '<strong class="comanda-total">'+fmt(comandaTotal(comanda))+'</strong>'+
+  '<div class="comanda-center-add-wrap"><button type="button" class="comanda-center-add" data-comanda-product-toggle="'+esc(comanda.id)+'" aria-label="Selecionar comanda para adicionar produtos" aria-pressed="'+active+'"'+(paying?' disabled':'')+'>+</button></div>'+
+  '<strong class="comanda-total">'+fmt(comandaTotal(comanda)).replace(/^R\$\s*/,'')+'</strong>'+
   (paying?'<div class="comanda-payment-area">'+renderComandaPayment(comanda)+'</div>':'')+
  '</article>';
 }
+
 function renderComandasCartView(){
  const rows=loadOpenComandas();
  if(!rows.length&&!comandaCreateOpen){
   return '<div class="comanda-cart-screen comanda-cart-empty"><button type="button" class="comanda-add-new" data-comanda-new aria-label="Adicionar comanda">+</button></div>';
  }
- const createSlot=comandaCreateOpen?renderComandaCreateForm():
-  '<div class="comanda-cart-toolbar"><button type="button" class="comanda-add-new" data-comanda-new aria-label="Adicionar comanda">+</button></div>';
- return '<div class="comanda-cart-screen">'+createSlot+
-  rows.map(renderComandaCard).join('')+'</div>';
+ const paying=rows.some(row=>String(row.id)===String(comandaPayingId));
+ return '<div class="comanda-cart-screen'+(paying?' comanda-has-payment':'')+'">'+rows.map(renderComandaCard).join('')+
+  (comandaCreateOpen?renderComandaCreateForm():
+   '<button type="button" class="comanda-add-new" data-comanda-new aria-label="Adicionar comanda">+</button>')+
+ '</div>';
 }
+
 function addProductToComanda(comandaId,productId){
  const rows=loadOpenComandas(),comanda=rows.find(row=>String(row.id)===String(comandaId));
  const product=products.find(row=>String(row.id)===String(productId));
