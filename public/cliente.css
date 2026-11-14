@@ -6342,3 +6342,18 @@ body #workspace #page .comanda-cart-screen.comanda-has-payment{
 body #workspace #page .comanda-cart-screen.comanda-has-payment .comanda-note-card.is-paying{
  height:auto!important;min-height:260px!important;max-height:none!important;overflow:visible!important;
 }
+
+/* Mensagem da comanda: destaque colorido apenas no nome. */
+body #workspace #page .comanda-catalog-active{
+ display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:flex-start!important;
+ gap:7px!important;width:max-content!important;max-width:100%!important;min-height:0!important;
+ margin:0 0 10px!important;padding:4px 0!important;border:0!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;color:inherit!important;font-size:13px!important;
+}
+body #workspace #page .comanda-catalog-active strong{
+ display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
+ margin:0!important;padding:5px 12px!important;border:1px solid var(--store-accent,#7c3aed)!important;
+ border-radius:999px!important;background:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;-webkit-text-fill-color:var(--store-accent-ink,#fff)!important;
+ font-weight:900!important;line-height:1.15!important;white-space:nowrap!important;
+}
