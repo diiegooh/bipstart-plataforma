@@ -375,7 +375,7 @@ async function refreshOnlineOrdersIfVisible(){
 }
 function pages(){
   const a=[['resumo','Visão geral']];
-  a.push(['caixa','Frente de caixa'],['produtos','Produtos e estoque'],['vendas','Histórico de vendas']);
+  a.push(['caixa','Frente de caixa'],['comandas','Comandas'],['produtos','Produtos e estoque'],['vendas','Histórico de vendas']);
   if(proAccess())a.push(['cardapio','Meu cardápio']);
   if(proAccess())a.push(['pedidos','Pedidos online'],['motoboys','Motoboys'],['entregas','Entregas']);
   if(canCustomize())a.push(['personalizar','Mudanças e suporte']);
@@ -385,6 +385,7 @@ function pages(){
 function operationalMenuItems(){
   return [
     ['caixa','PDV','🛒'],
+    ['comandas','Comandas','🗒️'],
     ['produtos','Produtos','📦'],
     ['cardapio_publico','Cardápio online','📋'],
     ['pedidos','Pedidos online','🚚'],
@@ -1572,7 +1573,7 @@ async function loadBestSellers(){
    }
    bestSellerRank=totals;bestSellerLoadedShop=shopId;
  }catch(error){bestSellerError=error.message||'Falha ao carregar mais vendidos.';}
- finally{if(request===bestSellerRequestId){bestSellerLoading=false;if(tab==='caixa')renderPage();}}
+ finally{if(request===bestSellerRequestId){bestSellerLoading=false;if(tab==='caixa'||tab==='comandas')renderPage();}}
 }
 function normalizeBarcode(value){return String(value??'').trim().replace(/\s+/g,'');}
 function barcodeVariants(raw){
@@ -1736,7 +1737,7 @@ function pdvProductCards(){
  const available=filteredPdvProducts();
  return available.length?available.map(p=>{
   const photo=p.image_path?'<img src="'+esc(imageUrl(p.image_path))+'" alt="'+esc(p.name)+'" loading="lazy">':'<div class="pdv-no-photo" aria-hidden="true">▣</div>';
-  const destination=pdvCartView==='comandas'&&comandaAddingTo?'comanda':'carrinho';
+  const destination=tab==='comandas'?'comanda':'carrinho';
   return '<div class="pdv-product-wrap"><button type="button" class="pdv-product pdv-product-clickable" data-cart="'+esc(p.id)+'" aria-label="'+esc('Adicionar '+p.name+' à '+destination+' — '+fmt(p.price))+'">'+
    '<span class="pdv-product-media">'+photo+'</span>'+
    '<span class="pdv-product-info"><strong class="pdv-product-name">'+esc(p.name)+'</strong>'+
@@ -2004,6 +2005,19 @@ function renderComandasCartView(){
    '<button type="button" class="comanda-add-new" data-comanda-new aria-label="Adicionar comanda">+</button>')+
  '</div>';
 }
+function renderComandasWorkspace(){
+ const categoriesList=[...new Set(products.map(p=>String(p.category||'Geral')))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ return '<div class="godzilla-pdv pdv-comandas-page"><div class="pdv-two-panels">'+
+  '<section class="pdv-panel pdv-catalog" aria-label="Produtos para comandas">'+
+   renderComandaActiveCatalogNotice()+
+   '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
+    '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:var(--pdv-category-font-size,30px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
+    categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:var(--pdv-category-font-size,30px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">'+esc(name)+'</strong></button>';}).join('')+
+   '</div><div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
+  '</section><aside class="pdv-panel pdv-sale-panel pdv-comandas-panel" aria-label="Comandas">'+
+   '<div class="pdv-sale-head"><div><h2>Comandas</h2></div></div>'+renderComandasCartView()+
+  '</aside></div></div>';
+}
 function addProductToComanda(comandaId,productId){
  const rows=loadOpenComandas(),comanda=rows.find(row=>String(row.id)===String(comandaId));
  const product=products.find(row=>String(row.id)===String(productId));
@@ -2024,7 +2038,7 @@ function addProductToComanda(comandaId,productId){
    wholesale_min_quantity:product.wholesale_min_quantity??null});
  }
  saveOpenComandas(rows);
- const screen=document.querySelector('.pdv-sale-panel .comanda-cart-screen');
+ const screen=document.querySelector('#page .comanda-cart-screen');
  if(screen)screen.outerHTML=renderComandasCartView();else renderPage();
 }
 function changeComandaItemQuantity(comandaId,productId,delta){
@@ -2096,15 +2110,14 @@ function renderGodzillaPDV(){
  ).join('');
  return '<div class="godzilla-pdv'+(floatingSale?' pdv-floating-layout':'')+'">'+
  '<div class="pdv-two-panels"><section class="pdv-panel pdv-catalog" aria-label="Produtos da loja">'+
- (pdvCartView==='comandas'?renderComandaActiveCatalogNotice():'')+
- '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
+  '<div class="pdv-category-tiles" role="group" aria-label="Categorias de produtos">'+
  '<button type="button" class="pdv-category-tile pdv-category-all '+(pdvShowBestSellers?'selected':'')+'" data-pdv-best-sellers aria-pressed="'+pdvShowBestSellers+'"><span aria-hidden="true">★</span><strong style="font-size:var(--pdv-category-font-size,30px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">Mais vendidos</strong></button>'+
  categoriesList.map((name,i)=>{const style=productCategoryStyle(name,i);return '<button type="button" class="pdv-category-tile pdv-category-tone-'+(i%4)+' '+(pdvCategory===name?'selected':'')+'" style="--category-bg:'+style.color+';--category-fg:'+style.text+'" data-pdv-category="'+esc(name)+'"><span aria-hidden="true">'+style.icon+'</span><strong style="font-size:var(--pdv-category-font-size,30px)!important;line-height:1.12!important;font-weight:800!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important">'+esc(name)+'</strong></button>';}).join('')+
  '</div>'+
  
  '<div id="pdvProducts" class="pdv-products">'+pdvProductCards()+'</div>'+
  '</section><div class="pdv-floating-backdrop'+(floatingSale&&pdvCheckoutOpen?' open':'')+'" data-floating-sale-close></div><aside class="pdv-panel pdv-sale-panel'+(floatingSale?' pdv-sale-panel-floating':'')+(floatingSale&&pdvCheckoutOpen?' is-open':'')+'" aria-label="Venda atual">'+
- '<div class="pdv-sale-head"><div><h2>'+(pdvCartView==='comandas'?'Comandas':'Venda atual')+'</h2></div><button type="button" class="pdv-comanda-toggle'+(pdvCartView==='comandas'?' is-active':'')+'" data-cart-comandas-toggle aria-pressed="'+(pdvCartView==='comandas')+'">Comanda</button></div>'+(pdvCartView==='comandas'?renderComandasCartView():
+ '<div class="pdv-sale-head"><div><h2>Venda atual</h2></div></div>'+
  '<div class="pdv-cart-search"><label for="pdvCartSearch">Pesquisar e adicionar produto</label>'+
  '<div class="pdv-cart-search-input-wrap"><span class="pdv-cart-search-loupe" aria-hidden="true"></span>'+
  '<input type="search" id="pdvCartSearch" style="padding-left:54px!important;" placeholder="Nome ou código do produto" value="'+esc(pdvCartSearchQuery)+'" autocomplete="off" spellcheck="false" aria-controls="pdvCartSearchResults">'+
@@ -2126,7 +2139,7 @@ function renderGodzillaPDV(){
  '</div>'+
  '<button type="submit" class="button pdv-finish" '+(!cart.length||!checkout.valid?'disabled':'')+'>Finalizar venda ↗</button>'+
  '</form>'+
- ((typeof lastReceipt!=='undefined'&&lastReceipt?.shopId===shop?.id)?'<button class="ghost pdv-last-receipt" type="button" data-receipt-last>🧾 Reimprimir último comprovante</button>':'') )+
+ ((typeof lastReceipt!=='undefined'&&lastReceipt?.shopId===shop?.id)?'<button class="ghost pdv-last-receipt" type="button" data-receipt-last>🧾 Reimprimir último comprovante</button>':'')+
  '</aside></div>'+(floatingSale?'<button type="button" class="pdv-floating-sale-button" data-floating-sale-toggle aria-expanded="'+(pdvCheckoutOpen?'true':'false')+'"><span>🛒 Ver venda</span><strong id="pdvFloatingTotal">'+fmt(checkout.total)+'</strong></button>':'')+'</div>';
 }
 function selectPdvPayment(method){
@@ -2769,8 +2782,8 @@ window.addEventListener('resize',()=>{
  pdvCategoriesResizePending=true;
  window.requestAnimationFrame(()=>{
   pdvCategoriesResizePending=false;
-  if(tab==='caixa'){
-   applyPdvFloatingFullWidth();
+  if(tab==='caixa'||tab==='comandas'){
+   if(tab==='caixa')applyPdvFloatingFullWidth();
    applyPdvCategoryFontSizes();
   }
  });
@@ -2865,6 +2878,8 @@ function renderPage(){
       '<button type="button" class="ghost" data-nav="entregas">Abrir fila de entregas</button></div>';
   }else if(tab==='caixa'){
     content=renderGodzillaPDV();
+  }else if(tab==='comandas'){
+    content=renderComandasWorkspace();
   }else if(tab==='vendas'){
     content=renderSalesReport();
   }else if(tab==='motoboys'){
@@ -2942,7 +2957,7 @@ function renderPage(){
    if(tab==='configuracoes'){setupSettingsCategories();setupServiceScheduleEditor();applySettingsNightStyles();}
    if(tab==='vendas')applySalesNightStyles();
    if(tab==='caixa')applyPdvFloatingFullWidth();
-   if(tab==='caixa')applyPdvCategoryFontSizes();
+   if(tab==='caixa'||tab==='comandas')applyPdvCategoryFontSizes();
 }
 function fiscalSettingsSection(){
  const saved=shop?.fiscal_config&&typeof shop.fiscal_config==='object'&&!Array.isArray(shop.fiscal_config)?shop.fiscal_config:{};
@@ -3524,7 +3539,7 @@ async function handleSubmit(form,contractWindow=null){
       break;
     }
     case 'comandaCreateForm':{
-      if(tab!=='caixa'||pdvCartView!=='comandas')throw Error('Abra Comanda dentro do carrinho para criar uma comanda.');
+      if(tab!=='comandas')throw Error('Abra a aba Comandas para criar uma comanda.');
       const customerName=String(v.name||'').trim();
       if(!customerName||customerName.length>100)throw Error('Informe o nome do cliente com até 100 caracteres.');
       const rows=loadOpenComandas();
@@ -3967,44 +3982,35 @@ document.addEventListener('click',event=>{
 });
 document.addEventListener('click',event=>{
  const catalogProduct=event.target.closest('#pdvProducts .pdv-product[data-cart]');
- if(catalogProduct&&tab==='caixa'&&pdvCartView==='comandas'&&comandaAddingTo){
+ if(catalogProduct&&tab==='comandas'){
+  event.stopImmediatePropagation();
   const active=loadOpenComandas().find(row=>String(row.id)===String(comandaAddingTo));
-  if(active){
-   event.stopImmediatePropagation();
-   addProductToComanda(active.id,catalogProduct.dataset.cart);
-   return;
-  }
-  comandaAddingTo=null;
- }
-
- const toggle=event.target.closest('[data-cart-comandas-toggle]');
- if(toggle&&tab==='caixa'){
-  pdvCartView=pdvCartView==='comandas'?'sale':'comandas';
-  if(pdvCartView==='sale')comandaAddingTo=null;
-  renderPage();return;
- }
+  if(!active){comandaAddingTo=null;msg('Selecione uma comanda antes de adicionar o produto.',true);return;}
+  addProductToComanda(active.id,catalogProduct.dataset.cart);
+  return;
+}
  const create=event.target.closest('[data-comanda-new]');
- if(create&&tab==='caixa'&&pdvCartView==='comandas'){
+ if(create&&tab==='comandas'){
   comandaCreateOpen=true;renderPage();
   document.getElementById('comandaNameInput')?.focus({preventScroll:true});
   return;
  }
  const productToggle=event.target.closest('[data-comanda-product-toggle]');
- if(productToggle&&tab==='caixa'&&pdvCartView==='comandas'){
+ if(productToggle&&tab==='comandas'){
   const id=productToggle.dataset.comandaProductToggle;
   comandaAddingTo=String(comandaAddingTo)===String(id)?null:id;
   renderPage();return;
  }
  const less=event.target.closest('[data-comanda-item-less]');
- if(less&&tab==='caixa'&&pdvCartView==='comandas'){
+ if(less&&tab==='comandas'){
   changeComandaItemQuantity(less.dataset.comandaItemLess,less.dataset.comandaProductId,-1);return;
  }
  const more=event.target.closest('[data-comanda-item-more]');
- if(more&&tab==='caixa'&&pdvCartView==='comandas'){
+ if(more&&tab==='comandas'){
   changeComandaItemQuantity(more.dataset.comandaItemMore,more.dataset.comandaProductId,1);return;
  }
  const close=event.target.closest('[data-comanda-close]');
- if(close&&tab==='caixa'&&pdvCartView==='comandas'){
+ if(close&&tab==='comandas'){
   const rows=loadOpenComandas();
   const comanda=rows.find(row=>String(row.id)===String(close.dataset.comandaClose));
   if(!comanda?.items.length)return msg('Adicione produtos antes de fechar a comanda.',true);
@@ -4030,7 +4036,7 @@ document.addEventListener('click',event=>{
    if(existing)existing.qty=(Number(existing.qty)||0)+quantity;
    else{const cartItem=pdvCartNewItem(product);cartItem.qty=quantity;cart.push(cartItem);}
   }
-  comandaAddingTo=null;comandaCreateOpen=false;pdvCartView='sale';pdvCheckoutOpen=true;
+  comandaAddingTo=null;comandaCreateOpen=false;pdvCartView='sale';pdvCheckoutOpen=true;tab='caixa';
   renderPage();
   msg('Comanda transferida para o carrinho principal. Finalize a venda pelo caixa.');
   return;
@@ -4038,7 +4044,7 @@ document.addEventListener('click',event=>{
 });
 document.addEventListener('change',event=>{
  const nameInput=event.target.closest('[data-comanda-name-id]');
- if(!nameInput||tab!=='caixa'||pdvCartView!=='comandas')return;
+ if(!nameInput||tab!=='comandas')return;
  const rows=loadOpenComandas();
  const comanda=rows.find(row=>String(row.id)===String(nameInput.dataset.comandaNameId));
  if(!comanda)return;
@@ -4053,7 +4059,7 @@ document.addEventListener('keydown',event=>{
  if(nameInput&&event.key==='Enter'){
   event.preventDefault();event.stopImmediatePropagation();nameInput.blur();return;
  }
- if(event.key==='Escape'&&comandaCreateOpen&&tab==='caixa'&&pdvCartView==='comandas'){
+ if(event.key==='Escape'&&comandaCreateOpen&&tab==='comandas'){
   comandaCreateOpen=false;renderPage();
  }
 });
