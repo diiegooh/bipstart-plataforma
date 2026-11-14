@@ -1188,14 +1188,14 @@ function productViewToggle(){
 function productCategoryCards(selected='all'){
  if(!products.length)return '';
  const names=[...new Set(products.map(normalizedProductCategory))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
- return '<div class="inventory-category-section"><div class="inventory-category-heading"><strong>Categorias</strong></div>'+
+ return '<div class="inventory-category-section"><div class="inventory-category-heading"><strong>Categorias</strong>'+productViewToggle()+'</div>'+
   '<div class="inventory-category-controls"><div class="inventory-category-grid" aria-label="Filtrar produtos por categoria">'+
   ['all',...names].map(name=>{
    const count=filteredProductList(name).length;
    const chosen=name===selected;
    return '<button type="button" class="inventory-category-card'+(chosen?' active':'')+'" data-category-filter="'+esc(name)+'" aria-pressed="'+chosen+'">'+
     '<strong>'+esc(name==='all'?'Todos':name)+'</strong><small>'+count+' produto(s)</small></button>';
-  }).join('')+'</div>'+productViewToggle()+'</div></div>';
+  }).join('')+'</div></div></div>';
 }
 function productGrid(selected='all',stockMode='all'){
  const visible=filteredProductList(selected).filter(product=>
