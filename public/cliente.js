@@ -2069,62 +2069,6 @@ function addProductToComanda(comandaId,productId){
  saveOpenComandas(rows);
  renderPage();
 }
-document.addEventListener('click',event=>{
- const toggle=event.target.closest('[data-cart-comandas-toggle]');
- if(toggle&&tab==='caixa'){
-  pdvCartView=pdvCartView==='comandas'?'sale':'comandas';
-  renderPage();return;
- }
- const create=event.target.closest('[data-comanda-new]');
- if(create&&tab==='caixa'&&pdvCartView==='comandas'){
-  comandaCreateOpen=true;renderPage();
-  document.getElementById('comandaNameInput')?.focus({preventScroll:true});
-  return;
- }
- const productToggle=event.target.closest('[data-comanda-product-toggle]');
- if(productToggle&&tab==='caixa'&&pdvCartView==='comandas'){
-  const id=productToggle.dataset.comandaProductToggle;
-  comandaAddingTo=String(comandaAddingTo)===String(id)?null:id;
-  comandaProductCategory='all';renderPage();return;
- }
- const category=event.target.closest('[data-comanda-category]');
- if(category&&tab==='caixa'&&pdvCartView==='comandas'){
-  comandaProductCategory=category.dataset.comandaCategory||'all';renderPage();return;
- }
- const addProduct=event.target.closest('[data-comanda-add-product]');
- if(addProduct&&tab==='caixa'&&pdvCartView==='comandas'){
-  addProductToComanda(comandaAddingTo,addProduct.dataset.comandaAddProduct);return;
- }
- const close=event.target.closest('[data-comanda-close]');
- if(close&&tab==='caixa'&&pdvCartView==='comandas'){
-  const comanda=loadOpenComandas().find(row=>String(row.id)===String(close.dataset.comandaClose));
-  if(!comanda?.items.length)return msg('Adicione produtos antes de fechar a comanda.',true);
-  comandaAddingTo=null;comandaPayingId=comanda.id;comandaPayment='pix';renderPage();return;
- }
- const paymentCancel=event.target.closest('[data-comanda-payment-cancel]');
- if(paymentCancel&&tab==='caixa'&&pdvCartView==='comandas'){
-  comandaPayingId=null;renderPage();return;
- }
- const paymentOption=event.target.closest('[data-comanda-payment]');
- if(paymentOption&&tab==='caixa'&&pdvCartView==='comandas'){
-  const method=paymentOption.dataset.comandaPayment;
-  if(method==='cartao')comandaPayment=['credito','debito'].includes(comandaPayment)?comandaPayment:'credito';
-  else if(['dinheiro','pix'].includes(method))comandaPayment=method;
-  renderPage();return;
- }
- const cardOption=event.target.closest('[data-comanda-card]');
- if(cardOption&&tab==='caixa'&&pdvCartView==='comandas'){
-  if(['credito','debito'].includes(cardOption.dataset.comandaCard)){
-   comandaPayment=cardOption.dataset.comandaCard;renderPage();
-  }
- }
-});
-document.addEventListener('keydown',event=>{
- if(event.key==='Escape'&&comandaCreateOpen&&tab==='caixa'&&pdvCartView==='comandas'){
-  comandaCreateOpen=false;renderPage();
- }
-});
-
 function renderGodzillaPDV(){
  ensurePdvCartSearchVisualStyles();
  const floatingSale=floatingSaleEnabled();
