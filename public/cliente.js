@@ -302,7 +302,18 @@ function localReportDate(date=new Date()){
 async function reloadData(){
   products=[];productIngredients=[];ingredientCandidates=[];ingredientSchemaReady=false;categories=[];services=[];appointments=[];sales=[];requests=[];couriers=[];deliveries=[];onlineOrders=[];
   const get=(t,fields='*')=>rest(t,{query:{select:fields,shop_id:'eq.'+shop.id,order:'created_at.desc',limit:'200'}});
-  products=await get('shop_products');
+const getAll=async(t,fields='*',order='created_at.desc')=>{
+ const pageSize=500,maxRows=20000,all=[];
+ for(let offset=0;offset<=maxRows;offset+=pageSize){
+  const batch=await rest(t,{query:{select:fields,shop_id:'eq.'+shop.id,order,offset:String(offset),limit:String(pageSize)}});
+  if(!Array.isArray(batch))throw Error('Resposta inválida ao consultar produtos.');
+  if(offset===maxRows&&batch.length)throw Error('A loja ultrapassou o limite seguro de 20.000 produtos.');
+  all.push(...batch);
+  if(batch.length<pageSize)return all;
+ }
+ throw Error('Não foi possível carregar a lista completa de produtos.');
+};
+products=await getAll('shop_products','*','created_at.desc,id.asc');
   try{
     ingredientCandidates=await rest('shop_products',{query:{select:'id,name,unit,stock,cost',shop_id:'eq.'+shop.id,order:'name.asc',limit:'1000'}});
     productIngredients=await rest('shop_product_ingredients',{query:{select:'product_id,ingredient_product_id,quantity_per_unit',shop_id:'eq.'+shop.id,order:'product_id.asc,ingredient_product_id.asc',limit:'1000'}});
@@ -2441,7 +2452,7 @@ async function confirmStockImport(){
  // Buscar todos os produtos da loja: a lista da tela é limitada a 200 registros.
  const allExisting=[];
  for(let offset=0;offset<20000;offset+=500){
-  const batch=await rest('shop_products',{query:{select:'name,category,sku',shop_id:'eq.'+shop.id,order:'created_at.asc',offset:String(offset),limit:'500'}});
+  const batch=await rest('shop_products',{query:{select:'name,category,sku',shop_id:'eq.'+shop.id,order:'created_at.asc,id.asc',offset:String(offset),limit:'500'}});
   allExisting.push(...batch);
   if(batch.length<500)break;
   if(offset>=19500)throw Error('A loja ultrapassou o limite seguro de conferência de duplicados. Contate o suporte.');
@@ -2481,11 +2492,7 @@ async function confirmStockImport(){
    });
   }
   if(!toInsert.length)throw Error('Todos os produtos válidos já existem nesta loja. Nenhum item foi duplicado.');
-  for(let i=0;i<toInsert.length;i+=100){
-   const batch=toInsert.slice(i,i+100);
-   await rest('shop_products',{method:'POST',body:batch});
-   inserted+=batch.length;
-  }
+  const batchSize=50; for(let i=0;i<toInsert.length;i+=batchSize){ const batch=toInsert.slice(i,i+batchSize); await rest('shop_products',{method:'POST',body:batch}); inserted+=batch.length; }
   const ignored=stockImportRows.length-valid.length;
   stockImportRows=[];stockImportFileName='';
   await reloadData();renderPage();
