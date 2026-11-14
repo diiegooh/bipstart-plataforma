@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=250">
+<link rel="stylesheet" href="/cliente.css?v=251">
 <style id="service-day-alignment-inline">
 /* Atendimento e entrega: checkbox sempre à esquerda do nome do dia. */
 #settingsForm fieldset.service-days .service-day-options{
@@ -1097,6 +1097,6 @@ body #workspace #page .online-order-formatted :is(.online-order-payment-actions 
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=250" defer></script>
+<script src="/cliente.js?v=251" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
