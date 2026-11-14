@@ -6421,6 +6421,6 @@ body.pdv-night #workspace #page .comanda-product-picker{background:#1e2029!impor
 #workspace .inventory-toolbar-actions>button{margin:0}
 @media(max-width:720px){#workspace .inventory-toolbar-actions{width:100%;margin-left:0;justify-content:flex-start;gap:6px}}
 
-#workspace .inventory-view-bar{justify-content:flex-start;flex-wrap:wrap;gap:8px}
-#workspace .inventory-toolbar-actions{justify-content:flex-start;gap:8px;margin:0;width:auto}
-@media(max-width:720px){#workspace .inventory-view-bar{gap:6px}#workspace .inventory-toolbar-actions{gap:6px;margin:0;width:auto}}
+#workspace .inventory-view-bar{justify-content:flex-start;flex-wrap:wrap;gap:14px}
+#workspace .inventory-toolbar-actions{justify-content:flex-start;gap:14px;margin:0;width:auto}
+@media(max-width:720px){#workspace .inventory-view-bar{gap:10px}#workspace .inventory-toolbar-actions{gap:10px;margin:0;width:auto}}
