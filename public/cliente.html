@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=261">
+<link rel="stylesheet" href="/cliente.css?v=262">
 <style id="comanda-note-card-homolog-inline">
 /* Cards de comanda no modelo visual enviado. */
 body #workspace #page .comanda-cart-screen{
@@ -22,7 +22,7 @@ body #workspace #page .comanda-cart-screen{
  border-radius:16px!important;background:transparent!important;border:0!important;box-shadow:none!important;
 }
 body #workspace #page .comanda-cart-screen.comanda-cart-empty{
- justify-content:center!important;min-height:180px!important;max-height:220px!important;
+ justify-content:flex-start!important;align-items:center!important;min-height:280px!important;max-height:340px!important;
 }
 body #workspace #page .comanda-note-card{
  position:relative!important;box-sizing:border-box!important;display:flex!important;flex:0 0 215px!important;
@@ -101,12 +101,11 @@ body #workspace #page .comanda-total{
  font-weight:900!important;line-height:1.1!important;white-space:nowrap!important;
 }
 body #workspace #page .comanda-add-new{
- display:inline-flex!important;flex:0 0 42px!important;align-items:center!important;justify-content:center!important;
- width:42px!important;min-width:42px!important;height:64px!important;margin:0!important;padding:0!important;
- border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+ display:inline-flex!important;flex:0 0 215px!important;align-items:center!important;align-self:center!important;justify-content:center!important;
+ width:215px!important;min-width:215px!important;height:260px!important;min-height:260px!important;margin:0!important;padding:0!important;
+ border:0!important;border-radius:24px!important;background:transparent!important;box-shadow:none!important;
  color:#000!important;-webkit-text-fill-color:#000!important;font-size:42px!important;font-weight:750!important;line-height:1!important;
 }
-body #workspace #page .comanda-cart-empty .comanda-add-new{height:64px!important}
 body #workspace #page .comanda-create-form.comanda-note-draft{
  box-sizing:border-box!important;display:flex!important;flex:0 0 215px!important;flex-direction:column!important;
  gap:0!important;width:215px!important;min-width:215px!important;height:260px!important;min-height:260px!important;
@@ -1289,6 +1288,6 @@ body #workspace #page .comanda-product-picker .pdv-products{max-height:58vh!impo
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=261" defer></script>
+<script src="/cliente.js?v=262" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
