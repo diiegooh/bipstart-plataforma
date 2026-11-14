@@ -5965,3 +5965,110 @@ body #workspace #page .online-order-formatted .online-order-total{
 body #workspace #page .online-order-formatted :is(.online-order-payment-actions,.online-order-quick-actions){
  flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;
 }
+
+
+/* Prévia de importação no modo noite: manter cabeçalho e células no tema escuro. */
+body.pdv-night #workspace #page .stock-import-panel .table-wrap{
+ background:#22252d!important;
+ border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .stock-import-panel table{
+ background:#22252d!important;
+ color:#f4f4f8!important;
+ border-color:#393d49!important;
+}
+body.pdv-night #workspace #page .stock-import-panel table th{
+ background:#2b2f39!important;
+ color:#dce1ed!important;
+ border-color:#393d49!important;
+ -webkit-text-fill-color:#dce1ed!important;
+}
+body.pdv-night #workspace #page .stock-import-panel table td{
+ background:#22252d!important;
+ color:#f4f4f8!important;
+ border-color:#393d49!important;
+ -webkit-text-fill-color:#f4f4f8!important;
+}
+
+/* Venda online: opção compacta em formato de chave liga/desliga. */
+#workspace #page #productForm .menu-price-controls{
+ padding:8px 10px!important;
+}
+#workspace #page #productForm .menu-price-controls .online-sale-toggle-row{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:12px!important;
+ min-height:30px!important;
+}
+#workspace #page #productForm .menu-price-controls .online-sale-question{
+ display:inline-flex!important;
+ align-items:center!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ background:transparent!important;
+ font-size:13px!important;
+ line-height:1.3!important;
+}
+#workspace #page #productForm .online-sale-toggle{
+ display:inline-flex!important;
+ align-items:center!important;
+ gap:8px!important;
+ margin:0!important;
+ cursor:pointer!important;
+ user-select:none;
+ white-space:nowrap;
+}
+#workspace #page #productForm .online-sale-toggle input[type="checkbox"]{
+ appearance:none!important;
+ -webkit-appearance:none!important;
+ box-sizing:border-box!important;
+ display:inline-block!important;
+ position:relative!important;
+ flex:0 0 40px!important;
+ width:40px!important;
+ min-width:40px!important;
+ height:24px!important;
+ padding:0!important;
+ margin:0!important;
+ border:1px solid #8b91a0!important;
+ border-radius:999px!important;
+ background:#686e7b!important;
+ cursor:pointer!important;
+ transition:background .16s ease,border-color .16s ease!important;
+}
+#workspace #page #productForm .online-sale-toggle input[type="checkbox"]::before{
+ content:"";
+ position:absolute;
+ top:2px;
+ left:2px;
+ width:18px;
+ height:18px;
+ border-radius:50%;
+ background:#fff;
+ transition:transform .16s ease;
+}
+#workspace #page #productForm .online-sale-toggle input[type="checkbox"]:checked{
+ background:var(--store-accent,#7c3aed)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+#workspace #page #productForm .online-sale-toggle input[type="checkbox"]:checked::before{
+ transform:translateX(16px);
+}
+#workspace #page #productForm .online-sale-toggle input[type="checkbox"]:focus-visible{
+ outline:2px solid var(--store-accent,#7c3aed)!important;
+ outline-offset:3px!important;
+}
+#workspace #page #productForm .online-sale-toggle-state{
+ color:inherit!important;
+ font-size:12px!important;
+ font-weight:750!important;
+}
+#workspace #page #productForm .menu-price-controls .online-sale-price{
+ padding:7px 9px!important;
+ margin:6px 0 0!important;
+}
+#workspace #page #productForm .menu-price-controls .online-sale-price label{
+ margin:0 0 6px!important;
+}
