@@ -9,7 +9,7 @@ const orderNotificationLinks=new Map();
 let onlineOrdersPolling=false,knownOnlineOrderIds=null,orderSoundContext=null;
 let pdvCartSearchQuery='',pdvCartSearchResults=[],pdvCartSearchLoading=false,pdvCartSearchError='',pdvCartSearchTimer=null,pdvCartSearchRequest=0;
 let pdvQuery='',pdvCategory='',pdvInStockOnly=false,pdvPayment='pix',pdvCardFeePercent='3.99',pdvDiscountAmount='',pdvCheckoutOpen=false,pdvShowBestSellers=true;
-let pdvCartView='sale',comandaCreateOpen=false,comandaAddingTo=null,comandaPayingId=null,comandaPayment='pix',comandaCardFeePercent='3.99';
+let pdvCartView='sale',comandaCreateOpen=false,comandaAddingTo=null;
 let bestSellerRank=new Map(),bestSellerLoading=false,bestSellerLoadedShop=null,bestSellerRequestId=0,bestSellerError='';
 let barcodeLookupBusy=false,barcodeLastResult='',barcodeKeyboardBuffer='',barcodeKeyboardAt=0,barcodeQueue=[];
 let pdvExternalProduct=null,barcodeRegistrationTimer=null,barcodeRegistrationRequest=0;
@@ -290,7 +290,7 @@ async function openShop(){
  await reloadData();
  lastReceipt=null;
  pdvCartSearchClear();
- tab='caixa';pdvCartView='sale';comandaCreateOpen=false;comandaAddingTo=null;comandaPayingId=null;showForm=null;pastedProductImage=null;selectedStockPanel='';
+ tab='caixa';pdvCartView='sale';comandaCreateOpen=false;comandaAddingTo=null;showForm=null;pastedProductImage=null;selectedStockPanel='';
  const requested=new URLSearchParams(location.search);
  if(requested.get('editar')==='cardapio')tab=proAccess()?'cardapio':'configuracoes';
  else if(initialPlan&&ent?.plan_code!==initialPlan)tab='configuracoes';
@@ -1971,62 +1971,39 @@ function renderComandaCreateForm(){
  '</form>';
 }
 
-function renderComandaPayment(comanda){
- const cardMethod=['credito','debito'].includes(comandaPayment);
- const activePayment=cardMethod?'cartao':comandaPayment;
- const paymentChoices=[['dinheiro','Dinheiro'],['cartao','Cartão'],['pix','Pix']];
- const paymentButtons=paymentChoices.map(([code,label])=>
-  '<button type="button" class="pdv-payment-chip'+(activePayment===code?' selected':'')+
-  '" data-comanda-payment="'+code+'" aria-pressed="'+(activePayment===code)+'"><span class="pdv-payment-icon" aria-hidden="true">'+
-  (code==='dinheiro'?'▣':code==='cartao'?'▰':'◆')+'</span><span>'+label+'</span></button>'
- ).join('');
- const cardButtons=[['credito','Crédito'],['debito','Débito']].map(([code,label])=>
-  '<button type="button" class="pdv-card-kind'+(comandaPayment===code?' selected':'')+
-  '" data-comanda-card="'+code+'" aria-pressed="'+(comandaPayment===code)+'">'+label+'</button>'
- ).join('');
- return '<form id="comandaSaleForm" class="pdv-payment-form comanda-payment-form" data-id="'+esc(comanda.id)+'">'+
-  '<div class="pdv-payment-selector"><span class="pdv-payment-label">Forma de pagamento</span>'+
-  '<div class="pdv-payment-options" role="group" aria-label="Forma de pagamento">'+paymentButtons+'</div>'+
-  '<input type="hidden" name="payment_method" value="'+esc(comandaPayment)+'"></div>'+
-  (comandaPayment==='dinheiro'?'<div class="comanda-cash-fields"><label>Valor recebido (R$)<input type="text" name="received" inputmode="decimal" autocomplete="off" placeholder="0,00" required></label></div>':'')+
-  (cardMethod?'<div class="comanda-card-fields"><span class="pdv-card-kind-label">Tipo de cartão</span>'+
-   '<div class="pdv-card-kinds" role="group" aria-label="Tipo de cartão">'+cardButtons+'</div>'+
-   '<label>Taxa da maquininha (%)<input type="number" name="card_fee_percent" min="0" max="100" step="0.01" value="'+esc(comandaCardFeePercent)+'" required></label></div>':'')+
-  '<div class="comanda-payment-actions"><button type="submit" class="button pdv-finish">Confirmar pagamento</button>'+
-  '<button type="button" class="ghost comanda-pay-back" data-comanda-payment-cancel>Voltar</button></div>'+
- '</form>';
-}
+
 function renderComandaCard(comanda){
- const paying=String(comandaPayingId)===String(comanda.id);
  const active=String(comandaAddingTo)===String(comanda.id);
- const items=comanda.items.map(item=>
-  '<div class="comanda-line"><span class="comanda-line-name">'+esc(item.product_name)+'</span>'+
-  '<strong class="comanda-line-price">'+fmt(comandaLineTotal(item))+'</strong></div>'
- ).join('');
+ const items=comanda.items.map(item=>{
+  const quantity=Math.max(1,Math.floor(Number(item.quantity)||1));
+  const commandId=esc(comanda.id),productId=esc(item.product_id),itemName=esc(item.product_name);
+  return '<div class="comanda-line"><span class="comanda-line-name">'+itemName+'</span>'+
+   '<span class="comanda-line-qty-controls" aria-label="Quantidade">'+
+   '<button type="button" class="comanda-qty-button" data-comanda-item-less="'+commandId+'" data-comanda-product-id="'+productId+'" aria-label="Diminuir quantidade de '+itemName+'">−</button>'+
+   '<span class="comanda-qty-value" aria-label="Quantidade: '+quantity+'">'+quantity+'</span>'+
+   '<button type="button" class="comanda-qty-button" data-comanda-item-more="'+commandId+'" data-comanda-product-id="'+productId+'" aria-label="Aumentar quantidade de '+itemName+'">+</button></span>'+
+   '<strong class="comanda-line-price">'+fmt(comandaLineTotal(item))+'</strong></div>';
+ }).join('');
  const canClose=comanda.items.length>0;
- return '<article class="comanda-note-card'+(active?' is-active':'')+(paying?' is-paying':'')+'" data-comanda-card-id="'+esc(comanda.id)+'">'+
+ return '<article class="comanda-note-card'+(active?' is-active':'')+'" data-comanda-card-id="'+esc(comanda.id)+'">'+
   '<div class="comanda-note-head">'+
    '<input class="comanda-client-name" data-comanda-name-id="'+esc(comanda.id)+'" type="text" maxlength="100" autocomplete="off" aria-label="Nome do cliente" placeholder="Nome" value="'+esc(comanda.customer_name)+'">'+
-   '<button type="button" class="comanda-close-button" data-comanda-close="'+esc(comanda.id)+'"'+(!canClose||paying?' disabled':'')+'>Fechar</button></div>'+
+   '<button type="button" class="comanda-close-button" data-comanda-close="'+esc(comanda.id)+'"'+(!canClose?' disabled':'')+'>Fechar</button></div>'+
   '<div class="comanda-line-list">'+items+'</div>'+
-  '<div class="comanda-center-add-wrap"><button type="button" class="comanda-center-add" data-comanda-product-toggle="'+esc(comanda.id)+'" aria-label="Selecionar comanda para adicionar produtos" aria-pressed="'+active+'"'+(paying?' disabled':'')+'>+</button></div>'+
+  '<div class="comanda-center-add-wrap"><button type="button" class="comanda-center-add" data-comanda-product-toggle="'+esc(comanda.id)+'" aria-label="Selecionar comanda para adicionar produtos" aria-pressed="'+active+'">+</button></div>'+
   '<strong class="comanda-total">'+fmt(comandaTotal(comanda)).replace(/^R\$\s*/,'')+'</strong>'+
-  (paying?'<div class="comanda-payment-area">'+renderComandaPayment(comanda)+'</div>':'')+
  '</article>';
 }
-
 function renderComandasCartView(){
  const rows=loadOpenComandas();
  if(!rows.length&&!comandaCreateOpen){
   return '<div class="comanda-cart-screen comanda-cart-empty"><button type="button" class="comanda-add-new" data-comanda-new aria-label="Adicionar comanda">+</button></div>';
  }
- const paying=rows.some(row=>String(row.id)===String(comandaPayingId));
- return '<div class="comanda-cart-screen'+(paying?' comanda-has-payment':'')+'">'+rows.map(renderComandaCard).join('')+
+ return '<div class="comanda-cart-screen">'+rows.map(renderComandaCard).join('')+
   (comandaCreateOpen?renderComandaCreateForm():
    '<button type="button" class="comanda-add-new" data-comanda-new aria-label="Adicionar comanda">+</button>')+
  '</div>';
 }
-
 function addProductToComanda(comandaId,productId){
  const rows=loadOpenComandas(),comanda=rows.find(row=>String(row.id)===String(comandaId));
  const product=products.find(row=>String(row.id)===String(productId));
@@ -2049,6 +2026,29 @@ function addProductToComanda(comandaId,productId){
  saveOpenComandas(rows);
  const screen=document.querySelector('.pdv-sale-panel .comanda-cart-screen');
  if(screen)screen.outerHTML=renderComandasCartView();else renderPage();
+}
+function changeComandaItemQuantity(comandaId,productId,delta){
+ const rows=loadOpenComandas();
+ const comanda=rows.find(row=>String(row.id)===String(comandaId));
+ const item=comanda?.items.find(row=>String(row.product_id)===String(productId));
+ if(!comanda||!item)return;
+ const quantity=Math.max(1,Math.floor(Number(item.quantity)||1));
+ if(delta>0){
+  const product=products.find(row=>String(row.id)===String(productId));
+  if(!product||product.active===false)return msg('Produto indisponível.',true);
+  const available=Number(product.stock||0)-comandaReservedQuantity(productId,comandaId);
+  if(quantity>=available)return msg('Estoque insuficiente para '+product.name+'.',true);
+  item.quantity=quantity+1;
+  item.product_name=product.name;
+  item.price=Number(product.price)||0;
+  item.wholesale_price=product.wholesale_price??null;
+  item.wholesale_min_quantity=product.wholesale_min_quantity??null;
+ }else if(delta<0){
+  if(quantity<=1)comanda.items=comanda.items.filter(row=>String(row.product_id)!==String(productId));
+  else item.quantity=quantity-1;
+ }else return;
+ try{saveOpenComandas(rows)}catch(error){return msg(error.message||'Não foi possível atualizar a quantidade.',true)}
+ renderPage();
 }
 function renderComandaActiveCatalogNotice(){
  const active=loadOpenComandas().find(row=>String(row.id)===String(comandaAddingTo));
@@ -3533,56 +3533,6 @@ async function handleSubmit(form,contractWindow=null){
       comandaCreateOpen=false;comandaAddingTo=null;
       break;
     }
-    case 'comandaSaleForm':{
-      if(tab!=='caixa'||pdvCartView!=='comandas')throw Error('Abra a comanda pelo carrinho para concluir o pagamento.');
-      const comanda=loadOpenComandas().find(row=>String(row.id)===String(id));
-      if(!comanda||!comanda.items.length)throw Error('Adicione produtos antes de fechar a comanda.');
-      const total=comandaTotal(comanda);
-      if(v.payment_method==='dinheiro'){
-        const receivedAmount=parseMoneyInput(v.received);
-        if(!Number.isFinite(receivedAmount)||receivedAmount<0||receivedAmount+0.001<total)
-          throw Error('Informe um valor recebido suficiente para finalizar a venda em dinheiro.');
-      }
-      const cardMethod=['credito','debito'].includes(v.payment_method);
-      const feePercent=cardMethod?Number(v.card_fee_percent):0;
-      if(!['dinheiro','pix','credito','debito'].includes(v.payment_method))throw Error('Forma de pagamento inválida.');
-      if(cardMethod&&(v.card_fee_percent===''||!Number.isFinite(feePercent)||feePercent<0||feePercent>100))
-        throw Error('Informe uma taxa da maquininha válida, entre 0% e 100%.');
-      for(const item of comanda.items){
-        const product=products.find(row=>String(row.id)===String(item.product_id));
-        if(!product)throw Error('Produto indisponível no estoque: '+item.product_name+'.');
-        if(Number(product.stock)<Number(item.quantity))
-          throw Error('Estoque insuficiente para '+product.name+'.');
-      }
-      pdvPayment=v.payment_method;
-      if(cardMethod)pdvCardFeePercent=String(feePercent);
-      const sold=comanda.items.map(item=>({
-        id:item.product_id,name:item.product_name,qty:Number(item.quantity),
-        price:comandaLineUnitPrice(item,Number(item.quantity))
-      }));
-      const data=await rpc('bipstart_complete_sale_with_ingredients',{
-        p_shop_id:shop.id,
-        p_items:comanda.items.map(item=>({product_id:item.product_id,quantity:Number(item.quantity)})),
-        p_payment_method:v.payment_method,p_card_fee_percent:feePercent,p_discount_amount:0
-      });
-      if(!data||typeof data!=='object'||!data.sale_id)throw Error('A comanda não foi confirmada pelo sistema.');
-      let recorded=[];
-      try{
-        recorded=await rest('shop_sale_items',{query:{
-          select:'product_name,quantity,unit_price',shop_id:'eq.'+shop.id,sale_id:'eq.'+data.sale_id
-        }});
-      }catch(error){console.warn('Detalhes da venda não disponíveis para a nota:',error.message)}
-      const received=v.payment_method==='dinheiro'?String(parseMoneyInput(v.received)):'';
-      lastReceipt=receiptSnapshot(data,v.payment_method,received,sold,recorded);
-      saveOpenComandas(loadOpenComandas().filter(row=>String(row.id)!==String(comanda.id)));
-      comandaPayingId=null;comandaAddingTo=null;
-      bestSellerLoadedShop=null;
-      if(pdvShowBestSellers)void loadBestSellers();
-      showReceiptDialog(lastReceipt);
-      msg('Comanda fechada e venda registrada: '+fmt(data.total)+
-       (cardMethod?' · Taxa: '+fmt(data.card_fee_amount||0)+' · Líquido: '+fmt(data.net_total):'')+'.');
-      break;
-    }
     case 'saleForm':{
       if(!cart.length)throw Error('Adicione produtos ao carrinho.');
       const subtotal=pdvCartSubtotal();
@@ -3795,7 +3745,7 @@ async function handleSubmit(form,contractWindow=null){
   }
   if(!['loginForm','signupForm','shopForm','resetPassForm'].includes(form.id)){
     showForm=null;pastedProductImage=null;
-    if(form.id==='saleForm'||form.id==='comandaSaleForm'){
+    if(form.id==='saleForm'){
       try{renderPage();await reloadData();renderPage();}
       catch(error){console.warn(form.id==='saleForm'?'Venda registrada; atualização dos dados da loja pendente:':'Comanda registrada; atualização dos dados da loja pendente:',error.message);}
     }else if(form.id==='comandaCreateForm'){
@@ -4045,28 +3995,45 @@ document.addEventListener('click',event=>{
   comandaAddingTo=String(comandaAddingTo)===String(id)?null:id;
   renderPage();return;
  }
+ const less=event.target.closest('[data-comanda-item-less]');
+ if(less&&tab==='caixa'&&pdvCartView==='comandas'){
+  changeComandaItemQuantity(less.dataset.comandaItemLess,less.dataset.comandaProductId,-1);return;
+ }
+ const more=event.target.closest('[data-comanda-item-more]');
+ if(more&&tab==='caixa'&&pdvCartView==='comandas'){
+  changeComandaItemQuantity(more.dataset.comandaItemMore,more.dataset.comandaProductId,1);return;
+ }
  const close=event.target.closest('[data-comanda-close]');
  if(close&&tab==='caixa'&&pdvCartView==='comandas'){
-  const comanda=loadOpenComandas().find(row=>String(row.id)===String(close.dataset.comandaClose));
+  const rows=loadOpenComandas();
+  const comanda=rows.find(row=>String(row.id)===String(close.dataset.comandaClose));
   if(!comanda?.items.length)return msg('Adicione produtos antes de fechar a comanda.',true);
-  comandaAddingTo=null;comandaPayingId=comanda.id;comandaPayment='pix';renderPage();return;
- }
- const paymentCancel=event.target.closest('[data-comanda-payment-cancel]');
- if(paymentCancel&&tab==='caixa'&&pdvCartView==='comandas'){
-  comandaPayingId=null;renderPage();return;
- }
- const paymentOption=event.target.closest('[data-comanda-payment]');
- if(paymentOption&&tab==='caixa'&&pdvCartView==='comandas'){
-  const method=paymentOption.dataset.comandaPayment;
-  if(method==='cartao')comandaPayment=['credito','debito'].includes(comandaPayment)?comandaPayment:'credito';
-  else if(['dinheiro','pix'].includes(method))comandaPayment=method;
-  renderPage();return;
- }
- const cardOption=event.target.closest('[data-comanda-card]');
- if(cardOption&&tab==='caixa'&&pdvCartView==='comandas'){
-  if(['credito','debito'].includes(cardOption.dataset.comandaCard)){
-   comandaPayment=cardOption.dataset.comandaCard;renderPage();
+  const customerName=String(comanda.customer_name||'cliente').trim()||'cliente';
+  if(!window.confirm('Fechar a comanda de '+customerName+' e transferir os itens para o carrinho principal?'))return;
+  const transferByProduct=new Map();
+  for(const item of comanda.items){
+   const product=products.find(row=>String(row.id)===String(item.product_id));
+   if(!product)return msg('Produto indisponível: '+item.product_name+'. A comanda foi mantida.',true);
+   const key=String(product.id),quantity=Math.max(1,Math.floor(Number(item.quantity)||1));
+   const existing=transferByProduct.get(key);
+   if(existing)existing.quantity+=quantity;else transferByProduct.set(key,{product,quantity});
   }
+  for(const {product,quantity} of transferByProduct.values()){
+   const existing=cart.find(row=>String(row.id)===String(product.id));
+   if((Number(existing?.qty)||0)+quantity>10000)
+    return msg('O limite de 10.000 unidades foi excedido para '+product.name+'. A comanda foi mantida.',true);
+  }
+  try{saveOpenComandas(rows.filter(row=>String(row.id)!==String(comanda.id)));}
+  catch(error){return msg(error.message||'Não foi possível transferir a comanda.',true);}
+  for(const {product,quantity} of transferByProduct.values()){
+   const existing=cart.find(row=>String(row.id)===String(product.id));
+   if(existing)existing.qty=(Number(existing.qty)||0)+quantity;
+   else{const cartItem=pdvCartNewItem(product);cartItem.qty=quantity;cart.push(cartItem);}
+  }
+  comandaAddingTo=null;comandaCreateOpen=false;pdvCartView='sale';pdvCheckoutOpen=true;
+  renderPage();
+  msg('Comanda transferida para o carrinho principal. Finalize a venda pelo caixa.');
+  return;
  }
 });
 document.addEventListener('change',event=>{
