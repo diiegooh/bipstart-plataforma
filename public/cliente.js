@@ -2900,12 +2900,15 @@ function renderPage(){
   }else if(tab==='cardapio'){
     content=cardapioEditor();
   }else if(tab==='produtos'){
-    content=heading('Cadastro de produtos','',
-      '<div class="inventory-toolbar-actions"><button type="button" class="ghost" data-stock-import-template>Baixar planilha modelo</button><button type="button" class="ghost" data-stock-import-open>IMPORTAR EXCEL</button><button type="button" class="button" data-new="product" style="background:var(--store-accent,#7c3aed)!important;background-image:none!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;-webkit-text-fill-color:var(--store-accent-ink,#fff)!important">+ Novo produto</button></div>');
+    content=heading('Cadastro de produtos','');
     content+=stockImportPanel();
-    content+='<div class="inventory-view-bar"><div class="inventory-view-toggle" role="group" aria-label="Visualização dos produtos">'+
-      '<button type="button" class="inventory-view-button'+(selectedProductView==='grid'?' active':'')+'" data-product-view="grid" aria-pressed="'+(selectedProductView==='grid')+'">Cartões</button>'+
-      '<button type="button" class="inventory-view-button'+(selectedProductView==='list'?' active':'')+'" data-product-view="list" aria-pressed="'+(selectedProductView==='list')+'">Lista</button></div></div>';
+    content+='<div class="inventory-view-bar"><div class="inventory-toolbar-actions">'+
+      '<button type="button" class="ghost" data-stock-import-template>baixar planilha modelo</button>'+
+      '<button type="button" class="ghost" data-stock-import-open>importar excel</button>'+
+      '<button type="button" class="button" data-new="product" style="background:var(--store-accent,#7c3aed)!important;background-image:none!important;border-color:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;-webkit-text-fill-color:var(--store-accent-ink,#fff)!important">+ novo produto</button>'+
+    '</div><div class="inventory-view-toggle" role="group" aria-label="Visualização dos produtos">'+
+      '<button type="button" class="inventory-view-button'+(selectedProductView==='grid'?' active':'')+'" data-product-view="grid" aria-pressed="'+(selectedProductView==='grid')+'">cartões</button>'+
+      '<button type="button" class="inventory-view-button'+(selectedProductView==='list'?' active':'')+'" data-product-view="list" aria-pressed="'+(selectedProductView==='list')+'">lista</button></div></div>';
     content+=stockSummaryCards();
     if(selectedStockPanel==='restock')content+=renderRestockList();
     if(selectedStockPanel==='all'){
@@ -4044,6 +4047,18 @@ document.addEventListener('keydown',event=>{
  }
 });
 document.addEventListener('click',event=>{
+ const clickTarget=event.target?.nodeType===1?event.target:event.target?.parentElement;
+ if(comandaCreateOpen&&clickTarget&&!clickTarget.closest('#comandaCreateForm')&&!clickTarget.closest('[data-comanda-new]')){
+  const draftName=String(document.getElementById('comandaNameInput')?.value||'').trim();
+  if(!draftName){
+   comandaCreateOpen=false;
+   queueMicrotask(()=>{
+    if(tab!=='comandas')return;
+    const screen=document.querySelector('#page .comanda-cart-screen');
+    if(screen)screen.outerHTML=renderComandasCartView();else renderPage();
+   });
+  }
+ }
  const catalogProduct=event.target.closest('#pdvProducts .pdv-product[data-cart]');
  if(catalogProduct&&tab==='comandas'){
   event.stopImmediatePropagation();
