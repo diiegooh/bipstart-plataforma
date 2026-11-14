@@ -11,7 +11,7 @@
 
 
 
-<link rel="stylesheet" href="/cliente.css?v=258">
+<link rel="stylesheet" href="/cliente.css?v=259">
 <style id="comanda-note-card-homolog-inline">
 /* Cards de comanda no modelo visual enviado. */
 body #workspace #page .comanda-cart-screen{
@@ -19,7 +19,7 @@ body #workspace #page .comanda-cart-screen{
  align-items:center!important;justify-content:flex-start!important;gap:12px!important;
  width:100%!important;min-width:0!important;min-height:280px!important;max-height:340px!important;
  overflow-x:auto!important;overflow-y:hidden!important;padding:10px!important;
- border-radius:16px!important;background:#f0f1f4!important;
+ border-radius:16px!important;background:transparent!important;border:0!important;box-shadow:none!important;
 }
 body #workspace #page .comanda-cart-screen.comanda-cart-empty{
  justify-content:center!important;min-height:180px!important;max-height:220px!important;
@@ -1176,7 +1176,7 @@ body #workspace #page .online-order-formatted :is(.online-order-payment-actions 
 }
 </style><style id="comanda-only-view-inline">
 body #workspace #page .godzilla-pdv.pdv-comandas-page{display:block!important;width:100%!important;max-width:none!important}
-body #workspace #page .godzilla-pdv.pdv-comandas-page .pdv-comandas-board{box-sizing:border-box!important;width:100%!important;min-height:calc(100vh - 120px)!important;background:linear-gradient(165deg,#232630,#171923)!important;color:#f6f3fb!important;border:1px solid #444754!important}
+body #workspace #page .godzilla-pdv.pdv-comandas-page .pdv-comandas-board{box-sizing:border-box!important;width:100%!important;min-height:calc(100vh - 120px)!important;background:transparent!important;color:#f6f3fb!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
 body #workspace #page .godzilla-pdv.pdv-comandas-page .comanda-cart-screen{width:100%!important;max-height:calc(100vh - 215px)!important}
 body #workspace #page .comanda-picker-backdrop{box-sizing:border-box!important;position:fixed!important;inset:0!important;z-index:12000!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:18px!important;background:#000b!important}
 body #workspace #page .comanda-product-picker{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;gap:14px!important;width:min(1080px,96vw)!important;max-height:92vh!important;overflow:auto!important;padding:18px!important;border:1px solid #444654!important;border-radius:20px!important;background:#232630!important;color:#f6f3fb!important;box-shadow:0 24px 80px #0009!important}
@@ -1280,6 +1280,6 @@ body #workspace #page .comanda-product-picker .pdv-products{max-height:58vh!impo
   </section>
 </div>
 <div id="toast" role="status" class="toast hidden"></div>
-<script src="/cliente.js?v=258" defer></script>
+<script src="/cliente.js?v=259" defer></script>
 <script>(()=>{const key='bipstart_pdv_night_v2',button=document.getElementById('pdvNightToggle');let enabled=false;try{enabled=localStorage.getItem(key)==='1'}catch{}const apply=()=>{document.body.classList.toggle('pdv-night',enabled);button.setAttribute('aria-pressed',String(enabled));button.title=enabled?'Desativar modo noite':'Ativar modo noite';window.applyInventoryNightStyles?.();window.applySettingsNightStyles?.();window.applySalesNightStyles?.()};button.addEventListener('click',()=>{enabled=!enabled;try{localStorage.setItem(key,enabled?'1':'0')}catch{}apply()});window.addEventListener('storage',event=>{if(event.key===key||event.key===null){enabled=event.newValue==='1';apply()}});apply()})();</script>
 </body></html>
