@@ -6334,3 +6334,11 @@ body #workspace #page .comanda-catalog-active button{background:#ff5837!importan
  body #workspace #page .comanda-create-form.comanda-note-draft{flex-basis:215px!important;width:215px!important;min-width:215px!important;height:260px!important}
  body #workspace #page input.comanda-client-name{font-size:21px!important}
 }
+
+
+body #workspace #page .comanda-cart-screen.comanda-has-payment{
+ align-items:flex-start!important;max-height:calc(100vh - 300px)!important;overflow-x:auto!important;overflow-y:auto!important;
+}
+body #workspace #page .comanda-cart-screen.comanda-has-payment .comanda-note-card.is-paying{
+ height:auto!important;min-height:260px!important;max-height:none!important;overflow:visible!important;
+}
