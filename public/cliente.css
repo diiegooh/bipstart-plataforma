@@ -6144,3 +6144,77 @@ body #workspace #page .comanda-payment-actions button{flex:1 1 140px!important}
  body #workspace #page .comanda-client-name{font-size:14px!important}
  body #workspace #page .comanda-cart-screen{max-height:calc(100vh - 275px)!important}
 }
+
+
+/* Comandas em cartões lado a lado e lançamento direto a partir do catálogo do PDV. */
+body #workspace #page .comanda-cart-screen{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ align-content:start!important;align-items:start!important;gap:10px!important;
+}
+body #workspace #page .comanda-cart-empty{grid-template-columns:minmax(0,1fr)!important;justify-items:center!important;align-content:center!important}
+body #workspace #page .comanda-cart-toolbar,
+body #workspace #page .comanda-create-form{grid-column:1/-1!important}
+body #workspace #page .comanda-note-card{
+ box-sizing:border-box!important;min-width:0!important;min-height:190px!important;
+ padding:12px!important;border:1px solid #3b3e4a!important;border-radius:18px!important;
+ background:#22252d!important;box-shadow:none!important;
+}
+body #workspace #page .comanda-note-card.is-active{
+ border:2px solid var(--store-accent,#7c3aed)!important;
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 18%,transparent)!important;
+}
+body #workspace #page .comanda-note-card.is-paying{grid-column:1/-1!important}
+body #workspace #page .comanda-note-head{
+ display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:space-between!important;
+ gap:7px!important;min-width:0!important;
+}
+body #workspace #page input.comanda-client-name{
+ box-sizing:border-box!important;flex:1 1 85px!important;min-width:0!important;width:100%!important;
+ min-height:36px!important;margin:0!important;padding:4px 6px!important;border:0!important;border-bottom:1px solid #414450!important;
+ border-radius:0!important;background:transparent!important;color:#f4f4f8!important;
+ font-size:14px!important;font-weight:850!important;text-align:left!important;
+}
+body #workspace #page input.comanda-client-name:focus{outline:2px solid var(--store-accent,#7c3aed)!important;outline-offset:2px!important}
+body #workspace #page .comanda-close-button{
+ flex:0 0 auto!important;min-height:32px!important;padding:6px 8px!important;
+ border-radius:9px!important;font-size:10px!important;
+}
+body #workspace #page .comanda-center-add-wrap{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;min-height:58px!important;
+}
+body #workspace #page .comanda-center-add{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ width:46px!important;height:46px!important;padding:0!important;border:1px solid var(--store-accent,#7c3aed)!important;
+ border-radius:50%!important;background:color-mix(in srgb,var(--store-accent,#7c3aed) 20%,#22252d)!important;
+ color:var(--store-accent-ink,#fff)!important;font-size:30px!important;font-weight:900!important;line-height:1!important;
+}
+body #workspace #page .comanda-center-add[aria-pressed="true"]{background:var(--store-accent,#7c3aed)!important}
+body #workspace #page .comanda-center-add:disabled{opacity:.4!important;cursor:not-allowed!important}
+body #workspace #page .comanda-active-hint{
+ display:block!important;margin:-4px 0 3px!important;color:#d2c4ec!important;
+ font-size:10px!important;line-height:1.35!important;text-align:center!important;
+}
+body #workspace #page .comanda-line-list{gap:4px!important}
+body #workspace #page .comanda-line{gap:6px!important;font-size:11px!important}
+body #workspace #page .comanda-line-price{font-size:11px!important}
+body #workspace #page .comanda-total{margin-top:auto!important;font-size:17px!important}
+body #workspace #page .comanda-catalog-active{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;
+ margin:0 0 10px!important;padding:9px 11px!important;border:1px solid var(--store-accent,#7c3aed)!important;
+ border-radius:12px!important;background:color-mix(in srgb,var(--store-accent,#7c3aed) 18%,#22252d)!important;
+ color:#f4f4f8!important;font-size:12px!important;
+}
+body #workspace #page .comanda-catalog-active strong{font-weight:900!important}
+body #workspace #page .comanda-catalog-active button{
+ flex:0 0 auto!important;min-height:30px!important;padding:5px 8px!important;border:0!important;
+ border-radius:8px!important;background:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;font-size:10px!important;font-weight:850!important;
+}
+@media(max-width:420px){
+ body #workspace #page .comanda-cart-screen{gap:7px!important;max-height:calc(100vh - 275px)!important}
+ body #workspace #page .comanda-note-card{min-height:180px!important;padding:9px!important;border-radius:16px!important}
+ body #workspace #page .comanda-close-button{font-size:9px!important;padding:6px!important}
+ body #workspace #page input.comanda-client-name{font-size:12px!important}
+ body #workspace #page .comanda-center-add{width:42px!important;height:42px!important}
+}
