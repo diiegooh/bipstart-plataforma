@@ -1989,6 +1989,7 @@ function renderComandaCard(comanda){
  const canClose=comanda.items.length>0;
  return '<article class="comanda-note-card'+(active?' is-active':'')+'" data-comanda-card-id="'+esc(comanda.id)+'">'+
   '<div class="comanda-note-head">'+
+   '<button type="button" class="comanda-delete-button" data-comanda-remove="'+esc(comanda.id)+'" aria-label="Remover comanda de '+esc(comanda.customer_name||'cliente')+'" title="Remover comanda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="m19 6-1 14H6L5 6"/><path d="M10 11v5M14 11v5"/></svg></button>'+
    '<input class="comanda-client-name" data-comanda-name-id="'+esc(comanda.id)+'" type="text" maxlength="100" autocomplete="off" aria-label="Nome do cliente" placeholder="Nome" value="'+esc(comanda.customer_name)+'">'+
    '<button type="button" class="comanda-close-button" data-comanda-close="'+esc(comanda.id)+'"'+(!canClose?' disabled':'')+'>Fechar</button></div>'+
   '<div class="comanda-line-list">'+items+'</div>'+
@@ -2051,6 +2052,16 @@ function addProductToComanda(comandaId,productId){
  saveOpenComandas(rows);
  const screen=document.querySelector('#page .comanda-cart-screen');
  if(screen)screen.outerHTML=renderComandasCartView();else renderPage();
+ msg('ADICIONADO');
+}
+function deleteOpenComanda(comandaId){
+ const rows=loadOpenComandas(),remaining=rows.filter(row=>String(row.id)!==String(comandaId));
+ if(remaining.length===rows.length)return msg('Comanda não encontrada.',true);
+ try{saveOpenComandas(remaining)}catch(error){return msg(error.message||'Não foi possível remover a comanda.',true)}
+ if(String(comandaAddingTo)===String(comandaId))comandaAddingTo=null;
+ const screen=document.querySelector('#page .comanda-cart-screen');
+ if(screen)screen.outerHTML=renderComandasCartView();else renderPage();
+ msg('Comanda removida.');
 }
 function changeComandaItemQuantity(comandaId,productId,delta){
  const rows=loadOpenComandas();
@@ -4024,6 +4035,15 @@ document.addEventListener('click',event=>{
  const more=event.target.closest('[data-comanda-item-more]');
  if(more&&tab==='comandas'){
   changeComandaItemQuantity(more.dataset.comandaItemMore,more.dataset.comandaProductId,1);return;
+ }
+ const remove=event.target.closest('[data-comanda-remove]');
+ if(remove&&tab==='comandas'){
+  const rows=loadOpenComandas();
+  const comanda=rows.find(row=>String(row.id)===String(remove.dataset.comandaRemove));
+  if(!comanda)return;
+  const customerName=String(comanda.customer_name||'cliente').trim()||'cliente';
+  if(!window.confirm('Remover a comanda de '+customerName+'? Os itens ainda não finalizados serão descartados.'))return;
+  deleteOpenComanda(comanda.id);return;
  }
  const close=event.target.closest('[data-comanda-close]');
  if(close&&tab==='comandas'){
