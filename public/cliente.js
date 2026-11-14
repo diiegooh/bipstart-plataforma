@@ -577,6 +577,7 @@ function bindSidebarNavigation(){
     if(['cardapio','pedidos','motoboys'].includes(target)&&!proAccess())return false;
     if(!pages().some(([key])=>key===target))return false;
     tab=target;
+    if(tab==='comandas'){pdvShowBestSellers=false;pdvCategory='';pdvQuery='';}
     if(tab==='produtos')selectedStockPanel='';
     showForm=null;
     pastedProductImage=null;
