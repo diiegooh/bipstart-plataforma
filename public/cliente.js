@@ -2010,7 +2010,7 @@ function renderComandaCard(comanda){
    '<button type="button" class="comanda-close-button" data-comanda-close="'+esc(comanda.id)+'"'+(!canClose||paying?' disabled':'')+'>Fechar</button></div>'+
   '<div class="comanda-line-list">'+items+'</div>'+
   '<div class="comanda-center-add-wrap"><button type="button" class="comanda-center-add" data-comanda-product-toggle="'+esc(comanda.id)+'" aria-label="Selecionar comanda para adicionar produtos" aria-pressed="'+active+'"'+(paying?' disabled':'')+'>+</button></div>'+
-  '<strong class="comanda-total">'+fmt(comandaTotal(comanda))+'</strong>'+
+  '<strong class="comanda-total">'+fmt(comandaTotal(comanda)).replace(/^R\$\s*/,'')+'</strong>'+
   (paying?'<div class="comanda-payment-area">'+renderComandaPayment(comanda)+'</div>':'')+
  '</article>';
 }
@@ -2020,7 +2020,8 @@ function renderComandasCartView(){
  if(!rows.length&&!comandaCreateOpen){
   return '<div class="comanda-cart-screen comanda-cart-empty"><button type="button" class="comanda-add-new" data-comanda-new aria-label="Adicionar comanda">+</button></div>';
  }
- return '<div class="comanda-cart-screen">'+rows.map(renderComandaCard).join('')+
+ const paying=rows.some(row=>String(row.id)===String(comandaPayingId));
+ return '<div class="comanda-cart-screen'+(paying?' comanda-has-payment':'')+'">'+rows.map(renderComandaCard).join('')+
   (comandaCreateOpen?renderComandaCreateForm():
    '<button type="button" class="comanda-add-new" data-comanda-new aria-label="Adicionar comanda">+</button>')+
  '</div>';
