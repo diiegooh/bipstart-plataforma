@@ -2643,7 +2643,7 @@ function renderPage(){
     const awaiting=onlineOrders.filter(o=>o.status==='awaiting_confirmation').length;
     const active=onlineOrders.filter(o=>['confirmed','preparing','out_for_delivery'].includes(o.status)).length;
     const paid=onlineOrders.filter(o=>o.payment_status==='paid').length;
-    content=heading('Pedidos online','Pedidos registrados pelo cardápio antes da abertura do WhatsApp.',
+    content=heading('Pedidos online','',
       '<button type="button" class="ghost" data-orders-refresh>↻ Atualizar pedidos</button>');
     content+='<div class="grid online-order-stats">'+tile('Aguardando confirmação',awaiting)+tile('Em andamento',active)+tile('Pagamentos marcados como recebidos',paid)+'</div>';
     content+='<div class="online-order-list">'+(onlineOrders.length?
