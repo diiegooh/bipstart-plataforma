@@ -6030,3 +6030,117 @@ body #workspace #page article.online-order-card.online-order-formatted .online-o
 body #workspace #page article.online-order-card.online-order-formatted .online-order-items-table th:nth-child(3){
  white-space:normal!important;overflow-wrap:anywhere!important;
 }
+
+/* Comandas dentro do painel do carrinho. */
+body #workspace #page .pdv-comanda-toggle{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:38px!important;padding:7px 13px!important;border-radius:10px!important;
+ border:1px solid var(--store-accent,#7c3aed)!important;
+ background:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;
+ font-weight:850!important;white-space:nowrap!important;
+}
+body #workspace #page .pdv-comanda-toggle.is-active{box-shadow:0 0 0 2px color-mix(in srgb,var(--store-accent,#7c3aed) 35%,transparent)!important}
+body #workspace #page .comanda-cart-screen{
+ display:flex!important;flex-direction:column!important;gap:10px!important;
+ width:100%!important;min-width:0!important;max-height:calc(100vh - 310px)!important;
+ overflow-y:auto!important;padding:4px 2px 12px!important;
+}
+body #workspace #page .comanda-cart-empty{
+ min-height:220px!important;align-items:center!important;justify-content:center!important;
+}
+body #workspace #page .comanda-cart-toolbar{
+ display:flex!important;justify-content:flex-end!important;align-items:center!important;
+}
+body #workspace #page .comanda-add-new,
+body #workspace #page .comanda-add-item,
+body #workspace #page .comanda-stock-add{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 auto!important;width:38px!important;height:38px!important;padding:0!important;
+ border:0!important;border-radius:11px!important;
+ background:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;
+ font-size:24px!important;font-weight:900!important;line-height:1!important;
+}
+body #workspace #page .comanda-add-new{width:58px!important;height:58px!important;font-size:36px!important}
+body #workspace #page .comanda-create-form{display:flex!important;width:100%!important;margin:0!important}
+body #workspace #page .comanda-create-form input{
+ width:100%!important;min-height:46px!important;margin:0!important;
+}
+body #workspace #page .comanda-hidden-submit{
+ position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
+ overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
+}
+body #workspace #page .comanda-note-card{
+ display:flex!important;flex-direction:column!important;gap:10px!important;
+ width:100%!important;min-width:0!important;padding:13px!important;
+ border:0!important;border-radius:12px!important;background:#22252d!important;
+ box-shadow:none!important;color:#f4f4f8!important;
+}
+body #workspace #page .comanda-note-head,
+body #workspace #page .comanda-name-tools{
+ display:flex!important;align-items:center!important;min-width:0!important;
+}
+body #workspace #page .comanda-note-head{justify-content:space-between!important;gap:8px!important}
+body #workspace #page .comanda-name-tools{gap:8px!important;flex:1 1 auto!important}
+body #workspace #page .comanda-client-name{
+ min-width:0!important;overflow-wrap:anywhere!important;font-size:16px!important;font-weight:850!important;
+}
+body #workspace #page .comanda-close-button{
+ flex:0 0 auto!important;min-height:36px!important;padding:7px 10px!important;border:0!important;
+ border-radius:9px!important;background:var(--store-accent,#7c3aed)!important;
+ color:var(--store-accent-ink,#fff)!important;font-size:11px!important;font-weight:900!important;
+ white-space:nowrap!important;
+}
+body #workspace #page .comanda-close-button:disabled,
+body #workspace #page .comanda-add-item:disabled{opacity:.45!important;cursor:not-allowed!important}
+body #workspace #page .comanda-line-list{display:grid!important;gap:5px!important;min-width:0!important}
+body #workspace #page .comanda-line{
+ display:flex!important;align-items:baseline!important;justify-content:space-between!important;
+ gap:10px!important;width:100%!important;min-width:0!important;margin:0!important;
+}
+body #workspace #page .comanda-line-name{min-width:0!important;overflow-wrap:anywhere!important}
+body #workspace #page .comanda-line-price{flex:0 0 auto!important;white-space:nowrap!important}
+body #workspace #page .comanda-total{
+ align-self:flex-end!important;font-size:20px!important;font-weight:900!important;
+ line-height:1.2!important;white-space:nowrap!important;
+}
+body #workspace #page .comanda-item-picker{
+ display:flex!important;flex-direction:column!important;gap:8px!important;
+ padding-top:8px!important;border-top:1px solid #393d49!important;
+}
+body #workspace #page .comanda-categories{
+ display:flex!important;gap:6px!important;max-width:100%!important;
+ overflow-x:auto!important;padding:2px 0 6px!important;
+}
+body #workspace #page .comanda-category{
+ flex:0 0 auto!important;min-height:32px!important;padding:5px 10px!important;
+ border:1px solid #464152!important;border-radius:20px!important;
+ background:#2b2f39!important;color:#f4f4f8!important;font-size:12px!important;font-weight:750!important;
+}
+body #workspace #page .comanda-category.selected{
+ background:var(--store-accent,#7c3aed)!important;color:var(--store-accent-ink,#fff)!important;
+ border-color:var(--store-accent,#7c3aed)!important;
+}
+body #workspace #page .comanda-stock-list{display:grid!important;gap:5px!important}
+body #workspace #page .comanda-stock-row{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto auto!important;
+ align-items:center!important;gap:8px!important;min-width:0!important;padding:5px 0!important;
+ border-bottom:1px solid #393d49!important;
+}
+body #workspace #page .comanda-stock-name{min-width:0!important;overflow-wrap:anywhere!important}
+body #workspace #page .comanda-stock-price{white-space:nowrap!important}
+body #workspace #page .comanda-stock-add{width:30px!important;height:30px!important;font-size:20px!important}
+body #workspace #page .comanda-no-stock{margin:0!important;color:#b6bdcf!important;font-size:13px!important}
+body #workspace #page .comanda-payment-area{
+ width:100%!important;padding-top:10px!important;border-top:1px solid #393d49!important;
+}
+body #workspace #page .comanda-payment-form{display:flex!important;flex-direction:column!important;gap:10px!important}
+body #workspace #page .comanda-payment-form .pdv-payment-options{display:flex!important;flex-wrap:wrap!important;gap:7px!important}
+body #workspace #page .comanda-payment-form label{margin:6px 0!important}
+body #workspace #page .comanda-payment-actions{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+body #workspace #page .comanda-payment-actions button{flex:1 1 140px!important}
+@media(max-width:480px){
+ body #workspace #page .comanda-note-head{align-items:flex-start!important}
+ body #workspace #page .comanda-close-button{font-size:10px!important;padding:7px 8px!important}
+ body #workspace #page .comanda-client-name{font-size:14px!important}
+ body #workspace #page .comanda-cart-screen{max-height:calc(100vh - 275px)!important}
+}
