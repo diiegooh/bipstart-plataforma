@@ -2259,7 +2259,7 @@ function applyInventoryNightStyles(){
  paint('#productForm .product-best-seller-option small',{
   'color':'#b6bdcf','-webkit-text-fill-color':'#b6bdcf'
  });
- paint('#productForm .online-sale-question select,#productForm .online-sale-price input',{
+ paint('#productForm .online-sale-price input',{
   'background':'#191b23','border-color':'#514b62',
   'color':'#f4f4f8','-webkit-text-fill-color':'#f4f4f8','color-scheme':'dark'
  });
@@ -3012,14 +3012,19 @@ function productForm(p){
  const categoryField='<label>Categoria<select name="category" required>'+categoryOptions(p.category||'Geral')+'</select></label>';
  const bestSeller='<label class="product-best-seller-option"><input type="checkbox" name="is_best_seller" value="true"'+(p.is_best_seller===true?' checked':'')+'>'+
   '<span><strong>★ Mais vendido</strong><small>Exibir este produto no acesso rápido do PDV.</small></span></label>';
- const onlineControls=proAccess()?'<div class="menu-price-controls"><label class="online-sale-question">Venda online?'+
-  '<select name="online_enabled" required>'+
-   '<option value=""'+(!p.id?' selected':'')+' disabled>Selecione Sim ou Não</option>'+
-   '<option value="true"'+(p.id&&p.online_enabled!==false?' selected':'')+'>Sim — colocar no cardápio online</option>'+
-   '<option value="false"'+(p.id&&p.online_enabled===false?' selected':'')+'>Não — vender somente no PDV</option>'+
-  '</select></label>'+
-  '<div class="online-sale-price'+(p.id&&p.online_enabled!==false?'':' hidden')+'">'+
-   field('menu_price','Valor no cardápio online (R$)','number',p.menu_price??(p.id?(p.price??0):''),'min="0" max="9999999999.99" step="0.01"'+(p.id&&p.online_enabled!==false?' required':' disabled'))+
+ const onlineEnabled=p.id&&p.online_enabled!==false;
+ const onlineControls=proAccess()?'<div class="menu-price-controls">'+
+  '<div class="online-sale-toggle-row">'+
+   '<span class="online-sale-question">Venda online?</span>'+
+   '<label class="online-sale-toggle" title="Ativar ou desativar a venda online">'+
+    '<input type="checkbox" data-online-enabled-toggle'+(onlineEnabled?' checked':'')+' aria-label="Vender no cardápio online">'+
+    '<span class="online-sale-toggle-track" aria-hidden="true"></span>'+
+    '<span class="online-sale-toggle-state">'+(onlineEnabled?'Ativa':'Inativa')+'</span>'+
+   '</label>'+
+   '<input type="hidden" name="online_enabled" value="'+(onlineEnabled?'true':'false')+'">'+
+  '</div>'+
+  '<div class="online-sale-price'+(onlineEnabled?'':' hidden')+'">'+
+   field('menu_price','Valor no cardápio online (R$)','number',p.menu_price??(p.id?(p.price??0):''),'min="0" max="9999999999.99" step="0.01"'+(onlineEnabled?' required':' disabled'))+
   '</div></div>':
   '<div class="online-sale-locked"><strong>Cardápio online exclusivo Premium</strong></div>';
  const imageControls=
@@ -3277,7 +3282,7 @@ async function handleSubmit(form,contractWindow=null){
       }
       if(!body.name||!Number.isFinite(body.price)||body.price<0)throw Error('Confira o nome e o preço.');
       if(proAccess()&&!['true','false'].includes(v.online_enabled))
-        throw Error('Selecione Sim ou Não em Venda online.');
+        throw Error('Confira a opção Venda online.');
       if(proAccess()&&body.online_enabled&&(!String(v.menu_price??'').trim()||!Number.isFinite(body.menu_price)||
         body.menu_price<0||body.menu_price>9999999999.99))
         throw Error('Para vender online, informe o valor do cardápio.');
@@ -3680,12 +3685,16 @@ document.addEventListener('change',e=>{
      }
    }
  }
- if(e.target.matches('#productForm select[name="online_enabled"]')){
-  const form=e.target.closest('form'),online=e.target.value==='true';
+ if(e.target.matches('#productForm input[data-online-enabled-toggle]')){
+  const form=e.target.closest('form'),online=e.target.checked;
+  const storedValue=form.elements.namedItem('online_enabled');
+  if(storedValue)storedValue.value=online?'true':'false';
   const group=form.querySelector('.online-sale-price'),input=form.elements.namedItem('menu_price');
+  const state=form.querySelector('.online-sale-toggle-state');
   group.classList.toggle('hidden',!online);
   input.disabled=!online;
   input.required=online;
+  if(state)state.textContent=online?'Ativa':'Inativa';
   if(online)input.focus();
  }
  if(e.target.matches('#productForm input[name=image]')){
