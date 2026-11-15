@@ -1245,6 +1245,33 @@ body #workspace .comanda-delete-confirm-actions button:hover{filter:brightness(1
 
 body #workspace .content:has(#page .pdv-comandas-page){background:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important}
 </style>
+<style id="pdv-cart-full-height-pdv-fixed">
+/* PDV fixo da versão oficial: painel em altura total com rolagem interna. O flutuante mantém seu estilo anterior. */
+body #workspace #page .godzilla-pdv:not(.pdv-floating-layout) .pdv-panel.pdv-sale-panel:not(.pdv-sale-panel-floating){
+  box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+  position:sticky!important;z-index:10!important;top:46px!important;
+  height:calc(100vh - 70px)!important;height:calc(100dvh - 70px)!important;
+  min-height:0!important;max-height:calc(100vh - 70px)!important;max-height:calc(100dvh - 70px)!important;
+  margin:0!important;overflow:hidden!important;
+  border:0!important;outline:0!important;border-radius:0!important;box-shadow:none!important;
+  padding:14px!important;
+}
+body #workspace #page .godzilla-pdv:not(.pdv-floating-layout) .pdv-panel.pdv-sale-panel:not(.pdv-sale-panel-floating) .pdv-sale-list{
+  box-sizing:border-box!important;flex:1 1 auto!important;width:100%!important;height:auto!important;min-height:0!important;
+  max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;
+}
+body #workspace #page .godzilla-pdv:not(.pdv-floating-layout) .pdv-panel.pdv-sale-panel:not(.pdv-sale-panel-floating) .pdv-cart-summary,
+body #workspace #page .godzilla-pdv:not(.pdv-floating-layout) .pdv-panel.pdv-sale-panel:not(.pdv-sale-panel-floating) .pdv-payment-form{
+  flex-shrink:0!important;
+}
+@media(max-width:880px){
+  body #workspace #page .godzilla-pdv:not(.pdv-floating-layout) .pdv-panel.pdv-sale-panel:not(.pdv-sale-panel-floating){
+    position:static!important;top:auto!important;height:calc(100vh - 24px)!important;height:calc(100dvh - 24px)!important;
+    max-height:calc(100vh - 24px)!important;max-height:calc(100dvh - 24px)!important;
+    padding:12px!important;
+  }
+}
+</style>
 </head>
 <body class="bipstart-booting">
 <div id="startupOverlay" role="status" aria-live="polite"><span class="startup-spinner" aria-hidden="true"></span><span>Carregando sua loja…</span></div>
