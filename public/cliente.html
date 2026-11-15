@@ -1246,27 +1246,29 @@ body #workspace .comanda-delete-confirm-actions button:hover{filter:brightness(1
 body #workspace .content:has(#page .pdv-comandas-page){background:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important}
 </style>
 <style id="pdv-cart-full-height-homolog">
-/* Carrinho flutuante da homologação: altura total, dimensão responsiva e sem contorno externo. */
-body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-panel.pdv-sale-panel.pdv-sale-panel-floating.is-open{
+/* PDV fixo da homologação: painel em altura total com rolagem interna. O flutuante mantém seu estilo anterior. */
+body #workspace #page .godzilla-pdv:not(.pdv-floating-layout) .pdv-panel.pdv-sale-panel:not(.pdv-sale-panel-floating){
   box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
-  position:fixed!important;z-index:1002!important;top:0!important;right:0!important;bottom:0!important;left:auto!important;
-  width:min(480px,100vw)!important;max-width:100vw!important;height:100vh!important;height:100dvh!important;
-  min-height:0!important;max-height:100vh!important;max-height:100dvh!important;margin:0!important;transform:none!important;
-  overflow:hidden!important;border:0!important;outline:0!important;border-radius:0!important;box-shadow:none!important;
-  padding:calc(14px + env(safe-area-inset-top,0px)) 14px calc(14px + env(safe-area-inset-bottom,0px))!important;
+  position:sticky!important;z-index:10!important;top:12px!important;
+  height:calc(100vh - 24px)!important;height:calc(100dvh - 24px)!important;
+  min-height:0!important;max-height:calc(100vh - 24px)!important;max-height:calc(100dvh - 24px)!important;
+  margin:0!important;overflow:hidden!important;
+  border:0!important;outline:0!important;border-radius:0!important;box-shadow:none!important;
+  padding:14px!important;
 }
-body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-panel.pdv-sale-panel.pdv-sale-panel-floating.is-open .pdv-sale-list{
+body #workspace #page .godzilla-pdv:not(.pdv-floating-layout) .pdv-panel.pdv-sale-panel:not(.pdv-sale-panel-floating) .pdv-sale-list{
   box-sizing:border-box!important;flex:1 1 auto!important;width:100%!important;height:auto!important;min-height:0!important;
   max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;
 }
-body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-panel.pdv-sale-panel.pdv-sale-panel-floating.is-open .pdv-cart-summary,
-body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-panel.pdv-sale-panel.pdv-sale-panel-floating.is-open .pdv-payment-form{
+body #workspace #page .godzilla-pdv:not(.pdv-floating-layout) .pdv-panel.pdv-sale-panel:not(.pdv-sale-panel-floating) .pdv-cart-summary,
+body #workspace #page .godzilla-pdv:not(.pdv-floating-layout) .pdv-panel.pdv-sale-panel:not(.pdv-sale-panel-floating) .pdv-payment-form{
   flex-shrink:0!important;
 }
-@media(max-width:700px){
-  body #workspace #page .godzilla-pdv.pdv-floating-layout .pdv-panel.pdv-sale-panel.pdv-sale-panel-floating.is-open{
-    top:0!important;right:0!important;bottom:0!important;left:0!important;width:100vw!important;max-width:100vw!important;
-    padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px))!important;
+@media(max-width:880px){
+  body #workspace #page .godzilla-pdv:not(.pdv-floating-layout) .pdv-panel.pdv-sale-panel:not(.pdv-sale-panel-floating){
+    position:static!important;top:auto!important;height:calc(100vh - 24px)!important;height:calc(100dvh - 24px)!important;
+    max-height:calc(100vh - 24px)!important;max-height:calc(100dvh - 24px)!important;
+    padding:12px!important;
   }
 }
 </style>
